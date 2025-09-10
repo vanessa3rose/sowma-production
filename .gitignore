@@ -28,3 +28,4 @@ dist-ssr
 
 # Testing coverage files
 coverage
+/src/generated/prisma
