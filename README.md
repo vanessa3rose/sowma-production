@@ -1,24 +1,84 @@
-# JumboCode Vite Template
+# Welcome to !
 
-This template provides a minimal setup to get React working in Vite with:
+## PR Description Template 
+## Please don't edit this! Copy-paste the template into the PR Description
+Title: [Sprint# and Letter, task description]
 
-- TypeScript
-- ESLint
-- TailwindCSS
-- Wouter
-- Vercel Serverless Functions (see [here](https://vercel.com/docs/functions/quickstart), selecting "Other frameworks")
-- Vitest
+Names:
 
-To get the template up and running:
+Date:
 
-1. Install [Node.js](https://nodejs.org/en) (v20 or later) and npm.
-2. Install the Vercel CLI (`npm install --global vercel`).
-3. Copy this repo as a template and clone it onto your local machine.
-4. Install all required packages by running `npm install`.
-5. Start the dev server with `vercel dev` (log in with your Vercel account and create a linked project as required).
+How long did this ticket take you?
 
-- Why not `npm run dev`? `vercel dev` runs the [Vercel Serverless Functions](https://vercel.com/docs/functions/quickstart) in `api/` as the backend.
+Description:
 
-Vitest tests are included in the `test` folder. You can run them with `npm run test` and generate a test coverage report with `npm run coverage`.
+Testing: [Include pictures of known bugs, before & afters, etc.]
 
-The template configured to run tests only on files ending in `.ts` (only the backend files). You can run tests on the frontend by deleting `extension: ".ts"` in `vite.config.ts`.
+Takeaways: 
+
+
+## Git Do's and Don'ts
+*DON'T 
+  - mess with the "main" branch - make sure you always code under a new branch!
+  - handle merge conflicts without Vanessa being present
+  - panic! it's okay to make git mistakes (most can be fixed!) just reach out to Vanessa for help
+
+*Do
+  - git cheat sheet: https://education.github.com/git-cheat-sheet-education.pdf
+  - make git commits locally often! this will help if you have any issues and need to access old code
+
+  - creating a NEW branch:
+    git checkout main
+    git pull
+    git checkout -b "[new branch name]"
+    npm install
+
+  - if you have just begun a coding session after a few days or your branch is behind main:
+    git checkout main
+    git pull  
+    git checkout "[current branch name]"
+    git merge main
+    npm install
+    
+  - to only add a single file to the stage:
+    git add [file name]
+    
+  - to add all edited files to the stage: 
+    git add .
+
+  - if you have added files to the stage and would like to commit them to the stage:
+    git commit -m "[your message]"
+    
+  - if you have made commits to your local branch and would like to push to github:
+    git push
+
+
+## IMPORTANT: Code Conventions
+  * Please please please comment your code!
+      - Functions should have a description of what it does
+      - large loops or code with a lot of logic should have a description as well
+  * Use camelCase instead of underscores for variable names or filenames
+  * Branch Names (except for sprint 0):
+    sprint[#][letter]/[frontend/backend/fullstack]/[task summary]
+    - please ask questions if you need help
+
+
+## Getting Started
+
+  - To run the developer server on http://localhost:3000
+    npm run dev
+    # or
+    yarn dev
+    # or
+    pnpm dev
+    # or
+    bun dev
+
+  - To run the backend:
+    npm run backend
+    # or
+    yarn backend
+    # or
+    pnpm backend
+    # or
+    bun backend
