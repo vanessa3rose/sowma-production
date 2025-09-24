@@ -1,10 +1,10 @@
-import { Router } from 'express';
+import { Router } from "express";
 
 const router = Router();
 
-router.get('/', (req, res) => {
+router.get("/", (req, res) => {
   res.json({
-    message: 'Hello from Express API!',
+    message: "Hello from Express API!",
     method: req.method,
     path: req.path,
     headers: req.headers,

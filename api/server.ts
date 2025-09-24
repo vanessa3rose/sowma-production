@@ -1,7 +1,7 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import exampleRouter from './routes/example';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import exampleRouter from "./routes/example";
 
 dotenv.config();
 
@@ -12,10 +12,10 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/example', exampleRouter);
+app.use("/api/example", exampleRouter);
 
-app.get('/', (req, res) => {
-  res.send('Express + Vite backend running!');
+app.get("/", (req, res) => {
+  res.send("Express + Vite backend running!");
 });
 
 app.listen(PORT, () => {
