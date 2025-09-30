@@ -1,4 +1,4 @@
-import Homepage from "./components/Homepage";
+import Homepage from "./pages/Homepage";
 import { Route, Switch } from "wouter";
 
 const App = () => {

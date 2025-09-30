@@ -7,3 +7,40 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model SocialMedia {
+  id            String   @id @default(cuid())
+  provider      Provider
+  userId        String
+  username      String
+  displayName   String?
+  profileUrl    String?
+  email         String?
+
+  metrics       SocialMediaMetrics[]
+}
+
+model SocialMediaMetrics {
+  id            String   @id @default(cuid())
+  socialMediaId String
+  metricName    Metric
+  metricValue   Int
+
+  lastSynced    DateTime?
+
+  // Relations
+  socialMedia SocialMedia @relation(fields: [socialMediaId], references: [id])
+}
+
+// Enums
+enum Provider {
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+  LINKEDIN
+  TWITTER
+}
+
+enum Metric {
+  
+}

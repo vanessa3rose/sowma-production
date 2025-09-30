@@ -1,4 +1,4 @@
-# Welcome to !
+# Welcome to School on Wheels MA!
 
 ## PR Description Template
 
@@ -60,9 +60,12 @@ Takeaways:
   - large loops or code with a lot of logic should have a description as well
 - Use camelCase instead of underscores for variable names or filenames
 - Branch Names (except for sprint 0):
-  sprint[#][letter]/[frontend/backend/fullstack]/[task summary]
+  sprint[#][letter]/[frontend or backend or fullstack]/[task summary]
+  where task summary is in lowercase with words separated by "-"
+  your sprint ticket will specify the type in the tags
   - please ask questions if you need help
 - To apply prettier to your code, run the command: npx prettier . --write
+- Use the predefined colors in tailwind.config.js whenever possible
 
 ## Getting Started
 
