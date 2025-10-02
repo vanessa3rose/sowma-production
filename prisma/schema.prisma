@@ -9,30 +9,25 @@ datasource db {
 }
 
 model SocialMedia {
-  id            String   @id @default(cuid())
-  provider      Provider
-  userId        String
-  username      String
-  displayName   String?
-  profileUrl    String?
-  email         String?
-
-  metrics       SocialMediaMetrics[]
+  id          String               @id @default(cuid())
+  provider    Provider
+  userId      String
+  username    String
+  displayName String?
+  profileUrl  String?
+  email       String?
+  metrics     SocialMediaMetrics[]
 }
 
 model SocialMediaMetrics {
-  id            String   @id @default(cuid())
+  id            String      @id @default(cuid())
   socialMediaId String
   metricName    Metric
   metricValue   Int
-
   lastSynced    DateTime?
-
-  // Relations
-  socialMedia SocialMedia @relation(fields: [socialMediaId], references: [id])
+  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])
 }
 
-// Enums
 enum Provider {
   FACEBOOK
   INSTAGRAM
@@ -42,5 +37,9 @@ enum Provider {
 }
 
 enum Metric {
-  
+  FOLLOWERS
+  LIKES
+  SHARES
+  COMMENTS
+  VIEWS
 }
