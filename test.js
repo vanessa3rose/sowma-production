@@ -17,6 +17,18 @@ async function main() {
     });
     console.log('SocialMediaMetrics entries:', metrics);
 
+    // Fetch all DatabaseReport entries
+    const databaseReport = await prisma.databaseReport.findMany({
+      include: { counts: true }, // include related counts
+    });
+    console.log('DatabaseReport entries:', databaseReport);
+
+    // Fetch all DatabaseReportCounts entries
+    const counts = await prisma.databaseReportCount.findMany({
+      include: { report: true }, // include related DatabaseReport
+    });
+    console.log('DatabaseReportCount entries:', counts);
+
   } catch (err) {
     console.error('Error:', err);
   } finally {
