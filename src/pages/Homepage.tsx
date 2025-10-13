@@ -1,5 +1,3 @@
-// import { Link } from "wouter";
-// import logo from "../../images/logo.png";
 import facebook from "../../images/facebook.jpg";
 import google from "../../images/google.jpg";
 import instagram from "../../images/instagram.jpg";
@@ -7,31 +5,11 @@ import linkedin from "../../images/linkedin.jpg";
 import twitter from "../../images/twitter.jpg";
 import tiktok from "../../images/tiktok.jpg";
 
+import ExportButton from "../components/ExportButton";
+
 export default function Homepage() {
   return (
     <>
-      {/* gray rounded rectangle at top */}
-      <div className="static">
-        <div className="absolute left-[294px] w-[1218px] h-[116px] bg-[#EBEBEB] rounded-bl-[40px] rounded-br-[40px]"></div>
-
-        {/* search bar */}
-        <form className="max-w-md mx-auto absolute top-[38px] left-[334px]">
-          <label
-            htmlFor="default-search"
-            className="mb-2 text-sm font-medium text-gray-900 sr-only"
-          >
-            Search
-          </label>
-          <input
-            type="search"
-            id="default-search"
-            className="w-[656px] h-[50px] p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-[30px] bg-gray-50 font-[Inter]"
-            placeholder="Type here..."
-            required
-          />
-        </form>
-      </div>
-
       <div className="static">
         {/* div for below search bar that contains date range, social media, and file export buttons */}
         <div className="absolute top-[139px] left-[337px] flex items-center gap-[21px] justify-center h-auto bg-white">
@@ -128,24 +106,7 @@ export default function Homepage() {
           </a>
 
           {/* icon for file export button */}
-
-          <button className="flex items-center gap-2 px-4 py-2 rounded-[10px] border-[1px] border-solid absolute left-[981px] h-[47px] w-[141px] justify-center font-bold text-xl font-[Inter]">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15"
-              />
-            </svg>
-            <span>Export</span>
-          </button>
+          <ExportButton/>
         </div>
       </div>
 
@@ -340,17 +301,17 @@ export default function Homepage() {
           <div className="absolute top-0 left-[40.5px] w-[324px] h-[244.8px] bg-white opacity-100 flex flex-wrap gap-[9px]">
             {/*Row with instagram linkedin tiktok, and facebook */}
             <div className="absolute top-0 left-0 w-[343.2px] h-[31.2px] bg-white opacity-100 flex flex-row items-start justify-start gap-[9px]">
-              <button className="absolute top-0 left-0 w-[90.8px] h-[31.2px] px-[14.4px] py-[8.1px] border border-black opacity-100 bg-white text-black rounded-[45px] flex items-center justify-center hover:bg-[#FFA9D0] hover:text-white hover:border-[#FFA9D0] transition">
-                Instagram
+              <button className="absolute top-0 left-0 text-[10px] font-bold w-[90.8px] h-[31.2px] px-[14.4px] py-[8.1px] border border-black opacity-100 bg-white text-black rounded-[45px] flex items-center justify-center hover:bg-[#FFA9D0] hover:text-white hover:border-[#FFA9D0] transition">
+                INSTAGRAM
               </button>
-              <button className="absolute top-0 left-[99.8px] w-[74.8px] h-[31.2px] px-[14.4px] py-[8.1px] border border-black opacity-100 bg-white text-black rounded-[45px] flex items-center justify-center hover:bg-[#FFA9D0] hover:text-white hover:border-[#FFA9D0] transition">
-                Linkedin
+              <button className="absolute top-0 left-[99.8px] text-[10px] font-bold w-[74.8px] h-[31.2px] px-[14.4px] py-[8.1px] border border-black opacity-100 bg-white text-black rounded-[45px] flex items-center justify-center hover:bg-[#FFA9D0] hover:text-white hover:border-[#FFA9D0] transition">
+                LINKEDIN
               </button>
-              <button className="absolute top-0 left-[183.6px] w-[65.8px] h-[31.2px] px-[14.4px] py-[8.1px] border border-black opacity-100 bg-white text-black rounded-[45px] flex items-center justify-center hover:bg-[#FFA9D0] hover:text-white hover:border-[#FFA9D0] transition">
-                Tiktok
+              <button className="absolute top-0 left-[183.6px] text-[10px] font-bold w-[65.8px] h-[31.2px] px-[14.4px] py-[8.1px] border border-black opacity-100 bg-white text-black rounded-[45px] flex items-center justify-center hover:bg-[#FFA9D0] hover:text-white hover:border-[#FFA9D0] transition">
+                TIKTOK
               </button>
-              <button className="absolute top-0 left-[258.4px] w-[84.8px] h-[31.2px] px-[14.4px] py-[8.1px] border border-black opacity-100 bg-white text-black rounded-[45px] flex items-center justify-center hover:bg-[#FFA9D0] hover:text-white hover:border-[#FFA9D0] transition">
-                Facebook
+              <button className="absolute top-0 left-[258.4px] text-[10px] font-bold w-[84.8px] h-[31.2px] px-[14.4px] py-[8.1px] border border-black opacity-100 bg-white text-black rounded-[45px] flex items-center justify-center hover:bg-[#FFA9D0] hover:text-white hover:border-[#FFA9D0] transition">
+                FACEBOOK
               </button>
             </div>
 
@@ -424,7 +385,7 @@ export default function Homepage() {
         {/***********************************Follower Count COLUMN 0, ROW 1***********************************/}
         <div className="absolute left-[334px] top-[570px] w-[583px] h-[398px] bg-white rounded-[25px] opacity-100 shadow-[0_3px_8px_0_rgba(34,34,34,0.24)] border-opacity-100">
           <div className="absolute left-[31px] top-[24px] w-[163px] h-[30px] bg-white opacity-100">
-            <div className="absolute left-0 top-0 w-[163px] h-[30px] opacity-100 text-[#111618] text-[20px] font-medium leading-none font-[Poppins] text-left">
+            <div className="absolute left-0 top-0 w-[163px] h-[30px] opacity-100 text-[#111618] text-[20px] font-poppins font-medium leading-none text-left">
               Follower Count
             </div>
           </div>
@@ -481,14 +442,14 @@ export default function Homepage() {
         <div className="absolute left-[938px] top-[579px] w-[554px] h-[389px] bg-white rounded-[25px] opacity-100 shadow-[0_3px_8px_0_rgba(34,34,34,0.24)] border-opacity-100 flex flex-col items-start justify-start gap-[10px]">
           <div className="absolute left-[24px] top-[16px] w-[506px] h-[32px] flex flex-row items-start pb-[8px] opacity-100 bg-white">
             <div className="absolute left-0 top-0 w-[364px] h-[24px] items-start gap-[132px] opacity-100 bg-white">
-              <div className="absolute left-0 top-0 w-[225px] h-[24px] opacity-100 text-black text-[16px] font-medium font-[Poppins] text-left leading-auto">
+              <div className="absolute left-0 top-0 w-[225px] h-[24px] opacity-100 text-black text-[16px] font-medium font-poppins text-left leading-auto">
                 How did you hear about us?
               </div>
             </div>
             <div className="absolute left-[346px] top-0 w-[160px] h-[24px] items-end opacity-100">
               <div className="absolute left-0 top-[3px] w-[136px] h-[18px] bg-white items-end gap-[10px] opacity-100">
                 <div className="absolute left-[75px] top-0 w-[61px] h-[18px] opacity-100 bg-white">
-                  <div className="absolute left-0 top-0 w-[61px] h-[18px] opacity-100 text-black text-[12px] font-medium font-[Poppins] text-right leading-auto">
+                  <div className="absolute left-0 top-0 w-[61px] h-[18px] opacity-100 text-black text-[12px] font-medium font-poppins text-right leading-auto">
                     This Week
                   </div>
                 </div>
