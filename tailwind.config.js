@@ -8,6 +8,9 @@ export default {
         "sowma-yellow": "#ffec25",
         "sowma-accent": "#0f2b4d",
       },
+      fontFamily: {
+        poppins: ["Poppins", "sans-serif"],
+      },
     },
   },
   plugins: [],
