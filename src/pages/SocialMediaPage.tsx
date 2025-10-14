@@ -4,7 +4,7 @@ export default function SocialMediaPage() {
       <div className="p-4">
         <div className="flex items-center gap-4 mt-8">
           <button
-            onClick={() => window.location.href = '/'}
+            onClick={() => (window.location.href = "/")}
             style={{
               width: "40px",
               height: "40px",
@@ -15,7 +15,7 @@ export default function SocialMediaPage() {
               border: "none",
               cursor: "pointer",
               outline: "none",
-              padding: "0"
+              padding: "0",
             }}
           >
             <svg
@@ -26,7 +26,7 @@ export default function SocialMediaPage() {
               stroke="currentColor"
               style={{
                 width: "40px",
-                height: "40px"
+                height: "40px",
               }}
             >
               <path
