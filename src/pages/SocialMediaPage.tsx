@@ -3,26 +3,39 @@ export default function SocialMediaPage() {
     <>
       <div className="p-4">
         <div className="flex items-center gap-4 mt-8">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
+          <button
+            onClick={() => window.location.href = '/'}
             style={{
               width: "40px",
               height: "40px",
               position: "absolute",
               top: "151px",
               left: "335px",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              outline: "none",
+              padding: "0"
             }}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 19.5 8.25 12l7.5-7.5"
-            />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              style={{
+                width: "40px",
+                height: "40px"
+              }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
+            </svg>
+          </button>
           <h1
             style={{
               fontFamily: "Poppins, sans-serif",
