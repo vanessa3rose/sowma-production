@@ -1,9 +1,14 @@
 import Homepage from "./pages/Homepage";
 import { Route, Switch } from "wouter";
+import LeftSidebar from "./pages/LeftSidebar"; 
+import Topbanner from "./pages/TopBanner";
+
 
 const App = () => {
   return (
     <>
+       <LeftSidebar/> 
+       <Topbanner/>
       <Switch>
         <Route path="/" component={Homepage} />
 

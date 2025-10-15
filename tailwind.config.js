@@ -7,6 +7,8 @@ export default {
         "sowma-blue": "#2872b0",
         "sowma-yellow": "#ffec25",
         "sowma-accent": "#0f2b4d",
+        "sowma-gray": "#ebebeb",
+        "sowma-white": "ffffff",
       },
     },
   },
