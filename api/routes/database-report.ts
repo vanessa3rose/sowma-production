@@ -26,7 +26,7 @@ export async function createDatabaseReport(reportDate: Date, counts: { count: Co
   
 }
 
-// READ for DatabaseReport
+// READ for DatabaseReport function
 export async function readDatabaseReport() {
   try {
     const reports = await prisma.databaseReport.findMany({
