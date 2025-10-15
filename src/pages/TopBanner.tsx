@@ -3,7 +3,7 @@ import logo from "../../images/logo.png";
 
 const Topbanner = () => {
     return (
-     <div>
+     <div className="fixed top-0 left-0 right-0 z-50">
         <div className="w-full h-28 bg-sowma-gray rounded-b-3xl px-10 ml-[298px] relative">
           <div className="absolute left-[65px] top-[32px] w-[656px] h-[50px] bg-white rounded-3xl"></div>
           <p className="absolute right-16 top-[45px]">Last Refreshed: XX/XX/XXXX XX:XX AM</p>
