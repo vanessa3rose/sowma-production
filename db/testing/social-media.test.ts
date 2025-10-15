@@ -4,7 +4,7 @@ import {
  updateSocialMedia,
  deleteSocialMedia,
  closePrisma,
-} from "../../api/routes/social-media";
+} from "../social-media";
 import { Provider } from "../../src/generated/prisma";
 
 async function testCRUD() {

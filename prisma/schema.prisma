@@ -58,6 +58,7 @@ enum Metric {
   SHARES
   COMMENTS
   VIEWS
+  // Add new ones as needed here
 }
 
 enum Count {

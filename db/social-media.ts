@@ -1,5 +1,4 @@
-// Connect to prisma and the defined Provider (see schema.prisma)
-import { PrismaClient, Provider } from "../../src/generated/prisma";
+import { PrismaClient, Provider } from "../src/generated/prisma";
 
 const prisma = new PrismaClient();
 
