@@ -10,6 +10,9 @@ export default {
         "sowma-gray": "#ebebeb",
         "sowma-white": "ffffff",
       },
+      fontFamily: {
+        poppins: ["Poppins", "sans-serif"],
+      },
     },
   },
   plugins: [],
