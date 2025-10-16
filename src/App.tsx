@@ -5,6 +5,8 @@ import SocialMediaPage from "./pages/SocialMediaPage";
 const App = () => {
   return (
     <>
+       <LeftSidebar/> 
+       <Topbanner/>
       <Switch>
         <Route path="/" component={Homepage} />
         <Route path="/social-media" component={SocialMediaPage} />
@@ -12,7 +14,7 @@ const App = () => {
         {/* Shows a 404 error if the path doesn't match anything */}
         {
           <Route>
-            <p className="p-4">404: Page Not Found</p>
+            <p className="p-4"></p>
           </Route>
         }
       </Switch>
