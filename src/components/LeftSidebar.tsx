@@ -1,5 +1,4 @@
-import logo from "../../images/logo.png";
-
+import logo from "../assets/logo.png";
 
 const LeftSidebar = () => {
     return (
@@ -29,5 +28,5 @@ const LeftSidebar = () => {
       </div>
     );
 }
-export default LeftSidebar;
 
+export default LeftSidebar;

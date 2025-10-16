@@ -1,7 +1,4 @@
-import logo from "../../images/logo.png";
-
-
-const Topbanner = () => {
+const TopBanner = () => {
     return (
      <div className="fixed top-0 left-0 right-0 z-50">
         <div className="w-full h-28 bg-sowma-gray rounded-b-3xl px-10 ml-[298px] relative">
@@ -16,4 +13,5 @@ const Topbanner = () => {
      </div> 
     );
 }
-export default Topbanner;
+
+export default TopBanner;

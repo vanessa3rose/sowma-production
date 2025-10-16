@@ -1,9 +1,9 @@
-import facebook from "../../images/facebook.jpg";
-import google from "../../images/google.jpg";
-import instagram from "../../images/instagram.jpg";
-import linkedin from "../../images/linkedin.jpg";
-import twitter from "../../images/twitter.jpg";
-import tiktok from "../../images/tiktok.jpg";
+import facebook from "../assets/facebook.jpg"
+import google from "../assets/google.jpg";
+import instagram from "../assets/instagram.jpg";
+import linkedin from "../assets/linkedin.jpg";
+import twitter from "../assets/twitter.jpg";
+import tiktok from "../assets/tiktok.jpg";
 
 import ExportButton from "../components/ExportButton";
 
@@ -75,7 +75,7 @@ export default function Homepage() {
             {/* the above will eventually be a file path to the facelinkedinbook metrics page */}
             <img
               src={linkedin}
-              className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border-[1px] border-solid]"
+              className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border-[1px] border-solid"
             />
           </a>
 
