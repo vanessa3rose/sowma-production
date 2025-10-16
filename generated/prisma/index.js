@@ -184,7 +184,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/nisheshnath/Desktop/SOWMA/school-on-wheels/generated/prisma",
+      "value": "/Users/vanessa/Documents/JumboCode/SOWMA/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -198,11 +198,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/nisheshnath/Desktop/SOWMA/school-on-wheels/prisma/schema.prisma",
+    "sourceFilePath": "/Users/vanessa/Documents/JumboCode/SOWMA/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../.env",
+    "rootEnvPath": null,
     "schemaEnvPath": "../../.env"
   },
   "relativePath": "../../prisma",
@@ -212,7 +212,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {

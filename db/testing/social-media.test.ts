@@ -5,7 +5,7 @@ import {
  deleteSocialMedia,
  closePrisma,
 } from "../social-media";
-import { Provider } from "../../src/generated/prisma";
+import { Provider } from "../../generated/prisma";
 
 async function testCRUD() {
  try {

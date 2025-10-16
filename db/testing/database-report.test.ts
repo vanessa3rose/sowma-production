@@ -3,7 +3,7 @@ import {
     readDatabaseReport, 
     updateDatabaseReport,
     deleteDatabaseReport
-} from "../routes/database-report";
+} from "../database-report";
 import { PrismaClient, Count } from "../../generated/prisma";
 const prisma = new PrismaClient();
 

@@ -1,5 +1,5 @@
 // CREATE for DatabaseReport
-import { PrismaClient, Count } from "../../generated/prisma";
+import { PrismaClient, Count } from "../generated/prisma";
 
 const prisma = new PrismaClient();
 
