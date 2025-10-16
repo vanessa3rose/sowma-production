@@ -9,8 +9,8 @@ import LeftSidebar from "./components/LeftSidebar";
 const App = () => {
   return (
     <>
-      <TopBanner />
       <LeftSidebar /> 
+      <TopBanner />
 
       <Switch>
         <Route path="/" component={Homepage} />
