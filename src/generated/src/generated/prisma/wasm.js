@@ -183,7 +183,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/vanessa/Documents/JumboCode/SOWMA/generated/prisma",
+      "value": "/Users/colehamilton/Documents/Tufts Fall 2025/JumboCode/school-on-wheels/src/generated/src/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -197,14 +197,13 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/vanessa/Documents/JumboCode/SOWMA/prisma/schema.prisma",
+    "sourceFilePath": "/Users/colehamilton/Documents/Tufts Fall 2025/JumboCode/school-on-wheels/src/generated/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../.env"
+    "rootEnvPath": "../../../../../.env"
   },
-  "relativePath": "../../prisma",
+  "relativePath": "../../../prisma",
   "clientVersion": "6.16.0",
   "engineVersion": "1c57fdcd7e44b29b9313256c76699e91c3ac3c43",
   "datasourceNames": [
@@ -220,8 +219,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel SocialMedia {\n  id          String               @id @default(cuid())\n  provider    Provider\n  userId      String\n  username    String\n  displayName String?\n  profileUrl  String?\n  email       String?\n  metrics     SocialMediaMetrics[]\n}\n\nmodel SocialMediaMetrics {\n  id            String      @id @default(cuid())\n  socialMediaId String\n  metricName    Metric\n  metricValue   Int\n  lastSynced    DateTime?\n  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])\n}\n\nmodel DatabaseReport {\n  id         String                @id @default(cuid())\n  reportDate DateTime\n  counts     DatabaseReportCount[]\n}\n\nmodel DatabaseReportCount {\n  id       String         @id @default(cuid())\n  reportId String\n  count    Count\n  value    Int            @default(0)\n  report   DatabaseReport @relation(fields: [reportId], references: [id])\n\n  @@unique([reportId, count])\n}\n\nenum Provider {\n  FACEBOOK\n  INSTAGRAM\n  TIKTOK\n  LINKEDIN\n  TWITTER\n}\n\nenum Metric {\n  FOLLOWERS\n  LIKES\n  SHARES\n  COMMENTS\n  VIEWS\n}\n\nenum Count {\n  ATTENDED_EVENT\n  COMMUNITY_VOLUNTEER\n  CORPORATE_VOLUNTEER\n  GOOGLE_SEARCH\n  HEARD_SOWMA_SPEAKER\n  NEWS_MEDIA\n  OTHER\n  REFERRAL\n  SCHOOL_VOLUNTEER\n  SOCIAL_MEDIA\n  WEBSITE\n}\n",
-  "inlineSchemaHash": "3af2ccf68e41e4206c5da3d7f79aea2427b9ebe5b5968984cb9934dba63d5c1d",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel SocialMedia {\n  id          String               @id @default(cuid())\n  provider    Provider\n  userId      String\n  username    String\n  displayName String?\n  profileUrl  String?\n  email       String?\n  metrics     SocialMediaMetrics[]\n}\n\nmodel SocialMediaMetrics {\n  id            String      @id @default(cuid())\n  socialMediaId String\n  metricName    Metric\n  metricValue   Int\n  lastSynced    DateTime?\n  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])\n}\n\nmodel DatabaseReport {\n  id         String                @id @default(cuid())\n  reportDate DateTime\n  counts     DatabaseReportCount[]\n}\n\nmodel DatabaseReportCount {\n  id       String         @id @default(cuid())\n  reportId String\n  count    Count\n  value    Int            @default(0)\n  report   DatabaseReport @relation(fields: [reportId], references: [id])\n\n  @@unique([reportId, count])\n}\n\nenum Provider {\n  FACEBOOK\n  INSTAGRAM\n  TIKTOK\n  LINKEDIN\n  TWITTER\n}\n\nenum Metric {\n  FOLLOWERS\n  LIKES\n  SHARES\n  COMMENTS\n  VIEWS\n}\n\nenum Count {\n  ATTENDED_EVENT\n  COMMUNITY_VOLUNTEER\n  CORPORATE_VOLUNTEER\n  GOOGLE_SEARCH\n  HEARD_SOWMA_SPEAKER\n  NEWS_MEDIA\n  OTHER\n  REFERRAL\n  SCHOOL_VOLUNTEER\n  SOCIAL_MEDIA\n  WEBSITE\n}\n",
+  "inlineSchemaHash": "76a6a4e5dad74a7515f960b100da2818287d6ff15be163db458b9263adeeb447",
   "copyEngine": true
 }
 config.dirname = '/'

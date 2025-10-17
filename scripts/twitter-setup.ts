@@ -6,10 +6,10 @@ import { closePrisma } from '../db/social-media';
 
 await createSocialMedia({
   provider: "TWITTER",
-  userId: "<user-id-if-applicable>",
+  userId: "sowma",
   username: "SOWMA",
   displayName: "School on Wheels",
-  profileUrl: "<profile-url-if-any>",
+  profileUrl: "https://x.com/sowma",
   email: "<optional-email>",
 });
 await closePrisma();

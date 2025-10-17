@@ -26,7 +26,7 @@ const {
   Public,
   getRuntime,
   createParam,
-} = require('./runtime/edge.js')
+} = require('./runtime/library.js')
 
 
 const Prisma = {}
@@ -81,6 +81,7 @@ Prisma.NullTypes = {
 
 
 
+  const path = require('path')
 
 /**
  * Enums
@@ -183,7 +184,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/vanessa/Documents/JumboCode/SOWMA/generated/prisma",
+      "value": "/Users/colehamilton/Documents/Tufts Fall 2025/JumboCode/school-on-wheels/src/generated/src/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -197,14 +198,13 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/vanessa/Documents/JumboCode/SOWMA/prisma/schema.prisma",
+    "sourceFilePath": "/Users/colehamilton/Documents/Tufts Fall 2025/JumboCode/school-on-wheels/src/generated/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../.env"
+    "rootEnvPath": "../../../../../.env"
   },
-  "relativePath": "../../prisma",
+  "relativePath": "../../../prisma",
   "clientVersion": "6.16.0",
   "engineVersion": "1c57fdcd7e44b29b9313256c76699e91c3ac3c43",
   "datasourceNames": [
@@ -220,28 +220,48 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel SocialMedia {\n  id          String               @id @default(cuid())\n  provider    Provider\n  userId      String\n  username    String\n  displayName String?\n  profileUrl  String?\n  email       String?\n  metrics     SocialMediaMetrics[]\n}\n\nmodel SocialMediaMetrics {\n  id            String      @id @default(cuid())\n  socialMediaId String\n  metricName    Metric\n  metricValue   Int\n  lastSynced    DateTime?\n  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])\n}\n\nmodel DatabaseReport {\n  id         String                @id @default(cuid())\n  reportDate DateTime\n  counts     DatabaseReportCount[]\n}\n\nmodel DatabaseReportCount {\n  id       String         @id @default(cuid())\n  reportId String\n  count    Count\n  value    Int            @default(0)\n  report   DatabaseReport @relation(fields: [reportId], references: [id])\n\n  @@unique([reportId, count])\n}\n\nenum Provider {\n  FACEBOOK\n  INSTAGRAM\n  TIKTOK\n  LINKEDIN\n  TWITTER\n}\n\nenum Metric {\n  FOLLOWERS\n  LIKES\n  SHARES\n  COMMENTS\n  VIEWS\n}\n\nenum Count {\n  ATTENDED_EVENT\n  COMMUNITY_VOLUNTEER\n  CORPORATE_VOLUNTEER\n  GOOGLE_SEARCH\n  HEARD_SOWMA_SPEAKER\n  NEWS_MEDIA\n  OTHER\n  REFERRAL\n  SCHOOL_VOLUNTEER\n  SOCIAL_MEDIA\n  WEBSITE\n}\n",
-  "inlineSchemaHash": "3af2ccf68e41e4206c5da3d7f79aea2427b9ebe5b5968984cb9934dba63d5c1d",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel SocialMedia {\n  id          String               @id @default(cuid())\n  provider    Provider\n  userId      String\n  username    String\n  displayName String?\n  profileUrl  String?\n  email       String?\n  metrics     SocialMediaMetrics[]\n}\n\nmodel SocialMediaMetrics {\n  id            String      @id @default(cuid())\n  socialMediaId String\n  metricName    Metric\n  metricValue   Int\n  lastSynced    DateTime?\n  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])\n}\n\nmodel DatabaseReport {\n  id         String                @id @default(cuid())\n  reportDate DateTime\n  counts     DatabaseReportCount[]\n}\n\nmodel DatabaseReportCount {\n  id       String         @id @default(cuid())\n  reportId String\n  count    Count\n  value    Int            @default(0)\n  report   DatabaseReport @relation(fields: [reportId], references: [id])\n\n  @@unique([reportId, count])\n}\n\nenum Provider {\n  FACEBOOK\n  INSTAGRAM\n  TIKTOK\n  LINKEDIN\n  TWITTER\n}\n\nenum Metric {\n  FOLLOWERS\n  LIKES\n  SHARES\n  COMMENTS\n  VIEWS\n}\n\nenum Count {\n  ATTENDED_EVENT\n  COMMUNITY_VOLUNTEER\n  CORPORATE_VOLUNTEER\n  GOOGLE_SEARCH\n  HEARD_SOWMA_SPEAKER\n  NEWS_MEDIA\n  OTHER\n  REFERRAL\n  SCHOOL_VOLUNTEER\n  SOCIAL_MEDIA\n  WEBSITE\n}\n",
+  "inlineSchemaHash": "76a6a4e5dad74a7515f960b100da2818287d6ff15be163db458b9263adeeb447",
   "copyEngine": true
 }
-config.dirname = '/'
+
+const fs = require('fs')
+
+config.dirname = __dirname
+if (!fs.existsSync(path.join(__dirname, 'schema.prisma'))) {
+  const alternativePaths = [
+    "../src/generated/prisma",
+    "src/generated/prisma",
+  ]
+  
+  const alternativePath = alternativePaths.find((altPath) => {
+    return fs.existsSync(path.join(process.cwd(), altPath, 'schema.prisma'))
+  }) ?? alternativePaths[0]
+
+  config.dirname = path.join(process.cwd(), alternativePath)
+  config.isBundled = true
+}
 
 config.runtimeDataModel = JSON.parse("{\"models\":{\"SocialMedia\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"String\",\"nativeType\":null,\"default\":{\"name\":\"cuid\",\"args\":[1]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"provider\",\"kind\":\"enum\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Provider\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"userId\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"username\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"displayName\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"profileUrl\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"email\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"metrics\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"SocialMediaMetrics\",\"nativeType\":null,\"relationName\":\"SocialMediaToSocialMediaMetrics\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"SocialMediaMetrics\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"String\",\"nativeType\":null,\"default\":{\"name\":\"cuid\",\"args\":[1]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"socialMediaId\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"metricName\",\"kind\":\"enum\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Metric\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"metricValue\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"lastSynced\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"socialMedia\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"SocialMedia\",\"nativeType\":null,\"relationName\":\"SocialMediaToSocialMediaMetrics\",\"relationFromFields\":[\"socialMediaId\"],\"relationToFields\":[\"id\"],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"DatabaseReport\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"String\",\"nativeType\":null,\"default\":{\"name\":\"cuid\",\"args\":[1]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"reportDate\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"counts\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DatabaseReportCount\",\"nativeType\":null,\"relationName\":\"DatabaseReportToDatabaseReportCount\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"DatabaseReportCount\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"String\",\"nativeType\":null,\"default\":{\"name\":\"cuid\",\"args\":[1]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"reportId\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"count\",\"kind\":\"enum\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Count\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"value\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":0,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"report\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DatabaseReport\",\"nativeType\":null,\"relationName\":\"DatabaseReportToDatabaseReportCount\",\"relationFromFields\":[\"reportId\"],\"relationToFields\":[\"id\"],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[[\"reportId\",\"count\"]],\"uniqueIndexes\":[{\"name\":null,\"fields\":[\"reportId\",\"count\"]}],\"isGenerated\":false}},\"enums\":{\"Provider\":{\"values\":[{\"name\":\"FACEBOOK\",\"dbName\":null},{\"name\":\"INSTAGRAM\",\"dbName\":null},{\"name\":\"TIKTOK\",\"dbName\":null},{\"name\":\"LINKEDIN\",\"dbName\":null},{\"name\":\"TWITTER\",\"dbName\":null}],\"dbName\":null},\"Metric\":{\"values\":[{\"name\":\"FOLLOWERS\",\"dbName\":null},{\"name\":\"LIKES\",\"dbName\":null},{\"name\":\"SHARES\",\"dbName\":null},{\"name\":\"COMMENTS\",\"dbName\":null},{\"name\":\"VIEWS\",\"dbName\":null}],\"dbName\":null},\"Count\":{\"values\":[{\"name\":\"ATTENDED_EVENT\",\"dbName\":null},{\"name\":\"COMMUNITY_VOLUNTEER\",\"dbName\":null},{\"name\":\"CORPORATE_VOLUNTEER\",\"dbName\":null},{\"name\":\"GOOGLE_SEARCH\",\"dbName\":null},{\"name\":\"HEARD_SOWMA_SPEAKER\",\"dbName\":null},{\"name\":\"NEWS_MEDIA\",\"dbName\":null},{\"name\":\"OTHER\",\"dbName\":null},{\"name\":\"REFERRAL\",\"dbName\":null},{\"name\":\"SCHOOL_VOLUNTEER\",\"dbName\":null},{\"name\":\"SOCIAL_MEDIA\",\"dbName\":null},{\"name\":\"WEBSITE\",\"dbName\":null}],\"dbName\":null}},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = undefined
 config.compilerWasm = undefined
 
-config.injectableEdgeEnv = () => ({
-  parsed: {
-    DATABASE_URL: typeof globalThis !== 'undefined' && globalThis['DATABASE_URL'] || typeof process !== 'undefined' && process.env && process.env.DATABASE_URL || undefined
-  }
-})
 
-if (typeof globalThis !== 'undefined' && globalThis['DEBUG'] || typeof process !== 'undefined' && process.env && process.env.DEBUG || undefined) {
-  Debug.enable(typeof globalThis !== 'undefined' && globalThis['DEBUG'] || typeof process !== 'undefined' && process.env && process.env.DEBUG || undefined)
-}
+const { warnEnvConflicts } = require('./runtime/library.js')
+
+warnEnvConflicts({
+    rootEnvPath: config.relativeEnvPaths.rootEnvPath && path.resolve(config.dirname, config.relativeEnvPaths.rootEnvPath),
+    schemaEnvPath: config.relativeEnvPaths.schemaEnvPath && path.resolve(config.dirname, config.relativeEnvPaths.schemaEnvPath)
+})
 
 const PrismaClient = getPrismaClient(config)
 exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
 
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
+path.join(process.cwd(), "../src/generated/prisma/libquery_engine-darwin-arm64.dylib.node")
+// file annotations for bundling tools to include these files
+path.join(__dirname, "schema.prisma");
+path.join(process.cwd(), "../src/generated/prisma/schema.prisma")
