@@ -5,9 +5,13 @@ import linkedin from "../../images/linkedin.jpg";
 import twitter from "../../images/twitter.jpg";
 import tiktok from "../../images/tiktok.jpg";
 
+import { useState } from "react";
 import ExportButton from "../components/ExportButton";
+  
 
 export default function Homepage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
   return (
     <>
       <div className="static">
@@ -106,7 +110,7 @@ export default function Homepage() {
           </a>
 
           {/* icon for file export button */}
-          <ExportButton/>
+          <ExportButton />
         </div>
       </div>
 
