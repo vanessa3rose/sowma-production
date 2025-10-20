@@ -24,43 +24,59 @@ export default function ExportModal({isOpen, setIsOpen}: ModalProps) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
     >
       <DialogPanel className="w-[404px] h-[454px] bg-white rounded-xl shadow-lg flex flex-col p-6">
-        <DialogTitle className="text-xl font-semibold mb-4">Select for Export</DialogTitle>
-
+        <DialogTitle className="relative text-xl font-semibold mb-4">Select for Export
         {/*Date Range Button*/}
-        <div className=" w-[184px] h-[46px] right-0 opacity-100 rounded-[9px] bg-white border border-[#A1A1A1] border-[0.9px]">
+        <div className="absolute top-[-10] left-[175px] w-[184px] h-[46px] right-0 opacity-100 rounded-[9px] bg-white border border-[#A1A1A1] border-[0.9px]">
             <DateRangeButton/>
+        </div>
+        </DialogTitle>
+
 
         {/* Check Boxes */}
+        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
+            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
+            <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
+                Select All
+            </div>
         </div>
-        <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-            Select
+        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
+            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
+            <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
+                Instagram
+            </div>
         </div>
-        <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-            Instagram
+        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
+            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
+            <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
+                Linkedin
+            </div>
         </div>
-        <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-            Linkedin
+
+        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
+            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
+            <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
+                News Letter
+            </div>
         </div>
-        <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-            News Letter
+        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
+            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
+            <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
+                Twitter
+            </div>
         </div>
-        <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-            Twitter
+        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
+            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
+            <div className=" w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
+                Facebook
+            </div>
         </div>
-        <div className=" w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-            Facebook
+        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
+            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
+            <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
+                TikTok
+            </div>
         </div>
-        <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-            TikTok
-        </div>
-        <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-        <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-        <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-        <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-        <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-        <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-        <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-        <div className=""></div>
+
 
     </DialogPanel>
     </Dialog>
