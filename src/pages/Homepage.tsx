@@ -5,12 +5,9 @@ import linkedin from "../../images/linkedin.jpg";
 import twitter from "../../images/twitter.jpg";
 import tiktok from "../../images/tiktok.jpg";
 
-import { useState } from "react";
-import ExportButton from "../components/ExportButton";
-  
+import ExportButton from "../components/ExportButton";  
 
 export default function Homepage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   
   return (
     <>

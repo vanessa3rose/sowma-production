@@ -1,6 +1,6 @@
 // filler code copy-pasted from exportbutton
 
-export default function ExportButton() {
+export default function DateRangeButton() {
 
   return (
     <>
@@ -24,5 +24,6 @@ export default function ExportButton() {
         />
     </svg>
     <span>Date Range</span>
+
     </button>
     </>)}

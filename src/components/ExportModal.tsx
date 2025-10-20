@@ -1,22 +1,15 @@
 
 
-import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
-import { useState } from 'react'
-import ExportButton from "../components/ExportButton";
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
+import ExportButton from "../components/ExportButton"
+import DateRangeButton from "../components/DateRangeButton"
 
+interface ModalProps {
+    isOpen: boolean;
+    setIsOpen: any;
+}
 
-export default function MyModal() {
-  let [isOpen, setIsOpen] = useState(true)
-
-  function open() {
-    setIsOpen(true)
-  }
-
-  function close() {
-    setIsOpen(false)
-  }
-
-
+export default function ExportModal({isOpen, setIsOpen}: ModalProps) {
   
   return (
     <>
@@ -26,18 +19,18 @@ export default function MyModal() {
     <ExportButton />
 
     <Dialog
-      open={setIsOpen}
+      open={isOpen}
       onClose={() => setIsOpen(false)}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
     >
       <DialogPanel className="w-[404px] h-[454px] bg-white rounded-xl shadow-lg flex flex-col p-6">
         <DialogTitle className="text-xl font-semibold mb-4">Select for Export</DialogTitle>
 
-        {/*Date range box not yet filled */}
-        <div className="w-[184px] h-[46px] opacity-100 rounded-[9px] bg-white border border-[#A1A1A1] border-[0.9px]">
-            <div className=""></div>
-            <div className=""></div>
-            <div className=""></div>
+        {/*Date Range Button*/}
+        <div className=" w-[184px] h-[46px] right-0 opacity-100 rounded-[9px] bg-white border border-[#A1A1A1] border-[0.9px]">
+            <DateRangeButton/>
+
+        {/* Check Boxes */}
         </div>
         <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
             Select

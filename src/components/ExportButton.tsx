@@ -26,7 +26,7 @@ export default function ExportButton() {
         <span>Export</span>
       </button>
       {/*Export Modal is called to redirect to other page using Dialog section */}
-      {isModalOpen && <ExportModal setIsOpen={setIsModalOpen} />}
+      {isModalOpen && <ExportModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />}
     </>
   )  
 }
