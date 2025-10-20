@@ -3,6 +3,7 @@ import { PrismaClient, Metric } from "../src/generated/prisma";
 
 const prisma = new PrismaClient();
 
+// Links Twitter API's data names to our Prisma Enums
 type TwitterPublicMetrics = {
   followers_count: number;
   following_count: number;
@@ -10,6 +11,7 @@ type TwitterPublicMetrics = {
   listed_count: number;
 };
 
+// Fetches data from Twitter's API
 export async function fetchTwitterMetrics(username: string) {
   const res = await fetch(`https://api.twitter.com/2/users/by/username/${username}?user.fields=public_metrics`, {
     headers: { Authorization: `Bearer ${process.env.TWITTER_BEARER_TOKEN}` },
