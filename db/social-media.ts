@@ -29,7 +29,7 @@ export async function updateSocialMedia(
     displayName: string | null;
     profileUrl: string | null;
     email: string | null;
-  }>
+  }>,
 ) {
   return prisma.socialMedia.update({
     where: { id },

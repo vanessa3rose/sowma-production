@@ -1,5 +1,4 @@
 export default function ExportButton() {
-
   return (
     <>
       <button className="w-[141px] h-[47px] border-[1px] rounded-[10px] border-[#A1A1A1]">
@@ -10,7 +9,13 @@ export default function ExportButton() {
           strokeWidth={1.5}
           stroke="currentColor"
           className="size-6"
-          style={{ width: "30px", height: "30px", top: "7px", left: "7px", position: "absolute", }}
+          style={{
+            width: "30px",
+            height: "30px",
+            top: "7px",
+            left: "7px",
+            position: "absolute",
+          }}
         >
           <path
             strokeLinecap="round"
@@ -23,5 +28,5 @@ export default function ExportButton() {
         </p>
       </button>
     </>
-  )  
+  );
 }
