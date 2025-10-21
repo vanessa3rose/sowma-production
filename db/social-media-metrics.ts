@@ -1,4 +1,4 @@
-import { PrismaClient, Metric } from "../src/generated/prisma";
+import { PrismaClient, Metric } from "../generated/prisma";
 
 const prisma = new PrismaClient();
 
@@ -34,7 +34,7 @@ export async function updateSocialMediaMetric(
     metricName: Metric;
     metricValue: number;
     lastSynced: Date | null;
-  }>
+  }>,
 ) {
   return prisma.socialMediaMetrics.update({
     where: { id },
