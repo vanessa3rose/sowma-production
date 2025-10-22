@@ -47,7 +47,7 @@ async function runReport() {
                     { name: 'engagementRate' }, 
                     { name: 'newUsers' }, ],
     });
-    console.log('Report result:');
+    // console.log('Report result:');
     response.rows?.forEach((row: any) => {
         console.log(row.dimensionValues[0].value, row.metricValues[0].value);
     });
@@ -59,7 +59,7 @@ async function runReport() {
     }
 
     for (const row of response.rows ?? []) {
-    const city = row.dimensionValues?.[0]?.value ?? "Unknown";
+    //const city = row.dimensionValues?.[0]?.value ?? "Unknown";
 
     // Ensure metricValues is defined, fallback to zeros
     const metricValues = row.metricValues ?? [];
@@ -69,7 +69,7 @@ async function runReport() {
     const engagementRate = Number(metricValues[3]?.value ?? 0);
     const newUsers = Number(metricValues[4]?.value ?? 0);
 
-    console.log('Active Users:', activeUsers);
+    //console.log('Active Users:', activeUsers);
 
 
     // prepare metrics
@@ -83,6 +83,7 @@ async function runReport() {
 
 
     const existingMetrics = await getMetricsBySocialMediaId(socialMediaId);
+    //console.log('existing metrics: ', existingMetrics);
 
     // save metrics using provided functions
     for (const metric of metricsToSave) {
@@ -99,7 +100,7 @@ async function runReport() {
           lastSynced: new Date()
         });
 
-        console.log("existing metric name is ", metric.metricName);
+        // console.log('existing metric name is ', metric.metricName);
 
       }
       else {
@@ -111,16 +112,18 @@ async function runReport() {
             lastSynced: new Date(),
       
         });
-        console.log("metric name is ", metric.metricName);
+        // console.log('metric name is ', metric.metricName);
 
       }
 
-    console.log(`Metrics stored for city: ${city}`);
+    // console.log(`Metrics stored for city: ${city}`);
     }
 
-  console.log("All metrics processed.");
-  await closePrisma();
+  
   }
+  await closePrisma();
+  console.log("All metrics processed.");
+
 }
 
 runReport().catch(console.error);

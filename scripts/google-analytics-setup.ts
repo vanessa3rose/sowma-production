@@ -1,7 +1,7 @@
 //google-analytics-setup.ts
 
 import { createSocialMedia, closePrisma } from "../db/social-media";
-import { PrismaClient } from "../src/generated/prisma/index.js";
+import { PrismaClient } from "../../generated/prisma";
 
 const prisma = new PrismaClient();
 

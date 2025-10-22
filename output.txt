@@ -1,4 +1,4 @@
-undefined
+GOOGLE_ANALYTICS
 Report result:
 Boston 7351
 (not set) 3172
@@ -710,6 +710,7 @@ Williamsburg 4
 Williamstown 4
 Winamac 4
 Windsor 4
+ 3
 Adairsville 3
 Albuquerque 3
 Annandale 3
@@ -846,7 +847,6 @@ Whiteville 3
 Williamson 3
 Williston 3
 Wilson 3
- 2
 Abuja 2
 Acworth 2
 Adel 2
@@ -2077,4 +2077,2346 @@ Tucumcari 0
 Walsenburg 0
 Waterloo 0
 Wheaton 0
+{
+  findUnique: [Function (anonymous)],
+  findUniqueOrThrow: [Function (anonymous)],
+  findFirst: [Function (anonymous)],
+  findFirstOrThrow: [Function (anonymous)],
+  findMany: [Function (anonymous)],
+  create: [Function (anonymous)],
+  createMany: [Function (anonymous)],
+  createManyAndReturn: [Function (anonymous)],
+  update: [Function (anonymous)],
+  updateMany: [Function (anonymous)],
+  updateManyAndReturn: [Function (anonymous)],
+  upsert: [Function (anonymous)],
+  delete: [Function (anonymous)],
+  deleteMany: [Function (anonymous)],
+  groupBy: [Function (anonymous)],
+  count: [Function (anonymous)],
+  aggregate: [Function (anonymous)],
+  findRaw: [Function (anonymous)],
+  aggregateRaw: [Function (anonymous)],
+  fields: {},
+  name: 'SocialMedia',
+  '$name': 'SocialMedia',
+  '$parent': {
+    _originalClient: {
+      _originalClient: [Object],
+      _runtimeDataModel: [Object],
+      _requestHandler: [ei [RequestHandler]],
+      _connectionPromise: undefined,
+      _disconnectionPromise: undefined,
+      _engineConfig: [Object],
+      _accelerateEngineConfig: [Object],
+      _clientVersion: '6.16.0',
+      _errorFormat: 'colorless',
+      _tracingHelper: Ao {},
+      _previewFeatures: [],
+      _activeProvider: 'postgresql',
+      _globalOmit: undefined,
+      _extensions: [e],
+      _engine: [Qr],
+      _appliedParent: [Object],
+      _createPrismaPromise: [Function (anonymous)],
+      '$metrics': [Lr],
+      '$extends': [Function: Wa]
+    },
+    _runtimeDataModel: { models: [Object], enums: [Object], types: {} },
+    _requestHandler: ei [RequestHandler] {
+      client: [Object],
+      dataloader: [Zn [DataLoader]],
+      logEmitter: [EventEmitter]
+    },
+    _connectionPromise: undefined,
+    _disconnectionPromise: undefined,
+    _engineConfig: {
+      cwd: '/Users/jeehyuoh/Desktop/jumbocode/school-on-wheels/prisma',
+      dirname: '/Users/jeehyuoh/Desktop/jumbocode/generated/prisma',
+      enableDebugLogs: false,
+      allowTriggerPanic: undefined,
+      prismaPath: '/Users/jeehyuoh/Desktop/jumbocode/generated/prisma/libquery_engine-darwin-arm64.dylib.node',
+      engineEndpoint: undefined,
+      generator: [Object],
+      showColors: false,
+      logLevel: undefined,
+      logQueries: undefined,
+      env: [Object],
+      flags: [],
+      engineWasm: undefined,
+      compilerWasm: undefined,
+      clientVersion: '6.16.0',
+      engineVersion: '1c57fdcd7e44b29b9313256c76699e91c3ac3c43',
+      previewFeatures: [],
+      activeProvider: 'postgresql',
+      inlineSchema: 'generator client {\n' +
+        '  provider = "prisma-client-js"\n' +
+        '  output   = "../../generated/prisma"\n' +
+        '}\n' +
+        '\n' +
+        'datasource db {\n' +
+        '  provider = "postgresql"\n' +
+        '  url      = env("DATABASE_URL")\n' +
+        '}\n' +
+        '\n' +
+        'model SocialMedia {\n' +
+        '  id          String               @id @default(cuid())\n' +
+        '  provider    Provider\n' +
+        '  userId      String\n' +
+        '  username    String\n' +
+        '  displayName String?\n' +
+        '  profileUrl  String?\n' +
+        '  email       String?\n' +
+        '  metrics     SocialMediaMetrics[]\n' +
+        '}\n' +
+        '\n' +
+        'model SocialMediaMetrics {\n' +
+        '  id            String      @id @default(cuid())\n' +
+        '  socialMediaId String\n' +
+        '  metricName    Metric\n' +
+        '  metricValue   Int\n' +
+        '  lastSynced    DateTime?\n' +
+        '  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])\n' +
+        '}\n' +
+        '\n' +
+        'model DatabaseReport {\n' +
+        '  id         String                @id @default(cuid())\n' +
+        '  reportDate DateTime\n' +
+        '  counts     DatabaseReportCount[]\n' +
+        '}\n' +
+        '\n' +
+        'model DatabaseReportCount {\n' +
+        '  id       String         @id @default(cuid())\n' +
+        '  reportId String\n' +
+        '  count    Count\n' +
+        '  value    Int            @default(0)\n' +
+        '  report   DatabaseReport @relation(fields: [reportId], references: [id])\n' +
+        '\n' +
+        '  @@unique([reportId, count])\n' +
+        '}\n' +
+        '\n' +
+        'enum Provider {\n' +
+        '  FACEBOOK\n' +
+        '  INSTAGRAM\n' +
+        '  TIKTOK\n' +
+        '  LINKEDIN\n' +
+        '  TWITTER\n' +
+        '  GOOGLE_ANALYTICS\n' +
+        '}\n' +
+        '\n' +
+        'enum Metric {\n' +
+        '  FOLLOWERS\n' +
+        '  LIKES\n' +
+        '  SHARES\n' +
+        '  COMMENTS\n' +
+        '  VIEWS\n' +
+        '  POSTS\n' +
+        '  ACTIVE_USERS\n' +
+        '  SCREEN_PAGE_VIEWS\n' +
+        '  ACTIVE_7_DAY_USERS\n' +
+        '  ENGAGEMENT_RATE\n' +
+        '  NEW_USERS\n' +
+        '}\n' +
+        '\n' +
+        'enum Count {\n' +
+        '  ATTENDED_EVENT\n' +
+        '  COMMUNITY_VOLUNTEER\n' +
+        '  CORPORATE_VOLUNTEER\n' +
+        '  GOOGLE_SEARCH\n' +
+        '  HEARD_SOWMA_SPEAKER\n' +
+        '  NEWS_MEDIA\n' +
+        '  OTHER\n' +
+        '  REFERRAL\n' +
+        '  SCHOOL_VOLUNTEER\n' +
+        '  SOCIAL_MEDIA\n' +
+        '  WEBSITE\n' +
+        '}\n',
+      overrideDatasources: {},
+      inlineDatasources: [Object],
+      inlineSchemaHash: '1a98b9ff49e18f92c5d1d33c6e0a93f2145c7ca1f128ab75283ba7f472236177',
+      tracingHelper: Ao {},
+      transactionOptions: [Object],
+      logEmitter: [EventEmitter],
+      isBundled: undefined,
+      adapter: undefined
+    },
+    _accelerateEngineConfig: {
+      cwd: '/Users/jeehyuoh/Desktop/jumbocode/school-on-wheels/prisma',
+      dirname: '/Users/jeehyuoh/Desktop/jumbocode/generated/prisma',
+      enableDebugLogs: false,
+      allowTriggerPanic: undefined,
+      prismaPath: undefined,
+      engineEndpoint: undefined,
+      generator: [Object],
+      showColors: false,
+      logLevel: undefined,
+      logQueries: undefined,
+      env: [Object],
+      flags: [],
+      engineWasm: undefined,
+      compilerWasm: undefined,
+      clientVersion: '6.16.0',
+      engineVersion: '1c57fdcd7e44b29b9313256c76699e91c3ac3c43',
+      previewFeatures: [],
+      activeProvider: 'postgresql',
+      inlineSchema: 'generator client {\n' +
+        '  provider = "prisma-client-js"\n' +
+        '  output   = "../../generated/prisma"\n' +
+        '}\n' +
+        '\n' +
+        'datasource db {\n' +
+        '  provider = "postgresql"\n' +
+        '  url      = env("DATABASE_URL")\n' +
+        '}\n' +
+        '\n' +
+        'model SocialMedia {\n' +
+        '  id          String               @id @default(cuid())\n' +
+        '  provider    Provider\n' +
+        '  userId      String\n' +
+        '  username    String\n' +
+        '  displayName String?\n' +
+        '  profileUrl  String?\n' +
+        '  email       String?\n' +
+        '  metrics     SocialMediaMetrics[]\n' +
+        '}\n' +
+        '\n' +
+        'model SocialMediaMetrics {\n' +
+        '  id            String      @id @default(cuid())\n' +
+        '  socialMediaId String\n' +
+        '  metricName    Metric\n' +
+        '  metricValue   Int\n' +
+        '  lastSynced    DateTime?\n' +
+        '  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])\n' +
+        '}\n' +
+        '\n' +
+        'model DatabaseReport {\n' +
+        '  id         String                @id @default(cuid())\n' +
+        '  reportDate DateTime\n' +
+        '  counts     DatabaseReportCount[]\n' +
+        '}\n' +
+        '\n' +
+        'model DatabaseReportCount {\n' +
+        '  id       String         @id @default(cuid())\n' +
+        '  reportId String\n' +
+        '  count    Count\n' +
+        '  value    Int            @default(0)\n' +
+        '  report   DatabaseReport @relation(fields: [reportId], references: [id])\n' +
+        '\n' +
+        '  @@unique([reportId, count])\n' +
+        '}\n' +
+        '\n' +
+        'enum Provider {\n' +
+        '  FACEBOOK\n' +
+        '  INSTAGRAM\n' +
+        '  TIKTOK\n' +
+        '  LINKEDIN\n' +
+        '  TWITTER\n' +
+        '  GOOGLE_ANALYTICS\n' +
+        '}\n' +
+        '\n' +
+        'enum Metric {\n' +
+        '  FOLLOWERS\n' +
+        '  LIKES\n' +
+        '  SHARES\n' +
+        '  COMMENTS\n' +
+        '  VIEWS\n' +
+        '  POSTS\n' +
+        '  ACTIVE_USERS\n' +
+        '  SCREEN_PAGE_VIEWS\n' +
+        '  ACTIVE_7_DAY_USERS\n' +
+        '  ENGAGEMENT_RATE\n' +
+        '  NEW_USERS\n' +
+        '}\n' +
+        '\n' +
+        'enum Count {\n' +
+        '  ATTENDED_EVENT\n' +
+        '  COMMUNITY_VOLUNTEER\n' +
+        '  CORPORATE_VOLUNTEER\n' +
+        '  GOOGLE_SEARCH\n' +
+        '  HEARD_SOWMA_SPEAKER\n' +
+        '  NEWS_MEDIA\n' +
+        '  OTHER\n' +
+        '  REFERRAL\n' +
+        '  SCHOOL_VOLUNTEER\n' +
+        '  SOCIAL_MEDIA\n' +
+        '  WEBSITE\n' +
+        '}\n',
+      overrideDatasources: {},
+      inlineDatasources: [Object],
+      inlineSchemaHash: '1a98b9ff49e18f92c5d1d33c6e0a93f2145c7ca1f128ab75283ba7f472236177',
+      tracingHelper: Ao {},
+      transactionOptions: [Object],
+      logEmitter: [EventEmitter],
+      isBundled: undefined,
+      adapter: undefined,
+      accelerateUtils: [Object]
+    },
+    _clientVersion: '6.16.0',
+    _errorFormat: 'colorless',
+    _tracingHelper: Ao {},
+    _previewFeatures: [],
+    _activeProvider: 'postgresql',
+    _globalOmit: undefined,
+    _extensions: e { head: undefined },
+    _engine: Qr {
+      name: 'LibraryEngine',
+      engine: [Object],
+      libraryInstantiationPromise: [Promise],
+      libraryStartingPromise: undefined,
+      libraryStoppingPromise: undefined,
+      libraryStarted: false,
+      executingQueryPromise: undefined,
+      config: [Object],
+      QueryEngineConstructor: [Function: QueryEngine],
+      libraryLoader: [Object],
+      library: [Object],
+      logEmitter: [EventEmitter],
+      libQueryEnginePath: undefined,
+      binaryTarget: 'darwin-arm64',
+      datasourceOverrides: undefined,
+      datamodel: 'generator client {\n' +
+        '  provider = "prisma-client-js"\n' +
+        '  output   = "../../generated/prisma"\n' +
+        '}\n' +
+        '\n' +
+        'datasource db {\n' +
+        '  provider = "postgresql"\n' +
+        '  url      = env("DATABASE_URL")\n' +
+        '}\n' +
+        '\n' +
+        'model SocialMedia {\n' +
+        '  id          String               @id @default(cuid())\n' +
+        '  provider    Provider\n' +
+        '  userId      String\n' +
+        '  username    String\n' +
+        '  displayName String?\n' +
+        '  profileUrl  String?\n' +
+        '  email       String?\n' +
+        '  metrics     SocialMediaMetrics[]\n' +
+        '}\n' +
+        '\n' +
+        'model SocialMediaMetrics {\n' +
+        '  id            String      @id @default(cuid())\n' +
+        '  socialMediaId String\n' +
+        '  metricName    Metric\n' +
+        '  metricValue   Int\n' +
+        '  lastSynced    DateTime?\n' +
+        '  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])\n' +
+        '}\n' +
+        '\n' +
+        'model DatabaseReport {\n' +
+        '  id         String                @id @default(cuid())\n' +
+        '  reportDate DateTime\n' +
+        '  counts     DatabaseReportCount[]\n' +
+        '}\n' +
+        '\n' +
+        'model DatabaseReportCount {\n' +
+        '  id       String         @id @default(cuid())\n' +
+        '  reportId String\n' +
+        '  count    Count\n' +
+        '  value    Int            @default(0)\n' +
+        '  report   DatabaseReport @relation(fields: [reportId], references: [id])\n' +
+        '\n' +
+        '  @@unique([reportId, count])\n' +
+        '}\n' +
+        '\n' +
+        'enum Provider {\n' +
+        '  FACEBOOK\n' +
+        '  INSTAGRAM\n' +
+        '  TIKTOK\n' +
+        '  LINKEDIN\n' +
+        '  TWITTER\n' +
+        '  GOOGLE_ANALYTICS\n' +
+        '}\n' +
+        '\n' +
+        'enum Metric {\n' +
+        '  FOLLOWERS\n' +
+        '  LIKES\n' +
+        '  SHARES\n' +
+        '  COMMENTS\n' +
+        '  VIEWS\n' +
+        '  POSTS\n' +
+        '  ACTIVE_USERS\n' +
+        '  SCREEN_PAGE_VIEWS\n' +
+        '  ACTIVE_7_DAY_USERS\n' +
+        '  ENGAGEMENT_RATE\n' +
+        '  NEW_USERS\n' +
+        '}\n' +
+        '\n' +
+        'enum Count {\n' +
+        '  ATTENDED_EVENT\n' +
+        '  COMMUNITY_VOLUNTEER\n' +
+        '  CORPORATE_VOLUNTEER\n' +
+        '  GOOGLE_SEARCH\n' +
+        '  HEARD_SOWMA_SPEAKER\n' +
+        '  NEWS_MEDIA\n' +
+        '  OTHER\n' +
+        '  REFERRAL\n' +
+        '  SCHOOL_VOLUNTEER\n' +
+        '  SOCIAL_MEDIA\n' +
+        '  WEBSITE\n' +
+        '}\n',
+      logQueries: false,
+      logLevel: 'error',
+      lastQuery: undefined,
+      loggerRustPanic: undefined,
+      tracingHelper: Ao {},
+      adapterPromise: undefined,
+      versionInfo: [Object]
+    },
+    _appliedParent: {
+      _originalClient: [Object],
+      _runtimeDataModel: [Object],
+      _requestHandler: [ei [RequestHandler]],
+      _connectionPromise: undefined,
+      _disconnectionPromise: undefined,
+      _engineConfig: [Object],
+      _accelerateEngineConfig: [Object],
+      _clientVersion: '6.16.0',
+      _errorFormat: 'colorless',
+      _tracingHelper: Ao {},
+      _previewFeatures: [],
+      _activeProvider: 'postgresql',
+      _globalOmit: undefined,
+      _extensions: [e],
+      _engine: [Qr],
+      _appliedParent: [Object],
+      _createPrismaPromise: [Function (anonymous)],
+      '$metrics': [Lr],
+      '$extends': [Function: Wa],
+      constructor: [class r],
+      '$on': [Function: $on],
+      '$connect': [Function: $connect],
+      '$disconnect': [AsyncFunction: $disconnect],
+      '$executeRawInternal': [Function: $executeRawInternal],
+      '$executeRaw': [Function: $executeRaw],
+      '$executeRawUnsafe': [Function: $executeRawUnsafe],
+      '$runCommandRaw': [Function: $runCommandRaw],
+      '$queryRawInternal': [AsyncFunction: $queryRawInternal],
+      '$queryRaw': [Function: $queryRaw],
+      '$queryRawTyped': [Function: $queryRawTyped],
+      '$queryRawUnsafe': [Function: $queryRawUnsafe],
+      _transactionWithArray: [Function: _transactionWithArray],
+      _transactionWithCallback: [AsyncFunction: _transactionWithCallback],
+      _createItxClient: [Function: _createItxClient],
+      '$transaction': [Function: $transaction],
+      _request: [Function: _request],
+      _executeRequest: [AsyncFunction: _executeRequest],
+      _hasPreviewFlag: [Function: _hasPreviewFlag],
+      '$applyPendingMigrations': [Function: $applyPendingMigrations],
+      socialMedia: [Object],
+      socialMediaMetrics: [Object],
+      databaseReport: [Object],
+      databaseReportCount: [Object],
+      '$parent': [Object],
+      [Symbol()]: [Object]
+    },
+    _createPrismaPromise: [Function (anonymous)],
+    '$metrics': Lr { _client: [Object] },
+    '$extends': [Function: Wa],
+    constructor: [class r],
+    '$on': [Function: $on],
+    '$connect': [Function: $connect],
+    '$disconnect': [AsyncFunction: $disconnect],
+    '$executeRawInternal': [Function: $executeRawInternal],
+    '$executeRaw': [Function: $executeRaw],
+    '$executeRawUnsafe': [Function: $executeRawUnsafe],
+    '$runCommandRaw': [Function: $runCommandRaw],
+    '$queryRawInternal': [AsyncFunction: $queryRawInternal],
+    '$queryRaw': [Function: $queryRaw],
+    '$queryRawTyped': [Function: $queryRawTyped],
+    '$queryRawUnsafe': [Function: $queryRawUnsafe],
+    _transactionWithArray: [Function: _transactionWithArray],
+    _transactionWithCallback: [AsyncFunction: _transactionWithCallback],
+    _createItxClient: [Function: _createItxClient],
+    '$transaction': [Function: $transaction],
+    _request: [Function: _request],
+    _executeRequest: [AsyncFunction: _executeRequest],
+    _hasPreviewFlag: [Function: _hasPreviewFlag],
+    '$applyPendingMigrations': [Function: $applyPendingMigrations],
+    socialMedia: {
+      findUnique: [Function (anonymous)],
+      findUniqueOrThrow: [Function (anonymous)],
+      findFirst: [Function (anonymous)],
+      findFirstOrThrow: [Function (anonymous)],
+      findMany: [Function (anonymous)],
+      create: [Function (anonymous)],
+      createMany: [Function (anonymous)],
+      createManyAndReturn: [Function (anonymous)],
+      update: [Function (anonymous)],
+      updateMany: [Function (anonymous)],
+      updateManyAndReturn: [Function (anonymous)],
+      upsert: [Function (anonymous)],
+      delete: [Function (anonymous)],
+      deleteMany: [Function (anonymous)],
+      groupBy: [Function (anonymous)],
+      count: [Function (anonymous)],
+      aggregate: [Function (anonymous)],
+      findRaw: [Function (anonymous)],
+      aggregateRaw: [Function (anonymous)],
+      fields: {},
+      name: 'SocialMedia',
+      '$name': 'SocialMedia',
+      '$parent': [Object]
+    },
+    socialMediaMetrics: {
+      findUnique: [Function (anonymous)],
+      findUniqueOrThrow: [Function (anonymous)],
+      findFirst: [Function (anonymous)],
+      findFirstOrThrow: [Function (anonymous)],
+      findMany: [Function (anonymous)],
+      create: [Function (anonymous)],
+      createMany: [Function (anonymous)],
+      createManyAndReturn: [Function (anonymous)],
+      update: [Function (anonymous)],
+      updateMany: [Function (anonymous)],
+      updateManyAndReturn: [Function (anonymous)],
+      upsert: [Function (anonymous)],
+      delete: [Function (anonymous)],
+      deleteMany: [Function (anonymous)],
+      groupBy: [Function (anonymous)],
+      count: [Function (anonymous)],
+      aggregate: [Function (anonymous)],
+      findRaw: [Function (anonymous)],
+      aggregateRaw: [Function (anonymous)],
+      fields: {},
+      name: 'SocialMediaMetrics',
+      '$name': 'SocialMediaMetrics',
+      '$parent': [Object]
+    },
+    databaseReport: {
+      findUnique: [Function (anonymous)],
+      findUniqueOrThrow: [Function (anonymous)],
+      findFirst: [Function (anonymous)],
+      findFirstOrThrow: [Function (anonymous)],
+      findMany: [Function (anonymous)],
+      create: [Function (anonymous)],
+      createMany: [Function (anonymous)],
+      createManyAndReturn: [Function (anonymous)],
+      update: [Function (anonymous)],
+      updateMany: [Function (anonymous)],
+      updateManyAndReturn: [Function (anonymous)],
+      upsert: [Function (anonymous)],
+      delete: [Function (anonymous)],
+      deleteMany: [Function (anonymous)],
+      groupBy: [Function (anonymous)],
+      count: [Function (anonymous)],
+      aggregate: [Function (anonymous)],
+      findRaw: [Function (anonymous)],
+      aggregateRaw: [Function (anonymous)],
+      fields: {},
+      name: 'DatabaseReport',
+      '$name': 'DatabaseReport',
+      '$parent': [Object]
+    },
+    databaseReportCount: {
+      findUnique: [Function (anonymous)],
+      findUniqueOrThrow: [Function (anonymous)],
+      findFirst: [Function (anonymous)],
+      findFirstOrThrow: [Function (anonymous)],
+      findMany: [Function (anonymous)],
+      create: [Function (anonymous)],
+      createMany: [Function (anonymous)],
+      createManyAndReturn: [Function (anonymous)],
+      update: [Function (anonymous)],
+      updateMany: [Function (anonymous)],
+      updateManyAndReturn: [Function (anonymous)],
+      upsert: [Function (anonymous)],
+      delete: [Function (anonymous)],
+      deleteMany: [Function (anonymous)],
+      groupBy: [Function (anonymous)],
+      count: [Function (anonymous)],
+      aggregate: [Function (anonymous)],
+      findRaw: [Function (anonymous)],
+      aggregateRaw: [Function (anonymous)],
+      fields: {},
+      name: 'DatabaseReportCount',
+      '$name': 'DatabaseReportCount',
+      '$parent': [Object]
+    },
+    '$parent': {
+      _originalClient: [Object],
+      _runtimeDataModel: [Object],
+      _requestHandler: [ei [RequestHandler]],
+      _connectionPromise: undefined,
+      _disconnectionPromise: undefined,
+      _engineConfig: [Object],
+      _accelerateEngineConfig: [Object],
+      _clientVersion: '6.16.0',
+      _errorFormat: 'colorless',
+      _tracingHelper: Ao {},
+      _previewFeatures: [],
+      _activeProvider: 'postgresql',
+      _globalOmit: undefined,
+      _extensions: [e],
+      _engine: [Qr],
+      _appliedParent: [Object],
+      _createPrismaPromise: [Function (anonymous)],
+      '$metrics': [Lr],
+      '$extends': [Function: Wa],
+      constructor: [class r],
+      '$on': [Function: $on],
+      '$connect': [Function: $connect],
+      '$disconnect': [AsyncFunction: $disconnect],
+      '$executeRawInternal': [Function: $executeRawInternal],
+      '$executeRaw': [Function: $executeRaw],
+      '$executeRawUnsafe': [Function: $executeRawUnsafe],
+      '$runCommandRaw': [Function: $runCommandRaw],
+      '$queryRawInternal': [AsyncFunction: $queryRawInternal],
+      '$queryRaw': [Function: $queryRaw],
+      '$queryRawTyped': [Function: $queryRawTyped],
+      '$queryRawUnsafe': [Function: $queryRawUnsafe],
+      _transactionWithArray: [Function: _transactionWithArray],
+      _transactionWithCallback: [AsyncFunction: _transactionWithCallback],
+      _createItxClient: [Function: _createItxClient],
+      '$transaction': [Function: $transaction],
+      _request: [Function: _request],
+      _executeRequest: [AsyncFunction: _executeRequest],
+      _hasPreviewFlag: [Function: _hasPreviewFlag],
+      '$applyPendingMigrations': [Function: $applyPendingMigrations],
+      socialMedia: [Object],
+      socialMediaMetrics: [Object],
+      databaseReport: [Object],
+      databaseReportCount: [Object],
+      '$parent': [Object],
+      [Symbol()]: [Object]
+    },
+    [Symbol()]: {
+      _originalClient: [Object],
+      _runtimeDataModel: [Object],
+      _requestHandler: [ei [RequestHandler]],
+      _connectionPromise: undefined,
+      _disconnectionPromise: undefined,
+      _engineConfig: [Object],
+      _accelerateEngineConfig: [Object],
+      _clientVersion: '6.16.0',
+      _errorFormat: 'colorless',
+      _tracingHelper: Ao {},
+      _previewFeatures: [],
+      _activeProvider: 'postgresql',
+      _globalOmit: undefined,
+      _extensions: [e],
+      _engine: [Qr],
+      _appliedParent: [Object],
+      _createPrismaPromise: [Function (anonymous)],
+      '$metrics': [Lr],
+      '$extends': [Function: Wa]
+    }
+  }
+}
 Active Users: 7351
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 80,
+    lastSynced: 2025-10-22T01:51:36.011Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 68,
+    lastSynced: 2025-10-22T01:51:35.983Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 684,
+    lastSynced: 2025-10-22T01:51:35.954Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 315,
+    lastSynced: 2025-10-22T01:51:35.927Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 103,
+    lastSynced: 2025-10-22T01:51:35.873Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Boston
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Boston
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Boston
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Boston
+existing metric name is  NEW_USERS
+Metrics stored for city: Boston
+All metrics processed.
+Active Users: 3172
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 6100,
+    lastSynced: 2025-10-22T01:51:39.287Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 309,
+    lastSynced: 2025-10-22T01:51:39.257Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 49382,
+    lastSynced: 2025-10-22T01:51:39.229Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 19104,
+    lastSynced: 2025-10-22T01:51:39.203Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 7351,
+    lastSynced: 2025-10-22T01:51:39.155Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: (not set)
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: (not set)
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: (not set)
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: (not set)
+existing metric name is  NEW_USERS
+Metrics stored for city: (not set)
+All metrics processed.
+Active Users: 1886
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 2923,
+    lastSynced: 2025-10-22T01:51:39.807Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 185,
+    lastSynced: 2025-10-22T01:51:39.778Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 21911,
+    lastSynced: 2025-10-22T01:51:39.752Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 5122,
+    lastSynced: 2025-10-22T01:51:39.644Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 3172,
+    lastSynced: 2025-10-22T01:51:39.574Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: New York
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: New York
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: New York
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: New York
+existing metric name is  NEW_USERS
+Metrics stored for city: New York
+All metrics processed.
+Active Users: 1684
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 1563,
+    lastSynced: 2025-10-22T01:51:40.210Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 237,
+    lastSynced: 2025-10-22T01:51:40.185Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 12897,
+    lastSynced: 2025-10-22T01:51:40.155Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 4003,
+    lastSynced: 2025-10-22T01:51:40.129Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 1886,
+    lastSynced: 2025-10-22T01:51:40.075Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Ashburn
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Ashburn
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Ashburn
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Ashburn
+existing metric name is  NEW_USERS
+Metrics stored for city: Ashburn
+All metrics processed.
+Active Users: 1043
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 1623,
+    lastSynced: 2025-10-22T01:51:40.647Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 88,
+    lastSynced: 2025-10-22T01:51:40.615Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 11710,
+    lastSynced: 2025-10-22T01:51:40.589Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 2155,
+    lastSynced: 2025-10-22T01:51:40.562Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 1684,
+    lastSynced: 2025-10-22T01:51:40.502Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Moses Lake
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Moses Lake
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Moses Lake
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Moses Lake
+existing metric name is  NEW_USERS
+Metrics stored for city: Moses Lake
+All metrics processed.
+Active Users: 748
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 1058,
+    lastSynced: 2025-10-22T01:51:41.091Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 29,
+    lastSynced: 2025-10-22T01:51:41.066Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 7301,
+    lastSynced: 2025-10-22T01:51:41.041Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 2011,
+    lastSynced: 2025-10-22T01:51:41.014Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 1043,
+    lastSynced: 2025-10-22T01:51:40.962Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: San Jose
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: San Jose
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: San Jose
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: San Jose
+existing metric name is  NEW_USERS
+Metrics stored for city: San Jose
+All metrics processed.
+Active Users: 716
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 751,
+    lastSynced: 2025-10-22T01:51:41.497Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 45,
+    lastSynced: 2025-10-22T01:51:41.472Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 5234,
+    lastSynced: 2025-10-22T01:51:41.444Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 1377,
+    lastSynced: 2025-10-22T01:51:41.415Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 748,
+    lastSynced: 2025-10-22T01:51:41.363Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Easton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Easton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Easton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Easton
+existing metric name is  NEW_USERS
+Metrics stored for city: Easton
+All metrics processed.
+Active Users: 708
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 524,
+    lastSynced: 2025-10-22T01:51:42.000Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 239,
+    lastSynced: 2025-10-22T01:51:41.973Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 4657,
+    lastSynced: 2025-10-22T01:51:41.945Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 2060,
+    lastSynced: 2025-10-22T01:51:41.919Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 716,
+    lastSynced: 2025-10-22T01:51:41.870Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Des Moines
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Des Moines
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Des Moines
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Des Moines
+existing metric name is  NEW_USERS
+Metrics stored for city: Des Moines
+All metrics processed.
+Active Users: 601
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 703,
+    lastSynced: 2025-10-22T01:51:42.426Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 20,
+    lastSynced: 2025-10-22T01:51:42.401Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 4956,
+    lastSynced: 2025-10-22T01:51:42.377Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 1256,
+    lastSynced: 2025-10-22T01:51:42.352Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 708,
+    lastSynced: 2025-10-22T01:51:42.305Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Brockton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Brockton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Brockton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Brockton
+existing metric name is  NEW_USERS
+Metrics stored for city: Brockton
+All metrics processed.
+Active Users: 496
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 488,
+    lastSynced: 2025-10-22T01:51:42.883Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 222,
+    lastSynced: 2025-10-22T01:51:42.852Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 4048,
+    lastSynced: 2025-10-22T01:51:42.825Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 1684,
+    lastSynced: 2025-10-22T01:51:42.797Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 601,
+    lastSynced: 2025-10-22T01:51:42.743Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Columbus
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Columbus
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Columbus
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Columbus
+existing metric name is  NEW_USERS
+Metrics stored for city: Columbus
+All metrics processed.
+Active Users: 436
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 487,
+    lastSynced: 2025-10-22T01:51:43.304Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 20,
+    lastSynced: 2025-10-22T01:51:43.271Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 3461,
+    lastSynced: 2025-10-22T01:51:43.242Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 577,
+    lastSynced: 2025-10-22T01:51:43.213Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 496,
+    lastSynced: 2025-10-22T01:51:43.164Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Boydton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Boydton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Boydton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Boydton
+existing metric name is  NEW_USERS
+Metrics stored for city: Boydton
+All metrics processed.
+Active Users: 436
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 441,
+    lastSynced: 2025-10-22T01:51:43.737Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 20,
+    lastSynced: 2025-10-22T01:51:43.709Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 3052,
+    lastSynced: 2025-10-22T01:51:43.682Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 1107,
+    lastSynced: 2025-10-22T01:51:43.655Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 436,
+    lastSynced: 2025-10-22T01:51:43.605Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: San Antonio
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: San Antonio
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: San Antonio
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: San Antonio
+existing metric name is  NEW_USERS
+Metrics stored for city: San Antonio
+All metrics processed.
+Active Users: 401
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 440,
+    lastSynced: 2025-10-22T01:51:44.146Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 12,
+    lastSynced: 2025-10-22T01:51:44.119Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 3052,
+    lastSynced: 2025-10-22T01:51:44.093Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 853,
+    lastSynced: 2025-10-22T01:51:44.067Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 436,
+    lastSynced: 2025-10-22T01:51:44.016Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Bridgewater
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Bridgewater
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Bridgewater
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Bridgewater
+existing metric name is  NEW_USERS
+Metrics stored for city: Bridgewater
+All metrics processed.
+Active Users: 383
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 316,
+    lastSynced: 2025-10-22T01:51:44.602Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 178,
+    lastSynced: 2025-10-22T01:51:44.573Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 2635,
+    lastSynced: 2025-10-22T01:51:44.534Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 1360,
+    lastSynced: 2025-10-22T01:51:44.497Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 401,
+    lastSynced: 2025-10-22T01:51:44.447Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Cheyenne
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Cheyenne
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Cheyenne
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Cheyenne
+existing metric name is  NEW_USERS
+Metrics stored for city: Cheyenne
+All metrics processed.
+Active Users: 377
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 390,
+    lastSynced: 2025-10-22T01:51:45.103Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 5,
+    lastSynced: 2025-10-22T01:51:45.075Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 2681,
+    lastSynced: 2025-10-22T01:51:45.049Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 776,
+    lastSynced: 2025-10-22T01:51:45.018Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 383,
+    lastSynced: 2025-10-22T01:51:44.967Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Scituate
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Scituate
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Scituate
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Scituate
+existing metric name is  NEW_USERS
+Metrics stored for city: Scituate
+All metrics processed.
+Active Users: 349
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 231,
+    lastSynced: 2025-10-22T01:51:45.537Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 136,
+    lastSynced: 2025-10-22T01:51:45.509Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 2231,
+    lastSynced: 2025-10-22T01:51:45.482Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 1159,
+    lastSynced: 2025-10-22T01:51:45.456Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 377,
+    lastSynced: 2025-10-22T01:51:45.408Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Quincy
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Quincy
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Quincy
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Quincy
+existing metric name is  NEW_USERS
+Metrics stored for city: Quincy
+All metrics processed.
+Active Users: 309
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 301,
+    lastSynced: 2025-10-22T01:51:45.991Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 143,
+    lastSynced: 2025-10-22T01:51:45.962Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 2382,
+    lastSynced: 2025-10-22T01:51:45.937Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 798,
+    lastSynced: 2025-10-22T01:51:45.911Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 349,
+    lastSynced: 2025-10-22T01:51:45.853Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Clifton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Clifton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Clifton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Clifton
+existing metric name is  NEW_USERS
+Metrics stored for city: Clifton
+All metrics processed.
+Active Users: 292
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 308,
+    lastSynced: 2025-10-22T01:51:46.600Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 10,
+    lastSynced: 2025-10-22T01:51:46.566Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 2163,
+    lastSynced: 2025-10-22T01:51:46.527Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 580,
+    lastSynced: 2025-10-22T01:51:46.475Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 309,
+    lastSynced: 2025-10-22T01:51:46.277Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Cambridge
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Cambridge
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Cambridge
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Cambridge
+existing metric name is  NEW_USERS
+Metrics stored for city: Cambridge
+All metrics processed.
+Active Users: 282
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 211,
+    lastSynced: 2025-10-22T01:51:47.214Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 128,
+    lastSynced: 2025-10-22T01:51:47.188Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1915,
+    lastSynced: 2025-10-22T01:51:47.134Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 726,
+    lastSynced: 2025-10-22T01:51:47.057Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 292,
+    lastSynced: 2025-10-22T01:51:46.959Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Dublin
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Dublin
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Dublin
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Dublin
+existing metric name is  NEW_USERS
+Metrics stored for city: Dublin
+All metrics processed.
+Active Users: 258
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 282,
+    lastSynced: 2025-10-22T01:51:47.841Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 90,
+    lastSynced: 2025-10-22T01:51:47.813Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1974,
+    lastSynced: 2025-10-22T01:51:47.788Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 407,
+    lastSynced: 2025-10-22T01:51:47.761Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 282,
+    lastSynced: 2025-10-22T01:51:47.701Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Washington
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Washington
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Washington
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Washington
+existing metric name is  NEW_USERS
+Metrics stored for city: Washington
+All metrics processed.
+Active Users: 253
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 241,
+    lastSynced: 2025-10-22T01:51:48.273Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 42,
+    lastSynced: 2025-10-22T01:51:48.247Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1800,
+    lastSynced: 2025-10-22T01:51:48.222Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 545,
+    lastSynced: 2025-10-22T01:51:48.196Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 258,
+    lastSynced: 2025-10-22T01:51:48.127Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Santa Clara
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Santa Clara
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Santa Clara
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Santa Clara
+existing metric name is  NEW_USERS
+Metrics stored for city: Santa Clara
+All metrics processed.
+Active Users: 251
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 253,
+    lastSynced: 2025-10-22T01:51:48.666Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 7,
+    lastSynced: 2025-10-22T01:51:48.642Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1771,
+    lastSynced: 2025-10-22T01:51:48.617Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 486,
+    lastSynced: 2025-10-22T01:51:48.592Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 253,
+    lastSynced: 2025-10-22T01:51:48.543Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Weymouth
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Weymouth
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Weymouth
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Weymouth
+existing metric name is  NEW_USERS
+Metrics stored for city: Weymouth
+All metrics processed.
+Active Users: 242
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 163,
+    lastSynced: 2025-10-22T01:51:49.108Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 132,
+    lastSynced: 2025-10-22T01:51:49.082Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1651,
+    lastSynced: 2025-10-22T01:51:49.049Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 749,
+    lastSynced: 2025-10-22T01:51:49.020Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 251,
+    lastSynced: 2025-10-22T01:51:48.972Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Newton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Newton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Newton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Newton
+existing metric name is  NEW_USERS
+Metrics stored for city: Newton
+All metrics processed.
+Active Users: 232
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 198,
+    lastSynced: 2025-10-22T01:51:49.494Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 130,
+    lastSynced: 2025-10-22T01:51:49.467Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1579,
+    lastSynced: 2025-10-22T01:51:49.442Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 628,
+    lastSynced: 2025-10-22T01:51:49.416Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 242,
+    lastSynced: 2025-10-22T01:51:49.370Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Canton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Canton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Canton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Canton
+existing metric name is  NEW_USERS
+Metrics stored for city: Canton
+All metrics processed.
+Active Users: 225
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 180,
+    lastSynced: 2025-10-22T01:51:49.893Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 117,
+    lastSynced: 2025-10-22T01:51:49.868Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1553,
+    lastSynced: 2025-10-22T01:51:49.841Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 577,
+    lastSynced: 2025-10-22T01:51:49.815Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 232,
+    lastSynced: 2025-10-22T01:51:49.761Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Plymouth
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Plymouth
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Plymouth
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Plymouth
+existing metric name is  NEW_USERS
+Metrics stored for city: Plymouth
+All metrics processed.
+Active Users: 208
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 189,
+    lastSynced: 2025-10-22T01:51:50.314Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 114,
+    lastSynced: 2025-10-22T01:51:50.288Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1511,
+    lastSynced: 2025-10-22T01:51:50.262Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 627,
+    lastSynced: 2025-10-22T01:51:50.235Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 225,
+    lastSynced: 2025-10-22T01:51:50.183Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Hingham
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Hingham
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Hingham
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Hingham
+existing metric name is  NEW_USERS
+Metrics stored for city: Hingham
+All metrics processed.
+Active Users: 202
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 148,
+    lastSynced: 2025-10-22T01:51:50.730Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 91,
+    lastSynced: 2025-10-22T01:51:50.704Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1309,
+    lastSynced: 2025-10-22T01:51:50.673Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 652,
+    lastSynced: 2025-10-22T01:51:50.640Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 208,
+    lastSynced: 2025-10-22T01:51:50.593Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Taunton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Taunton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Taunton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Taunton
+existing metric name is  NEW_USERS
+Metrics stored for city: Taunton
+All metrics processed.
+Active Users: 198
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 157,
+    lastSynced: 2025-10-22T01:51:51.238Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 114,
+    lastSynced: 2025-10-22T01:51:51.206Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1337,
+    lastSynced: 2025-10-22T01:51:51.162Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 667,
+    lastSynced: 2025-10-22T01:51:51.124Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 202,
+    lastSynced: 2025-10-22T01:51:51.069Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Fall River
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Fall River
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Fall River
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Fall River
+existing metric name is  NEW_USERS
+Metrics stored for city: Fall River
+All metrics processed.
+Active Users: 165
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 158,
+    lastSynced: 2025-10-22T01:51:51.644Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 108,
+    lastSynced: 2025-10-22T01:51:51.619Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1314,
+    lastSynced: 2025-10-22T01:51:51.595Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 514,
+    lastSynced: 2025-10-22T01:51:51.567Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 198,
+    lastSynced: 2025-10-22T01:51:51.518Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Sharon
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Sharon
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Sharon
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Sharon
+existing metric name is  NEW_USERS
+Metrics stored for city: Sharon
+All metrics processed.
+Active Users: 162
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 132,
+    lastSynced: 2025-10-22T01:51:52.099Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 82,
+    lastSynced: 2025-10-22T01:51:52.066Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1120,
+    lastSynced: 2025-10-22T01:51:52.033Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 426,
+    lastSynced: 2025-10-22T01:51:51.999Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 165,
+    lastSynced: 2025-10-22T01:51:51.928Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Los Angeles
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Los Angeles
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Los Angeles
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Los Angeles
+existing metric name is  NEW_USERS
+Metrics stored for city: Los Angeles
+All metrics processed.
+Active Users: 159
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 147,
+    lastSynced: 2025-10-22T01:51:52.519Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 36,
+    lastSynced: 2025-10-22T01:51:52.494Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1075,
+    lastSynced: 2025-10-22T01:51:52.469Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 300,
+    lastSynced: 2025-10-22T01:51:52.441Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 162,
+    lastSynced: 2025-10-22T01:51:52.393Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Phoenix
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Phoenix
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Phoenix
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Phoenix
+existing metric name is  NEW_USERS
+Metrics stored for city: Phoenix
+All metrics processed.
+Active Users: 155
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 152,
+    lastSynced: 2025-10-22T01:51:53.020Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 26,
+    lastSynced: 2025-10-22T01:51:52.995Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1107,
+    lastSynced: 2025-10-22T01:51:52.967Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 354,
+    lastSynced: 2025-10-22T01:51:52.930Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 159,
+    lastSynced: 2025-10-22T01:51:52.873Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Amsterdam
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Amsterdam
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Amsterdam
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Amsterdam
+existing metric name is  NEW_USERS
+Metrics stored for city: Amsterdam
+All metrics processed.
+Active Users: 154
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 155,
+    lastSynced: 2025-10-22T01:51:53.427Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 13,
+    lastSynced: 2025-10-22T01:51:53.395Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1085,
+    lastSynced: 2025-10-22T01:51:53.364Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 304,
+    lastSynced: 2025-10-22T01:51:53.339Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 155,
+    lastSynced: 2025-10-22T01:51:53.291Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: New Bedford
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: New Bedford
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: New Bedford
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: New Bedford
+existing metric name is  NEW_USERS
+Metrics stored for city: New Bedford
+All metrics processed.
+Active Users: 150
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 133,
+    lastSynced: 2025-10-22T01:51:53.829Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 87,
+    lastSynced: 2025-10-22T01:51:53.800Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1044,
+    lastSynced: 2025-10-22T01:51:53.772Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 499,
+    lastSynced: 2025-10-22T01:51:53.747Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 154,
+    lastSynced: 2025-10-22T01:51:53.697Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Mansfield
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Mansfield
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Mansfield
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Mansfield
+existing metric name is  NEW_USERS
+Metrics stored for city: Mansfield
+All metrics processed.
+Active Users: 148
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 123,
+    lastSynced: 2025-10-22T01:51:54.251Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 92,
+    lastSynced: 2025-10-22T01:51:54.224Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1027,
+    lastSynced: 2025-10-22T01:51:54.194Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 415,
+    lastSynced: 2025-10-22T01:51:54.169Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 150,
+    lastSynced: 2025-10-22T01:51:54.116Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Lulea
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Lulea
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Lulea
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Lulea
+existing metric name is  NEW_USERS
+Metrics stored for city: Lulea
+All metrics processed.
+Active Users: 147
