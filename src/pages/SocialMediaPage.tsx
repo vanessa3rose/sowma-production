@@ -1,4 +1,4 @@
-import ExportButton from "../components/ExportButton"
+import ExportButton from "../components/ExportButton";
 
 export default function SocialMediaPage() {
   return (
@@ -15,7 +15,10 @@ export default function SocialMediaPage() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              style={{ width: "40px", height: "40px", }}
+              style={{ 
+                width: "40px", 
+                height: "40px" 
+              }}
             >
               <path
                 strokeLinecap="round"
@@ -37,7 +40,14 @@ export default function SocialMediaPage() {
             strokeWidth={1.5}
             stroke="currentColor"
             className="size-6"
-            style={{ width: "30px", height: "30px", position: "absolute", top: "150px", left: "1125px", pointerEvents: "none", }}
+            style={{
+              width: "30px",
+              height: "30px",
+              position: "absolute",
+              top: "150px",
+              left: "1125px",
+              pointerEvents: "none",
+            }}
           >
             <path
               strokeLinecap="round"
@@ -52,7 +62,14 @@ export default function SocialMediaPage() {
             strokeWidth={1.5}
             stroke="currentColor"
             className="size-6"
-            style={{ width: "15px", height: "15px", top: "158px", left: "1271px", position: "absolute", pointerEvents: "none", }}
+            style={{
+              width: "15px",
+              height: "15px",
+              top: "158px",
+              left: "1271px",
+              position: "absolute",
+              pointerEvents: "none",
+            }}
           >
             <path
               strokeLinecap="round"
@@ -62,10 +79,9 @@ export default function SocialMediaPage() {
           </svg>
 
           <div className="absolute left-[1323px] top-[141px]">
-            <ExportButton/>
+            <ExportButton />
           </div>
         </div>
-        
 
         <div className="absolute top-[220px] left-[320px] w-[200px] h-[130px] bg-[#ffffff] border-[1px] border-[#E5E5E5] rounded-[12px] shadow-md">
           <p className="font-poppins font-medium text-[16px] color-[#000000] mt-[12px] ml-[20px]">
@@ -78,7 +94,7 @@ export default function SocialMediaPage() {
             Comments
           </p>
         </div>
-        
+
         <div className="absolute top-[510px] left-[320px] w-[200px] h-[130px] bg-[#ffffff] border-[1px] border-[#E5E5E5] rounded-[12px] shadow-md">
           <p className="font-poppins font-medium text-[16px] color-[#000000] mt-[12px] ml-[20px]">
             Likes

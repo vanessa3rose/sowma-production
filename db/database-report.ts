@@ -3,9 +3,12 @@ import { PrismaClient, Count } from "../src/generated/prisma";
 
 const prisma = new PrismaClient();
 
-export async function createDatabaseReport(reportDate: Date, counts: { count: Count; value: number }[]) {
-  try {  
-  const report = await prisma.databaseReport.create({
+export async function createDatabaseReport(
+  reportDate: Date,
+  counts: { count: Count; value: number }[],
+) {
+  try {
+    const report = await prisma.databaseReport.create({
       data: {
         reportDate,
         counts: {
@@ -18,12 +21,10 @@ export async function createDatabaseReport(reportDate: Date, counts: { count: Co
       include: { counts: true },
     });
     return report;
-  }
-  catch (error){
+  } catch (error) {
     console.log("Error:", error);
     throw error;
   }
-  
 }
 
 // READ for DatabaseReport function
@@ -31,40 +32,42 @@ export async function readDatabaseReport() {
   try {
     const reports = await prisma.databaseReport.findMany({
       include: { counts: true },
-      orderBy: { reportDate: 'desc'},
+      orderBy: { reportDate: "desc" },
     });
     return reports;
-  }
-  catch (error){
+  } catch (error) {
     console.log("Error:", error);
     throw error;
   }
 }
 
 //UPDATE for DatabaseReport
-export async function updateDatabaseReport(id: string, reportDate?: Date, counts?: {count: Count; value: number}[]){
+export async function updateDatabaseReport(
+  id: string,
+  reportDate?: Date,
+  counts?: { count: Count; value: number }[],
+) {
   try {
     const updateReport = await prisma.databaseReport.update({
-      where: {id},
+      where: { id },
       data: {
-        ...(reportDate ? {reportDate} : {}),
+        ...(reportDate ? { reportDate } : {}),
         ...(counts
           ? {
-            counts: {
-              upsert: counts.map((c)=>({
-                where: { reportId_count: {reportId: id, count: c.count}},
-                update: { value: c.value }, 
-                create: { count: c.count, value : c.value},
-              })),
-            },
-          }
+              counts: {
+                upsert: counts.map((c) => ({
+                  where: { reportId_count: { reportId: id, count: c.count } },
+                  update: { value: c.value },
+                  create: { count: c.count, value: c.value },
+                })),
+              },
+            }
           : {}),
-        },
-        include: {counts: true},
+      },
+      include: { counts: true },
     });
     return updateReport;
-  }
-  catch (error) {
+  } catch (error) {
     console.log("Error:", error);
     throw error;
   }
@@ -76,10 +79,9 @@ export async function deleteDatabaseReport(id: string) {
     await prisma.databaseReportCount.deleteMany({
       where: { reportId: id },
     });
-    const deletedReport = prisma.databaseReport.delete({where: {id}});
+    const deletedReport = prisma.databaseReport.delete({ where: { id } });
     return deletedReport;
-  }
-  catch (error) {
+  } catch (error) {
     console.log("Error:", error);
     throw error;
   }

@@ -34,7 +34,7 @@ export async function updateSocialMediaMetric(
     metricName: Metric;
     metricValue: number;
     lastSynced: Date | null;
-  }>
+  }>,
 ) {
   return prisma.socialMediaMetrics.update({
     where: { id },
