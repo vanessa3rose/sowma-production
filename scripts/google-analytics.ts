@@ -9,12 +9,9 @@ import {
   getMetricsBySocialMediaId,
   closePrisma,
 } from "../db/social-media-metrics"
-import { Provider, Metric } from "../src/generated/prisma/index.js";
-import { PrismaClient } from "../src/generated/prisma";
+import { PrismaClient, Provider, Metric } from "../src/generated/prisma";
 
 const prisma = new PrismaClient();
-
-console.log(Provider.GOOGLE_ANALYTICS);
 
 // Load service account key
 const jsonKey = JSON.parse(fs.readFileSync('service-account.json', 'utf8'));
@@ -37,97 +34,83 @@ async function getSocialMediaIdByProvider(): Promise<string | null> {
 // Initialize the Analytics Data API client
 const analyticsDataClient = new BetaAnalyticsDataClient({ auth });
 async function runReport() {
-    const [response] = await analyticsDataClient.runReport({
-        property: 'properties/393011442',
-        dateRanges: [{ startDate: '2020-03-31', endDate: 'today' }],
-        dimensions: [{ name: 'city' }],
-        metrics:    [{ name: 'activeUsers' }, 
-                    { name: 'screenPageViews' }, 
-                    { name: 'active7DayUsers' }, 
-                    { name: 'engagementRate' }, 
-                    { name: 'newUsers' }, ],
-    });
-    console.log('Report result:');
-    // response.rows?.forEach((row: any) => {
-        // console.log(row.dimensionValues[0].value, row.metricValues[0].value);
-    // });
+  console.log("Starting GA API request...");
+  const [response] = await analyticsDataClient.runReport({
+    property: "properties/393011442",
+    dateRanges: [{ startDate: "yesterday", endDate: "today" }],
+    dimensions: [{ name: "yearMonth" }],
+    metrics: [
+      { name: "activeUsers" },
+      { name: "screenPageViews" },
+      { name: "active7DayUsers" },
+      { name: "engagementRate" },
+      { name: "newUsers" },
+    ],
+  });
 
-    const socialMediaId = await getSocialMediaIdByProvider();
-    if (!socialMediaId) {
-        console.error("No Google Analytics socialMediaId found.");
-        return;
-    }
+  console.log(`Report result: ${response.rows?.length ?? 0} rows`);
+  console.log("Fetching socialMediaId...");
 
-    for (const row of response.rows ?? []) {
-    //const city = row.dimensionValues?.[0]?.value ?? "Unknown";
+  const socialMediaId = await getSocialMediaIdByProvider();
+  if (!socialMediaId) {
+    console.error("No Google Analytics socialMediaId found.");
+    return;
+  }
 
-    // Ensure metricValues is defined, fallback to zeros
+  console.log(`socialMediaId = ${socialMediaId}`);
+
+  const existingMetrics = await getMetricsBySocialMediaId(socialMediaId);
+  console.log(`Found ${existingMetrics.length} existing metrics`);
+
+  // track progress every few rows instead of each one
+  let processed = 0;
+
+  for (const row of response.rows ?? []) {
     const metricValues = row.metricValues ?? [];
-    const activeUsers = Number(metricValues[0]?.value ?? 0);
-    const screenPageViews = Number(metricValues[1]?.value ?? 0);
-    const active7DayUsers = Number(metricValues[2]?.value ?? 0);
-    const engagementRate = Number(metricValues[3]?.value ?? 0);
-    const newUsers = Number(metricValues[4]?.value ?? 0);
 
-    //console.log('Active Users:', activeUsers);
-
-
-    // prepare metrics
     const metricsToSave = [
-        { metricName: Metric.ACTIVE_USERS, metricValue: activeUsers },
-        { metricName: Metric.SCREEN_PAGE_VIEWS, metricValue: screenPageViews },
-        { metricName: Metric.ACTIVE_7_DAY_USERS, metricValue: active7DayUsers },
-        { metricName: Metric.ENGAGEMENT_RATE, metricValue: engagementRate },
-        { metricName: Metric.NEW_USERS, metricValue: newUsers },
+      { metricName: Metric.ACTIVE_USERS, metricValue: Number(metricValues[0]?.value ?? 0) },
+      { metricName: Metric.SCREEN_PAGE_VIEWS, metricValue: Number(metricValues[1]?.value ?? 0) },
+      { metricName: Metric.ACTIVE_7_DAY_USERS, metricValue: Number(metricValues[2]?.value ?? 0) },
+      { metricName: Metric.ENGAGEMENT_RATE, metricValue: Number(metricValues[3]?.value ?? 0) },
+      { metricName: Metric.NEW_USERS, metricValue: Number(metricValues[4]?.value ?? 0) },
     ];
 
+    // Log every 10 rows only
+    if (processed % 10 === 0) console.log(`Processing row ${processed}`);
 
-    const existingMetrics = await getMetricsBySocialMediaId(socialMediaId);
-    //console.log('existing metrics: ', existingMetrics);
-
-    // save metrics using provided functions
     for (const metric of metricsToSave) {
-      // check if metric already exists for this socialMediaId
+      const existing = existingMetrics.find((m) => m.metricName === metric.metricName);
 
-      const existingMetric = existingMetrics.find(
-      (m) => m.metricName === metric.metricName
-      );
-
-      if (existingMetric) {
-        await updateSocialMediaMetric(existingMetric.id, {
-          metricName: metric.metricName,
-          metricValue: metric.metricValue, 
-          lastSynced: new Date()
-        });
-
-        // console.log('existing metric name is ', metric.metricName);
-
-      }
-      else {
-        await createSocialMediaMetric(
-        {
-            socialMediaId,   
+      try {
+        if (existing) {
+          console.log(`Updating ${metric.metricName}`);
+          await updateSocialMediaMetric(existing.id, {
             metricName: metric.metricName,
             metricValue: metric.metricValue,
             lastSynced: new Date(),
-      
-        });
-        // console.log('metric name is ', metric.metricName);
-
+          });
+        } else {
+          console.log(`Creating ${metric.metricName}`);
+          await createSocialMediaMetric({
+            socialMediaId,
+            metricName: metric.metricName,
+            metricValue: metric.metricValue,
+            lastSynced: new Date(),
+          });
+        }
+      } catch (err) {
+        console.error(`Error saving ${metric.metricName}:`, err);
       }
-
-    // console.log(`Metrics stored for city: ${city}`);
     }
 
-  
+    processed++;
   }
-  await closePrisma();
-  console.log("All metrics processed.");
 
+  console.log("Finished processing metrics, closing Prisma...");
+  await closePrisma();
+  console.log("Prisma closed. Done.");
+  process.exit(0);
 }
 
-runReport().catch(console.error);
-
-
-
-// METRICS WE'RE USING: activeUsers, screenPageViews, active7DayUsers, engagementRate, newUsers
+runReport()
