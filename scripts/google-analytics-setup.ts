@@ -1,13 +1,13 @@
 //google-analytics-setup.ts
 
 import { createSocialMedia, closePrisma } from "../db/social-media";
-import { PrismaClient } from "../src/generated/prisma";
+import { PrismaClient, Provider } from "../src/generated/prisma";
 
 const prisma = new PrismaClient();
 
 async function main(){
   await createSocialMedia({
-    provider: "GOOGLE_ANALYTICS",
+    provider: Provider.GOOGLE_ANALYTICS,
     userId: "36325900",
     username: "SOWMA",
     displayName: "School on Wheels MA Analytics",

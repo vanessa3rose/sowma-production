@@ -47,10 +47,10 @@ async function runReport() {
                     { name: 'engagementRate' }, 
                     { name: 'newUsers' }, ],
     });
-    // console.log('Report result:');
-    response.rows?.forEach((row: any) => {
-        console.log(row.dimensionValues[0].value, row.metricValues[0].value);
-    });
+    console.log('Report result:');
+    // response.rows?.forEach((row: any) => {
+        // console.log(row.dimensionValues[0].value, row.metricValues[0].value);
+    // });
 
     const socialMediaId = await getSocialMediaIdByProvider();
     if (!socialMediaId) {
@@ -131,5 +131,3 @@ runReport().catch(console.error);
 
 
 // METRICS WE'RE USING: activeUsers, screenPageViews, active7DayUsers, engagementRate, newUsers
-//hi
-//hi
