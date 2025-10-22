@@ -6,7 +6,7 @@ import {
   deleteSocialMediaMetric,
   closePrisma,
 } from "../social-media-metrics"; // adjust path as needed
-import { Metric } from "../../generated/prisma";
+import { Metric } from "../../src/generated/prisma";
 
 async function testCRUD() {
   try {
