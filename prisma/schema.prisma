@@ -50,6 +50,7 @@ enum Provider {
   TIKTOK
   LINKEDIN
   TWITTER
+  GOOGLE_ANALYTICS
 }
 
 enum Metric {
@@ -58,6 +59,12 @@ enum Metric {
   SHARES
   COMMENTS
   VIEWS
+  POSTS
+  ACTIVE_USERS
+  SCREEN_PAGE_VIEWS
+  ACTIVE_7_DAY_USERS
+  ENGAGEMENT_RATE
+  NEW_USERS
 }
 
 enum Count {
