@@ -1,3 +1,5 @@
+import ExportButton from "../components/ExportButton";
+
 export default function SocialMediaPage() {
   return (
     <>
@@ -24,10 +26,7 @@ export default function SocialMediaPage() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              style={{
-                width: "40px",
-                height: "40px",
-              }}
+              style={{ width: "40px", height: "40px" }}
             >
               <path
                 strokeLinecap="round"
@@ -120,60 +119,9 @@ export default function SocialMediaPage() {
             />
           </svg>
 
-          <button
-            style={{
-              width: "141px",
-              height: "47px",
-              backgroundColor: "#ffffff",
-              border: "1px solid #A1A1A1",
-              borderRadius: "10px",
-              position: "absolute",
-              top: "141px",
-              left: "1323px",
-              cursor: "pointer",
-              outline: "none",
-            }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-6"
-              style={{
-                width: "30px",
-                height: "30px",
-                top: "7px",
-                left: "7px",
-                position: "absolute",
-              }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15"
-              />
-            </svg>
-            <p
-              style={{
-                fontFamily: "Inter",
-                fontWeight: 700,
-                fontStyle: "Bold",
-                fontSize: "18px",
-                lineHeight: "39.6px",
-                letterSpacing: "0px",
-                verticalAlign: "middle",
-                width: "150px",
-                height: "24px",
-                position: "absolute",
-                top: "4px",
-                left: "7px",
-              }}
-            >
-              Export
-            </p>
-          </button>
+          <div className="absolute left-[1323px] top-[141px]">
+            <ExportButton />
+          </div>
         </div>
 
         <div
@@ -232,30 +180,8 @@ export default function SocialMediaPage() {
           </p>
         </div>
 
-        <div
-          style={{
-            width: "200px",
-            height: "130px",
-            backgroundColor: "#ffffff",
-            border: "1px solid #E5E5E5",
-            borderRadius: "12px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
-            position: "absolute",
-            top: "510px",
-            left: "320px",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "Poppins, sans-serif",
-              fontWeight: 500,
-              fontStyle: "Medium",
-              fontSize: "16px",
-              color: "#00000",
-              margin: "12px 0 0 20px",
-              position: "absolute",
-            }}
-          >
+        <div className="absolute top-[510px] left-[320px] w-[200px] h-[130px] bg-[#ffffff] border-[1px] border-[#E5E5E5] rounded-[12px] shadow-md">
+          <p className="font-poppins font-medium text-[16px] color-[#000000] mt-[12px] ml-[20px]">
             Likes
           </p>
         </div>

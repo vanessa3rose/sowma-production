@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../../generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -58,6 +58,7 @@ enum Metric {
   SHARES
   COMMENTS
   VIEWS
+  POSTS
 }
 
 enum Count {
