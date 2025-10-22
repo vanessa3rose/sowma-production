@@ -1,4 +1,4 @@
-import facebook from "../assets/facebook.jpg"
+import facebook from "../assets/facebook.jpg";
 import google from "../assets/google.jpg";
 import instagram from "../assets/instagram.jpg";
 import linkedin from "../assets/linkedin.jpg";
@@ -107,7 +107,7 @@ export default function Homepage() {
 
           {/* icon for file export button */}
           <div className="absolute left-[981px]">
-            <ExportButton/>
+            <ExportButton />
           </div>
         </div>
       </div>
