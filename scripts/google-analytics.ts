@@ -10,7 +10,7 @@ import {
   closePrisma,
 } from "../db/social-media-metrics"
 import { Provider, Metric } from "../src/generated/prisma/index.js";
-import { PrismaClient } from "../../generated/prisma";
+import { PrismaClient } from "../src/generated/prisma";
 
 const prisma = new PrismaClient();
 
