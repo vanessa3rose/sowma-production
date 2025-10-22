@@ -1,96 +1,66 @@
+import { useState } from "react";
+import CheckboxTitle from "./CheckboxTitle";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import ExportButton from "../components/ExportButton";
+import DateRangeButton from "../components/DateRangeButton";
 
-
-import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
-import ExportButton from "../components/ExportButton"
-import DateRangeButton from "../components/DateRangeButton"
+const titles = [
+  "Select All",
+  "Instagram",
+  "Linkedin",
+  "News Letter",
+  "Twitter",
+  "Facebook",
+  "TikTok",
+];
 
 interface ModalProps {
-    isOpen: boolean;
-    setIsOpen: any;
+  isOpen: boolean;
+  setIsOpen: any;
 }
 
-export default function ExportModal({isOpen, setIsOpen}: ModalProps) {
-  
+export default function ExportModal({ isOpen, setIsOpen }: ModalProps) {
+  const [checkedStates, setCheckedStates] = useState<Record<string, boolean>>(
+    Object.fromEntries(titles.map((name) => [name, false])),
+  );
+
+  const handleCheckboxChange = (name: string, checked: boolean) => {
+    if (name === "Select All") {
+      const newState = Object.fromEntries(
+        titles.map((platform) => [platform, checked]),
+      );
+      setCheckedStates(newState);
+    } else {
+      setCheckedStates((prev) => ({ ...prev, [name]: checked }));
+    }
+  };
+
   return (
     <>
-
-    {/*Main box */}
-    
-    <ExportButton />
-
-    <Dialog
-      open={isOpen}
-      onClose={() => setIsOpen(false)}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-    >
-      <DialogPanel className="w-[404px] h-[454px] bg-white rounded-xl shadow-lg flex flex-col p-6">
-        <DialogTitle className="relative text-xl font-semibold mb-4">Select for Export
-        {/*Date Range Button*/}
-        <div className="absolute top-[-10] left-[175px] w-[184px] h-[46px] right-0 opacity-100 rounded-[9px] bg-white border border-[#A1A1A1] border-[0.9px]">
-            <DateRangeButton/>
-        </div>
-        </DialogTitle>
-
-
-        {/* Check Boxes */}
-        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
-            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-            <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-                Select All
+      <ExportButton />
+      <Dialog
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      >
+        <DialogPanel className="w-[404px] h-[454px] bg-white rounded-xl shadow-lg flex flex-col p-6">
+          <DialogTitle className="relative text-xl font-semibold mb-4">
+            Select for Export
+            <div className="absolute top-[-10px] left-[175px] w-[184px] h-[46px] right-0 opacity-100 rounded-[9px] bg-white border border-[#A1A1A1] border-[0.9px]">
+              <DateRangeButton />
             </div>
-        </div>
-        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
-            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-            <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-                Instagram
-            </div>
-        </div>
-        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
-            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-            <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-                Linkedin
-            </div>
-        </div>
+          </DialogTitle>
 
-        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
-            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-            <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-                News Letter
-            </div>
-        </div>
-        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
-            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-            <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-                Twitter
-            </div>
-        </div>
-        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
-            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-            <div className=" w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-                Facebook
-            </div>
-        </div>
-        <div className='w-[170px] h-[40px] opactiy-100 flex flex-row items-center justify-start space-x-4 bg-white'>
-            <div className="w-[28px] h-[28px] opacity-100 rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9]"></div>
-            <div className="w-[132.28px] h-[40px] opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px]">
-                TikTok
-            </div>
-        </div>
-
-
-    </DialogPanel>
-    </Dialog>
-
-{/* // checkbox code */}
-{/* <div class="flex items-center mb-4">
-    <input id="default-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-    <label for="default-checkbox" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Default checkbox</label>
-</div>
-<div class="flex items-center">
-    <input checked id="checked-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-    <label for="checked-checkbox" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Checked state</label>
-</div> */}
-
-</>
-);
+          {titles.map((name) => (
+            <CheckboxTitle
+              key={name}
+              name={name}
+              checked={checkedStates[name]}
+              onChange={(checked) => handleCheckboxChange(name, checked)}
+            />
+          ))}
+        </DialogPanel>
+      </Dialog>
+    </>
+  );
 }

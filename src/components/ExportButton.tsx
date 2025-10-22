@@ -3,12 +3,13 @@ import ExportModal from "../components/ExportModal";
 
 export default function ExportButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
 
   return (
     <>
-      <button onClick={() => setIsModalOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 rounded-[10px] border-[1px] border-solid absolute left-[981px] h-[47px] w-[141px] justify-center font-bold text-xl font-[Inter]">
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="flex items-center gap-2 px-4 py-2 rounded-[10px] border-[1px] border-solid absolute left-[981px] h-[47px] w-[141px] justify-center font-bold text-xl font-[Inter]"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -26,7 +27,9 @@ export default function ExportButton() {
         <span>Export</span>
       </button>
       {/*Export Modal is called to redirect to other page using Dialog section */}
-      {isModalOpen && <ExportModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />}
+      {isModalOpen && (
+        <ExportModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
+      )}
     </>
-  )  
+  );
 }

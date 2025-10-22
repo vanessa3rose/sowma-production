@@ -5,10 +5,9 @@ import linkedin from "../../images/linkedin.jpg";
 import twitter from "../../images/twitter.jpg";
 import tiktok from "../../images/tiktok.jpg";
 
-import ExportButton from "../components/ExportButton";  
+import ExportButton from "../components/ExportButton";
 
 export default function Homepage() {
-  
   return (
     <>
       <div className="static">
