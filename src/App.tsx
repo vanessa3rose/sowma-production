@@ -9,7 +9,7 @@ import LeftSidebar from "./components/LeftSidebar";
 const App = () => {
   return (
     <>
-      <LeftSidebar /> 
+      <LeftSidebar />
       <TopBanner />
 
       <Switch>
