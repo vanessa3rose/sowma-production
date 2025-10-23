@@ -106,9 +106,7 @@ export default function Homepage() {
           </a>
 
           {/* icon for file export button */}
-          <div className="absolute left-[981px]">
-            <ExportButton />
-          </div>
+          <ExportButton />
         </div>
       </div>
 
