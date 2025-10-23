@@ -5,7 +5,8 @@ import linkedin from "../assets/linkedin.jpg";
 import twitter from "../assets/twitter.jpg";
 import tiktok from "../assets/tiktok.jpg";
 
-import ExportButton from "../components/ExportButton";
+import ExportButton from "../components/export-pdf/ExportButton";
+import DateRangeButton from "../components/date-range/DateRangeButton";
 
 export default function Homepage() {
   return (
@@ -14,28 +15,7 @@ export default function Homepage() {
         {/* div for below search bar that contains date range, social media, and file export buttons */}
         <div className="absolute top-[139px] left-[337px] flex items-center gap-[21px] justify-center h-auto bg-white">
           {/* date range button */}
-
-          <button
-            id="hs-dropdown-default"
-            type="button"
-            className="hs-dropdown-toggle py-2 px-4 inline-flex rounded-[10px] items-center justify-center gap-2 border-[1px] border-solid h-[47px] w-[184px] font-bold text-lg font-[Inter]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5m-6.75-6h2.25m-9 2.25h4.5m.002-2.25h.005v.006H12v-.006Zm-.001 4.5h.006v.006h-.006v-.005Zm-2.25.001h.005v.006H9.75v-.006Zm-2.25 0h.005v.005h-.006v-.005Zm6.75-2.247h.005v.005h-.005v-.005Zm0 2.247h.006v.006h-.006v-.006Zm2.25-2.248h.006V15H16.5v-.005Z"
-              />
-            </svg>
-            <span>Date Range</span>
-          </button>
+          <DateRangeButton />
 
           {/* social media icons that are links to statistic pages */}
 
@@ -114,42 +94,17 @@ export default function Homepage() {
         {/***********************************Impressions BOX Row 0, Column 0***********************************/}
         <div className="w-[374px] h-[328px] bg-white rounded-[15px] opacity-100 shadow-[0_4px_4px_rgba(0,0,0,0.25)] absolute top-[221px] left-[337px] p-6 flex flex-col gap-[10px]">
           {/* Top rectangle holding Impressions, Instagram, this week */}
-          <div
-            className="
-    w-[326px] h-[32px] 
-    opacity-100 
-    bg-white 
-    flex items-center
-    gap-x-2"
-          >
+          <div className="w-[326px] h-[32px] opacity-100 bg-white flex items-center gap-x-2">
             {/* Impressions box */}
-            <div
-              className="
-      w-[96px] h-[24px] 
-      bg-white 
-      flex items-center
-      "
-            >
-              <span
-                className="
-        font-poppins 
-        font-medium 
-        text-[16px] leading-[100%] 
-        text-black"
-              >
+            <div className="w-[96px] h-[24px] bg-white flex items-center">
+              <span className="font-poppins font-medium text-[16px] leading-[100%] text-black">
                 Impressions
               </span>
             </div>
 
             {/* Instagram box */}
             <div className="flex-1 flex items-center justify-end pr-1">
-              <div
-                className="
-      w-[92px] h-[24px] 
-      bg-white 
-      flex items-center justify-center
-     "
-              >
+              <div className="w-[92px] h-[24px] bg-white flex items-center justify-center">
                 <div className="flex-1 flex items-center justify-end pr-1 pt-1">
                   <span className="font-poppins font-medium text-[12px] text-black">
                     Instagram
@@ -157,14 +112,7 @@ export default function Homepage() {
                 </div>
               </div>
               {/* Right box — 24x24 white square */}
-              <div
-                className="
-          w-[24px] h-[24px] 
-          bg-white 
-          opacity-100
-          flex items-center justify-center
-        "
-              >
+              <div className="w-[24px] h-[24px] bg-white opacity-100 flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -214,15 +162,7 @@ export default function Homepage() {
             </div>
           </div>
           {/*2nd row with engagement difference number */}
-          <div
-            className="
-    w-[326px] h-[48px] 
-    bg-white 
-    opacity-100 
-    flex items-center justify-start 
-    gap-x-2.5 
-    p-0"
-          >
+          <div className="w-[326px] h-[48px] bg-white opacity-100 flex items-center justify-start gap-x-2.5 p-0">
             <div className="relative w-[60px] h-[48px] opacity-100">
               <span className="absolute top-0 left-0 font-poppins font-normal text-[32px] tracking-[-0.0375em] text-sowma-blue text-left">
                 [+XX]
@@ -230,26 +170,9 @@ export default function Homepage() {
             </div>
           </div>
           {/*3rd row with total */}
-          <div
-            className=" 
-    w-[68px] h-[40px] 
-    bg-white opacity-100 
-    flex flex-row justify-start items-start 
-    gap-x-2.5 
-    pb-4"
-          >
+          <div className="w-[68px] h-[40px] bg-white opacity-100 flex flex-row justify-start items-start gap-x-2.5 pb-4">
             {/* Text inside */}
-            <span
-              className="
-      w-full h-[24px] 
-      font-poppins 
-      font-normal 
-      text-[16px] 
-      text-black 
-      text-left 
-      leading-normal 
-      tracking-normal"
-            >
+            <span className="w-full h-[24px] font-poppins font-normal text-[16px] text-black text-left leading-normal tracking-normal">
               Total: XX
             </span>
           </div>

@@ -3,11 +3,7 @@
 export default function DateRangeButton() {
   return (
     <>
-      <button
-        id="hs-dropdown-default"
-        type="button"
-        className="hs-dropdown-toggle py-2 px-4 inline-flex rounded-[10px] items-center justify-center gap-2 border-[1px] border-solid h-[47px] w-[184px] font-bold text-lg font-[Inter]"
-      >
+      <button className="py-2 px-4 inline-flex rounded-[10px] items-center justify-center gap-2 border-[1px] border-solid h-[47px] w-[184px] font-bold text-lg font-[Inter]">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"

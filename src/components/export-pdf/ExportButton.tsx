@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ExportModal from "../components/ExportModal";
+import ExportModal from "./ExportModal";
 
 export default function ExportButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -8,7 +8,7 @@ export default function ExportButton() {
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 rounded-[10px] border-[1px] border-solid absolute left-[981px] h-[47px] w-[141px] justify-center font-bold text-xl font-[Inter]"
+        className="py-2 px-4 gap-2 justify-center items-center inline-flex rounded-[10px] border-[1px] border-solid h-[47px] w-[141px] font-bold text-xl font-[Inter]"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -17,13 +17,6 @@ export default function ExportButton() {
           strokeWidth={1.5}
           stroke="currentColor"
           className="size-6"
-          style={{
-            width: "30px",
-            height: "30px",
-            top: "7px",
-            left: "7px",
-            position: "absolute",
-          }}
         >
           <path
             strokeLinecap="round"
@@ -31,9 +24,7 @@ export default function ExportButton() {
             d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15"
           />
         </svg>
-        <p className="font-poppins font-bold text-[18px] pl-[15px] flex justify-center items-center w-[150px] h-[24px]">
-          Export
-        </p>
+        <span>Export</span>
       </button>
       {/*Export Modal is called to redirect to other page using Dialog section */}
       {isModalOpen && (

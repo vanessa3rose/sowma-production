@@ -1,8 +1,8 @@
 import { useState } from "react";
 import CheckboxTitle from "./CheckboxTitle";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import ExportButton from "../components/ExportButton";
-import DateRangeButton from "../components/DateRangeButton";
+import ExportButton from "./ExportButton";
+import DateRangeButton from "../date-range/DateRangeButton";
 
 const titles = [
   "Select All",
@@ -46,7 +46,7 @@ export default function ExportModal({ isOpen, setIsOpen }: ModalProps) {
         <DialogPanel className="w-[404px] h-[454px] bg-white rounded-xl shadow-lg flex flex-col p-6">
           <DialogTitle className="relative text-xl font-semibold mb-4">
             Select for Export
-            <div className="absolute top-[-10px] left-[175px] w-[184px] h-[46px] right-0 opacity-100 rounded-[9px] bg-white border border-[#A1A1A1] border-[0.9px]">
+            <div className="absolute top-[-10px] left-[175px] w-[184px] h-[46px] right-0 opacity-100 rounded-[9px] bg-white border-[#A1A1A1] border-[0.9px]">
               <DateRangeButton />
             </div>
           </DialogTitle>
