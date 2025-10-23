@@ -2,7 +2,7 @@ import logo from "../assets/logo.png";
 
 const LeftSidebar = () => {
   return (
-    <div className="fixed top-0 left-0 flex flex-col w-1/5 space-y-5 h-full items-center border-r border-gray-600 p-10 gap-4 z-50">
+    <div className="fixed top-0 left-0 flex flex-col w-1/5 space-y-5 h-full items-center bg-white border-r border-gray-600 p-10 gap-4 z-50">
       <img src={logo} alt="Logo" className="w-4/5" />
 
       <div className="flex flex-col w-4/5 justify-start space-y-3">
