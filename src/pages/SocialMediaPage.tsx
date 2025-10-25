@@ -1,5 +1,3 @@
-import ExportButton from "../components/ExportButton";
-
 export default function SocialMediaPage() {
   return (
     <>
@@ -7,7 +5,18 @@ export default function SocialMediaPage() {
         <div className="flex items-center gap-4 mt-8">
           <button
             onClick={() => (window.location.href = "/")}
-            className="absolute top-[151px] left-[335px] w-[40px] h-[40px]"
+            style={{
+              width: "40px",
+              height: "40px",
+              position: "absolute",
+              top: "151px",
+              left: "335px",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              outline: "none",
+              padding: "0",
+            }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -15,9 +24,9 @@ export default function SocialMediaPage() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              style={{ 
-                width: "40px", 
-                height: "40px" 
+              style={{
+                width: "40px",
+                height: "40px",
               }}
             >
               <path
@@ -27,10 +36,43 @@ export default function SocialMediaPage() {
               />
             </svg>
           </button>
-          <h1 className="absolute top-[147px] left-[380px] font-poppins font-semibold text-[40px] flex h-[44px] w-[215px] items-center">
+          <h1
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontWeight: 600,
+              fontStyle: "SemiBold",
+              fontSize: "40px",
+              lineHeight: "44px",
+              letterSpacing: "0px",
+              verticalAlign: "middle",
+              width: "215px",
+              height: "44px",
+              position: "absolute",
+              top: "147px",
+              left: "380px",
+            }}
+          >
             Instagram
           </h1>
-          <select className="absolute top-[142px] left-[1115px] appearance-none w-[184px] h-[46px] border-[1px] border-[#A1A1A1] rounded-[10px] pl-[48px] font-poppins font-bold text-[18px]">
+          <select
+            style={{
+              width: "184px",
+              height: "46px",
+              backgroundColor: "#ffffff",
+              border: "1px solid #A1A1A1",
+              borderRadius: "10px",
+              position: "absolute",
+              top: "142px",
+              left: "1115px",
+              appearance: "none",
+              cursor: "pointer",
+              paddingLeft: "48px",
+              fontFamily: "Inter",
+              fontWeight: 700,
+              fontSize: "18px",
+              outline: "none",
+            }}
+          >
             <option>Date Range</option>
           </select>
           <svg
@@ -77,60 +119,296 @@ export default function SocialMediaPage() {
               d="m19.5 8.25-7.5 7.5-7.5-7.5"
             />
           </svg>
-
-          <div className="absolute left-[1323px] top-[141px]">
-            <ExportButton />
-          </div>
+ 
+ 
+          <button
+            style={{
+              width: "141px",
+              height: "47px",
+              backgroundColor: "#ffffff",
+              border: "1px solid #A1A1A1",
+              borderRadius: "10px",
+              position: "absolute",
+              top: "141px",
+              left: "1323px",
+              cursor: "pointer",
+              outline: "none",
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+              style={{
+                width: "30px",
+                height: "30px",
+                top: "7px",
+                left: "7px",
+                position: "absolute",
+              }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15"
+              />
+            </svg>
+            <p
+              style={{
+                fontFamily: "Inter",
+                fontWeight: 700,
+                fontStyle: "Bold",
+                fontSize: "18px",
+                lineHeight: "39.6px",
+                letterSpacing: "0px",
+                verticalAlign: "middle",
+                width: "150px",
+                height: "24px",
+                position: "absolute",
+                top: "4px",
+                left: "7px",
+              }}
+            >
+              Export
+            </p>
+          </button>
         </div>
-
-        <div className="absolute top-[220px] left-[320px] w-[200px] h-[130px] bg-[#ffffff] border-[1px] border-[#E5E5E5] rounded-[12px] shadow-md">
-          <p className="font-poppins font-medium text-[16px] color-[#000000] mt-[12px] ml-[20px]">
+ 
+ 
+        <div
+          style={{
+            width: "200px",
+            height: "130px",
+            backgroundColor: "#ffffff",
+            border: "1px solid #E5E5E5",
+            borderRadius: "12px",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
+            position: "absolute",
+            top: "220px",
+            left: "320px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontWeight: 500,
+              fontStyle: "Medium",
+              fontSize: "16px",
+              color: "#00000",
+              margin: "12px 0 0 20px",
+              position: "absolute",
+            }}
+          >
             Followers
           </p>
         </div>
-
-        <div className="absolute top-[365px] left-[320px] w-[200px] h-[130px] bg-[#ffffff] border-[1px] border-[#E5E5E5] rounded-[12px] shadow-md">
-          <p className="font-poppins font-medium text-[16px] color-[#000000] mt-[12px] ml-[20px]">
+ 
+ 
+        <div
+          style={{
+            width: "200px",
+            height: "130px",
+            backgroundColor: "#ffffff",
+            border: "1px solid #E5E5E5",
+            borderRadius: "12px",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
+            position: "absolute",
+            top: "365px",
+            left: "320px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontWeight: 500,
+              fontStyle: "Medium",
+              fontSize: "16px",
+              color: "#00000",
+              margin: "12px 0 0 20px",
+              position: "absolute",
+            }}
+          >
             Comments
           </p>
         </div>
-
-        <div className="absolute top-[510px] left-[320px] w-[200px] h-[130px] bg-[#ffffff] border-[1px] border-[#E5E5E5] rounded-[12px] shadow-md">
-          <p className="font-poppins font-medium text-[16px] color-[#000000] mt-[12px] ml-[20px]">
+ 
+ 
+        <div
+          style={{
+            width: "200px",
+            height: "130px",
+            backgroundColor: "#ffffff",
+            border: "1px solid #E5E5E5",
+            borderRadius: "12px",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
+            position: "absolute",
+            top: "510px",
+            left: "320px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontWeight: 500,
+              fontStyle: "Medium",
+              fontSize: "16px",
+              color: "#00000",
+              margin: "12px 0 0 20px",
+              position: "absolute",
+            }}
+          >
             Likes
           </p>
         </div>
-
-        <div className="absolute top-[655px] left-[320px] w-[200px] h-[130px] bg-[#ffffff] border-[1px] border-[#E5E5E5] rounded-[12px] shadow-md">
-          <p className="font-poppins font-medium text-[16px] color-[#000000] mt-[12px] ml-[20px]">
+ 
+ 
+        <div
+          style={{
+            width: "200px",
+            height: "130px",
+            backgroundColor: "#ffffff",
+            border: "1px solid #E5E5E5",
+            borderRadius: "12px",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
+            position: "absolute",
+            top: "655px",
+            left: "320px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontWeight: 500,
+              fontStyle: "Medium",
+              fontSize: "16px",
+              color: "#00000",
+              margin: "12px 0 0 20px",
+              position: "absolute",
+            }}
+          >
             Shared
           </p>
         </div>
-
-        <div className="absolute top-[220px] left-[540px] w-[400px] h-[260px] bg-[#ffffff] border-[1px] border-[#E5E5E5] rounded-[12px] shadow-md">
-          <p className="font-poppins font-medium text-[16px] color-[#000000] mt-[12px] ml-[20px]">
+ 
+ 
+        <div
+          style={{
+            width: "400px",
+            height: "260px",
+            backgroundColor: "#ffffff",
+            border: "1px solid #E5E5E5",
+            borderRadius: "12px",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
+            position: "absolute",
+            top: "220px",
+            left: "540px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontWeight: 500,
+              fontStyle: "Medium",
+              fontSize: "16px",
+              color: "#00000",
+              margin: "12px 0 0 20px",
+              position: "absolute",
+            }}
+          >
             Impressions
           </p>
         </div>
-
-        <div className="absolute top-[500px] left-[540px] w-[480px] h-[280px] bg-[#ffffff] border-[1px] border-[#E5E5E5] rounded-[12px] shadow-md">
-          <p className="font-poppins font-medium text-[16px] color-[#000000] mt-[12px] ml-[20px]">
+ 
+ 
+        <div
+          style={{
+            width: "480px",
+            height: "280px",
+            backgroundColor: "#ffffff",
+            border: "1px solid #E5E5E5",
+            borderRadius: "12px",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
+            position: "absolute",
+            top: "500px",
+            left: "540px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontWeight: 500,
+              fontStyle: "Medium",
+              fontSize: "16px",
+              color: "#00000",
+              margin: "12px 0 0 20px",
+              position: "absolute",
+            }}
+          >
             Reach Sources
           </p>
         </div>
-
-        <div className="absolute top-[220px] left-[960px] w-[520px] h-[260px] bg-[#ffffff] border-[1px] border-[#E5E5E5] rounded-[12px] shadow-md">
-          <p className="font-poppins font-medium text-[16px] color-[#000000] mt-[12px] ml-[20px]">
+ 
+ 
+        <div
+          style={{
+            width: "520px",
+            height: "260px",
+            backgroundColor: "#ffffff",
+            border: "1px solid #E5E5E5",
+            borderRadius: "12px",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
+            position: "absolute",
+            top: "220px",
+            left: "960px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontWeight: 500,
+              fontStyle: "Medium",
+              fontSize: "16px",
+              color: "#00000",
+              margin: "12px 0 0 20px",
+              position: "absolute",
+            }}
+          >
             Demographics - Gender
           </p>
         </div>
-
-        <div className="absolute top-[500px] left-[1040px] w-[440px] h-[280px] bg-[#ffffff] border-[1px] border-[#E5E5E5] rounded-[12px] shadow-md">
-          <p className="font-poppins font-medium text-[16px] color-[#000000] mt-[12px] ml-[20px]">
+ 
+ 
+        <div
+          style={{
+            width: "440px",
+            height: "280px",
+            backgroundColor: "#ffffff",
+            border: "1px solid #E5E5E5",
+            borderRadius: "12px",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
+            position: "absolute",
+            top: "500px",
+            left: "1040px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontWeight: 500,
+              fontStyle: "Medium",
+              fontSize: "16px",
+              color: "#00000",
+              margin: "12px 0 0 20px",
+              position: "absolute",
+            }}
+          >
             Days Posted
           </p>
         </div>
       </div>
     </>
   );
-}
+ } 
