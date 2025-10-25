@@ -1,15 +1,15 @@
 import { Route, Switch } from "wouter";
 
+import LeftSidebar from "./components/LeftSidebar";
+import TopBanner from "./components/TopBanner";
+
 import Homepage from "./pages/Homepage";
 import SocialMediaPage from "./pages/SocialMediaPage";
-
-import TopBanner from "./components/TopBanner";
-import LeftSidebar from "./components/LeftSidebar";
 
 const App = () => {
   return (
     <>
-      <LeftSidebar /> 
+      <LeftSidebar />
       <TopBanner />
 
       <Switch>

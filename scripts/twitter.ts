@@ -13,9 +13,12 @@ type TwitterPublicMetrics = {
 
 // Fetches data from Twitter's API
 export async function fetchTwitterMetrics(username: string) {
-  const res = await fetch(`https://api.twitter.com/2/users/by/username/${username}?user.fields=public_metrics`, {
-    headers: { Authorization: `Bearer ${process.env.TWITTER_BEARER_TOKEN}` },
-  });
+  const res = await fetch(
+    `https://api.twitter.com/2/users/by/username/${username}?user.fields=public_metrics`,
+    {
+      headers: { Authorization: `Bearer ${process.env.TWITTER_BEARER_TOKEN}` },
+    },
+  );
   if (!res.ok) throw new Error("Twitter API failed");
   const data = await res.json();
   return data.data.public_metrics;
@@ -23,14 +26,18 @@ export async function fetchTwitterMetrics(username: string) {
 
 export async function syncTwitterMetrics() {
   // Get accounts from twitter's API
-  const accounts = await prisma.socialMedia.findMany({ where: { provider: "TWITTER" } });
+  const accounts = await prisma.socialMedia.findMany({
+    where: { provider: "TWITTER" },
+  });
 
   // Map twitter's keys to our Enums defined in schema.prisma
-  const TWITTER_TO_PRISMA_METRIC: Partial<Record<keyof TwitterPublicMetrics, Metric>> = {
+  const TWITTER_TO_PRISMA_METRIC: Partial<
+    Record<keyof TwitterPublicMetrics, Metric>
+  > = {
     followers_count: Metric.FOLLOWERS,
     tweet_count: Metric.POSTS,
     // Add new enums here
-  }
+  };
 
   // Determine if the parent (i.e. Twitter) already exists
   const parentexists = await prisma.socialMedia.findFirst({
