@@ -25,12 +25,6 @@ export default function LoginPanel() {
 
     if (emailEmpty || passEmpty) {
       console.log("Validation failed — empty fields");
-      if (emailEmpty) {
-        console.log("Validation failed - empty email field")
-      }
-      if (passEmpty) {
-        console.log("Validation failed - empty password field")
-      }
       return;
     }
   };
@@ -68,8 +62,6 @@ export default function LoginPanel() {
             label="Email:"
             placeholder="someone@gmail.com"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -103,8 +95,6 @@ export default function LoginPanel() {
             label="Password:"
             placeholder="••••••••••"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
