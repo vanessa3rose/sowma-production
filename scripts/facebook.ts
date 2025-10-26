@@ -3,122 +3,107 @@ import { PrismaClient, Metric } from "../src/generated/prisma";
 
 const prisma = new PrismaClient();
 
-const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
-const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
-const FACEBOOK_SHORT_TOKEN = process.env.FACEBOOK_SHORT_TOKEN;
+const FACEBOOK_PAGE_ID = process.env.FACEBOOK_PAGE_ID!;
+const FACEBOOK_PAGE_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!;
+const FB_API_VERSION = "v24.0";
 
-// Links Facebook API's data names to our Prisma Enums
 type FacebookPublicMetrics = {
   page_follows: number;
   page_fans: number;
   page_impressions_unique: number;
-  
-  total_comments: number
+  total_comments: number;
   total_posts: number;
   total_shares: number;
-
 };
 
-// Step 1: Exchange short-lived token for long-lived token
-export async function exchangeForLongLivedToken(shortLivedToken: string = FACEBOOK_SHORT_TOKEN!): Promise<string> {
-    const url = `https://graph.facebook.com/v20.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${FACEBOOK_APP_ID}&client_secret=${FACEBOOK_APP_SECRET}&fb_exchange_token=${shortLivedToken}`;
-    
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-        throw new Error(`Token exchange failed: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    return data.access_token;
-}
+export async function fetchFacebookMetrics(
+  pageId: string = FACEBOOK_PAGE_ID,
+  pageAccessToken: string = FACEBOOK_PAGE_TOKEN
+) {
+  console.log(`\n🔍 [fetchFacebookMetrics] Fetching insights for page ${pageId}`);
 
-// Step 2: Get page access token using long-lived token
-export async function getPageAccessToken(longLivedToken: string, pageId: string): Promise<string> {
-    const url = `https://graph.facebook.com/v20.0/${pageId}?fields=access_token&access_token=${longLivedToken}`;
-    
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-        throw new Error(`Failed to get page access token: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    return data.access_token;
-}
+  const insightsUrl = `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/insights?metric=page_follows,page_fans,page_impressions_unique&period=lifetime&access_token=${pageAccessToken}`;
+  console.log(`➡️  Insights URL: ${insightsUrl}`);
 
-// Step 3: Complete flow - short token → long token → page token
-export async function getCompleteTokenFlow(pageId: string): Promise<string> {
-    try {
-        // Convert short-lived to long-lived token
-        const longLivedToken = await exchangeForLongLivedToken();
-        console.log('✅ Got long-lived token');
-        
-        // Get page access token
-        const pageAccessToken = await getPageAccessToken(longLivedToken, pageId);
-        console.log('✅ Got page access token');
-        
-        return pageAccessToken;
-    } catch (error) {
-        console.error('❌ Token flow failed:', error);
-        throw error;
-    }
-}
+  const res = await fetch(insightsUrl);
+  console.log(`📡 Insights response status: ${res.status}`);
 
-// Fetches data from Facebook's API
-export async function fetchFacebookMetrics(pageId: string, pageAccessToken: string) {
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Facebook Insights API failed: ${res.status} — ${text}`);
+  }
 
-  //going to have to change lots of code here. instead of returning data
-  //need to reurn facebook array, find the stuff in it, and calculate the last
-  //3 enums to return
-const res = await fetch(
-  `https://graph.facebook.com/v20.0/${pageId}/insights?metric=page_follows,page_fans,page_impressions_unique&period=lifetime&access_token=${pageAccessToken}`
-);
-
-  
-  if (!res.ok) throw new Error("Facebook API failed");
   const insightsData = await res.json();
+  console.log(
+    `Insights fetched: ${insightsData?.data?.length || 0} metrics returned`
+  );
 
+  // Pagination for posts
   let posts: any[] = [];
-  let nextUrl: string | null = `https://graph.facebook.com/v20.0/${pageId}/posts?fields=shares,comments.summary(true)&access_token=${pageAccessToken}`;
+  let nextUrl: string | null = `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/posts?fields=shares,comments.summary(true)&access_token=${pageAccessToken}`;
+  let pageCount = 0;
+
+  console.log("Starting to fetch posts...");
 
   while (nextUrl) {
-    const postsRes = await fetch(nextUrl);
-    if (!postsRes.ok) throw new Error("Facebook Posts API failed");
-    
-    const postsData = await postsRes.json();
-    
-    //this ... operator combines the arrays instead of creating inner nested arrays
-    posts.push(...postsData.data);
+    pageCount++;
+    console.log(`Fetching posts page ${pageCount}`);
+    const postsRes: Response = await fetch(nextUrl);
+    console.log(`Posts response status: ${postsRes.status}`);
 
-    // If there’s another page, follow it
+    if (!postsRes.ok) {
+      const text = await postsRes.text();
+      throw new Error(`Facebook Posts API failed: ${postsRes.status} — ${text}`);
+    }
+
+    const postsData = await postsRes.json();
+    const batchCount = postsData?.data?.length || 0;
+    console.log(`Received ${batchCount} posts on this page.`);
+
+    if (!postsData.data || postsData.data.length === 0) {
+      console.log("No posts found — stopping pagination.");
+      break;
+    }
+
+    posts.push(...postsData.data);
     nextUrl = postsData.paging?.next || null;
+
+    if (!nextUrl) console.log("No next page — reached end.");
+    if (pageCount > 10) {
+      console.warn("Hit pagination safety cap (10 pages) — breaking.");
+      break;
+    }
   }
 
+  console.log(`Finished fetching posts — total posts: ${posts.length}`);
 
+  // Compute aggregate metrics
+  const page_follows =
+    insightsData.data.find((m: { name: string }) => m.name === "page_follows")?.values[0]?.value || 0;
+  const page_fans =
+    insightsData.data.find((m: { name: string }) => m.name === "page_fans")?.values[0]?.value || 0;
+  const page_impressions_unique =
+    insightsData.data.find((m: { name: string }) => m.name === "page_impressions_unique")?.values[0]?.value || 0;
   return {
-  //RETURN FACEBOOK DATA
-
-    page_follows: 
-        insightsData.data.find(m => m.name === "page_follows")?.values[0]?.value || 0,
-    page_fans: 
-        insightsData.data.find(m => m.name === "page_fans")?.values[0]?.value || 0,
-    page_impressions_unique: 
-        insightsData.data.find(m => m.name === "page_impressions_unique")?.values[0]?.value || 0,
-
+    page_follows,
+    page_fans,
+    page_impressions_unique,
     total_posts: posts.length,
     total_shares: posts.reduce((sum, post) => sum + (post.shares?.count || 0), 0),
-    total_comments: posts.reduce((sum, post) => sum + (post.comments?.summary?.total_count || 0), 0),
-  }
+    total_comments: posts.reduce(
+      (sum, post) => sum + (post.comments?.summary?.total_count || 0),
+      0
+    ),
+  };
 }
 
 export async function syncFacebookMetrics() {
-  // Get accounts from facebook's API
+  console.log("\n[syncFacebookMetrics] Starting Facebook metrics sync...");
   const accounts = await prisma.socialMedia.findMany({
     where: { provider: "FACEBOOK" },
   });
+  console.log(`Found ${accounts.length} Facebook accounts to sync.`);
 
-  // Map facebook's keys to our Enums defined in schema.prisma
   const FACEBOOK_TO_PRISMA_METRIC: Partial<
     Record<keyof FacebookPublicMetrics, Metric>
   > = {
@@ -130,15 +115,12 @@ export async function syncFacebookMetrics() {
     total_comments: Metric.COMMENTS,
   };
 
-  // Iterate for each account being pulled
   for (const account of accounts) {
+    console.log(`\nSyncing account: ${account.username} (${account.userId})`);
     try {
-    const pageToken = await getCompleteTokenFlow(account.userId);
-    
-      // Fetch metrics from the account MIGHT CHANGE BECAUSE OF FACEBOOK
-      const metrics = await fetchFacebookMetrics(account.userId, pageToken);
+      const metrics = await fetchFacebookMetrics(FACEBOOK_PAGE_ID, FACEBOOK_PAGE_TOKEN);
+      console.log("Metrics fetched successfully, writing to DB...");
 
-      // Convert the twitter-provided metric name to a Metric enum
       for (const [metricName, metricVal] of Object.entries(metrics) as [
         keyof FacebookPublicMetrics,
         number,
@@ -146,7 +128,6 @@ export async function syncFacebookMetrics() {
         const metricEnum = FACEBOOK_TO_PRISMA_METRIC[metricName];
         if (!metricEnum) continue;
 
-        // Post the data update
         await prisma.socialMediaMetrics.create({
           data: {
             socialMediaId: account.id,
@@ -155,24 +136,29 @@ export async function syncFacebookMetrics() {
             lastSynced: new Date(),
           },
         });
+        console.log(`Saved metric: ${metricEnum} = ${metricVal}`);
       }
-      console.log(`✅ Synced ${account.username}`);
+
+      console.log(`✅ Successfully synced ${account.username}`);
     } catch (err) {
       console.error(`❌ Failed syncing ${account.username}`, err);
     }
   }
 
+  console.log("Sync process completed. Disconnecting Prisma...");
   await prisma.$disconnect();
 }
 
 async function main() {
   try {
     await syncFacebookMetrics();
+    console.log("Script finished successfully.");
   } catch (err) {
-    console.error(err);
+    console.error("Unhandled error in main()", err);
     process.exitCode = 1;
   } finally {
     await prisma.$disconnect();
+    console.log("Prisma disconnected.");
   }
 }
 
