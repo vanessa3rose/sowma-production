@@ -5,7 +5,7 @@ import TopBanner from "./components/TopBanner";
 
 import Homepage from "./pages/Homepage";
 import SocialMediaPage from "./pages/SocialMediaPage";
-import LoginPanel from "./pages/Login";
+import LoginPanel from "./components/Login";
 
 const App = () => {
   const [location] = useLocation();
@@ -20,7 +20,7 @@ const App = () => {
       <Switch>
         <Route path="/" component={Homepage} />
         <Route path="/social-media" component={SocialMediaPage} />
-        <Route path="/login-page" component={LoginPanel} />
+        <Route path="/login" component={LoginPanel} />
 
         {/* Shows a 404 error if the path doesn't match anything */}
         {

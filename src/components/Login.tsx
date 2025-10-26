@@ -1,5 +1,5 @@
 import { useState } from "react";
-import LoginTextBox from "../components/LoginTextBox";
+import LoginTextBox from "./LoginTextBox";
 
 export default function LoginPanel() {
   // State variables
