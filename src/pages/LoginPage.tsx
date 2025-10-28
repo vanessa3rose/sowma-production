@@ -3,8 +3,11 @@ import login from "../assets/login.png";
 
 
 export default function LoginPage() {
+  console.log("✅ LoginPage rendered");
+  console.log("Login image import:", login);
   return (
     <main className="min-h-screen w-full overflow-hidden bg-white">
+      
       {/* Row: [gutter (756px)] [ellipse] */}
       <div className="flex">
         {/* Left column = fixed 756px so the ellipse starts exactly at x=756 */}
@@ -16,7 +19,6 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-
         {/* Right column: ellipse block with top offset -73px */}
         <div className="-mt-[73px] pointer-events-none">
           <div

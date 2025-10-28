@@ -18,7 +18,7 @@ export default function LoginTextBox({
   return (
     <div className="flex flex-col items-start w-[577px] gap-[6.4px]">
       {/* Label */}
-      <label className="font-poppins text-[24px] leading-[48px] font-normal text-[#7B7C7C]">
+      <label className="font-poppins text-[24px] leading-[48px] font-normal text-[#000000]">
         {label}
       </label>
 
