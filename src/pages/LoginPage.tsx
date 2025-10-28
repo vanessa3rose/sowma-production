@@ -3,8 +3,6 @@ import login from "../assets/login.png";
 
 
 export default function LoginPage() {
-  console.log("✅ LoginPage rendered");
-  console.log("Login image import:", login);
   return (
     <main className="min-h-screen w-full overflow-hidden bg-white">
       
