@@ -1,6 +1,7 @@
 import LoginPanel from "../components/Login";
 import login from "../assets/login.png";
 
+
 export default function LoginPage() {
   return (
     <main className="min-h-screen w-full overflow-hidden bg-white">

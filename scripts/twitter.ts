@@ -42,17 +42,16 @@ export async function syncTwitterMetrics() {
   // Determine if the parent (i.e. Twitter) already exists
   const parentexists = await prisma.socialMedia.findFirst({
     where: {
-      provider: "TWITTER",
-      userId: "sowma",
+      provider: 'TWITTER',
+      userId: 'sowma'
     },
   });
 
   // If the parent does not exist, print an error message
   if (!parentexists) {
-    console.log(
-      "❌ Failed syncing - TWITTER SocialMedia does not exist\n\tHint: Run twitter-setup.ts",
-    );
+    console.log('❌ Failed syncing - TWITTER SocialMedia does not exist\n\tHint: Run twitter-setup.ts');
   }
+  
 
   // Iterate for each account being pulled
   else {
@@ -60,12 +59,9 @@ export async function syncTwitterMetrics() {
       try {
         // Fetch metrics from the account
         const metrics = await fetchTwitterMetrics(account.username);
-
+        
         // Convert the twitter-provided metric name to a Metric enum
-        for (const [metricName, metricVal] of Object.entries(metrics) as [
-          keyof TwitterPublicMetrics,
-          number,
-        ][]) {
+        for (const [metricName, metricVal] of Object.entries(metrics) as [keyof TwitterPublicMetrics, number][]) {
           const metricEnum = TWITTER_TO_PRISMA_METRIC[metricName];
           if (!metricEnum) continue;
 
@@ -75,7 +71,7 @@ export async function syncTwitterMetrics() {
               socialMediaId: account.id,
               metricName: metricEnum,
               metricValue: metricVal,
-              lastSynced: new Date(),
+              lastSynced: new Date()
             },
           });
         }
