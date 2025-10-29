@@ -1,11 +1,9 @@
 import LoginPanel from "../components/Login";
 import login from "../assets/login.png";
 
-
 export default function LoginPage() {
   return (
     <main className="min-h-screen w-full overflow-hidden bg-white">
-      
       {/* Row: [gutter (756px)] [ellipse] */}
       <div className="flex">
         {/* Left column = fixed 756px so the ellipse starts exactly at x=756 */}

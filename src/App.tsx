@@ -11,7 +11,7 @@ const App = () => {
   const [location] = useLocation();
   const hideLayoutRoutes = ["/login"];
   const hideLayout = hideLayoutRoutes.includes(location);
-  
+
   return (
     <>
       {!hideLayout && <LeftSidebar />}
