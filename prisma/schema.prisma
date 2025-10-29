@@ -50,6 +50,7 @@ enum Provider {
   TIKTOK
   LINKEDIN
   TWITTER
+  
 }
 
 enum Metric {
@@ -59,6 +60,7 @@ enum Metric {
   COMMENTS
   VIEWS
   POSTS
+  
 }
 
 enum Count {

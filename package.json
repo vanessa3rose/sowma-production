@@ -15,10 +15,12 @@
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.1.6",
     "@prisma/client": "^6.17.0",
+    "@types/node-fetch": "^2.6.13",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "git-filter-repo": "^0.0.30",
+    "node-fetch": "^2.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "recharts": "^3.3.0",

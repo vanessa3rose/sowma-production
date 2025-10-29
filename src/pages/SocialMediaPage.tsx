@@ -15,9 +15,9 @@ export default function SocialMediaPage() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              style={{ 
-                width: "40px", 
-                height: "40px" 
+              style={{
+                width: "40px",
+                height: "40px",
               }}
             >
               <path
