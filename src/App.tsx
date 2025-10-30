@@ -5,13 +5,13 @@ import TopBanner from "./components/TopBanner";
 
 import Homepage from "./pages/Homepage";
 import SocialMediaPage from "./pages/SocialMediaPage";
-import LoginPage from "./pages/LoginPage"
+import LoginPage from "./pages/LoginPage";
 
 const App = () => {
   const [location] = useLocation();
   const hideLayoutRoutes = ["/login"];
   const hideLayout = hideLayoutRoutes.includes(location);
-  
+
   return (
     <>
       {!hideLayout && <LeftSidebar />}

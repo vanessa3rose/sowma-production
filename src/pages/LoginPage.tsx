@@ -1,7 +1,6 @@
 import LoginPanel from "../components/Login";
 import login from "../assets/login.png";
 
-
 export default function LoginPage() {
   return (
     <main className="min-h-screen w-full overflow-hidden bg-white">
@@ -16,7 +15,6 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-
         {/* Right column: ellipse block with top offset -73px */}
         <div className="-mt-[73px] pointer-events-none">
           <div
