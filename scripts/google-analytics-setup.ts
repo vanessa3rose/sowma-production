@@ -5,8 +5,7 @@ import { PrismaClient, Provider } from "../src/generated/prisma";
 
 const prisma = new PrismaClient();
 
-async function main(){
-
+async function main() {
   const existing = await prisma.socialMedia.findFirst({
     where: { provider: Provider.GOOGLE_ANALYTICS },
   });

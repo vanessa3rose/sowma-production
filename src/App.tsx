@@ -6,6 +6,7 @@ import TopBanner from "./components/TopBanner";
 import Homepage from "./pages/Homepage";
 import SocialMediaPage from "./pages/SocialMediaPage";
 import LoginPage from "./pages/LoginPage";
+import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
 
 const App = () => {
   const [location] = useLocation();
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/" component={Homepage} />
         <Route path="/social-media" component={SocialMediaPage} />
         <Route path="/login" component={LoginPage} />
+        <Route path="/googleanalytics" component={GoogleAnalyticsPage} />
 
         {/* Shows a 404 error if the path doesn't match anything */}
         {
