@@ -9,6 +9,7 @@ export default function LoginPanel() {
   const [isPasswordEmpty, setIsPasswordEmpty] = useState(false);
   const [emailNotFound, setEmailNotFound] = useState(false);
   const [wrongPassword, setWrongPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Event handlers
   const handleLogin = () => {
@@ -25,6 +26,12 @@ export default function LoginPanel() {
 
     if (emailEmpty || passEmpty) {
       console.log("Validation failed — empty fields");
+      if (emailEmpty) {
+        console.log("Validation failed - empty email field");
+      }
+      if (passEmpty) {
+        console.log("Validation failed - empty password field");
+      }
       return;
     }
   };
@@ -62,6 +69,8 @@ export default function LoginPanel() {
             label="Email:"
             placeholder="someone@gmail.com"
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -94,27 +103,53 @@ export default function LoginPanel() {
           <LoginTextBox
             label="Password:"
             placeholder="••••••••••"
-            type="password"
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                width="24"
-                height="24"
+              <button // hide/show password
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="focus:outline-none"
+                aria-label={showPassword ? "Hide Password" : "Show Password"}
               >
-                <g clipPath="url(#clip0_596_276)">
-                  <path
-                    d="M3.42885 11.1429C2.71456 11.1429 2.10742 10.8929 1.60742 10.3929C1.10742 9.89286 0.857422 9.28571 0.857422 8.57143C0.857422 7.85714 1.10742 7.25 1.60742 6.75C2.10742 6.25 2.71456 6 3.42885 6C4.14314 6 4.75028 6.25 5.25028 6.75C5.75028 7.25 6.00028 7.85714 6.00028 8.57143C6.00028 9.28571 5.75028 9.89286 5.25028 10.3929C4.75028 10.8929 4.14314 11.1429 3.42885 11.1429ZM1.71456 16.2857V14.5714H18.8574V16.2857H1.71456ZM10.286 11.1429C9.57171 11.1429 8.96456 10.8929 8.46456 10.3929C7.96456 9.89286 7.71456 9.28571 7.71456 8.57143C7.71456 7.85714 7.96456 7.25 8.46456 6.75C8.96456 6.25 9.57171 6 10.286 6C11.0003 6 11.6074 6.25 12.1074 6.75C12.6074 7.25 12.8574 7.85714 12.8574 8.57143C12.8574 9.28571 12.6074 9.89286 12.1074 10.3929C11.6074 10.8929 11.0003 11.1429 10.286 11.1429ZM17.1431 11.1429C16.4289 11.1429 15.8217 10.8929 15.3217 10.3929C14.8217 9.89286 14.5717 9.28571 14.5717 8.57143C14.5717 7.85714 14.8217 7.25 15.3217 6.75C15.8217 6.25 16.4289 6 17.1431 6C17.8574 6 18.4646 6.25 18.9646 6.75C19.4646 7.25 19.7146 7.85714 19.7146 8.57143C19.7146 9.28571 19.4646 9.89286 18.9646 10.3929C18.4646 10.8929 17.8574 11.1429 17.1431 11.1429Z"
-                    fill="black"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_596_276">
-                    <rect width="24" height="24" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
+                {showPassword ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3.98 8.223A10.477 10.477 0 001.934 12C3.21 16.058 7 19 12 19c1.727 0 3.36-.37 4.822-1.035M6.228 6.228A10.45 10.45 0 0112 5c5 0 8.79 2.942 10.066 7a10.48 10.48 0 01-4.132 5.033M6.228 6.228L3 3m3.228 3.228L21 21"
+                    />
+                  </svg>
+                )}
+              </button>
             }
           />
           {isPasswordEmpty && (
@@ -153,7 +188,7 @@ export default function LoginPanel() {
         {/* Sign up row */}
         <div className="flex justify-center items-center gap-2">
           <p className="font-poppins text-[20px] text-[#7B7C7C]">
-            Don’t have an account?
+            Don't have an account?
           </p>
           <button
             type="button"
