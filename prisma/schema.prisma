@@ -9,14 +9,15 @@ datasource db {
 }
 
 model SocialMedia {
-  id          String               @id @default(cuid())
-  provider    Provider
-  userId      String
-  username    String
-  displayName String?
-  profileUrl  String?
-  email       String?
-  metrics     SocialMediaMetrics[]
+  id              String               @id @default(cuid())
+  provider        Provider
+  userId          String
+  username        String
+  displayName     String?
+  profileUrl      String?
+  email           String?
+  SocialMediaAuth SocialMediaAuth?
+  metrics         SocialMediaMetrics[]
 }
 
 model SocialMediaMetrics {
@@ -25,6 +26,16 @@ model SocialMediaMetrics {
   metricName    Metric
   metricValue   Int
   lastSynced    DateTime?
+  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])
+}
+
+model SocialMediaAuth {
+  id            String      @id @default(cuid())
+  socialMediaId String      @unique
+  accessToken   String
+  refreshToken  String?
+  expiresAt     DateTime?
+  lastRefreshed DateTime?
   socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])
 }
 

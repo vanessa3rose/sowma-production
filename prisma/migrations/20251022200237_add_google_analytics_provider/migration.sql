@@ -6,7 +6,7 @@
 -- the enum.
 
 
-ALTER TYPE "public"."Metric" ADD VALUE 'POSTS';
+--ALTER TYPE "public"."Metric" ADD VALUE 'POSTS';
 ALTER TYPE "public"."Metric" ADD VALUE 'ACTIVE_USERS';
 ALTER TYPE "public"."Metric" ADD VALUE 'SCREEN_PAGE_VIEWS';
 ALTER TYPE "public"."Metric" ADD VALUE 'ACTIVE_7_DAY_USERS';
