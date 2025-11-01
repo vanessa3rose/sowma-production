@@ -8,22 +8,19 @@ import SocialMediaPage from "./pages/SocialMediaPage";
 
 const App = () => {
   return (
-    <>
+    <div className="flex min-h-screen bg-white">
       <LeftSidebar />
-      <TopBanner />
-
-      <Switch>
-        <Route path="/" component={Homepage} />
-        <Route path="/social-media" component={SocialMediaPage} />
-
-        {/* Shows a 404 error if the path doesn't match anything */}
-        {
+      <div className="flex-grow flex flex-col ml-[20%] pt-28 px-6 bg-white">
+        <TopBanner />
+        <Switch>
+          <Route path="/" component={Homepage} />
+          <Route path="/social-media" component={SocialMediaPage} />
           <Route>
-            <p className="p-4">404: Page Not Found</p>
+            <p className="p-4 text-black">404: Page Not Found</p>
           </Route>
-        }
-      </Switch>
-    </>
+        </Switch>
+      </div>
+    </div>
   );
 };
 

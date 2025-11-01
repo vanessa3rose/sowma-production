@@ -19,8 +19,8 @@ const COLORS = [
 
 type LineChartProps = {
   data: any[];
-  width: number;
-  height: number;
+  width: number | "100%" | "auto";
+  height: number | "100%" | "auto";
   xAxisKey: string;
   dataKeys: string[];
   showArea?: boolean;
@@ -35,13 +35,12 @@ const LineCharts = ({
   showArea,
 }: LineChartProps) => {
   return (
-    <ResponsiveContainer width={width} height={height}>
+    <ResponsiveContainer width={width as number | "100%" | "auto"} height={height as number | "100%" | "auto"}>
       {showArea ? (
         <AreaChart
           data={data}
           margin={{ top: 20, right: 50, left: 20, bottom: 20 }}
         >
-          {/* Gradient definitions for area chart */}
           <defs>
             {dataKeys.map((key, index) => (
               <linearGradient
@@ -74,7 +73,6 @@ const LineCharts = ({
           <YAxis tick={{ fontFamily: "Poppins, sans-serif" }} />
           <Legend wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 
-          {/* Area components with gradients */}
           {dataKeys.map((key, index) => (
             <Area
               key={key}
@@ -100,7 +98,6 @@ const LineCharts = ({
           <YAxis tick={{ fontFamily: "Poppins, sans-serif" }} />
           <Legend wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 
-          {/* Line components with dots */}
           {dataKeys.map((key, index) => (
             <Line
               key={key}

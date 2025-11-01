@@ -16,10 +16,10 @@ const COLORS = [
 
 type PieChartsProps = {
   data: any[];
-  width: number;
-  height: number;
-  dataKey: string; // value key
-  nameKey: string; // label key
+  width: number | `${number}%`;
+  height: number | `${number}%`;
+  dataKey: string;
+  nameKey: string;
 };
 
 const PieCharts = ({
@@ -30,32 +30,34 @@ const PieCharts = ({
   nameKey,
 }: PieChartsProps) => {
   return (
-    <ResponsiveContainer width={width} height={height}>
-      <PieChart>
-        <Pie
-          data={data}
-          dataKey={dataKey}
-          nameKey={nameKey}
-          outerRadius="80%"
-          innerRadius="60%"
-          label={({ value, percent }: PieLabelRenderProps) =>
-            `${value} (${((percent as number) * 100).toFixed(0)}%)`
-          }
-          cx="50%"
-          cy="50%"
-        >
-          {data.map((_, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </Pie>
-        <Legend
-          verticalAlign="middle"
-          align="right"
-          layout="vertical"
-          wrapperStyle={{ fontFamily: "Poppins, sans-serif" }}
-        />
-      </PieChart>
-    </ResponsiveContainer>
+    <div className="w-full h-full p-4 overflow-visible">
+      <ResponsiveContainer width={width} height={height}>
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey={dataKey}
+            nameKey={nameKey}
+            outerRadius="35%"
+            innerRadius="25%"
+            label={({ value, percent }: PieLabelRenderProps) =>
+              `${value} (${((percent as number) * 100).toFixed(0)}%)`
+            }
+            cx="50%"
+            cy="50%"
+          >
+            {data.map((_, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Legend
+            verticalAlign="middle"
+            align="right"
+            layout="vertical"
+            wrapperStyle={{ fontFamily: "Poppins, sans-serif" }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
