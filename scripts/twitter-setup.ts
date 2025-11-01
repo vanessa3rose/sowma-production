@@ -1,15 +1,39 @@
-/* NOTE: Run once - creates new entries if run more than once */
+// Twitter setup. Note: will do nothing if Twitter already exists in the
+// SocialMedia database - delete before running
 
-// TODO: Maybe add something that checks if an entry already exists!
-import { createSocialMedia } from "../db/social-media";
-import { closePrisma } from "../db/social-media";
+import { createSocialMedia, closePrisma } from "../db/social-media";
+import { PrismaClient } from "../src/generated/prisma";
+const prisma = new PrismaClient();
 
-await createSocialMedia({
-  provider: "TWITTER",
-  userId: "sowma",
-  username: "SOWMA",
-  displayName: "School on Wheels",
-  profileUrl: "https://x.com/sowma",
-  email: "<optional-email>",
-});
-await closePrisma();
+async function main() {
+  // Determine if the entry already exists
+  const existing = await prisma.socialMedia.findFirst({
+    where: {
+      provider: "TWITTER",
+      userId: "sowma",
+    },
+  });
+
+  // If it exists, log to console
+  if (existing) {
+    console.log("✅ Twitter entry already exists — skipping creation.");
+  }
+
+  // Otherwise, create it
+  else {
+    await prisma.socialMedia.create({
+      data: {
+        provider: "TWITTER",
+        userId: "sowma",
+        username: "SOWMA",
+        displayName: "School on Wheels",
+        profileUrl: "https://x.com/sowma",
+        email: "<optional-email>",
+      },
+    });
+    console.log("🆕 Created new Twitter entry.");
+  }
+}
+
+await main();
+await prisma.$disconnect();

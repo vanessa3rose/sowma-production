@@ -1,12 +1,18 @@
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 
 import LeftSidebar from "./components/LeftSidebar";
 import TopBanner from "./components/TopBanner";
 
 import Homepage from "./pages/Homepage";
 import SocialMediaPage from "./pages/SocialMediaPage";
+import LoginPage from "./pages/LoginPage";
+import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
 
 const App = () => {
+  const [location] = useLocation();
+  const hideLayoutRoutes = ["/login"];
+  const hideLayout = hideLayoutRoutes.includes(location);
+
   return (
     <div className="flex min-h-screen bg-white">
       <LeftSidebar />

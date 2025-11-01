@@ -1,0 +1,4422 @@
+GOOGLE_ANALYTICS
+Report result:
+Boston 7351
+(not set) 3172
+New York 1886
+Ashburn 1684
+Moses Lake 1043
+San Jose 748
+Easton 716
+Des Moines 708
+Brockton 601
+Columbus 496
+Boydton 436
+San Antonio 436
+Bridgewater 401
+Cheyenne 383
+Scituate 377
+Quincy 349
+Clifton 309
+Cambridge 292
+Dublin 282
+Washington 258
+Santa Clara 253
+Weymouth 251
+Newton 242
+Canton 232
+Plymouth 225
+Hingham 208
+Taunton 202
+Fall River 198
+Sharon 165
+Los Angeles 162
+Phoenix 159
+Amsterdam 155
+New Bedford 154
+Mansfield 150
+Lulea 148
+Stoughton 147
+East Bridgewater 143
+Braintree 135
+Forest City 133
+Franklin 132
+Foxborough 122
+Attleboro 119
+Norton 114
+Waltham 113
+Worcester 111
+Boardman 109
+Lexington 109
+New Haven 108
+Coffeyville 106
+Lowell 106
+Marshfield 103
+Somerville 101
+Abington 99
+Framingham 98
+Needham 97
+Norwood 96
+Raynham 96
+Middleborough 94
+Barnstable 90
+Randolph 89
+Chicago 86
+Rockland 85
+Carver 84
+Burlington 83
+Norfolk 79
+Toronto 79
+Brookline 78
+Prineville 78
+Milton 77
+Whitman 77
+Marlborough 75
+Medford 74
+Walpole 73
+Arlington 72
+Atlanta 72
+Hanover 72
+Springfield 72
+Altoona 70
+Philadelphia 66
+Providence 64
+Woburn 64
+Dartmouth 63
+Wareham 61
+Lynn 60
+East Providence 58
+Norwell 58
+Pembroke 58
+West Bridgewater 55
+Hull 54
+Miami 54
+Wilmington 54
+Helsinki 53
+Dallas 52
+Wellesley 52
+Falmouth 51
+Hialeah Gardens 50
+Dedham 49
+Hanson 49
+Shrewsbury 49
+Hopkinton 48
+North Attleborough 46
+Watertown 46
+Singapore 45
+Westwood 45
+Lakeville 44
+Salem 44
+Kingston 43
+Natick 41
+Swansea 41
+Malden 40
+Newark 40
+Cohasset 39
+Nashua 39
+Reston 39
+Sudbury 39
+Belmont 38
+Bourne 38
+Houston 38
+Rehoboth 38
+Seattle 38
+Wakefield 38
+Acton 37
+Harwich 37
+Mumbai 37
+Quebec City 37
+Revere 37
+Sandwich 37
+Somerset 37
+Westford 37
+Hartford 35
+Bedford 34
+Fort Worth 34
+Foster 34
+Paris 34
+Wrentham 34
+Cheektowaga 33
+The Dalles 33
+Avon 31
+Beverly 31
+Chelmsford 31
+Duxbury 31
+Lanzhou 31
+Concord 30
+Dover 30
+Independence 30
+Orlando 30
+Petersburg 30
+Charlotte 29
+Leominster 29
+Lincoln 29
+Mashpee 29
+Medfield 29
+Morris 29
+Raleigh 29
+Andover 28
+Haverhill 28
+Peabody 28
+Winchester 28
+York 28
+Reading 27
+Holbrook 26
+Manchester 26
+Weston 26
+Amherst 25
+Lawrence 25
+London 25
+Milford 25
+Richmond 25
+Vienna 25
+Ashland 24
+Baltimore 24
+Billerica 24
+Fitchburg 24
+Portland 24
+Southborough 24
+Berlin 23
+Bloomington 23
+Chicopee 23
+Dennis 23
+Bellingham 22
+Halifax 22
+Middletown 22
+Rochester 22
+Yarmouth 22
+Chelsea 21
+Denver 21
+McConnelsville 21
+Wayland 21
+Bristol 20
+Millis 20
+North Haven 20
+Northborough 20
+Westborough 20
+Danvers 19
+Grafton 19
+Holyoke 19
+Las Vegas 19
+Tallahassee 19
+Chatham 18
+Council Bluffs 18
+Dracut 18
+Flint Hill 18
+La Grange 18
+Newburyport 18
+San Francisco 18
+Slippery Rock 18
+Stoneham 18
+Berkley 17
+Georgetown 17
+Hampton 17
+Hartwell 17
+Manning 17
+Marion 17
+Melrose 17
+Newport 17
+North Andover 17
+Onaway 17
+Clinton 16
+Everett 16
+Fairhaven 16
+Glen Ellyn 16
+Gretna 16
+Indianapolis 16
+Methuen 16
+Northampton 16
+Pittsfield 16
+Salisbury 16
+Sioux Falls 16
+Syracuse 16
+Austin 15
+Cairo 15
+Freetown 15
+Grand Ledge 15
+Greenville 15
+Hamburg 15
+Jacksonville 15
+Jersey City 15
+Karachi 15
+Kyiv 15
+Minneapolis 15
+Oswego 15
+Sanford 15
+Torrington 15
+Virginia Beach 15
+Warwick 15
+Bath 14
+Canandaigua 14
+Charleston 14
+Gallipolis 14
+Mattapoisett 14
+Rockport 14
+Swanzey 14
+Athens 13
+Buffalo 13
+Coimbatore 13
+Cumberland 13
+Danville 13
+Inglis 13
+Ipswich 13
+Isle of Palms 13
+Jasper 13
+Louisville 13
+Midland 13
+Naples 13
+Ocala 13
+Paoli 13
+Plainville 13
+Portsmouth 13
+Westport 13
+Winter Park 13
+Alexandria 12
+Belmar 12
+Blackstone 12
+Bradenton 12
+Canajoharie 12
+Center Point 12
+Cranston 12
+Decatur 12
+Delhi 12
+Fort Wayne 12
+Holliston 12
+Kilmarnock 12
+Lincolnton 12
+Metter 12
+Middlefield 12
+North Adams 12
+Norwalk 12
+Norwich 12
+Perry 12
+Saugus 12
+Tewksbury 12
+Waverly 12
+Webster 12
+Abbeville 11
+Acushnet 11
+Adams 11
+Auburn 11
+Bangor 11
+Bengaluru 11
+Brookhaven 11
+Burnaby 11
+Cheshire 11
+Dearing 11
+Elkins 11
+Ellijay 11
+Exmore 11
+Frankfort 11
+Gloucester 11
+Hudson 11
+Jefferson 11
+Lancaster 11
+Marblehead 11
+Nanticoke 11
+Rocky Mount 11
+Sparta 11
+Warren 11
+Warsaw 11
+Alachua 10
+Aspen 10
+Belchertown 10
+Brandon 10
+Calhoun 10
+Chennai 10
+Chesaning 10
+Chestertown 10
+Columbia City 10
+Dunwoody 10
+Evendale 10
+Farmington 10
+Frankfurt 10
+Fremont 10
+Front Royal 10
+Gainesville 10
+Hinesville 10
+Homerville 10
+Hopedale 10
+Jacksonville Beach 10
+Keene 10
+Legazpi City 10
+Longmeadow 10
+Marysville 10
+North Reading 10
+Ogden 10
+Omaha 10
+Oneida 10
+Purcellville 10
+Rumford 10
+San Diego 10
+Sarasota 10
+Waterbury 10
+Wenham 10
+Wolcott 10
+Albany 9
+Altavista 9
+Annapolis 9
+Bloomfield 9
+Bridgeport 9
+Burnsville 9
+Cuthbert 9
+Douglas 9
+Durham 9
+Hancock 9
+Hendersonville 9
+Howard City 9
+Irvine 9
+Lebanon 9
+Leicester 9
+Lewiston 9
+Long Beach 9
+Madisonville 9
+Midlothian 9
+Millbury 9
+Morgantown 9
+Mountain City 9
+Murphy 9
+North Providence 9
+North Richland Hills 9
+Palatka 9
+Pepperell 9
+Pittsburgh 9
+Radford 9
+Seekonk 9
+Smithfield 9
+Tucson 9
+Villa Rica 9
+Villanova 9
+Winthrop 9
+Zurich 9
+Ayer 8
+Beaufort 8
+Campbellsville 8
+Cape Coral 8
+Carlisle 8
+Cleveland 8
+Clintwood 8
+Columbia 8
+Conyers 8
+Costa Mesa 8
+Coventry 8
+Daytona Beach 8
+Dhaka 8
+Dighton 8
+Eatonton 8
+Elmira 8
+Fincastle 8
+Hamilton 8
+Hong Kong 8
+Huntington 8
+Jefferson City 8
+Louisa 8
+Ludlow 8
+Marietta 8
+McLean 8
+Medway 8
+Mount Airy 8
+Mountain View 8
+Myrtle Beach 8
+Nantucket 8
+Nashville 8
+Orange 8
+Palm Coast 8
+Pennsville Township 8
+Piqua 8
+Sandersville 8
+Savannah 8
+Sheridan 8
+Springville 8
+Stow 8
+Swampscott 8
+Sydney 8
+Tampa 8
+Troy 8
+Tyngsborough 8
+Upton 8
+Wallace 8
+Wells 8
+Aiken 7
+Americus 7
+Appomattox 7
+Augusta 7
+Batesville 7
+Bloomsburg 7
+Brunswick 7
+Cardiff 7
+Carmel Hamlet 7
+Charlottesville 7
+Coshocton 7
+Dahlgren 7
+Dover-Foxcroft 7
+Dusseldorf 7
+East Greenwich 7
+Eastham 7
+Elk Grove Village 7
+Fairfield 7
+Fernandina Beach 7
+Gardner 7
+Gunnison 7
+Jackson 7
+Killeen 7
+Lawrenceburg 7
+Lunenburg 7
+Madison 7
+Middlebury 7
+Pawtucket 7
+Pendleton 7
+Pentwater 7
+Powhatan 7
+Provincetown 7
+Richmond Hill 7
+Rincon 7
+Romney 7
+Sandusky 7
+Scottsburg 7
+Secaucus 7
+Shelby 7
+Spencer 7
+Stamford 7
+Three Rivers 7
+Tisbury 7
+West Palm Beach 7
+West Springfield 7
+Westerville 7
+Westfield 7
+Woodbridge Township 7
+Allen 6
+Amesbury 6
+Ballinger 6
+Beckley 6
+Boxborough 6
+Brewster 6
+Bryan 6
+Cebu City 6
+Chattanooga 6
+Ciudad Juarez 6
+Clarion 6
+College Park 6
+Danbury 6
+Darien 6
+Dawson 6
+Deerfield 6
+Detroit 6
+Galion 6
+Glastonbury 6
+Greenfield 6
+Groton 6
+Havana 6
+Huntington Station 6
+Indiana 6
+Key Largo 6
+Key West 6
+Lafayette 6
+Leesburg 6
+Lynnfield 6
+Merrimack 6
+Morristown 6
+New London 6
+New Milford 6
+North Bergen 6
+North Fort Myers 6
+Northbridge 6
+Orangeburg 6
+Orleans 6
+Owenton 6
+Palm Springs 6
+Pulaski 6
+Quezon City 6
+Riyadh 6
+Roanoke 6
+Rose City 6
+South Hadley 6
+Southbridge 6
+Spring Lake 6
+St. Louis 6
+Standish 6
+Toledo 6
+Trenton 6
+Wabash 6
+Wallingford 6
+Waynesboro 6
+Weaverville 6
+West Hartford 6
+Williamston 6
+Windham 6
+Winter Haven 6
+Woonsocket 6
+Agawam 5
+Anderson 5
+Athol 5
+Barbourville 5
+Barrington 5
+Bonita Springs 5
+Bridgeville 5
+Caro 5
+Chardon 5
+Conway 5
+Dayton 5
+Derry 5
+Dubai 5
+Eagle Mountain 5
+East Liverpool 5
+Eaton Rapids 5
+Fayetteville 5
+Fenton 5
+Flint 5
+Granby 5
+Guthrie 5
+Hampstead 5
+Harvard 5
+Ho Chi Minh City 5
+Hyderabad 5
+Irving 5
+Johnston 5
+Lake City 5
+Littleton 5
+Livingston 5
+Maynard 5
+Mount Pleasant 5
+Old Bridge 5
+Owosso 5
+Oxford 5
+Oyster Bay 5
+Palm Bay 5
+Pine Mountain 5
+Princeton 5
+Putnam Lake 5
+Ravenswood 5
+Rawalpindi 5
+Reidsville 5
+Riverside 5
+Roscommon 5
+Rutland 5
+Saratoga Springs 5
+Seoul 5
+South Burlington 5
+Southington 5
+Sterling 5
+Stockbridge 5
+Sturbridge 5
+Sumter 5
+Sutton 5
+Swansboro 5
+Torrance 5
+Trumann 5
+Valrico 5
+Vernon 5
+Versailles 5
+West Boylston 5
+Westlake 5
+White Plains 5
+78095 4
+Ann Arbor 4
+Auckland 4
+Bartlesville 4
+Belle Glade 4
+Big Stone Gap 4
+Birmingham 4
+Blue Ridge 4
+Bluffton 4
+Boxford 4
+Bradford 4
+Bridgton 4
+Buchanan 4
+Bucksport 4
+Butte 4
+Carrollton 4
+Charlton 4
+Church Hill 4
+Cordele 4
+Corona 4
+Courtland 4
+Davenport 4
+East Hartford 4
+Elkin 4
+Erie 4
+Frankfurt am Main 4
+Frisco 4
+Greensburg 4
+Grove City 4
+Harrison 4
+Hartford City 4
+Hindman 4
+Hodgenville 4
+Holden 4
+Hornell 4
+Hot Springs 4
+Ionia 4
+Jeffersonville 4
+Kansas City 4
+Kingsley 4
+Lagos 4
+Lahore 4
+Lansing 4
+Lawrence Township 4
+Lewisburg 4
+Lipa 4
+Lucknow 4
+Madrid 4
+Martinsville 4
+Mayodan 4
+Medina 4
+Memphis 4
+Mendon 4
+Mesick 4
+Minnetonka 4
+Mitchell 4
+Monroe 4
+Montauk 4
+Montreal 4
+Mooresville 4
+Newbury 4
+Niederkruchten 4
+North Bethesda 4
+North Kingstown 4
+North Smithfield 4
+Oakland 4
+Okeechobee 4
+Palmer 4
+Patna 4
+Plano 4
+Pooler 4
+Port St. Lucie 4
+Pune 4
+Rowley 4
+Saint Paul 4
+Scarsdale 4
+Schenectady 4
+Sebewaing 4
+Seneca 4
+Shanghai 4
+Shelbyville 4
+Sivakasi 4
+South Windsor 4
+Stanton 4
+Stockholm 4
+Sylvania 4
+Tempe 4
+Tiverton 4
+Topsfield 4
+Uxbridge 4
+Vincennes 4
+Wake Forest 4
+Wauchula 4
+Welch 4
+West Liberty 4
+Westerly 4
+Wilbraham 4
+Williamsburg 4
+Williamstown 4
+Winamac 4
+Windsor 4
+ 3
+Adairsville 3
+Albuquerque 3
+Annandale 3
+Atlantic City 3
+Bangkok 3
+Barre 3
+Baton Rouge 3
+Beachwood 3
+Binghamton 3
+Boca Raton 3
+Bowling Green 3
+Boylston 3
+Brattleboro 3
+Campton 3
+Cape Elizabeth 3
+Carnot-Moon 3
+Cartersville 3
+Cary 3
+Centennial 3
+Clayton 3
+Clewiston 3
+Cloverdale 3
+Colchester 3
+Colorado Springs 3
+Cortland 3
+Covington 3
+Creedmoor 3
+Daleville 3
+Delray Beach 3
+Dubuque 3
+Duck 3
+Eastvale 3
+Elizabeth City 3
+Elkton 3
+Faisalabad 3
+Fitzgerald 3
+Folkston 3
+Fort Pierce 3
+Freeport 3
+Frostproof 3
+Gardena 3
+Glenview 3
+Glenville 3
+Gorham 3
+Grand Rapids 3
+Greensboro 3
+Gulf Shores 3
+Hampton Bays 3
+Harriman 3
+Harrisonburg 3
+Hastings 3
+Hickory 3
+Hilton Head Island 3
+Hockessin 3
+Honaker 3
+Hyden 3
+Istanbul 3
+Jamestown 3
+Kaysville 3
+Kendallville 3
+Lake Placid 3
+Lawton 3
+Lisbon 3
+Lubbock 3
+Mancelona 3
+Manchester-by-the-Sea 3
+Manila 3
+Marshall 3
+Melbourne 3
+Mount Olive 3
+Munich 3
+Muskegon 3
+Nairobi 3
+New Albany 3
+New Kingstown 3
+New Philadelphia 3
+New River 3
+Niteroi 3
+Oak Bluffs 3
+Oakville 3
+Oceanside 3
+Ocracoke 3
+Oil City 3
+Old Orchard Beach 3
+Palo Alto 3
+Parsippany-Troy Hills 3
+Peoria 3
+Petoskey 3
+Plainfield 3
+Pompano Beach 3
+Prospect 3
+Punxsutawney 3
+Redondo Beach 3
+Reynoldsburg 3
+Richardson 3
+Richlands 3
+Ridgeland 3
+Rock Hill 3
+Rockingham 3
+Rockville 3
+Rome 3
+Royston 3
+Saline 3
+Salt Lake City 3
+San Juan 3
+San Mateo 3
+Santa Barbara 3
+Saugerties 3
+Shenzhen 3
+Sherborn 3
+Shirley 3
+Southold 3
+Sunderland 3
+Suzhou 3
+Tacoma 3
+Tarboro 3
+Tarlac City 3
+Tarrytown 3
+Tehran 3
+The Villages 3
+Tiffin 3
+Union Point 3
+Utica 3
+Valdosta 3
+Vancouver 3
+Wapakoneta 3
+Waxhaw 3
+Wellfleet 3
+West Point 3
+Westampton Township 3
+Wheeling 3
+Whitehall 3
+Whiteville 3
+Williamson 3
+Williston 3
+Wilson 3
+Abuja 2
+Acworth 2
+Adel 2
+Ahmedabad 2
+Albemarle 2
+Albufeira 2
+Allendale Charter Township 2
+Alton 2
+Amelia Court House 2
+Angola 2
+Anthony 2
+Arcata 2
+Asheboro 2
+Baldwinsville 2
+Bar Harbor 2
+Barnwell 2
+Basse Sangtempe 2
+Bealeton 2
+Benton 2
+Berne 2
+Bhopal 2
+Bien Hoa 2
+Big Rapids 2
+Blakely 2
+Block Island 2
+Blue Bell 2
+Boerne 2
+Bolingbrook 2
+Bolton 2
+Boone 2
+Boscawen 2
+Branford 2
+Brewer 2
+Brick Township 2
+Brighton 2
+Brimfield 2
+Brookneal 2
+Burbach 2
+Burhanpur 2
+Burrillville 2
+Caledonia 2
+Camden 2
+Carbondale 2
+Carey 2
+Castleton 2
+Celina 2
+Centreville 2
+Charles Town 2
+Charlevoix 2
+Cheboygan 2
+Chengdu 2
+Chesapeake 2
+Chester 2
+Cincinnati 2
+Circleville 2
+Claremont 2
+Claxton 2
+Clay 2
+Claymont 2
+Cobleskill 2
+Cockeysville 2
+Coldwater 2
+Colebrook 2
+College Station 2
+Collins 2
+Colonie 2
+Colquitt 2
+Coram 2
+Cork 2
+Corning 2
+Craigsville 2
+Creve Coeur 2
+Cupertino 2
+Cypress 2
+Da Nang 2
+Dagupan 2
+Dalton 2
+Dasmarinas 2
+Delphos 2
+Denton 2
+Dover Plains 2
+Dudley 2
+Duffield 2
+Dumaguete 2
+Dunstable 2
+East Lyme 2
+East Northport 2
+East Stroudsburg 2
+Eau Claire 2
+Edgartown 2
+Edison 2
+El Paso 2
+Elberton 2
+Elizabeth 2
+Ellington 2
+Elon 2
+Englewood 2
+Espanola 2
+Estero 2
+Exeter 2
+Exton 2
+Faridabad 2
+Farmers Branch 2
+Farmville 2
+Flagler Beach 2
+Flemingsburg 2
+Florence 2
+Fort Kent 2
+Frederick 2
+Fredericksburg 2
+Freedom 2
+Fullerton 2
+Galway 2
+Gardiner 2
+Gastonia 2
+Gaylord 2
+General Santos City 2
+Geneva 2
+Glendale 2
+Gloucester Township 2
+Greater Noida 2
+Greenwich 2
+Guilford 2
+Gulfport 2
+Gurugram 2
+Gwangmyeong-si 2
+Haarlem 2
+Hamden 2
+Hillsville 2
+Holland 2
+Hollywood 2
+Homestead 2
+Hooksett 2
+Houlton 2
+Huntington Beach 2
+Huntsville 2
+Ilion 2
+Immokalee 2
+Ironton 2
+Islip 2
+Jesup 2
+Jinhua 2
+Johannesburg 2
+Kampala 2
+Kattankulathur 2
+Kent 2
+Kershaw 2
+King George 2
+King of Prussia 2
+Kingwood 2
+Kitzingen 2
+Kolkata 2
+Kuala Lumpur 2
+Laurel 2
+Laurens 2
+Lee 2
+Leesville 2
+Lenox 2
+Liberty 2
+Lima 2
+Litchfield 2
+Little Compton 2
+Londonderry 2
+Longboat Key 2
+Lorain 2
+Loris 2
+Lumpkin 2
+Lyme 2
+Lynchburg 2
+Lyon 2
+Machias 2
+Macon 2
+Madurai 2
+Malone 2
+Manistee 2
+Marco Island 2
+Marine City 2
+Martinsburg 2
+Maryville 2
+Maysville 2
+McArthur 2
+McKinney 2
+Melle 2
+Mequon 2
+Middleton 2
+Midway 2
+Milwaukee 2
+Minden 2
+Minerva 2
+Mission Viejo 2
+Monson 2
+Montague 2
+Montebello 2
+Montgomery 2
+Monticello 2
+Morganton 2
+Mount Vernon 2
+Muncie 2
+Murfreesboro 2
+Murrells Inlet 2
+Nahant 2
+Nappanee 2
+Nassau Village-Ratliff 2
+Navi Mumbai 2
+New Bern 2
+New Britain 2
+New Cairo City 2
+New Castle 2
+New Delhi 2
+New Orleans 2
+New Rochelle 2
+Newfane 2
+Newington 2
+Newnan 2
+North Manchester 2
+North Port 2
+North Vernon 2
+Northfield 2
+Oakdale 2
+Ogdensburg 2
+Old Lyme 2
+Ottawa 2
+Panama City 2
+Panama City Beach 2
+Paramaribo 2
+Parker 2
+Piraeus 2
+Pittsboro 2
+Prague 2
+Presque Isle 2
+Provo 2
+Punta Cana 2
+Ranchi 2
+Rangeley 2
+Raritan Township 2
+Readington Township 2
+Remington 2
+Reno 2
+Roanoke Rapids 2
+Rockford 2
+Round Rock 2
+Sacramento 2
+San Marcos 2
+Santa Fe 2
+Scranton 2
+Seaford 2
+Sebastian 2
+Seymour 2
+Shawano 2
+Shelton 2
+Sidney 2
+Skowhegan 2
+Smithtown 2
+South Haven 2
+South Pasadena 2
+Springdale 2
+St. Petersburg 2
+Statesville 2
+Stephenville 2
+Suginami City 2
+Sweetwater 2
+Sylhet 2
+Tamworth 2
+Tarpon Springs 2
+Templeton 2
+The Woodlands 2
+Thousand Oaks 2
+Toms River 2
+Towanda 2
+Tulsa 2
+Turner 2
+Venice 2
+Ventura 2
+Vermilion 2
+Ville Platte 2
+Walnut Creek 2
+Waterford 2
+Waterville 2
+Weehawken 2
+Wellsville 2
+Wentzville 2
+West Deptford 2
+West Goshen 2
+West Greenwich 2
+West Newbury 2
+West Orange 2
+Westbrook 2
+Westland 2
+Wethersfield 2
+Wildwood 2
+Willard 2
+Wilton 2
+Winchendon 2
+Windsor Locks 2
+Wise 2
+Wytheville 2
+Zanesville 2
+Zephyrhills 2
+63640 1
+78740 1
+86741 1
+Abeokuta 1
+Aberdeen 1
+Abu Dhabi 1
+Ada 1
+Adelphi 1
+Adilabad 1
+Adrian 1
+Agoura Hills 1
+Ahoskie 1
+Alamogordo 1
+Allendale 1
+Alma 1
+Amelia 1
+Angeles 1
+Angeles City 1
+Antelope 1
+Antioch 1
+Antlers 1
+Anza 1
+Apopka 1
+Arden Hills 1
+Ardmore 1
+Arlington Heights 1
+Artesia 1
+Asahikawa 1
+Ashby 1
+Asheville 1
+Aspen Hill 1
+Aurora 1
+Ayden 1
+Bacoor 1
+Bad Axe 1
+Baghdad 1
+Bagsvaerd 1
+Baguio 1
+Bainbridge 1
+Bala Cynwyd 1
+Barcelona 1
+Bardstown 1
+Barre Town 1
+Bartlett 1
+Barton 1
+Batangas 1
+Bathurst 1
+Battle Creek 1
+Bay Lake 1
+Bayshore 1
+Baytown 1
+Beach Park 1
+Beacon 1
+Bear 1
+Beau Bassin-Rose Hill 1
+Beaverdam Lake-Salisbury Mills 1
+Beaverton 1
+Beirut 1
+Bellefontaine 1
+Belvidere 1
+Bennington 1
+Berea 1
+Berkeley 1
+Berwick 1
+Bethel 1
+Bethesda 1
+Bethlehem 1
+Bhubaneswar 1
+Biddeford 1
+Bishopville 1
+Black Forest 1
+Bogota 1
+Boiling Springs 1
+Boonville 1
+Boothbay Harbor 1
+Boulder 1
+Brambleton 1
+Bratenahl 1
+Bratislava 1
+Breaux Bridge 1
+Brentwood 1
+Brest 1
+Briarcliff Manor 1
+Bridgman 1
+Brighton and Hove 1
+Brisbane 1
+Brodhead 1
+Broken Arrow 1
+Brookfield 1
+Brookville 1
+Broomfield 1
+Brownsville 1
+Bryson City 1
+Buenos Aires 1
+Buford 1
+Bulle 1
+Burbank 1
+Burgaw 1
+Busan 1
+Bydgoszcz 1
+Cabuyao 1
+Cadillac 1
+Calgary 1
+Caloocan 1
+Cameron 1
+Cancun 1
+Candia 1
+Canyon 1
+Cape Canaveral 1
+Cape Charles 1
+Cape Town 1
+Carlsbad 1
+Carmel 1
+Carroll 1
+Carson 1
+Carthage 1
+Casco 1
+Castle Rock 1
+Castro Valley 1
+Cathedral City 1
+Catskill 1
+Ceres 1
+Chalmette 1
+Champaign 1
+Chandigarh 1
+Channahon 1
+Chantilly 1
+Chapeco 1
+Charlotte Park 1
+Charlottetown 1
+Chelyabinsk 1
+Cheney 1
+Chesterfield 1
+Chetumal 1
+Cheval 1
+Chhatrapati Sambhaji Nagar 1
+Chibougamau 1
+Chillicothe 1
+Chilmark 1
+Chisinau 1
+Chouteau 1
+Christiana 1
+Cirencester 1
+Clare 1
+Clarksburg 1
+Clearfield 1
+Clemson 1
+Clermont 1
+Cleveland Heights 1
+Clinton Township 1
+Closter 1
+Clyde 1
+Coatesville 1
+Cochran 1
+Collingwood 1
+Cologne 1
+Colombo 1
+Colrain 1
+Colville 1
+Compton 1
+Concordville 1
+Connersville 1
+Cook 1
+Cooper City 1
+Copperopolis 1
+Cordoba 1
+Cornwall 1
+Corry 1
+Cotabato City 1
+Coudersport 1
+Coxsackie 1
+Crawfordsville 1
+Crawfordville 1
+Crest Hill 1
+Crofton 1
+Croton-on-Hudson 1
+Croydon 1
+Cullman 1
+Culpeper 1
+Cumming 1
+Curitiba 1
+Cutchogue 1
+Cynthiana 1
+Dacula 1
+Dale City 1
+Damascus 1
+Dansville 1
+Darmstadt 1
+Davis 1
+Da’an District 1
+DeSoto 1
+Defiance 1
+Delaware 1
+Denham Springs 1
+Denpasar 1
+Derby 1
+Devens 1
+Dillon 1
+Doha 1
+Donalsonville 1
+Dongducheon-si 1
+Dongguan 1
+Doral 1
+Douglasville 1
+Dowagiac 1
+Drexel Heights 1
+Drexel Hill 1
+Drummondville 1
+Duisburg 1
+Dunean 1
+Dunn 1
+Eagle Grove 1
+East Brunswick 1
+East Glenville 1
+East Granby 1
+East Haven 1
+East Longmeadow 1
+East Los Angeles 1
+East Orange 1
+East Pasadena 1
+East Rochester 1
+East Syracuse 1
+Easthampton 1
+Eden Prairie 1
+Edenton 1
+Edmonds 1
+Edmonton 1
+Edwards 1
+Egg Harbor City 1
+Egypt Lake-Leto 1
+El Cajon 1
+El Monte 1
+El Pueblito 1
+Elgin 1
+Eliot 1
+Elizabethtown 1
+Elkhart 1
+Ellenton 1
+Ellsworth 1
+Elmont 1
+Enderlin 1
+Enfield 1
+Epping 1
+Erwin 1
+Eugene 1
+Evanston 1
+Ewing Township 1
+Fair Haven 1
+Fairlawn 1
+Fairmont 1
+Fairmount 1
+Fes 1
+Fishers 1
+Florissant 1
+Flower Mound 1
+Fond du Lac 1
+Fort Collins 1
+Fort Lauderdale 1
+Fort Lee 1
+Fort Meade 1
+Fort Mill 1
+Fort Myers 1
+Fort Valley 1
+Foster City 1
+Fountain Hills 1
+Four Corners 1
+Franconia 1
+Franklin Township 1
+Franschhoek 1
+French Lick 1
+Fresno 1
+Fryeburg 1
+Gaithersburg 1
+Galax 1
+Galloway 1
+Gantt 1
+Garden City 1
+Garfield 1
+Gary 1
+General Trias 1
+Geoje-si 1
+Gerakas 1
+Germantown 1
+Gettysburg 1
+Ghaziabad 1
+Gilbert 1
+Gladwin 1
+Gleneagle 1
+Glennville 1
+Glens Falls 1
+Goldsboro 1
+Gouverneur 1
+Grand Haven 1
+Grand Island 1
+Grand Junction 1
+Grantham 1
+Grass Valley 1
+Gray 1
+Great Barrington 1
+Green Cove Springs 1
+Greenland 1
+Greenport 1
+Greenwich Township 1
+Greenwood 1
+Griffin 1
+Grinnell 1
+Griswold 1
+Groveland 1
+Groveport 1
+Grover Beach 1
+Grundy 1
+Guayaquil 1
+Haddonfield 1
+Hadley 1
+Hagerstown 1
+Haines City 1
+Haiphong 1
+Hamilton Township 1
+Hammonton 1
+Hampden 1
+Hangzhou 1
+Hanoi 1
+Harbin 1
+Hardeeville 1
+Hardin 1
+Harrington 1
+Harrisburg 1
+Harrogate 1
+Hartsville 1
+Haslett 1
+Haspra 1
+Hawkinsville 1
+Hayward 1
+Hazard 1
+Hazlet 1
+Heath 1
+Hesperia 1
+Hialeah 1
+High Point 1
+Highland 1
+Highland Springs 1
+Highlands Ranch 1
+Hillsboro 1
+Hillsdale 1
+Hobe Sound 1
+Hoffman Estates 1
+Holden Beach 1
+Holderness 1
+Holdrege 1
+Hollis 1
+Hope Mills 1
+Hortonville 1
+Hounslow 1
+Howell 1
+Hubbardston 1
+Hultsfred 1
+Humboldt 1
+Huntersville 1
+Huron 1
+Ili 1
+Indore 1
+Irkutsk 1
+Islamabad 1
+Ithaca 1
+Izmir 1
+Jackson Township 1
+Jakarta 1
+James Island 1
+Jeddah 1
+Jeju-si 1
+Johns Creek 1
+Johns Island 1
+Johnstown 1
+Jordan 1
+Julian 1
+Junction City 1
+Kalamazoo 1
+Kannapolis 1
+Kathleen 1
+Kathmandu 1
+Kaunas 1
+Kayseri 1
+Keller 1
+Kelseyville 1
+Kennebunk 1
+Kenton 1
+Kharkiv 1
+Killingly 1
+Kindersley 1
+Kingfield 1
+Kingsland 1
+Kingsport 1
+Kingstree 1
+Kinston 1
+Kissimmee 1
+Kisumu 1
+Kitchener 1
+Kittanning 1
+Kittery 1
+Knoxville 1
+Kobe 1
+Koloa 1
+Kota 1
+Kozhikode 1
+Krakow 1
+Kyoto 1
+La Habra 1
+La Porte 1
+LaBelle 1
+LaFayette 1
+LaFollette 1
+LaGrange 1
+Laconia 1
+Lake Arbor 1
+Lake Butler 1
+Lake Park 1
+Lake Stevens 1
+Lake Zurich 1
+Lakeland 1
+Lakeway 1
+Lanesborough 1
+Lapu-Lapu City 1
+Larchmont 1
+Largo 1
+Laurinburg 1
+Lawrenceville 1
+Leer 1
+Lely Resort 1
+Lembak 1
+Lenoir City 1
+Les Mureaux 1
+Lexington Park 1
+Libertyville 1
+Lille 1
+Lillington 1
+Limassol 1
+Linden 1
+Little Elm 1
+Live Oak 1
+Lock Haven 1
+Lockport 1
+Lodi 1
+Lome 1
+Lompoc 1
+Long Branch 1
+Longmont 1
+Lorrach 1
+Lost City 1
+Louisburg 1
+Loveland 1
+Lowell charter Township 1
+Ludwigsburg 1
+Luray 1
+Lynn Haven 1
+Macedonia 1
+Madera 1
+Madison Heights 1
+Mahopac 1
+Mainz 1
+Makati 1
+Malacca 1
+Malaga 1
+Malolos 1
+Manama 1
+Manasquan 1
+Manchester Township 1
+Mandeville 1
+Mangaluru 1
+Manistique 1
+Manteo 1
+Manvel 1
+Maple Grove 1
+Marathon 1
+Maricopa 1
+Marinette 1
+Markham 1
+Marlboro 1
+Marlton 1
+Marquette 1
+Marseille 1
+Martinez 1
+Mason 1
+Matane 1
+Mathews 1
+Mauldin 1
+Mayville 1
+McGovern 1
+McHenry 1
+Mebane 1
+Mechanicsburg 1
+Mechanicsville 1
+Mechelen 1
+Meknes 1
+Memmingen 1
+Mexico City 1
+Miami Beach 1
+Michigan Center 1
+Midwest City 1
+Milan 1
+Milanville 1
+Milledgeville 1
+Millersburg 1
+Millville 1
+Milton Keynes 1
+Mineola 1
+Mississauga 1
+Missoula 1
+Mobile 1
+Modesto 1
+Monroe Township 1
+Monrovia 1
+Mont-Joli 1
+Monteagle 1
+Monterey 1
+Montpelier 1
+Moose Wilson Road 1
+Morehead 1
+Morgan 1
+Morris Township 1
+Morrow 1
+Morton 1
+Moscow 1
+Moultonborough 1
+Moultrie 1
+Mount Gilead 1
+Mount Lebanon 1
+Mountainside 1
+Multan 1
+Munising 1
+Murcia 1
+Murrieta 1
+Myakka City 1
+Myawaddy 1
+Nagpur 1
+Nampa 1
+Nantong 1
+Nanuet 1
+Naperville 1
+Nassau 1
+Nassau Bay 1
+Neath 1
+Nellysford 1
+Nelsonville 1
+Neosho 1
+Neumarkt in der Oberpfalz 1
+New Braintree 1
+New Brunswick 1
+New Cumberland 1
+New Martinsville 1
+Newcastle 1
+Newport Beach 1
+Newport News 1
+Newry 1
+Niagara Falls 1
+Niceville 1
+Nicholasville 1
+Noida 1
+Norridgewock 1
+North Bay Shore 1
+North Bergen Township 1
+North Brookfield 1
+North Brunswick Township 1
+North Charleston 1
+North Highlands 1
+North Myrtle Beach 1
+North Naples 1
+Northville 1
+Novi 1
+O'Fallon 1
+Oak Harbor 1
+Oak View 1
+Oakland City 1
+Oberlin 1
+Oberstdorf 1
+Ocean City 1
+Ocoee 1
+Ogunquit 1
+Ojai 1
+Oklahoma City 1
+Old Forge 1
+Old Saybrook 1
+Olive Hill 1
+Olney 1
+Oneonta 1
+Ontario 1
+Oradell 1
+Oranjestad 1
+Orland Park 1
+Ormond Beach 1
+Osaka 1
+Oslo Municipality 1
+Otis 1
+Overland 1
+Oviedo 1
+Paducah 1
+Pageland 1
+Pagosa Springs 1
+Pahrump 1
+Palm Beach Gardens 1
+Palm City 1
+Palm Harbor 1
+Palmetto 1
+Paramus 1
+Paranaque 1
+Park Forest Village 1
+Parma 1
+Pasco 1
+Patras 1
+Pattaya City 1
+Paulding 1
+Pawleys Island 1
+Paxton 1
+Pearl River 1
+Pellston 1
+Pembroke Pines 1
+Petaling Jaya 1
+Petaluma 1
+Petersham 1
+Philipsburg 1
+Phoenixville 1
+Pickens 1
+Pietermaritzburg 1
+Pikesville 1
+Pimpri-Chinchwad 1
+Pinehurst 1
+Pineville 1
+Placerville 1
+Plain City 1
+Plantation 1
+Playa del Carmen 1
+Pomorie 1
+Port Angeles 1
+Port Clinton 1
+Port Louis 1
+Port of Spain Corporation 1
+Portage 1
+Porto Rafti 1
+Porto-Vecchio 1
+Potomac 1
+Potsdam 1
+Potters Bar 1
+Pottersville 1
+Poughkeepsie 1
+Poulsbo 1
+Prescot 1
+Punta Gorda 1
+Putnam 1
+Quito 1
+Quogue 1
+Raba 1
+Rahim Yar Khan 1
+Rainelle 1
+Rajkot 1
+Rancho Palos Verdes 1
+Ranebennur 1
+Rapid City 1
+Raymond 1
+Red Bank 1
+Red Beach 1
+Red Lion 1
+Red Oak 1
+Redmond 1
+Redwood City 1
+Renfrew 1
+Richfield 1
+Richland Center 1
+Ridgeville 1
+Ridgewood 1
+Rifle 1
+Rindge 1
+Rio Vista 1
+Riverton 1
+Rochester Hills 1
+Rock Port 1
+Rocky Hill 1
+Romeoville 1
+Romulus 1
+Roscommon Township 1
+Roslyn 1
+Roslyn Heights 1
+Rotterdam 1
+Rungkut 1
+Ruskin 1
+Rye 1
+Sacavem 1
+Saco 1
+Saint Charles 1
+Saint George 1
+Saint John 1
+Saint Johns 1
+Saint Michael 1
+Saint Moritz 1
+Saint Petersburg 1
+Saitama 1
+Salinas 1
+San Jose del Cabo 1
+San Marino 1
+San Salvador 1
+San Tan Valley 1
+Sanbornton 1
+Sandton 1
+Sandy Springs 1
+Santa Claus 1
+Santa Monica 1
+Santa Rosa 1
+Santa Teresa 1
+Santiago 1
+Santiago de Queretaro 1
+Santo Domingo 1
+Sao Leopoldo 1
+Sao Paulo 1
+Sarrebourg 1
+Saskatoon 1
+Scotts Valley 1
+Sea Breeze 1
+Seabrook 1
+Seal Beach 1
+Sebring 1
+Security-Widefield 1
+Setauket- East Setauket 1
+Severn 1
+Shakopee 1
+Shapleigh 1
+Sharjah 1
+Sharonville 1
+Sheffield 1
+Shelburne 1
+Shibuya City 1
+Shihoro 1
+Shinagawa City 1
+Siesta Key 1
+Simsbury 1
+Sinking Spring 1
+Skippack 1
+Sleepy Hollow 1
+Smith Center 1
+Smyrna 1
+Sofia 1
+Sound Beach 1
+South Boston 1
+South Kingstown 1
+South Portland 1
+South Riding 1
+South San Francisco 1
+South Thomaston 1
+South Whittier 1
+Southampton 1
+Southwick 1
+Spackenkill 1
+Spartanburg 1
+Spokane 1
+Spring Hill 1
+Spruce Pine 1
+St. Augustine 1
+Stadtbergen 1
+Stanford 1
+State College 1
+Statesboro 1
+Stephens City 1
+Stephenson 1
+Stevensville 1
+Stokesdale 1
+Stonington 1
+Stowe 1
+Stuttgart 1
+Suchy Las 1
+Suffolk 1
+Sugar Land 1
+Sukkur 1
+Sumy 1
+Sunny Isles Beach 1
+Sunnyvale 1
+Sunrise 1
+Sunset Hills 1
+Tangier 1
+Tapachula 1
+Tashkent 1
+Tekamah 1
+Tel Aviv-Yafo 1
+Texarkana 1
+Thane 1
+Thatcham 1
+The Colony 1
+The Hague 1
+The Meadows 1
+Thomaston 1
+Thomasville 1
+Thorntown 1
+Three Forks 1
+Tifton 1
+Titusville 1
+Townsend 1
+Tracy 1
+Trinity 1
+Trois-Rivieres 1
+Truckee 1
+Trumbull 1
+Tuckahoe 1
+Tukwila 1
+Tully 1
+Tunis 1
+Tunkhannock 1
+Twinsburg 1
+Tysons 1
+Ulyanovsk 1
+Union 1
+Union City 1
+Union Park 1
+Uniontown 1
+Upper Freehold 1
+Upper Township 1
+Urbandale 1
+Urmia 1
+Vallejo 1
+Van Buren 1
+Van Horn 1
+Vasai-Virar 1
+Vereeniging 1
+Verona 1
+Vidalia 1
+Vientiane 1
+Vila Nova de Gaia 1
+Villa Grove 1
+Village of Oak Creek 1
+Villas 1
+Vineland 1
+Vinings 1
+Virden 1
+Visalia 1
+Wadesboro 1
+Wadsworth 1
+Waleska 1
+Walker 1
+Wall Township 1
+Walnut 1
+Ware 1
+Warm Springs 1
+Warminster 1
+Warrenton 1
+Warstein 1
+Wartburg 1
+Wasco 1
+Washington Court House 1
+Washington Crossing 1
+Washougal 1
+Waukesha 1
+Wausau 1
+Wautoma 1
+Wayne 1
+Waynesburg 1
+Weare 1
+Wekiwa Springs 1
+Weslaco 1
+West Brookfield 1
+West Covina 1
+West Drayton 1
+West Haven 1
+West Kelowna 1
+West Lafayette 1
+West Union 1
+West Warwick 1
+Westampton 1
+Westminster 1
+Westmoreland 1
+Wexford 1
+White Bear Lake 1
+Whitefish 1
+Whitehorse 1
+Whitestown 1
+Whiting 1
+Wichita 1
+Wickenburg 1
+Wilkes-Barre 1
+Willemstad 1
+Williamsport 1
+Wingate 1
+Winston-Salem 1
+Winterthur 1
+Wolfdale 1
+Wolfeboro 1
+Woodstock 1
+Woodville 1
+Woodway 1
+Wooster 1
+Wrens 1
+Wuppertal 1
+Xenia 1
+Yadkinville 1
+Yaounde 1
+Yass 1
+Yekaterinburg 1
+Yokohama 1
+Youngstown 1
+Yuba City 1
+Yuma 1
+Zagreb 1
+Zaporizhzhia 1
+Zhongzheng District 1
+Zhuhai 1
+Zionsville 1
+Zwickau 1
+Akron 0
+Albion 0
+Ballerup 0
+Bay Minette 0
+Breckenridge 0
+Butler 0
+Casablanca 0
+Corbin 0
+Fort Gregg-Adams 0
+Hallettsville 0
+Havre 0
+Holly Ridge 0
+Ibaraki 0
+Lewistown 0
+Mentor 0
+Nahunta 0
+Newburgh 0
+Oak Hill 0
+Palmdale 0
+Ripley 0
+Santee 0
+Scotia 0
+Shinjuku City 0
+Socorro 0
+Spindale 0
+Summerville 0
+Tehachapi 0
+Tucumcari 0
+Walsenburg 0
+Waterloo 0
+Wheaton 0
+{
+  findUnique: [Function (anonymous)],
+  findUniqueOrThrow: [Function (anonymous)],
+  findFirst: [Function (anonymous)],
+  findFirstOrThrow: [Function (anonymous)],
+  findMany: [Function (anonymous)],
+  create: [Function (anonymous)],
+  createMany: [Function (anonymous)],
+  createManyAndReturn: [Function (anonymous)],
+  update: [Function (anonymous)],
+  updateMany: [Function (anonymous)],
+  updateManyAndReturn: [Function (anonymous)],
+  upsert: [Function (anonymous)],
+  delete: [Function (anonymous)],
+  deleteMany: [Function (anonymous)],
+  groupBy: [Function (anonymous)],
+  count: [Function (anonymous)],
+  aggregate: [Function (anonymous)],
+  findRaw: [Function (anonymous)],
+  aggregateRaw: [Function (anonymous)],
+  fields: {},
+  name: 'SocialMedia',
+  '$name': 'SocialMedia',
+  '$parent': {
+    _originalClient: {
+      _originalClient: [Object],
+      _runtimeDataModel: [Object],
+      _requestHandler: [ei [RequestHandler]],
+      _connectionPromise: undefined,
+      _disconnectionPromise: undefined,
+      _engineConfig: [Object],
+      _accelerateEngineConfig: [Object],
+      _clientVersion: '6.16.0',
+      _errorFormat: 'colorless',
+      _tracingHelper: Ao {},
+      _previewFeatures: [],
+      _activeProvider: 'postgresql',
+      _globalOmit: undefined,
+      _extensions: [e],
+      _engine: [Qr],
+      _appliedParent: [Object],
+      _createPrismaPromise: [Function (anonymous)],
+      '$metrics': [Lr],
+      '$extends': [Function: Wa]
+    },
+    _runtimeDataModel: { models: [Object], enums: [Object], types: {} },
+    _requestHandler: ei [RequestHandler] {
+      client: [Object],
+      dataloader: [Zn [DataLoader]],
+      logEmitter: [EventEmitter]
+    },
+    _connectionPromise: undefined,
+    _disconnectionPromise: undefined,
+    _engineConfig: {
+      cwd: '/Users/jeehyuoh/Desktop/jumbocode/school-on-wheels/prisma',
+      dirname: '/Users/jeehyuoh/Desktop/jumbocode/generated/prisma',
+      enableDebugLogs: false,
+      allowTriggerPanic: undefined,
+      prismaPath: '/Users/jeehyuoh/Desktop/jumbocode/generated/prisma/libquery_engine-darwin-arm64.dylib.node',
+      engineEndpoint: undefined,
+      generator: [Object],
+      showColors: false,
+      logLevel: undefined,
+      logQueries: undefined,
+      env: [Object],
+      flags: [],
+      engineWasm: undefined,
+      compilerWasm: undefined,
+      clientVersion: '6.16.0',
+      engineVersion: '1c57fdcd7e44b29b9313256c76699e91c3ac3c43',
+      previewFeatures: [],
+      activeProvider: 'postgresql',
+      inlineSchema: 'generator client {\n' +
+        '  provider = "prisma-client-js"\n' +
+        '  output   = "../../generated/prisma"\n' +
+        '}\n' +
+        '\n' +
+        'datasource db {\n' +
+        '  provider = "postgresql"\n' +
+        '  url      = env("DATABASE_URL")\n' +
+        '}\n' +
+        '\n' +
+        'model SocialMedia {\n' +
+        '  id          String               @id @default(cuid())\n' +
+        '  provider    Provider\n' +
+        '  userId      String\n' +
+        '  username    String\n' +
+        '  displayName String?\n' +
+        '  profileUrl  String?\n' +
+        '  email       String?\n' +
+        '  metrics     SocialMediaMetrics[]\n' +
+        '}\n' +
+        '\n' +
+        'model SocialMediaMetrics {\n' +
+        '  id            String      @id @default(cuid())\n' +
+        '  socialMediaId String\n' +
+        '  metricName    Metric\n' +
+        '  metricValue   Int\n' +
+        '  lastSynced    DateTime?\n' +
+        '  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])\n' +
+        '}\n' +
+        '\n' +
+        'model DatabaseReport {\n' +
+        '  id         String                @id @default(cuid())\n' +
+        '  reportDate DateTime\n' +
+        '  counts     DatabaseReportCount[]\n' +
+        '}\n' +
+        '\n' +
+        'model DatabaseReportCount {\n' +
+        '  id       String         @id @default(cuid())\n' +
+        '  reportId String\n' +
+        '  count    Count\n' +
+        '  value    Int            @default(0)\n' +
+        '  report   DatabaseReport @relation(fields: [reportId], references: [id])\n' +
+        '\n' +
+        '  @@unique([reportId, count])\n' +
+        '}\n' +
+        '\n' +
+        'enum Provider {\n' +
+        '  FACEBOOK\n' +
+        '  INSTAGRAM\n' +
+        '  TIKTOK\n' +
+        '  LINKEDIN\n' +
+        '  TWITTER\n' +
+        '  GOOGLE_ANALYTICS\n' +
+        '}\n' +
+        '\n' +
+        'enum Metric {\n' +
+        '  FOLLOWERS\n' +
+        '  LIKES\n' +
+        '  SHARES\n' +
+        '  COMMENTS\n' +
+        '  VIEWS\n' +
+        '  POSTS\n' +
+        '  ACTIVE_USERS\n' +
+        '  SCREEN_PAGE_VIEWS\n' +
+        '  ACTIVE_7_DAY_USERS\n' +
+        '  ENGAGEMENT_RATE\n' +
+        '  NEW_USERS\n' +
+        '}\n' +
+        '\n' +
+        'enum Count {\n' +
+        '  ATTENDED_EVENT\n' +
+        '  COMMUNITY_VOLUNTEER\n' +
+        '  CORPORATE_VOLUNTEER\n' +
+        '  GOOGLE_SEARCH\n' +
+        '  HEARD_SOWMA_SPEAKER\n' +
+        '  NEWS_MEDIA\n' +
+        '  OTHER\n' +
+        '  REFERRAL\n' +
+        '  SCHOOL_VOLUNTEER\n' +
+        '  SOCIAL_MEDIA\n' +
+        '  WEBSITE\n' +
+        '}\n',
+      overrideDatasources: {},
+      inlineDatasources: [Object],
+      inlineSchemaHash: '1a98b9ff49e18f92c5d1d33c6e0a93f2145c7ca1f128ab75283ba7f472236177',
+      tracingHelper: Ao {},
+      transactionOptions: [Object],
+      logEmitter: [EventEmitter],
+      isBundled: undefined,
+      adapter: undefined
+    },
+    _accelerateEngineConfig: {
+      cwd: '/Users/jeehyuoh/Desktop/jumbocode/school-on-wheels/prisma',
+      dirname: '/Users/jeehyuoh/Desktop/jumbocode/generated/prisma',
+      enableDebugLogs: false,
+      allowTriggerPanic: undefined,
+      prismaPath: undefined,
+      engineEndpoint: undefined,
+      generator: [Object],
+      showColors: false,
+      logLevel: undefined,
+      logQueries: undefined,
+      env: [Object],
+      flags: [],
+      engineWasm: undefined,
+      compilerWasm: undefined,
+      clientVersion: '6.16.0',
+      engineVersion: '1c57fdcd7e44b29b9313256c76699e91c3ac3c43',
+      previewFeatures: [],
+      activeProvider: 'postgresql',
+      inlineSchema: 'generator client {\n' +
+        '  provider = "prisma-client-js"\n' +
+        '  output   = "../../generated/prisma"\n' +
+        '}\n' +
+        '\n' +
+        'datasource db {\n' +
+        '  provider = "postgresql"\n' +
+        '  url      = env("DATABASE_URL")\n' +
+        '}\n' +
+        '\n' +
+        'model SocialMedia {\n' +
+        '  id          String               @id @default(cuid())\n' +
+        '  provider    Provider\n' +
+        '  userId      String\n' +
+        '  username    String\n' +
+        '  displayName String?\n' +
+        '  profileUrl  String?\n' +
+        '  email       String?\n' +
+        '  metrics     SocialMediaMetrics[]\n' +
+        '}\n' +
+        '\n' +
+        'model SocialMediaMetrics {\n' +
+        '  id            String      @id @default(cuid())\n' +
+        '  socialMediaId String\n' +
+        '  metricName    Metric\n' +
+        '  metricValue   Int\n' +
+        '  lastSynced    DateTime?\n' +
+        '  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])\n' +
+        '}\n' +
+        '\n' +
+        'model DatabaseReport {\n' +
+        '  id         String                @id @default(cuid())\n' +
+        '  reportDate DateTime\n' +
+        '  counts     DatabaseReportCount[]\n' +
+        '}\n' +
+        '\n' +
+        'model DatabaseReportCount {\n' +
+        '  id       String         @id @default(cuid())\n' +
+        '  reportId String\n' +
+        '  count    Count\n' +
+        '  value    Int            @default(0)\n' +
+        '  report   DatabaseReport @relation(fields: [reportId], references: [id])\n' +
+        '\n' +
+        '  @@unique([reportId, count])\n' +
+        '}\n' +
+        '\n' +
+        'enum Provider {\n' +
+        '  FACEBOOK\n' +
+        '  INSTAGRAM\n' +
+        '  TIKTOK\n' +
+        '  LINKEDIN\n' +
+        '  TWITTER\n' +
+        '  GOOGLE_ANALYTICS\n' +
+        '}\n' +
+        '\n' +
+        'enum Metric {\n' +
+        '  FOLLOWERS\n' +
+        '  LIKES\n' +
+        '  SHARES\n' +
+        '  COMMENTS\n' +
+        '  VIEWS\n' +
+        '  POSTS\n' +
+        '  ACTIVE_USERS\n' +
+        '  SCREEN_PAGE_VIEWS\n' +
+        '  ACTIVE_7_DAY_USERS\n' +
+        '  ENGAGEMENT_RATE\n' +
+        '  NEW_USERS\n' +
+        '}\n' +
+        '\n' +
+        'enum Count {\n' +
+        '  ATTENDED_EVENT\n' +
+        '  COMMUNITY_VOLUNTEER\n' +
+        '  CORPORATE_VOLUNTEER\n' +
+        '  GOOGLE_SEARCH\n' +
+        '  HEARD_SOWMA_SPEAKER\n' +
+        '  NEWS_MEDIA\n' +
+        '  OTHER\n' +
+        '  REFERRAL\n' +
+        '  SCHOOL_VOLUNTEER\n' +
+        '  SOCIAL_MEDIA\n' +
+        '  WEBSITE\n' +
+        '}\n',
+      overrideDatasources: {},
+      inlineDatasources: [Object],
+      inlineSchemaHash: '1a98b9ff49e18f92c5d1d33c6e0a93f2145c7ca1f128ab75283ba7f472236177',
+      tracingHelper: Ao {},
+      transactionOptions: [Object],
+      logEmitter: [EventEmitter],
+      isBundled: undefined,
+      adapter: undefined,
+      accelerateUtils: [Object]
+    },
+    _clientVersion: '6.16.0',
+    _errorFormat: 'colorless',
+    _tracingHelper: Ao {},
+    _previewFeatures: [],
+    _activeProvider: 'postgresql',
+    _globalOmit: undefined,
+    _extensions: e { head: undefined },
+    _engine: Qr {
+      name: 'LibraryEngine',
+      engine: [Object],
+      libraryInstantiationPromise: [Promise],
+      libraryStartingPromise: undefined,
+      libraryStoppingPromise: undefined,
+      libraryStarted: false,
+      executingQueryPromise: undefined,
+      config: [Object],
+      QueryEngineConstructor: [Function: QueryEngine],
+      libraryLoader: [Object],
+      library: [Object],
+      logEmitter: [EventEmitter],
+      libQueryEnginePath: undefined,
+      binaryTarget: 'darwin-arm64',
+      datasourceOverrides: undefined,
+      datamodel: 'generator client {\n' +
+        '  provider = "prisma-client-js"\n' +
+        '  output   = "../../generated/prisma"\n' +
+        '}\n' +
+        '\n' +
+        'datasource db {\n' +
+        '  provider = "postgresql"\n' +
+        '  url      = env("DATABASE_URL")\n' +
+        '}\n' +
+        '\n' +
+        'model SocialMedia {\n' +
+        '  id          String               @id @default(cuid())\n' +
+        '  provider    Provider\n' +
+        '  userId      String\n' +
+        '  username    String\n' +
+        '  displayName String?\n' +
+        '  profileUrl  String?\n' +
+        '  email       String?\n' +
+        '  metrics     SocialMediaMetrics[]\n' +
+        '}\n' +
+        '\n' +
+        'model SocialMediaMetrics {\n' +
+        '  id            String      @id @default(cuid())\n' +
+        '  socialMediaId String\n' +
+        '  metricName    Metric\n' +
+        '  metricValue   Int\n' +
+        '  lastSynced    DateTime?\n' +
+        '  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])\n' +
+        '}\n' +
+        '\n' +
+        'model DatabaseReport {\n' +
+        '  id         String                @id @default(cuid())\n' +
+        '  reportDate DateTime\n' +
+        '  counts     DatabaseReportCount[]\n' +
+        '}\n' +
+        '\n' +
+        'model DatabaseReportCount {\n' +
+        '  id       String         @id @default(cuid())\n' +
+        '  reportId String\n' +
+        '  count    Count\n' +
+        '  value    Int            @default(0)\n' +
+        '  report   DatabaseReport @relation(fields: [reportId], references: [id])\n' +
+        '\n' +
+        '  @@unique([reportId, count])\n' +
+        '}\n' +
+        '\n' +
+        'enum Provider {\n' +
+        '  FACEBOOK\n' +
+        '  INSTAGRAM\n' +
+        '  TIKTOK\n' +
+        '  LINKEDIN\n' +
+        '  TWITTER\n' +
+        '  GOOGLE_ANALYTICS\n' +
+        '}\n' +
+        '\n' +
+        'enum Metric {\n' +
+        '  FOLLOWERS\n' +
+        '  LIKES\n' +
+        '  SHARES\n' +
+        '  COMMENTS\n' +
+        '  VIEWS\n' +
+        '  POSTS\n' +
+        '  ACTIVE_USERS\n' +
+        '  SCREEN_PAGE_VIEWS\n' +
+        '  ACTIVE_7_DAY_USERS\n' +
+        '  ENGAGEMENT_RATE\n' +
+        '  NEW_USERS\n' +
+        '}\n' +
+        '\n' +
+        'enum Count {\n' +
+        '  ATTENDED_EVENT\n' +
+        '  COMMUNITY_VOLUNTEER\n' +
+        '  CORPORATE_VOLUNTEER\n' +
+        '  GOOGLE_SEARCH\n' +
+        '  HEARD_SOWMA_SPEAKER\n' +
+        '  NEWS_MEDIA\n' +
+        '  OTHER\n' +
+        '  REFERRAL\n' +
+        '  SCHOOL_VOLUNTEER\n' +
+        '  SOCIAL_MEDIA\n' +
+        '  WEBSITE\n' +
+        '}\n',
+      logQueries: false,
+      logLevel: 'error',
+      lastQuery: undefined,
+      loggerRustPanic: undefined,
+      tracingHelper: Ao {},
+      adapterPromise: undefined,
+      versionInfo: [Object]
+    },
+    _appliedParent: {
+      _originalClient: [Object],
+      _runtimeDataModel: [Object],
+      _requestHandler: [ei [RequestHandler]],
+      _connectionPromise: undefined,
+      _disconnectionPromise: undefined,
+      _engineConfig: [Object],
+      _accelerateEngineConfig: [Object],
+      _clientVersion: '6.16.0',
+      _errorFormat: 'colorless',
+      _tracingHelper: Ao {},
+      _previewFeatures: [],
+      _activeProvider: 'postgresql',
+      _globalOmit: undefined,
+      _extensions: [e],
+      _engine: [Qr],
+      _appliedParent: [Object],
+      _createPrismaPromise: [Function (anonymous)],
+      '$metrics': [Lr],
+      '$extends': [Function: Wa],
+      constructor: [class r],
+      '$on': [Function: $on],
+      '$connect': [Function: $connect],
+      '$disconnect': [AsyncFunction: $disconnect],
+      '$executeRawInternal': [Function: $executeRawInternal],
+      '$executeRaw': [Function: $executeRaw],
+      '$executeRawUnsafe': [Function: $executeRawUnsafe],
+      '$runCommandRaw': [Function: $runCommandRaw],
+      '$queryRawInternal': [AsyncFunction: $queryRawInternal],
+      '$queryRaw': [Function: $queryRaw],
+      '$queryRawTyped': [Function: $queryRawTyped],
+      '$queryRawUnsafe': [Function: $queryRawUnsafe],
+      _transactionWithArray: [Function: _transactionWithArray],
+      _transactionWithCallback: [AsyncFunction: _transactionWithCallback],
+      _createItxClient: [Function: _createItxClient],
+      '$transaction': [Function: $transaction],
+      _request: [Function: _request],
+      _executeRequest: [AsyncFunction: _executeRequest],
+      _hasPreviewFlag: [Function: _hasPreviewFlag],
+      '$applyPendingMigrations': [Function: $applyPendingMigrations],
+      socialMedia: [Object],
+      socialMediaMetrics: [Object],
+      databaseReport: [Object],
+      databaseReportCount: [Object],
+      '$parent': [Object],
+      [Symbol()]: [Object]
+    },
+    _createPrismaPromise: [Function (anonymous)],
+    '$metrics': Lr { _client: [Object] },
+    '$extends': [Function: Wa],
+    constructor: [class r],
+    '$on': [Function: $on],
+    '$connect': [Function: $connect],
+    '$disconnect': [AsyncFunction: $disconnect],
+    '$executeRawInternal': [Function: $executeRawInternal],
+    '$executeRaw': [Function: $executeRaw],
+    '$executeRawUnsafe': [Function: $executeRawUnsafe],
+    '$runCommandRaw': [Function: $runCommandRaw],
+    '$queryRawInternal': [AsyncFunction: $queryRawInternal],
+    '$queryRaw': [Function: $queryRaw],
+    '$queryRawTyped': [Function: $queryRawTyped],
+    '$queryRawUnsafe': [Function: $queryRawUnsafe],
+    _transactionWithArray: [Function: _transactionWithArray],
+    _transactionWithCallback: [AsyncFunction: _transactionWithCallback],
+    _createItxClient: [Function: _createItxClient],
+    '$transaction': [Function: $transaction],
+    _request: [Function: _request],
+    _executeRequest: [AsyncFunction: _executeRequest],
+    _hasPreviewFlag: [Function: _hasPreviewFlag],
+    '$applyPendingMigrations': [Function: $applyPendingMigrations],
+    socialMedia: {
+      findUnique: [Function (anonymous)],
+      findUniqueOrThrow: [Function (anonymous)],
+      findFirst: [Function (anonymous)],
+      findFirstOrThrow: [Function (anonymous)],
+      findMany: [Function (anonymous)],
+      create: [Function (anonymous)],
+      createMany: [Function (anonymous)],
+      createManyAndReturn: [Function (anonymous)],
+      update: [Function (anonymous)],
+      updateMany: [Function (anonymous)],
+      updateManyAndReturn: [Function (anonymous)],
+      upsert: [Function (anonymous)],
+      delete: [Function (anonymous)],
+      deleteMany: [Function (anonymous)],
+      groupBy: [Function (anonymous)],
+      count: [Function (anonymous)],
+      aggregate: [Function (anonymous)],
+      findRaw: [Function (anonymous)],
+      aggregateRaw: [Function (anonymous)],
+      fields: {},
+      name: 'SocialMedia',
+      '$name': 'SocialMedia',
+      '$parent': [Object]
+    },
+    socialMediaMetrics: {
+      findUnique: [Function (anonymous)],
+      findUniqueOrThrow: [Function (anonymous)],
+      findFirst: [Function (anonymous)],
+      findFirstOrThrow: [Function (anonymous)],
+      findMany: [Function (anonymous)],
+      create: [Function (anonymous)],
+      createMany: [Function (anonymous)],
+      createManyAndReturn: [Function (anonymous)],
+      update: [Function (anonymous)],
+      updateMany: [Function (anonymous)],
+      updateManyAndReturn: [Function (anonymous)],
+      upsert: [Function (anonymous)],
+      delete: [Function (anonymous)],
+      deleteMany: [Function (anonymous)],
+      groupBy: [Function (anonymous)],
+      count: [Function (anonymous)],
+      aggregate: [Function (anonymous)],
+      findRaw: [Function (anonymous)],
+      aggregateRaw: [Function (anonymous)],
+      fields: {},
+      name: 'SocialMediaMetrics',
+      '$name': 'SocialMediaMetrics',
+      '$parent': [Object]
+    },
+    databaseReport: {
+      findUnique: [Function (anonymous)],
+      findUniqueOrThrow: [Function (anonymous)],
+      findFirst: [Function (anonymous)],
+      findFirstOrThrow: [Function (anonymous)],
+      findMany: [Function (anonymous)],
+      create: [Function (anonymous)],
+      createMany: [Function (anonymous)],
+      createManyAndReturn: [Function (anonymous)],
+      update: [Function (anonymous)],
+      updateMany: [Function (anonymous)],
+      updateManyAndReturn: [Function (anonymous)],
+      upsert: [Function (anonymous)],
+      delete: [Function (anonymous)],
+      deleteMany: [Function (anonymous)],
+      groupBy: [Function (anonymous)],
+      count: [Function (anonymous)],
+      aggregate: [Function (anonymous)],
+      findRaw: [Function (anonymous)],
+      aggregateRaw: [Function (anonymous)],
+      fields: {},
+      name: 'DatabaseReport',
+      '$name': 'DatabaseReport',
+      '$parent': [Object]
+    },
+    databaseReportCount: {
+      findUnique: [Function (anonymous)],
+      findUniqueOrThrow: [Function (anonymous)],
+      findFirst: [Function (anonymous)],
+      findFirstOrThrow: [Function (anonymous)],
+      findMany: [Function (anonymous)],
+      create: [Function (anonymous)],
+      createMany: [Function (anonymous)],
+      createManyAndReturn: [Function (anonymous)],
+      update: [Function (anonymous)],
+      updateMany: [Function (anonymous)],
+      updateManyAndReturn: [Function (anonymous)],
+      upsert: [Function (anonymous)],
+      delete: [Function (anonymous)],
+      deleteMany: [Function (anonymous)],
+      groupBy: [Function (anonymous)],
+      count: [Function (anonymous)],
+      aggregate: [Function (anonymous)],
+      findRaw: [Function (anonymous)],
+      aggregateRaw: [Function (anonymous)],
+      fields: {},
+      name: 'DatabaseReportCount',
+      '$name': 'DatabaseReportCount',
+      '$parent': [Object]
+    },
+    '$parent': {
+      _originalClient: [Object],
+      _runtimeDataModel: [Object],
+      _requestHandler: [ei [RequestHandler]],
+      _connectionPromise: undefined,
+      _disconnectionPromise: undefined,
+      _engineConfig: [Object],
+      _accelerateEngineConfig: [Object],
+      _clientVersion: '6.16.0',
+      _errorFormat: 'colorless',
+      _tracingHelper: Ao {},
+      _previewFeatures: [],
+      _activeProvider: 'postgresql',
+      _globalOmit: undefined,
+      _extensions: [e],
+      _engine: [Qr],
+      _appliedParent: [Object],
+      _createPrismaPromise: [Function (anonymous)],
+      '$metrics': [Lr],
+      '$extends': [Function: Wa],
+      constructor: [class r],
+      '$on': [Function: $on],
+      '$connect': [Function: $connect],
+      '$disconnect': [AsyncFunction: $disconnect],
+      '$executeRawInternal': [Function: $executeRawInternal],
+      '$executeRaw': [Function: $executeRaw],
+      '$executeRawUnsafe': [Function: $executeRawUnsafe],
+      '$runCommandRaw': [Function: $runCommandRaw],
+      '$queryRawInternal': [AsyncFunction: $queryRawInternal],
+      '$queryRaw': [Function: $queryRaw],
+      '$queryRawTyped': [Function: $queryRawTyped],
+      '$queryRawUnsafe': [Function: $queryRawUnsafe],
+      _transactionWithArray: [Function: _transactionWithArray],
+      _transactionWithCallback: [AsyncFunction: _transactionWithCallback],
+      _createItxClient: [Function: _createItxClient],
+      '$transaction': [Function: $transaction],
+      _request: [Function: _request],
+      _executeRequest: [AsyncFunction: _executeRequest],
+      _hasPreviewFlag: [Function: _hasPreviewFlag],
+      '$applyPendingMigrations': [Function: $applyPendingMigrations],
+      socialMedia: [Object],
+      socialMediaMetrics: [Object],
+      databaseReport: [Object],
+      databaseReportCount: [Object],
+      '$parent': [Object],
+      [Symbol()]: [Object]
+    },
+    [Symbol()]: {
+      _originalClient: [Object],
+      _runtimeDataModel: [Object],
+      _requestHandler: [ei [RequestHandler]],
+      _connectionPromise: undefined,
+      _disconnectionPromise: undefined,
+      _engineConfig: [Object],
+      _accelerateEngineConfig: [Object],
+      _clientVersion: '6.16.0',
+      _errorFormat: 'colorless',
+      _tracingHelper: Ao {},
+      _previewFeatures: [],
+      _activeProvider: 'postgresql',
+      _globalOmit: undefined,
+      _extensions: [e],
+      _engine: [Qr],
+      _appliedParent: [Object],
+      _createPrismaPromise: [Function (anonymous)],
+      '$metrics': [Lr],
+      '$extends': [Function: Wa]
+    }
+  }
+}
+Active Users: 7351
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 80,
+    lastSynced: 2025-10-22T01:51:36.011Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 68,
+    lastSynced: 2025-10-22T01:51:35.983Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 684,
+    lastSynced: 2025-10-22T01:51:35.954Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 315,
+    lastSynced: 2025-10-22T01:51:35.927Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 103,
+    lastSynced: 2025-10-22T01:51:35.873Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Boston
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Boston
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Boston
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Boston
+existing metric name is  NEW_USERS
+Metrics stored for city: Boston
+All metrics processed.
+Active Users: 3172
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 6100,
+    lastSynced: 2025-10-22T01:51:39.287Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 309,
+    lastSynced: 2025-10-22T01:51:39.257Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 49382,
+    lastSynced: 2025-10-22T01:51:39.229Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 19104,
+    lastSynced: 2025-10-22T01:51:39.203Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 7351,
+    lastSynced: 2025-10-22T01:51:39.155Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: (not set)
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: (not set)
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: (not set)
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: (not set)
+existing metric name is  NEW_USERS
+Metrics stored for city: (not set)
+All metrics processed.
+Active Users: 1886
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 2923,
+    lastSynced: 2025-10-22T01:51:39.807Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 185,
+    lastSynced: 2025-10-22T01:51:39.778Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 21911,
+    lastSynced: 2025-10-22T01:51:39.752Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 5122,
+    lastSynced: 2025-10-22T01:51:39.644Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 3172,
+    lastSynced: 2025-10-22T01:51:39.574Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: New York
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: New York
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: New York
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: New York
+existing metric name is  NEW_USERS
+Metrics stored for city: New York
+All metrics processed.
+Active Users: 1684
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 1563,
+    lastSynced: 2025-10-22T01:51:40.210Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 237,
+    lastSynced: 2025-10-22T01:51:40.185Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 12897,
+    lastSynced: 2025-10-22T01:51:40.155Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 4003,
+    lastSynced: 2025-10-22T01:51:40.129Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 1886,
+    lastSynced: 2025-10-22T01:51:40.075Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Ashburn
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Ashburn
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Ashburn
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Ashburn
+existing metric name is  NEW_USERS
+Metrics stored for city: Ashburn
+All metrics processed.
+Active Users: 1043
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 1623,
+    lastSynced: 2025-10-22T01:51:40.647Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 88,
+    lastSynced: 2025-10-22T01:51:40.615Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 11710,
+    lastSynced: 2025-10-22T01:51:40.589Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 2155,
+    lastSynced: 2025-10-22T01:51:40.562Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 1684,
+    lastSynced: 2025-10-22T01:51:40.502Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Moses Lake
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Moses Lake
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Moses Lake
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Moses Lake
+existing metric name is  NEW_USERS
+Metrics stored for city: Moses Lake
+All metrics processed.
+Active Users: 748
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 1058,
+    lastSynced: 2025-10-22T01:51:41.091Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 29,
+    lastSynced: 2025-10-22T01:51:41.066Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 7301,
+    lastSynced: 2025-10-22T01:51:41.041Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 2011,
+    lastSynced: 2025-10-22T01:51:41.014Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 1043,
+    lastSynced: 2025-10-22T01:51:40.962Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: San Jose
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: San Jose
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: San Jose
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: San Jose
+existing metric name is  NEW_USERS
+Metrics stored for city: San Jose
+All metrics processed.
+Active Users: 716
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 751,
+    lastSynced: 2025-10-22T01:51:41.497Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 45,
+    lastSynced: 2025-10-22T01:51:41.472Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 5234,
+    lastSynced: 2025-10-22T01:51:41.444Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 1377,
+    lastSynced: 2025-10-22T01:51:41.415Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 748,
+    lastSynced: 2025-10-22T01:51:41.363Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Easton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Easton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Easton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Easton
+existing metric name is  NEW_USERS
+Metrics stored for city: Easton
+All metrics processed.
+Active Users: 708
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 524,
+    lastSynced: 2025-10-22T01:51:42.000Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 239,
+    lastSynced: 2025-10-22T01:51:41.973Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 4657,
+    lastSynced: 2025-10-22T01:51:41.945Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 2060,
+    lastSynced: 2025-10-22T01:51:41.919Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 716,
+    lastSynced: 2025-10-22T01:51:41.870Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Des Moines
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Des Moines
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Des Moines
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Des Moines
+existing metric name is  NEW_USERS
+Metrics stored for city: Des Moines
+All metrics processed.
+Active Users: 601
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 703,
+    lastSynced: 2025-10-22T01:51:42.426Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 20,
+    lastSynced: 2025-10-22T01:51:42.401Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 4956,
+    lastSynced: 2025-10-22T01:51:42.377Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 1256,
+    lastSynced: 2025-10-22T01:51:42.352Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 708,
+    lastSynced: 2025-10-22T01:51:42.305Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Brockton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Brockton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Brockton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Brockton
+existing metric name is  NEW_USERS
+Metrics stored for city: Brockton
+All metrics processed.
+Active Users: 496
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 488,
+    lastSynced: 2025-10-22T01:51:42.883Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 222,
+    lastSynced: 2025-10-22T01:51:42.852Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 4048,
+    lastSynced: 2025-10-22T01:51:42.825Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 1684,
+    lastSynced: 2025-10-22T01:51:42.797Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 601,
+    lastSynced: 2025-10-22T01:51:42.743Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Columbus
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Columbus
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Columbus
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Columbus
+existing metric name is  NEW_USERS
+Metrics stored for city: Columbus
+All metrics processed.
+Active Users: 436
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 487,
+    lastSynced: 2025-10-22T01:51:43.304Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 20,
+    lastSynced: 2025-10-22T01:51:43.271Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 3461,
+    lastSynced: 2025-10-22T01:51:43.242Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 577,
+    lastSynced: 2025-10-22T01:51:43.213Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 496,
+    lastSynced: 2025-10-22T01:51:43.164Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Boydton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Boydton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Boydton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Boydton
+existing metric name is  NEW_USERS
+Metrics stored for city: Boydton
+All metrics processed.
+Active Users: 436
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 441,
+    lastSynced: 2025-10-22T01:51:43.737Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 20,
+    lastSynced: 2025-10-22T01:51:43.709Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 3052,
+    lastSynced: 2025-10-22T01:51:43.682Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 1107,
+    lastSynced: 2025-10-22T01:51:43.655Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 436,
+    lastSynced: 2025-10-22T01:51:43.605Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: San Antonio
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: San Antonio
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: San Antonio
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: San Antonio
+existing metric name is  NEW_USERS
+Metrics stored for city: San Antonio
+All metrics processed.
+Active Users: 401
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 440,
+    lastSynced: 2025-10-22T01:51:44.146Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 12,
+    lastSynced: 2025-10-22T01:51:44.119Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 3052,
+    lastSynced: 2025-10-22T01:51:44.093Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 853,
+    lastSynced: 2025-10-22T01:51:44.067Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 436,
+    lastSynced: 2025-10-22T01:51:44.016Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Bridgewater
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Bridgewater
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Bridgewater
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Bridgewater
+existing metric name is  NEW_USERS
+Metrics stored for city: Bridgewater
+All metrics processed.
+Active Users: 383
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 316,
+    lastSynced: 2025-10-22T01:51:44.602Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 178,
+    lastSynced: 2025-10-22T01:51:44.573Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 2635,
+    lastSynced: 2025-10-22T01:51:44.534Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 1360,
+    lastSynced: 2025-10-22T01:51:44.497Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 401,
+    lastSynced: 2025-10-22T01:51:44.447Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Cheyenne
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Cheyenne
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Cheyenne
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Cheyenne
+existing metric name is  NEW_USERS
+Metrics stored for city: Cheyenne
+All metrics processed.
+Active Users: 377
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 390,
+    lastSynced: 2025-10-22T01:51:45.103Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 5,
+    lastSynced: 2025-10-22T01:51:45.075Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 2681,
+    lastSynced: 2025-10-22T01:51:45.049Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 776,
+    lastSynced: 2025-10-22T01:51:45.018Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 383,
+    lastSynced: 2025-10-22T01:51:44.967Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Scituate
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Scituate
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Scituate
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Scituate
+existing metric name is  NEW_USERS
+Metrics stored for city: Scituate
+All metrics processed.
+Active Users: 349
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 231,
+    lastSynced: 2025-10-22T01:51:45.537Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 136,
+    lastSynced: 2025-10-22T01:51:45.509Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 2231,
+    lastSynced: 2025-10-22T01:51:45.482Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 1159,
+    lastSynced: 2025-10-22T01:51:45.456Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 377,
+    lastSynced: 2025-10-22T01:51:45.408Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Quincy
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Quincy
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Quincy
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Quincy
+existing metric name is  NEW_USERS
+Metrics stored for city: Quincy
+All metrics processed.
+Active Users: 309
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 301,
+    lastSynced: 2025-10-22T01:51:45.991Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 143,
+    lastSynced: 2025-10-22T01:51:45.962Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 2382,
+    lastSynced: 2025-10-22T01:51:45.937Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 798,
+    lastSynced: 2025-10-22T01:51:45.911Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 349,
+    lastSynced: 2025-10-22T01:51:45.853Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Clifton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Clifton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Clifton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Clifton
+existing metric name is  NEW_USERS
+Metrics stored for city: Clifton
+All metrics processed.
+Active Users: 292
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 308,
+    lastSynced: 2025-10-22T01:51:46.600Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 10,
+    lastSynced: 2025-10-22T01:51:46.566Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 2163,
+    lastSynced: 2025-10-22T01:51:46.527Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 580,
+    lastSynced: 2025-10-22T01:51:46.475Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 309,
+    lastSynced: 2025-10-22T01:51:46.277Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Cambridge
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Cambridge
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Cambridge
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Cambridge
+existing metric name is  NEW_USERS
+Metrics stored for city: Cambridge
+All metrics processed.
+Active Users: 282
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 211,
+    lastSynced: 2025-10-22T01:51:47.214Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 128,
+    lastSynced: 2025-10-22T01:51:47.188Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1915,
+    lastSynced: 2025-10-22T01:51:47.134Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 726,
+    lastSynced: 2025-10-22T01:51:47.057Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 292,
+    lastSynced: 2025-10-22T01:51:46.959Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Dublin
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Dublin
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Dublin
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Dublin
+existing metric name is  NEW_USERS
+Metrics stored for city: Dublin
+All metrics processed.
+Active Users: 258
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 282,
+    lastSynced: 2025-10-22T01:51:47.841Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 90,
+    lastSynced: 2025-10-22T01:51:47.813Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1974,
+    lastSynced: 2025-10-22T01:51:47.788Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 407,
+    lastSynced: 2025-10-22T01:51:47.761Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 282,
+    lastSynced: 2025-10-22T01:51:47.701Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Washington
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Washington
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Washington
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Washington
+existing metric name is  NEW_USERS
+Metrics stored for city: Washington
+All metrics processed.
+Active Users: 253
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 241,
+    lastSynced: 2025-10-22T01:51:48.273Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 42,
+    lastSynced: 2025-10-22T01:51:48.247Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1800,
+    lastSynced: 2025-10-22T01:51:48.222Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 545,
+    lastSynced: 2025-10-22T01:51:48.196Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 258,
+    lastSynced: 2025-10-22T01:51:48.127Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Santa Clara
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Santa Clara
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Santa Clara
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Santa Clara
+existing metric name is  NEW_USERS
+Metrics stored for city: Santa Clara
+All metrics processed.
+Active Users: 251
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 253,
+    lastSynced: 2025-10-22T01:51:48.666Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 7,
+    lastSynced: 2025-10-22T01:51:48.642Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1771,
+    lastSynced: 2025-10-22T01:51:48.617Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 486,
+    lastSynced: 2025-10-22T01:51:48.592Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 253,
+    lastSynced: 2025-10-22T01:51:48.543Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Weymouth
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Weymouth
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Weymouth
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Weymouth
+existing metric name is  NEW_USERS
+Metrics stored for city: Weymouth
+All metrics processed.
+Active Users: 242
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 163,
+    lastSynced: 2025-10-22T01:51:49.108Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 132,
+    lastSynced: 2025-10-22T01:51:49.082Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1651,
+    lastSynced: 2025-10-22T01:51:49.049Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 749,
+    lastSynced: 2025-10-22T01:51:49.020Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 251,
+    lastSynced: 2025-10-22T01:51:48.972Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Newton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Newton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Newton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Newton
+existing metric name is  NEW_USERS
+Metrics stored for city: Newton
+All metrics processed.
+Active Users: 232
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 198,
+    lastSynced: 2025-10-22T01:51:49.494Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 130,
+    lastSynced: 2025-10-22T01:51:49.467Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1579,
+    lastSynced: 2025-10-22T01:51:49.442Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 628,
+    lastSynced: 2025-10-22T01:51:49.416Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 242,
+    lastSynced: 2025-10-22T01:51:49.370Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Canton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Canton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Canton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Canton
+existing metric name is  NEW_USERS
+Metrics stored for city: Canton
+All metrics processed.
+Active Users: 225
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 180,
+    lastSynced: 2025-10-22T01:51:49.893Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 117,
+    lastSynced: 2025-10-22T01:51:49.868Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1553,
+    lastSynced: 2025-10-22T01:51:49.841Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 577,
+    lastSynced: 2025-10-22T01:51:49.815Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 232,
+    lastSynced: 2025-10-22T01:51:49.761Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Plymouth
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Plymouth
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Plymouth
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Plymouth
+existing metric name is  NEW_USERS
+Metrics stored for city: Plymouth
+All metrics processed.
+Active Users: 208
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 189,
+    lastSynced: 2025-10-22T01:51:50.314Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 114,
+    lastSynced: 2025-10-22T01:51:50.288Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1511,
+    lastSynced: 2025-10-22T01:51:50.262Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 627,
+    lastSynced: 2025-10-22T01:51:50.235Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 225,
+    lastSynced: 2025-10-22T01:51:50.183Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Hingham
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Hingham
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Hingham
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Hingham
+existing metric name is  NEW_USERS
+Metrics stored for city: Hingham
+All metrics processed.
+Active Users: 202
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 148,
+    lastSynced: 2025-10-22T01:51:50.730Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 91,
+    lastSynced: 2025-10-22T01:51:50.704Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1309,
+    lastSynced: 2025-10-22T01:51:50.673Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 652,
+    lastSynced: 2025-10-22T01:51:50.640Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 208,
+    lastSynced: 2025-10-22T01:51:50.593Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Taunton
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Taunton
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Taunton
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Taunton
+existing metric name is  NEW_USERS
+Metrics stored for city: Taunton
+All metrics processed.
+Active Users: 198
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 157,
+    lastSynced: 2025-10-22T01:51:51.238Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 114,
+    lastSynced: 2025-10-22T01:51:51.206Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1337,
+    lastSynced: 2025-10-22T01:51:51.162Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 667,
+    lastSynced: 2025-10-22T01:51:51.124Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 202,
+    lastSynced: 2025-10-22T01:51:51.069Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Fall River
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Fall River
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Fall River
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Fall River
+existing metric name is  NEW_USERS
+Metrics stored for city: Fall River
+All metrics processed.
+Active Users: 165
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 158,
+    lastSynced: 2025-10-22T01:51:51.644Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 108,
+    lastSynced: 2025-10-22T01:51:51.619Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1314,
+    lastSynced: 2025-10-22T01:51:51.595Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 514,
+    lastSynced: 2025-10-22T01:51:51.567Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 198,
+    lastSynced: 2025-10-22T01:51:51.518Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Sharon
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Sharon
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Sharon
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Sharon
+existing metric name is  NEW_USERS
+Metrics stored for city: Sharon
+All metrics processed.
+Active Users: 162
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 132,
+    lastSynced: 2025-10-22T01:51:52.099Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 82,
+    lastSynced: 2025-10-22T01:51:52.066Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1120,
+    lastSynced: 2025-10-22T01:51:52.033Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 426,
+    lastSynced: 2025-10-22T01:51:51.999Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 165,
+    lastSynced: 2025-10-22T01:51:51.928Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Los Angeles
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Los Angeles
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Los Angeles
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Los Angeles
+existing metric name is  NEW_USERS
+Metrics stored for city: Los Angeles
+All metrics processed.
+Active Users: 159
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 147,
+    lastSynced: 2025-10-22T01:51:52.519Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 36,
+    lastSynced: 2025-10-22T01:51:52.494Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1075,
+    lastSynced: 2025-10-22T01:51:52.469Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 300,
+    lastSynced: 2025-10-22T01:51:52.441Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 162,
+    lastSynced: 2025-10-22T01:51:52.393Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Phoenix
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Phoenix
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Phoenix
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Phoenix
+existing metric name is  NEW_USERS
+Metrics stored for city: Phoenix
+All metrics processed.
+Active Users: 155
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 152,
+    lastSynced: 2025-10-22T01:51:53.020Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 26,
+    lastSynced: 2025-10-22T01:51:52.995Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1107,
+    lastSynced: 2025-10-22T01:51:52.967Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 354,
+    lastSynced: 2025-10-22T01:51:52.930Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 159,
+    lastSynced: 2025-10-22T01:51:52.873Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Amsterdam
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Amsterdam
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Amsterdam
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Amsterdam
+existing metric name is  NEW_USERS
+Metrics stored for city: Amsterdam
+All metrics processed.
+Active Users: 154
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 155,
+    lastSynced: 2025-10-22T01:51:53.427Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 13,
+    lastSynced: 2025-10-22T01:51:53.395Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1085,
+    lastSynced: 2025-10-22T01:51:53.364Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 304,
+    lastSynced: 2025-10-22T01:51:53.339Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 155,
+    lastSynced: 2025-10-22T01:51:53.291Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: New Bedford
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: New Bedford
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: New Bedford
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: New Bedford
+existing metric name is  NEW_USERS
+Metrics stored for city: New Bedford
+All metrics processed.
+Active Users: 150
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 133,
+    lastSynced: 2025-10-22T01:51:53.829Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 87,
+    lastSynced: 2025-10-22T01:51:53.800Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1044,
+    lastSynced: 2025-10-22T01:51:53.772Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 499,
+    lastSynced: 2025-10-22T01:51:53.747Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 154,
+    lastSynced: 2025-10-22T01:51:53.697Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Mansfield
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Mansfield
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Mansfield
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Mansfield
+existing metric name is  NEW_USERS
+Metrics stored for city: Mansfield
+All metrics processed.
+Active Users: 148
+existing metrics:  [
+  {
+    id: 'cmh1c7c1a0009rgf4rs3zuof9',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'NEW_USERS',
+    metricValue: 123,
+    lastSynced: 2025-10-22T01:51:54.251Z
+  },
+  {
+    id: 'cmh1c7c0k0007rgf4ewemhxh8',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ENGAGEMENT_RATE',
+    metricValue: 92,
+    lastSynced: 2025-10-22T01:51:54.224Z
+  },
+  {
+    id: 'cmh1c7bzw0005rgf4xhhnq62a',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_7_DAY_USERS',
+    metricValue: 1027,
+    lastSynced: 2025-10-22T01:51:54.194Z
+  },
+  {
+    id: 'cmh1c7bz70003rgf4oyk9ogag',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'SCREEN_PAGE_VIEWS',
+    metricValue: 415,
+    lastSynced: 2025-10-22T01:51:54.169Z
+  },
+  {
+    id: 'cmh1c7bxq0001rgf4zw5su20i',
+    socialMediaId: 'cmh1c74940000rgbhlzylptm9',
+    metricName: 'ACTIVE_USERS',
+    metricValue: 150,
+    lastSynced: 2025-10-22T01:51:54.116Z
+  }
+]
+existing metric name is  ACTIVE_USERS
+Metrics stored for city: Lulea
+existing metric name is  SCREEN_PAGE_VIEWS
+Metrics stored for city: Lulea
+existing metric name is  ACTIVE_7_DAY_USERS
+Metrics stored for city: Lulea
+existing metric name is  ENGAGEMENT_RATE
+Metrics stored for city: Lulea
+existing metric name is  NEW_USERS
+Metrics stored for city: Lulea
+All metrics processed.
+Active Users: 147

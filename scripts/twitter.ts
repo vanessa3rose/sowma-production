@@ -39,37 +39,54 @@ export async function syncTwitterMetrics() {
     // Add new enums here
   };
 
-  // Iterate for each account being pulled
-  for (const account of accounts) {
-    try {
-      // Fetch metrics from the account
-      const metrics = await fetchTwitterMetrics(account.username);
+  // Determine if the parent (i.e. Twitter) already exists
+  const parentexists = await prisma.socialMedia.findFirst({
+    where: {
+      provider: "TWITTER",
+      userId: "sowma",
+    },
+  });
 
-      // Convert the twitter-provided metric name to a Metric enum
-      for (const [metricName, metricVal] of Object.entries(metrics) as [
-        keyof TwitterPublicMetrics,
-        number,
-      ][]) {
-        const metricEnum = TWITTER_TO_PRISMA_METRIC[metricName];
-        if (!metricEnum) continue;
-
-        // Post the data update
-        await prisma.socialMediaMetrics.create({
-          data: {
-            socialMediaId: account.id,
-            metricName: metricEnum,
-            metricValue: metricVal,
-            lastSynced: new Date(),
-          },
-        });
-      }
-      console.log(`✅ Synced ${account.username}`);
-    } catch (err) {
-      console.error(`❌ Failed syncing ${account.username}`, err);
-    }
+  // If the parent does not exist, print an error message
+  if (!parentexists) {
+    console.log(
+      "❌ Failed syncing - TWITTER SocialMedia does not exist\n\tHint: Run twitter-setup.ts",
+    );
   }
 
-  await prisma.$disconnect();
+  // Iterate for each account being pulled
+  else {
+    for (const account of accounts) {
+      try {
+        // Fetch metrics from the account
+        const metrics = await fetchTwitterMetrics(account.username);
+
+        // Convert the twitter-provided metric name to a Metric enum
+        for (const [metricName, metricVal] of Object.entries(metrics) as [
+          keyof TwitterPublicMetrics,
+          number,
+        ][]) {
+          const metricEnum = TWITTER_TO_PRISMA_METRIC[metricName];
+          if (!metricEnum) continue;
+
+          // Post the data update
+          await prisma.socialMediaMetrics.create({
+            data: {
+              socialMediaId: account.id,
+              metricName: metricEnum,
+              metricValue: metricVal,
+              lastSynced: new Date(),
+            },
+          });
+        }
+        console.log(`✅ Synced ${account.username}`);
+      } catch (err) {
+        console.error(`❌ Failed syncing ${account.username}`, err);
+      }
+    }
+
+    await prisma.$disconnect();
+  }
 }
 
 async function main() {
