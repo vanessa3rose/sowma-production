@@ -45,7 +45,7 @@ export default function LoginPanel() {
   };
 
   return (
-    <section className="flex flex-col items-center w-[592px] min-h-[740px] gap-6">
+    <section className="flex flex-col items-center justify-center gap-6">
       {/* Header */}
       <h1 className="text-center font-poppins text-[40px] leading-[60px] font-medium text-[#000000]">
         Welcome to the
