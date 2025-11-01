@@ -14,24 +14,19 @@ const App = () => {
   const hideLayout = hideLayoutRoutes.includes(location);
 
   return (
-    <>
-      {!hideLayout && <LeftSidebar />}
-      {!hideLayout && <TopBanner />}
-
-      <Switch>
-        <Route path="/" component={Homepage} />
-        <Route path="/social-media" component={SocialMediaPage} />
-        <Route path="/login" component={LoginPage} />
-        <Route path="/googleanalytics" component={GoogleAnalyticsPage} />
-
-        {/* Shows a 404 error if the path doesn't match anything */}
-        {
+    <div className="flex min-h-screen bg-white">
+      <LeftSidebar />
+      <div className="flex-grow flex flex-col ml-[20%] pt-28 px-6 bg-white">
+        <TopBanner />
+        <Switch>
+          <Route path="/" component={Homepage} />
+          <Route path="/social-media" component={SocialMediaPage} />
           <Route>
-            <p className="p-4">404: Page Not Found</p>
+            <p className="p-4 text-black">404: Page Not Found</p>
           </Route>
-        }
-      </Switch>
-    </>
+        </Switch>
+      </div>
+    </div>
   );
 };
 
