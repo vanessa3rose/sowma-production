@@ -122,76 +122,84 @@ export default function GoogleAnalyticsPage() {
         <div className="w-full flex flex-col gap-4 lg:h-full">
           {/* First Row */}
           <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
-            <BigCard
-              title="Active Users"
-              subtitle="Last 30 days"
-              metricValue={d.metrics.activeUsers}
-              metricLabel="total"
-              metricChange={"+3.1% vs. prev."}
-              chart={
-                <div className="w-full h-64">
-                  <LineCharts
-                    data={d.usersOverTime}
-                    xAxisKey="date"
-                    dataKeys={["activeUsers"]}
-                    showArea
-                  />
-                </div>
-              }
-              displayMode="both"
-              className="w-full h-full"
-            />
-            <BigCard
-              title="New vs Returning Users"
-              chart={
-                <div className="w-full h-64">
-                  <PieCharts
-                    data={returningVsNew}
-                    dataKey="value"
-                    nameKey="label"
-                  />
-                </div>
-              }
-              displayMode="both"
-              className="w-full h-full"
-            />
+            <div className="w-2/3">
+              <BigCard
+                title="Active Users"
+                subtitle="Last 30 days"
+                metricValue={d.metrics.activeUsers}
+                metricLabel="total"
+                metricChange={"+3.1% vs. prev."}
+                chart={
+                  <div className="w-full h-64">
+                    <LineCharts
+                      data={d.usersOverTime}
+                      xAxisKey="date"
+                      dataKeys={["activeUsers"]}
+                      showArea
+                    />
+                  </div>
+                }
+                displayMode="both"
+                className="w-full h-full"
+              />
+            </div>
+            <div className="w-1/3">
+              <BigCard
+                title="New vs Returning Users"
+                chart={
+                  <div className="w-full h-64">
+                    <PieCharts
+                      data={returningVsNew}
+                      dataKey="value"
+                      nameKey="label"
+                    />
+                  </div>
+                }
+                displayMode="both"
+                className="w-full h-full"
+              />
+            </div>
           </div>
 
           {/* Second Row */}
           <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
-            <BigCard
-              title="Pageviews"
-              subtitle="Last 30 days"
-              metricValue={d.metrics.screenPageViews}
-              metricLabel="total"
-              metricChange={"+1.8% vs. prev."}
-              chart={
-                <div className="w-full h-64">
-                  <LineCharts
-                    data={d.pageviewsOverTime}
-                    xAxisKey="date"
-                    dataKeys={["screenPageViews"]}
-                  />
-                </div>
-              }
-              displayMode="both"
-              className="w-full h-full"
-            />
-            <BigCard
-              title="Active 7-Day Users (trend)"
-              chart={
-                <div className="w-full h-64">
-                  <LineCharts
-                    data={d.usersOverTime}
-                    xAxisKey="date"
-                    dataKeys={["active7DayUsers"]}
-                    showArea
-                  />
-                </div>
-              }
-              displayMode="both"
-              className="w-full h-full"
-            />
+            <div className="w-1/2">
+              <BigCard
+                title="Pageviews"
+                subtitle="Last 30 days"
+                metricValue={d.metrics.screenPageViews}
+                metricLabel="total"
+                metricChange={"+1.8% vs. prev."}
+                chart={
+                  <div className="w-full h-64">
+                    <LineCharts
+                      data={d.pageviewsOverTime}
+                      xAxisKey="date"
+                      dataKeys={["screenPageViews"]}
+                    />
+                  </div>
+                }
+                displayMode="both"
+                className="w-full h-full"
+              />
+            </div>
+            <div className="w-1/2">
+              <BigCard
+                title="Active 7-Day Users (trend)"
+                chart={
+                  <div className="w-full h-64">
+                    <LineCharts
+                      data={d.usersOverTime}
+                      xAxisKey="date"
+                      dataKeys={["active7DayUsers"]}
+                      showArea
+                    />
+                  </div>
+                }
+                displayMode="both"
+                className="w-full h-full"
+              />
+            </div>
           </div>
         </div>
       </div>

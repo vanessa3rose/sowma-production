@@ -26,7 +26,7 @@ const PieCharts = ({
   nameKey,
 }: PieChartsProps) => {
   return (
-    <div className="w-full h-full p-4 overflow-visible">
+    <div className="w-full h-full lg:p-4 overflow-visible">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -46,9 +46,9 @@ const PieCharts = ({
             ))}
           </Pie>
           <Legend
-            verticalAlign="middle"
-            align="right"
-            layout="vertical"
+            verticalAlign="bottom"
+            align="center"
+            layout="horizontal"
             wrapperStyle={{ fontFamily: "Poppins, sans-serif" }}
           />
         </PieChart>
