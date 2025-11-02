@@ -119,8 +119,7 @@ export default function SocialMediaPage() {
               d="m19.5 8.25-7.5 7.5-7.5-7.5"
             />
           </svg>
- 
- 
+
           <button
             style={{
               width: "141px",
@@ -176,8 +175,7 @@ export default function SocialMediaPage() {
             </p>
           </button>
         </div>
- 
- 
+
         <div
           style={{
             width: "200px",
@@ -205,8 +203,7 @@ export default function SocialMediaPage() {
             Followers
           </p>
         </div>
- 
- 
+
         <div
           style={{
             width: "200px",
@@ -234,8 +231,7 @@ export default function SocialMediaPage() {
             Comments
           </p>
         </div>
- 
- 
+
         <div
           style={{
             width: "200px",
@@ -263,8 +259,7 @@ export default function SocialMediaPage() {
             Likes
           </p>
         </div>
- 
- 
+
         <div
           style={{
             width: "200px",
@@ -292,8 +287,7 @@ export default function SocialMediaPage() {
             Shared
           </p>
         </div>
- 
- 
+
         <div
           style={{
             width: "400px",
@@ -321,8 +315,7 @@ export default function SocialMediaPage() {
             Impressions
           </p>
         </div>
- 
- 
+
         <div
           style={{
             width: "480px",
@@ -350,8 +343,7 @@ export default function SocialMediaPage() {
             Reach Sources
           </p>
         </div>
- 
- 
+
         <div
           style={{
             width: "520px",
@@ -379,8 +371,7 @@ export default function SocialMediaPage() {
             Demographics - Gender
           </p>
         </div>
- 
- 
+
         <div
           style={{
             width: "440px",
@@ -411,4 +402,4 @@ export default function SocialMediaPage() {
       </div>
     </>
   );
- } 
+}
