@@ -73,8 +73,6 @@ export default function SocialMediaPage() {
                 <div className="w-full h-[300px] lg:h-[500px]">
                   <LineCharts
                     data={lineTestData}
-                    width="100%"
-                    height="100%"
                     xAxisKey="date"
                     dataKeys={["likes"]}
                     showArea={true}
@@ -90,8 +88,6 @@ export default function SocialMediaPage() {
                 <div className="w-full h-[400px] lg:h-[600px]">
                   <PieCharts
                     data={pieTestData}
-                    width="100%"
-                    height="100%"
                     dataKey="value"
                     nameKey="source"
                   />
@@ -110,8 +106,6 @@ export default function SocialMediaPage() {
                 <div className="w-full h-[400px] lg:h-[600px]">
                   <PieCharts
                     data={pieTestData}
-                    width="100%"
-                    height="100%"
                     dataKey="value"
                     nameKey="source"
                   />

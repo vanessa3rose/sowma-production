@@ -4,6 +4,9 @@ import SmallCard from "../components/cards/SmallCard";
 // Charts
 import LineCharts from "../components/charts/LineCharts";
 import PieCharts from "../components/charts/PieCharts";
+// Buttons
+import DateRangeButton from "../components/date-range/DateRangeButton";
+import ExportButton from "../components/export-pdf/ExportButton";
 
 // ---------------- Types ----------------
 export type GAMetrics = {
@@ -60,9 +63,8 @@ const mock: GAData = {
   })),
 };
 
-// ---------------- Page ----------------
-export default function GoogleAnalyticsPage({ data }: { data?: GAData }) {
-  const d = data ?? mock;
+export default function GoogleAnalyticsPage() {
+  const d = mock;
 
   const returningUsers = Math.max(
     d.metrics.activeUsers - d.metrics.newUsers,
@@ -74,149 +76,125 @@ export default function GoogleAnalyticsPage({ data }: { data?: GAData }) {
   ];
 
   return (
-    <div
-      className="
-        min-h-screen
-        font-poppins
-        bg-white text-gray-900
-
-        p-4 md:p-6 lg:p-8
-        md:ml-[290px]     /* leave space for sidebar */
-        mt-[80px]         /* leave space under top navbar */
-      "
-    >
+    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
-      <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
-            Google Analytics
-          </h1>
-          <p className="text-sm text-gray-500">
-            Overview of site traffic and engagement
-          </p>
+      <div className="w-full flex flex-col lg:flex-row justify-between items-center px-4 py-2">
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => (window.location.href = "/")}
+            className="w-[40px] h-[40px]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="size-7"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
+            </svg>
+          </button>
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">Google</h1>
+        </div>
+        <div className="flex space-x-2 mt-2 lg:mt-0">
+          <DateRangeButton />
+          <ExportButton />
         </div>
       </div>
 
-      {/* ✅ KPI Row — FLEX, not grid */}
-      <section className="flex flex-row flex-wrap gap-4 mb-8 justify-start">
-        <SmallCard
-          title="Active Users"
-          displayMode="metric-only"
-          className="flex-1 min-w-[200px] max-w-[250px]"
-          metricValue={d.metrics.activeUsers}
-          metricLabel="users"
-          metricChange={"+3.1% vs. prev."}
-        />
+      {/* Main Content */}
+      <div className="flex flex-col gap-4 px-4 lg:h-full">
+        {/* Top Row Small Cards */}
+        <div className="w-full flex flex-col lg:flex-row gap-4">
+          <SmallCard title="Active Users" displayMode="metric-only" className="w-full h-full" metricValue={d.metrics.activeUsers} metricLabel="users" metricChange={"+3.1% vs. prev."} />
+          <SmallCard title="Page Views" displayMode="metric-only" className="w-full h-full" metricValue={d.metrics.screenPageViews} metricLabel="views" metricChange={"+1.8% vs. prev."} />
+          <SmallCard title="Active 7-Day Users" displayMode="metric-only" className="w-full h-full" metricValue={d.metrics.active7DayUsers} metricLabel="users (7D)" metricChange={"+0.9% vs. prev."} />
+          <SmallCard title="Engagement Rate" displayMode="metric-only" className="w-full h-full" metricValue={Number((d.metrics.engagementRate * 100).toFixed(1))} metricLabel="% engaged" metricChange={"+0.4pp"} />
+          <SmallCard title="New Users" displayMode="metric-only" className="w-full h-full" metricValue={Number((d.metrics.newUsers).toFixed(1))} metricLabel="new" metricChange={"+2.2% vs prev."} />
+        </div>
 
-        <SmallCard
-          title="Pageviews"
-          displayMode="metric-only"
-          className="flex-1 min-w-[200px] max-w-[250px]"
-          metricValue={d.metrics.screenPageViews}
-          metricLabel="views"
-          metricChange={"+1.8% vs. prev."}
-        />
-
-        <SmallCard
-          title="Active 7-Day Users"
-          displayMode="metric-only"
-          className="flex-1 min-w-[200px] max-w-[250px]"
-          metricValue={d.metrics.active7DayUsers}
-          metricLabel="users (7D)"
-          metricChange={"+0.9% vs. prev."}
-        />
-
-        <SmallCard
-          title="Engagement Rate"
-          displayMode="metric-only"
-          className="flex-1 min-w-[200px] max-w-[250px]"
-          metricValue={Number((d.metrics.engagementRate * 100).toFixed(1))}
-          metricLabel="% engaged"
-          metricChange={"+0.4pp"}
-        />
-
-        <SmallCard
-          title="New Users"
-          displayMode="metric-only"
-          className="flex-1 min-w-[200px] max-w-[250px]"
-          metricValue={d.metrics.newUsers}
-          metricLabel="new"
-          metricChange={"+2.2% vs. prev."}
-        />
-      </section>
-
-      {/* ✅ Charts Section — FLEX, WRAPS by row */}
-      <section className="flex flex-wrap gap-6">
-        <BigCard
-          title="Active Users"
-          subtitle="Last 30 days"
-          displayMode="both"
-          className="flex-3 min-w-[400px] max-w-[600px]"
-          metricValue={d.metrics.activeUsers}
-          metricLabel="total"
-          metricChange={"+3.1% vs. prev."}
-          chart={
-            <LineCharts
-              data={d.usersOverTime}
-              width={500}
-              height={260}
-              xAxisKey="date"
-              dataKeys={["activeUsers"]}
-              showArea
+        {/* Large Chart Cards */}
+        <div className="w-full flex flex-col gap-4 lg:h-full">
+          {/* First Row */}
+          <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
+            <BigCard
+              title="Active Users"
+              subtitle="Last 30 days"
+              metricValue={d.metrics.activeUsers}
+              metricLabel="total"
+              metricChange={"+3.1% vs. prev."}
+              chart={
+                <div className="w-full h-64">
+                  <LineCharts
+                    data={d.usersOverTime}
+                    xAxisKey="date"
+                    dataKeys={["activeUsers"]}
+                    showArea
+                  />
+                </div>
+              }
+              displayMode="both"
+              className="w-full h-full"
             />
-          }
-        />
-
-        <BigCard
-          title="New vs Returning Users"
-          displayMode="both"
-          className="flex-1 min-w-[350px] max-w-[450px]"
-          chart={
-            <PieCharts
-              data={returningVsNew}
-              width={350}
-              height={300}
-              dataKey="value"
-              nameKey="label"
+            <BigCard
+              title="New vs Returning Users"
+              chart={
+                <div className="w-full h-64">
+                  <PieCharts
+                    data={returningVsNew}
+                    dataKey="value"
+                    nameKey="label"
+                  />
+                </div>
+              }
+              displayMode="both"
+              className="w-full h-full"
             />
-          }
-        />
+          </div>
 
-        <BigCard
-          title="Pageviews"
-          subtitle="Last 30 days"
-          displayMode="both"
-          className="flex-1 min-w-[450px] max-w-[500px]"
-          metricValue={d.metrics.screenPageViews}
-          metricLabel="total"
-          metricChange={"+1.8% vs. prev."}
-          chart={
-            <LineCharts
-              data={d.pageviewsOverTime}
-              width={450}
-              height={260}
-              xAxisKey="date"
-              dataKeys={["screenPageViews"]}
+          {/* Second Row */}
+          <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
+            <BigCard
+              title="Pageviews"
+              subtitle="Last 30 days"
+              metricValue={d.metrics.screenPageViews}
+              metricLabel="total"
+              metricChange={"+1.8% vs. prev."}
+              chart={
+                <div className="w-full h-64">
+                  <LineCharts
+                    data={d.pageviewsOverTime}
+                    xAxisKey="date"
+                    dataKeys={["screenPageViews"]}
+                  />
+                </div>
+              }
+              displayMode="both"
+              className="w-full h-full"
             />
-          }
-        />
-
-        <BigCard
-          title="Active 7-Day Users (trend)"
-          displayMode="both"
-          className="flex-1 min-w-[350px] max-w-[450px]"
-          chart={
-            <LineCharts
-              data={d.usersOverTime}
-              width={420}
-              height={300}
-              xAxisKey="date"
-              dataKeys={["active7DayUsers"]}
-              showArea
+            <BigCard
+              title="Active 7-Day Users (trend)"
+              chart={
+                <div className="w-full h-64">
+                  <LineCharts
+                    data={d.usersOverTime}
+                    xAxisKey="date"
+                    dataKeys={["active7DayUsers"]}
+                    showArea
+                  />
+                </div>
+              }
+              displayMode="both"
+              className="w-full h-full"
             />
-          }
-        />
-      </section>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

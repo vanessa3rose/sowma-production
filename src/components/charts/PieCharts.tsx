@@ -16,22 +16,18 @@ const COLORS = [
 
 type PieChartsProps = {
   data: any[];
-  width: number | `${number}%`;
-  height: number | `${number}%`;
   dataKey: string;
   nameKey: string;
 };
 
 const PieCharts = ({
   data,
-  width,
-  height,
   dataKey,
   nameKey,
 }: PieChartsProps) => {
   return (
     <div className="w-full h-full p-4 overflow-visible">
-      <ResponsiveContainer width={width} height={height}>
+      <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}
