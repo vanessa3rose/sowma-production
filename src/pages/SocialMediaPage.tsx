@@ -1,33 +1,42 @@
+import DateRangeButton from "../components/date-range/DateRangeButton";
+import ExportButton from "../components/export-pdf/ExportButton";
+import BigCard from "../components/cards/BigCard";
+import SmallCard from "../components/cards/SmallCard";
+import LineCharts from "../components/charts/LineCharts";
+import PieCharts from "../components/charts/PieCharts";
+
+const pieTestData = [
+  { source: "Organic", value: 400 },
+  { source: "Paid", value: 300 },
+  { source: "Referral", value: 200 },
+  { source: "Social", value: 100 },
+];
+
+const lineTestData = [
+  { date: "01", followers: 100, likes: 20, comments: 5 },
+  { date: "02", followers: 120, likes: 35, comments: 8 },
+  { date: "03", followers: 140, likes: 50, comments: 10 },
+  { date: "04", followers: 160, likes: 45, comments: 7 },
+  { date: "05", followers: 180, likes: 60, comments: 12 },
+];
+
 export default function SocialMediaPage() {
   return (
-    <>
-      <div className="p-4">
-        <div className="flex items-center gap-4 mt-8">
+    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
+      {/* Header */}
+      <div className="w-full flex flex-col lg:flex-row justify-between items-center px-4 py-2">
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => (window.location.href = "/")}
-            style={{
-              width: "40px",
-              height: "40px",
-              position: "absolute",
-              top: "151px",
-              left: "335px",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              outline: "none",
-              padding: "0",
-            }}
+            className="w-[40px] h-[40px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              strokeWidth={1.5}
+              strokeWidth={2}
               stroke="currentColor"
-              style={{
-                width: "40px",
-                height: "40px",
-              }}
+              className="size-7"
             >
               <path
                 strokeLinecap="round"
@@ -36,370 +45,86 @@ export default function SocialMediaPage() {
               />
             </svg>
           </button>
-          <h1
-            style={{
-              fontFamily: "Poppins, sans-serif",
-              fontWeight: 600,
-              fontStyle: "SemiBold",
-              fontSize: "40px",
-              lineHeight: "44px",
-              letterSpacing: "0px",
-              verticalAlign: "middle",
-              width: "215px",
-              height: "44px",
-              position: "absolute",
-              top: "147px",
-              left: "380px",
-            }}
-          >
-            Instagram
-          </h1>
-          <select
-            style={{
-              width: "184px",
-              height: "46px",
-              backgroundColor: "#ffffff",
-              border: "1px solid #A1A1A1",
-              borderRadius: "10px",
-              position: "absolute",
-              top: "142px",
-              left: "1115px",
-              appearance: "none",
-              cursor: "pointer",
-              paddingLeft: "48px",
-              fontFamily: "Inter",
-              fontWeight: 700,
-              fontSize: "18px",
-              outline: "none",
-            }}
-          >
-            <option>Date Range</option>
-          </select>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-            style={{
-              width: "30px",
-              height: "30px",
-              position: "absolute",
-              top: "150px",
-              left: "1125px",
-              pointerEvents: "none",
-            }}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-            />
-          </svg>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-            style={{
-              width: "15px",
-              height: "15px",
-              top: "158px",
-              left: "1271px",
-              position: "absolute",
-              pointerEvents: "none",
-            }}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m19.5 8.25-7.5 7.5-7.5-7.5"
-            />
-          </svg>
-
-          <button
-            style={{
-              width: "141px",
-              height: "47px",
-              backgroundColor: "#ffffff",
-              border: "1px solid #A1A1A1",
-              borderRadius: "10px",
-              position: "absolute",
-              top: "141px",
-              left: "1323px",
-              cursor: "pointer",
-              outline: "none",
-            }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-6"
-              style={{
-                width: "30px",
-                height: "30px",
-                top: "7px",
-                left: "7px",
-                position: "absolute",
-              }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15"
-              />
-            </svg>
-            <p
-              style={{
-                fontFamily: "Inter",
-                fontWeight: 700,
-                fontStyle: "Bold",
-                fontSize: "18px",
-                lineHeight: "39.6px",
-                letterSpacing: "0px",
-                verticalAlign: "middle",
-                width: "150px",
-                height: "24px",
-                position: "absolute",
-                top: "4px",
-                left: "7px",
-              }}
-            >
-              Export
-            </p>
-          </button>
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">Instagram</h1>
         </div>
-
-        <div
-          style={{
-            width: "200px",
-            height: "130px",
-            backgroundColor: "#ffffff",
-            border: "1px solid #E5E5E5",
-            borderRadius: "12px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
-            position: "absolute",
-            top: "220px",
-            left: "320px",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "Poppins, sans-serif",
-              fontWeight: 500,
-              fontStyle: "Medium",
-              fontSize: "16px",
-              color: "#00000",
-              margin: "12px 0 0 20px",
-              position: "absolute",
-            }}
-          >
-            Followers
-          </p>
-        </div>
-
-        <div
-          style={{
-            width: "200px",
-            height: "130px",
-            backgroundColor: "#ffffff",
-            border: "1px solid #E5E5E5",
-            borderRadius: "12px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
-            position: "absolute",
-            top: "365px",
-            left: "320px",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "Poppins, sans-serif",
-              fontWeight: 500,
-              fontStyle: "Medium",
-              fontSize: "16px",
-              color: "#00000",
-              margin: "12px 0 0 20px",
-              position: "absolute",
-            }}
-          >
-            Comments
-          </p>
-        </div>
-
-        <div
-          style={{
-            width: "200px",
-            height: "130px",
-            backgroundColor: "#ffffff",
-            border: "1px solid #E5E5E5",
-            borderRadius: "12px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
-            position: "absolute",
-            top: "510px",
-            left: "320px",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "Poppins, sans-serif",
-              fontWeight: 500,
-              fontStyle: "Medium",
-              fontSize: "16px",
-              color: "#00000",
-              margin: "12px 0 0 20px",
-              position: "absolute",
-            }}
-          >
-            Likes
-          </p>
-        </div>
-
-        <div
-          style={{
-            width: "200px",
-            height: "130px",
-            backgroundColor: "#ffffff",
-            border: "1px solid #E5E5E5",
-            borderRadius: "12px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
-            position: "absolute",
-            top: "655px",
-            left: "320px",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "Poppins, sans-serif",
-              fontWeight: 500,
-              fontStyle: "Medium",
-              fontSize: "16px",
-              color: "#00000",
-              margin: "12px 0 0 20px",
-              position: "absolute",
-            }}
-          >
-            Shared
-          </p>
-        </div>
-
-        <div
-          style={{
-            width: "400px",
-            height: "260px",
-            backgroundColor: "#ffffff",
-            border: "1px solid #E5E5E5",
-            borderRadius: "12px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
-            position: "absolute",
-            top: "220px",
-            left: "540px",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "Poppins, sans-serif",
-              fontWeight: 500,
-              fontStyle: "Medium",
-              fontSize: "16px",
-              color: "#00000",
-              margin: "12px 0 0 20px",
-              position: "absolute",
-            }}
-          >
-            Impressions
-          </p>
-        </div>
-
-        <div
-          style={{
-            width: "480px",
-            height: "280px",
-            backgroundColor: "#ffffff",
-            border: "1px solid #E5E5E5",
-            borderRadius: "12px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
-            position: "absolute",
-            top: "500px",
-            left: "540px",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "Poppins, sans-serif",
-              fontWeight: 500,
-              fontStyle: "Medium",
-              fontSize: "16px",
-              color: "#00000",
-              margin: "12px 0 0 20px",
-              position: "absolute",
-            }}
-          >
-            Reach Sources
-          </p>
-        </div>
-
-        <div
-          style={{
-            width: "520px",
-            height: "260px",
-            backgroundColor: "#ffffff",
-            border: "1px solid #E5E5E5",
-            borderRadius: "12px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
-            position: "absolute",
-            top: "220px",
-            left: "960px",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "Poppins, sans-serif",
-              fontWeight: 500,
-              fontStyle: "Medium",
-              fontSize: "16px",
-              color: "#00000",
-              margin: "12px 0 0 20px",
-              position: "absolute",
-            }}
-          >
-            Demographics - Gender
-          </p>
-        </div>
-
-        <div
-          style={{
-            width: "440px",
-            height: "280px",
-            backgroundColor: "#ffffff",
-            border: "1px solid #E5E5E5",
-            borderRadius: "12px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
-            position: "absolute",
-            top: "500px",
-            left: "1040px",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "Poppins, sans-serif",
-              fontWeight: 500,
-              fontStyle: "Medium",
-              fontSize: "16px",
-              color: "#00000",
-              margin: "12px 0 0 20px",
-              position: "absolute",
-            }}
-          >
-            Days Posted
-          </p>
+        <div className="flex space-x-2 mt-2 lg:mt-0">
+          <DateRangeButton />
+          <ExportButton />
         </div>
       </div>
-    </>
+
+      {/* Main Content */}
+      <div className="flex flex-col lg:flex-row gap-4 px-4 lg:h-full">
+        {/* Sidebar Cards */}
+        <div className="w-full lg:w-1/4 flex flex-col gap-4 lg:h-full">
+          <SmallCard title="Followers" displayMode="both" className="w-full h-full" />
+          <SmallCard title="Comments" displayMode="both" className="w-full h-full" />
+          <SmallCard title="Likes" displayMode="both" className="w-full h-full" />
+          <SmallCard title="Shared" displayMode="both" className="w-full h-full" />
+        </div>
+
+        {/* Chart Cards */}
+        <div className="w-full lg:w-3/4 flex flex-col gap-4 lg:h-full">
+          {/* First Row */}
+          <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
+            <BigCard
+              title="Impressions"
+              chart={
+                <div className="w-full h-[300px] lg:h-[500px]">
+                  <LineCharts
+                    data={lineTestData}
+                    xAxisKey="date"
+                    dataKeys={["likes"]}
+                    showArea={true}
+                  />
+                </div>
+              }
+              displayMode="both"
+              className="w-full h-full"
+            />
+            <BigCard
+              title="Demographics - Gender"
+              chart={
+                <div className="w-full h-[400px] lg:h-[600px]">
+                  <PieCharts
+                    data={pieTestData}
+                    dataKey="value"
+                    nameKey="source"
+                  />
+                </div>
+              }
+              displayMode="both"
+              className="w-full h-full"
+            />
+          </div>
+
+          {/* Second Row */}
+          <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
+            <BigCard
+              title="Reach Sources"
+              chart={
+                <div className="w-full h-[400px] lg:h-[600px]">
+                  <PieCharts
+                    data={pieTestData}
+                    dataKey="value"
+                    nameKey="source"
+                  />
+                </div>
+              }
+              displayMode="both"
+              className="w-full h-full"
+            />
+            <BigCard
+              title="Days Posted"
+              chart={
+                <div className="w-full h-[300px] lg:h-[600px]" />
+              }
+              displayMode="both"
+              className="w-full h-full"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

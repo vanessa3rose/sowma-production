@@ -39,7 +39,7 @@ const BigCard: React.FC<BigCardProps> = ({
       }}
     >
       {/* Header with title and subtitle */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 opacity-100 ">
         <h3
           style={{
             fontFamily: "Poppins, sans-serif",
@@ -51,7 +51,7 @@ const BigCard: React.FC<BigCardProps> = ({
           {title}
         </h3>
         {subtitle && (
-          <div className="flex items-center gap-1 cursor-pointer">
+          <div className="flex items-center gap-1 cursor-pointer opacity-100">
             <span
               style={{
                 fontFamily: "Poppins, sans-serif",
@@ -90,7 +90,7 @@ const BigCard: React.FC<BigCardProps> = ({
       {/* Metric Display - shown above chart when both are present */}
       {shouldShowMetric && metricValue !== undefined && (
         <div className="mb-4">
-          <div className="flex items-baseline gap-2 flex-wrap">
+          <div className="flex items-baseline gap-2 flex-wrap opacity-100">
             <span
               className="text-blue-600"
               style={{

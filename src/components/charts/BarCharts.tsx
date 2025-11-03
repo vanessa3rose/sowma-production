@@ -9,21 +9,17 @@ import {
 
 type BarGraphsProps = {
   data: any[]; // define as array of integers
-  width: number;
-  height: number;
   dataKeys: string[]; // name of each bar label
   xAxisKey: string; // the x axis titles for the chart
 };
 
 const BarCharts = ({
   data,
-  width,
-  height,
   dataKeys,
   xAxisKey,
 }: BarGraphsProps) => {
   return (
-    <ResponsiveContainer width={width} height={height}>
+    <ResponsiveContainer width="100%" height="100%">
       <BarChart
         data={data}
         margin={{ top: 20, right: 50, left: 20, bottom: 20 }}
