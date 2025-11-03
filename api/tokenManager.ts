@@ -2,35 +2,35 @@
 import cron from "node-cron";
 import { PrismaClient } from "@prisma/client";
 import fetch from "node-fetch";
-import { C } from "react-router/dist/development/index-react-server-client-BbRcBjrA";
+import { updateSocialMediaAuth, getSocialMediaAuth} from "../db/social-media-auth";
 
 const prisma = new PrismaClient();
 
 
 export type Provider =
-    | "google"
-    | "instagram"
-    | "facebook"
-    | "twitter"
-    | "linkedin"
-    | "tiktok";
+    | "GOOGLE_ANALYTICS"
+    | "INSTAGRAM"
+    | "FACEBOOK"
+    | "TWITTER"
+    | "LINKEDIN"
+    | "TIKTOK";
 
 export const REFRESH_STRATEGY: Record<Provider, "refresh" | "validate" | "static"> = {
-  google: "refresh",
-  instagram: "refresh",
-  facebook: "validate", // non-expiring, but validate
-  twitter: "refresh",
-  linkedin: "refresh",
-  tiktok: "refresh",
+  GOOGLE_ANALYTICS: "refresh",
+  INSTAGRAM: "refresh",
+  FACEBOOK: "validate", // non-expiring, but validate
+  TWITTER: "refresh",
+  LINKEDIN: "refresh",
+  TIKTOK: "refresh",
 };
 //check these numbers 
 const REFRESH_WINDOW_MS: Record<Provider, number> = {
-  google:   5  * 60 * 1000,        // 5 minutes before expiry (access ~1h)  ← GA/Google OAuth
-  twitter:  10 * 60 * 1000,        // 10 minutes before expiry (access ~2h) ← X/Twitter
-  tiktok:   60 * 60 * 1000,        // 1 hour before expiry (access ~24h)    ← TikTok
-  instagram:3  * 24 * 60 * 60 * 1000, // 3 days before expiry (60 days)     ← Instagram Graph long-lived
-  linkedin: 3  * 24 * 60 * 60 * 1000, // 3 days before expiry (60 days)     ← LinkedIn
-  facebook: 7  * 24 * 60 * 60 * 1000, // validate weekly; many page tokens are non-expiring
+  GOOGLE_ANALYTICS:   5  * 60 * 1000,        // 5 minutes before expiry (access ~1h)  ← GA/Google OAuth
+  TWITTER:  10 * 60 * 1000,        // 10 minutes before expiry (access ~2h) ← X/Twitter
+  TIKTOK:   60 * 60 * 1000,        // 1 hour before expiry (access ~24h)    ← TikTok
+  INSTAGRAM:3  * 24 * 60 * 60 * 1000, // 3 days before expiry (60 days)     ← Instagram Graph long-lived
+  LINKEDIN: 3  * 24 * 60 * 60 * 1000, // 3 days before expiry (60 days)     ← LinkedIn
+  FACEBOOK: 7  * 24 * 60 * 60 * 1000, // validate weekly; many page tokens are non-expiring
 };
 
 type AuthRow = {
@@ -43,9 +43,7 @@ type AuthRow = {
 };
 
 export async function checkAndRefreshTokens() {
-    const rows: AuthRow[] = await prisma.socialMediaAuth.findMany({
-        include: { socialMedia: true },
-    });
+    const rows: AuthRow[] = await getSocialMediaAuth();
     const now = Date.now();
     
     for (const rec of rows){
@@ -61,20 +59,17 @@ export async function checkAndRefreshTokens() {
             if (!updated){
                 console.error("Could not find new token for ", provider);
                 continue;
-            }
-            await prisma.socialMediaAuth.update({
-                where: { socialMediaId: rec.socialMediaId },
-                data: {
-                accessToken: updated.accessToken ?? rec.accessToken,
-                refreshToken: updated.refreshToken ?? rec.refreshToken,
-                // store provider-returned expiry if present
-                expiresAt: updated.expiresAt ?? rec.expiresAt,
-                lastRefreshed: new Date(),
-                },
-            });
+            }else{
+                await updateSocialMediaAuth(rec.socialMediaId, {
+                    accessToken: updated.accessToken ?? rec.accessToken,
+                    refreshToken: updated.refreshToken ?? rec.refreshToken,
+                    expiresAt: updated.expiresAt ?? rec.expiresAt,
+                    lastRefreshed: new Date(),
+                    });
+                }
         }
         catch(e: any){
-            console.error(`fatal error in fetching a refersh/access token for ${provider}`, e);
+            console.error(`fatal error in fetching a refresh/access token for ${provider}`, e);
         }
         
 
@@ -115,12 +110,12 @@ async function refreshDispatcher(
   rec: AuthRow
 ): Promise<{ accessToken?: string; refreshToken?: string | null; expiresAt?: Date | null } | null> {
   switch (provider) {
-    case "google":   return refreshGoogle(rec);
-    case "instagram":return refreshInstagram(rec);
-    case "facebook": return validateFacebook(rec);
-    case "twitter":  return refreshTwitter(rec);
-    case "linkedin": return refreshLinkedIn(rec);
-    case "tiktok":   return refreshTikTok(rec);
+    case "GOOGLE_ANALYTICS":   return refreshGoogle(rec);
+    case "INSTAGRAM":return refreshInstagram(rec);
+    case "FACEBOOK": return validateFacebook(rec);
+    case "TWITTER":  return refreshTwitter(rec);
+    case "LINKEDIN": return refreshLinkedIn(rec);
+    case "TIKTOK":   return refreshTikTok(rec);
     default:         return null;
   }
 }
