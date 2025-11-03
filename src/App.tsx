@@ -16,7 +16,9 @@ const App = () => {
   return (
     <div className={`${!hideLayout && "flex min-h-screen bg-white"}`}>
       {!hideLayout && <LeftSidebar />}
-      <div className={`${!hideLayout && "flex-grow flex flex-col ml-[20%] pt-28 px-6 bg-white"}`}>
+      <div
+        className={`${!hideLayout && "flex-grow flex flex-col ml-[20%] pt-28 px-6 bg-white"}`}
+      >
         {!hideLayout && <TopBanner />}
 
         <Switch>

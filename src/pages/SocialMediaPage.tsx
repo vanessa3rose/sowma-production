@@ -45,7 +45,9 @@ export default function SocialMediaPage() {
               />
             </svg>
           </button>
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">Instagram</h1>
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
+            Instagram
+          </h1>
         </div>
         <div className="flex space-x-2 mt-2 lg:mt-0">
           <DateRangeButton />
@@ -57,10 +59,26 @@ export default function SocialMediaPage() {
       <div className="flex flex-col lg:flex-row gap-4 px-4 lg:h-full">
         {/* Sidebar Cards */}
         <div className="w-full lg:w-1/4 flex flex-col gap-4 lg:h-full">
-          <SmallCard title="Followers" displayMode="both" className="w-full h-full" />
-          <SmallCard title="Comments" displayMode="both" className="w-full h-full" />
-          <SmallCard title="Likes" displayMode="both" className="w-full h-full" />
-          <SmallCard title="Shared" displayMode="both" className="w-full h-full" />
+          <SmallCard
+            title="Followers"
+            displayMode="both"
+            className="w-full h-full"
+          />
+          <SmallCard
+            title="Comments"
+            displayMode="both"
+            className="w-full h-full"
+          />
+          <SmallCard
+            title="Likes"
+            displayMode="both"
+            className="w-full h-full"
+          />
+          <SmallCard
+            title="Shared"
+            displayMode="both"
+            className="w-full h-full"
+          />
         </div>
 
         {/* Chart Cards */}
@@ -116,9 +134,7 @@ export default function SocialMediaPage() {
             />
             <BigCard
               title="Days Posted"
-              chart={
-                <div className="w-full h-[300px] lg:h-[600px]" />
-              }
+              chart={<div className="w-full h-[300px] lg:h-[600px]" />}
               displayMode="both"
               className="w-full h-full"
             />

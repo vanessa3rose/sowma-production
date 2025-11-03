@@ -13,11 +13,7 @@ type BarGraphsProps = {
   xAxisKey: string; // the x axis titles for the chart
 };
 
-const BarCharts = ({
-  data,
-  dataKeys,
-  xAxisKey,
-}: BarGraphsProps) => {
+const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart

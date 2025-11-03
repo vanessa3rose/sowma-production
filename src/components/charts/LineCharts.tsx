@@ -23,18 +23,39 @@ const LineCharts = ({ data, xAxisKey, dataKeys, showArea }: LineChartProps) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       {showArea ? (
-        <AreaChart data={data} margin={{ top: 20, right: 50, left: 20, bottom: 20 }}>
+        <AreaChart
+          data={data}
+          margin={{ top: 20, right: 50, left: 20, bottom: 20 }}
+        >
           <defs>
             {dataKeys.map((key, index) => (
-              <linearGradient key={key} id={`gradient-${key}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={COLORS[index % COLORS.length]} stopOpacity={0.4} />
-                <stop offset="95%" stopColor={COLORS[index % COLORS.length]} stopOpacity={0.05} />
+              <linearGradient
+                key={key}
+                id={`gradient-${key}`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop
+                  offset="5%"
+                  stopColor={COLORS[index % COLORS.length]}
+                  stopOpacity={0.4}
+                />
+                <stop
+                  offset="95%"
+                  stopColor={COLORS[index % COLORS.length]}
+                  stopOpacity={0.05}
+                />
               </linearGradient>
             ))}
           </defs>
 
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey={xAxisKey} tick={{ fontFamily: "Poppins, sans-serif" }} />
+          <XAxis
+            dataKey={xAxisKey}
+            tick={{ fontFamily: "Poppins, sans-serif" }}
+          />
           <YAxis tick={{ fontFamily: "Poppins, sans-serif" }} />
           <Legend wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 
@@ -51,9 +72,15 @@ const LineCharts = ({ data, xAxisKey, dataKeys, showArea }: LineChartProps) => {
           ))}
         </AreaChart>
       ) : (
-        <LineChart data={data} margin={{ top: 20, right: 50, left: 20, bottom: 20 }}>
+        <LineChart
+          data={data}
+          margin={{ top: 20, right: 50, left: 20, bottom: 20 }}
+        >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey={xAxisKey} tick={{ fontFamily: "Poppins, sans-serif" }} />
+          <XAxis
+            dataKey={xAxisKey}
+            tick={{ fontFamily: "Poppins, sans-serif" }}
+          />
           <YAxis tick={{ fontFamily: "Poppins, sans-serif" }} />
           <Legend wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 

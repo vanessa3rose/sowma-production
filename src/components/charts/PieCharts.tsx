@@ -20,11 +20,7 @@ type PieChartsProps = {
   nameKey: string;
 };
 
-const PieCharts = ({
-  data,
-  dataKey,
-  nameKey,
-}: PieChartsProps) => {
+const PieCharts = ({ data, dataKey, nameKey }: PieChartsProps) => {
   return (
     <div className="w-full h-full lg:p-4 overflow-visible">
       <ResponsiveContainer width="100%" height="100%">
@@ -42,7 +38,10 @@ const PieCharts = ({
             cy="50%"
           >
             {data.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+              />
             ))}
           </Pie>
           <Legend

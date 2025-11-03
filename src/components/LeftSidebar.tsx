@@ -3,7 +3,11 @@ import logo from "../assets/logo.png";
 const LeftSidebar = () => {
   return (
     <div className="fixed top-0 left-0 flex flex-col w-1/5 space-y-5 h-full items-center bg-white border-r border-gray-600 p-4 gap-4 z-50">
-      <img src={logo} alt="Logo" className="sm:w-full lg:w-4/5 aspect-square object-contain m-2" />
+      <img
+        src={logo}
+        alt="Logo"
+        className="sm:w-full lg:w-4/5 aspect-square object-contain m-2"
+      />
 
       <div className="flex flex-col w-4/5 lg:items-start space-y-3 px-2 items-center overflow-hidden">
         <div className="bg-light-gray flex flex-row gap-x-4">

@@ -99,7 +99,9 @@ export default function GoogleAnalyticsPage() {
               />
             </svg>
           </button>
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">Google</h1>
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
+            Google
+          </h1>
         </div>
         <div className="flex space-x-2 mt-2 lg:mt-0">
           <DateRangeButton />
@@ -111,18 +113,53 @@ export default function GoogleAnalyticsPage() {
       <div className="flex flex-col gap-4 px-4 lg:h-full">
         {/* Top Row Small Cards */}
         <div className="w-full flex flex-col lg:flex-row gap-4">
-          <SmallCard title="Active Users" displayMode="metric-only" className="w-full h-full" metricValue={d.metrics.activeUsers} metricLabel="users" metricChange={"+3.1% vs. prev."} />
-          <SmallCard title="Page Views" displayMode="metric-only" className="w-full h-full" metricValue={d.metrics.screenPageViews} metricLabel="views" metricChange={"+1.8% vs. prev."} />
-          <SmallCard title="Active 7-Day Users" displayMode="metric-only" className="w-full h-full" metricValue={d.metrics.active7DayUsers} metricLabel="users (7D)" metricChange={"+0.9% vs. prev."} />
-          <SmallCard title="Engagement Rate" displayMode="metric-only" className="w-full h-full" metricValue={Number((d.metrics.engagementRate * 100).toFixed(1))} metricLabel="% engaged" metricChange={"+0.4pp"} />
-          <SmallCard title="New Users" displayMode="metric-only" className="w-full h-full" metricValue={Number((d.metrics.newUsers).toFixed(1))} metricLabel="new" metricChange={"+2.2% vs prev."} />
+          <SmallCard
+            title="Active Users"
+            displayMode="metric-only"
+            className="w-full h-full"
+            metricValue={d.metrics.activeUsers}
+            metricLabel="users"
+            metricChange={"+3.1% vs. prev."}
+          />
+          <SmallCard
+            title="Page Views"
+            displayMode="metric-only"
+            className="w-full h-full"
+            metricValue={d.metrics.screenPageViews}
+            metricLabel="views"
+            metricChange={"+1.8% vs. prev."}
+          />
+          <SmallCard
+            title="Active 7-Day Users"
+            displayMode="metric-only"
+            className="w-full h-full"
+            metricValue={d.metrics.active7DayUsers}
+            metricLabel="users (7D)"
+            metricChange={"+0.9% vs. prev."}
+          />
+          <SmallCard
+            title="Engagement Rate"
+            displayMode="metric-only"
+            className="w-full h-full"
+            metricValue={Number((d.metrics.engagementRate * 100).toFixed(1))}
+            metricLabel="% engaged"
+            metricChange={"+0.4pp"}
+          />
+          <SmallCard
+            title="New Users"
+            displayMode="metric-only"
+            className="w-full h-full"
+            metricValue={Number(d.metrics.newUsers.toFixed(1))}
+            metricLabel="new"
+            metricChange={"+2.2% vs prev."}
+          />
         </div>
 
         {/* Large Chart Cards */}
         <div className="w-full flex flex-col gap-4 lg:h-full">
           {/* First Row */}
           <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
-            <div className="w-2/3">
+            <div className="lg:w-2/3">
               <BigCard
                 title="Active Users"
                 subtitle="Last 30 days"
@@ -143,7 +180,7 @@ export default function GoogleAnalyticsPage() {
                 className="w-full h-full"
               />
             </div>
-            <div className="w-1/3">
+            <div className="lg:w-1/3">
               <BigCard
                 title="New vs Returning Users"
                 chart={
@@ -163,7 +200,7 @@ export default function GoogleAnalyticsPage() {
 
           {/* Second Row */}
           <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
-            <div className="w-1/2">
+            <div className="lg:w-1/2">
               <BigCard
                 title="Pageviews"
                 subtitle="Last 30 days"
@@ -183,7 +220,7 @@ export default function GoogleAnalyticsPage() {
                 className="w-full h-full"
               />
             </div>
-            <div className="w-1/2">
+            <div className="lg:w-1/2">
               <BigCard
                 title="Active 7-Day Users (trend)"
                 chart={

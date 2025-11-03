@@ -5,7 +5,6 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen w-full overflow-hidden bg-white">
       <div className="flex w-full h-full justify-center items-center">
-
         {/* login */}
         <div className="flex-1 justify-center items-center z-10">
           <LoginPanel />

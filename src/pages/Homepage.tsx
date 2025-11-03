@@ -23,14 +23,16 @@ export default function Homepage() {
           <DateRangeButton />
 
           <div className="flex flex-row gap-2">
-            {[google, instagram, facebook, tiktok, linkedin, twitter].map((icon, idx) => (
-              <a href="/" key={idx}>
-                <img
-                  src={icon}
-                  className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border border-solid"
-                />
-              </a>
-            ))}
+            {[google, instagram, facebook, tiktok, linkedin, twitter].map(
+              (icon, idx) => (
+                <a href="/" key={idx}>
+                  <img
+                    src={icon}
+                    className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border border-solid"
+                  />
+                </a>
+              ),
+            )}
 
             <a href="/">
               <svg
