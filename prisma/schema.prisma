@@ -44,6 +44,21 @@ model DatabaseReportCount {
   @@unique([reportId, count])
 }
 
+model User {
+  email     String @id
+  firstName String
+  lastName  String
+  username  String @unique
+  password  String
+  phone     String
+  role      Role
+}
+
+enum Role {
+  ADMIN
+  INTERN
+}
+
 enum Provider {
   FACEBOOK
   INSTAGRAM
