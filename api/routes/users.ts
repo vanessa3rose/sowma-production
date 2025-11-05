@@ -3,18 +3,8 @@
  * Purpose: Manage users & accounts using CLERK
  */
 
-/* DEVELOPMENT NOTES
-  - What aspects of the user should be required?
-  - CLERK password requirements:
-    - 8 ≤ password length ≤ 72
-    - No default complexity (i.e. special characters)
-    - Certain common passwords (e.g. 12345678) are banned
-    - Whitespace is often automatically trimmed
-    - THESE ARE CUSTOMIZABLE using the CLERK dashboard
-*/
-
-import { Router, Request, Response } from "express";  // Express for nodes
-import { clerkClient } from "@clerk/clerk-sdk-node";  // Clerk for security
+import { Router, Request, Response } from "express"; // Express for nodes
+import { clerkClient } from "@clerk/clerk-sdk-node"; // Clerk for security
 
 // Below are the user types, declared in schema.prisma
 export type Role = "admin" | "intern";
@@ -26,7 +16,7 @@ export interface CreateUserInput {
   username: string;
   email: string;
   password: string;
-  role: Role; 
+  role: Role;
 }
 
 // Used when overwriting an existing user (altering account details)
@@ -42,10 +32,14 @@ export interface UpdateUserInput {
 //------- VALIDATION -------//
 
 // Given a string, determine if it is empty or contains only whitespace
-function isNonEmptyString(v: unknown): v is string { return typeof v === "string" && v.trim().length > 0; }
+function isNonEmptyString(v: unknown): v is string {
+  return typeof v === "string" && v.trim().length > 0;
+}
 
 // Given a string, determine if it is a valid email (. and @ in the right places)
-function isEmail(v: unknown): v is string { return typeof v === "string" && /.+@.+\..+/.test(v); }
+function isEmail(v: unknown): v is string {
+  return typeof v === "string" && /.+@.+\..+/.test(v);
+}
 
 // Creates error object that is returned if a bad user is created
 function makeBadRequest(message: string) {
@@ -61,15 +55,17 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
   if (!isNonEmptyString(body?.firstName)) errors.push("firstName is required");
   if (!isNonEmptyString(body?.lastName)) errors.push("lastName is required");
   if (!isNonEmptyString(body?.username)) errors.push("username is required");
-  if (!isEmail(body?.email)) errors.push("email must be a valid address");      // Uses function isEmail()
-  if (!isNonEmptyString(body?.password) || String(body.password).length < 8) {  // Uses function isNonEmptyString()
+  if (!isEmail(body?.email)) errors.push("email must be a valid address"); // Uses function isEmail()
+  if (!isNonEmptyString(body?.password) || String(body.password).length < 8) {
+    // Uses function isNonEmptyString()
     errors.push("password must be at least 8 characters");
   }
   if (body?.role && body.role !== "admin" && body.role !== "intern") {
     errors.push("role must be 'admin' or 'intern'");
   }
 
-  if (errors.length) throw makeBadRequest("Validation failed: " + errors.join("; "));   // Called if any errors
+  if (errors.length)
+    throw makeBadRequest("Validation failed: " + errors.join("; ")); // Called if any errors
 
   // Returns the CreateUserInput if the body passes validation
   return {
@@ -84,24 +80,29 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
 
 // Validates the body of updating a user. Assumes any existing users are properly formatted
 function validateUpdateUser(body: any): UpdateUserInput {
-  if (!body || typeof body !== "object") throw makeBadRequest("Body must be an object");
+  if (!body || typeof body !== "object")
+    throw makeBadRequest("Body must be an object");
 
   const out: UpdateUserInput = {};
 
   if (body.firstName !== undefined) {
-    if (!isNonEmptyString(body.firstName)) throw makeBadRequest("firstName must be a non-empty string");
+    if (!isNonEmptyString(body.firstName))
+      throw makeBadRequest("firstName must be a non-empty string");
     out.firstName = String(body.firstName).trim();
   }
   if (body.lastName !== undefined) {
-    if (!isNonEmptyString(body.lastName)) throw makeBadRequest("lastName must be a non-empty string");
+    if (!isNonEmptyString(body.lastName))
+      throw makeBadRequest("lastName must be a non-empty string");
     out.lastName = String(body.lastName).trim();
   }
   if (body.username !== undefined) {
-    if (!isNonEmptyString(body.username)) throw makeBadRequest("username must be a non-empty string");
+    if (!isNonEmptyString(body.username))
+      throw makeBadRequest("username must be a non-empty string");
     out.username = String(body.username).trim();
   }
   if (body.email !== undefined) {
-    if (!isEmail(body.email)) throw makeBadRequest("email must be a valid address");
+    if (!isEmail(body.email))
+      throw makeBadRequest("email must be a valid address");
     out.email = String(body.email).trim();
   }
   if (body.password !== undefined) {
@@ -124,7 +125,8 @@ function validateUpdateUser(body: any): UpdateUserInput {
 
 // Takes a Clerk output and reformats to fit our system
 function shapeUser(u: any) {
-  const role = (u.publicMetadata?.role as "admin" | "intern" | undefined) ?? "intern";
+  const role =
+    (u.publicMetadata?.role as "admin" | "intern" | undefined) ?? "intern";
   return {
     id: u.id,
     firstName: u.firstName ?? "",
@@ -182,7 +184,10 @@ export async function getUsers(filter?: { email?: string; username?: string }) {
 // Updates an existing user
 export async function updateUser(userId: string, updates: UpdateUserInput) {
   const parsed = validateUpdateUser(updates);
-  const updated = await clerkClient.users.updateUser(userId, toClerkUpdatePayload(parsed));
+  const updated = await clerkClient.users.updateUser(
+    userId,
+    toClerkUpdatePayload(parsed),
+  );
   return shapeUser(updated);
 }
 
@@ -209,19 +214,25 @@ usersRouter.post("/", async (req, res) => {
       err?.errors?.map((e: any) => e.long_message || e.message).join("; ") ||
       err?.message ||
       "Failed to create user";
-    return res.status(status).json({ ok: false, error: message, raw: err?.errors });
+    return res
+      .status(status)
+      .json({ ok: false, error: message, raw: err?.errors });
   }
 });
 
 // Gets a user
 usersRouter.get("/", async (req: Request, res: Response) => {
   try {
-    const email = typeof req.query.email === "string" ? req.query.email : undefined;
-    const username = typeof req.query.username === "string" ? req.query.username : undefined;
+    const email =
+      typeof req.query.email === "string" ? req.query.email : undefined;
+    const username =
+      typeof req.query.username === "string" ? req.query.username : undefined;
     const users = await getUsers({ email, username });
     return res.status(200).json({ ok: true, data: users });
   } catch (err: any) {
-    return res.status(500).json({ ok: false, error: err?.message || "Failed to fetch users" });
+    return res
+      .status(500)
+      .json({ ok: false, error: err?.message || "Failed to fetch users" });
   }
 });
 
@@ -245,7 +256,9 @@ usersRouter.delete("/:id", async (req: Request, res: Response) => {
     const result = await deleteUser(id);
     return res.status(200).json({ ok: true, data: result });
   } catch (err: any) {
-    return res.status(500).json({ ok: false, error: err?.message || "Failed to delete user" });
+    return res
+      .status(500)
+      .json({ ok: false, error: err?.message || "Failed to delete user" });
   }
 });
 
