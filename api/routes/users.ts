@@ -4,7 +4,7 @@
  */
 
 /* DEVELOPMENT NOTES
-  - What aspects of the user should be required? Should phone be?
+  - What aspects of the user should be required?
   - CLERK password requirements:
     - 8 ≤ password length ≤ 72
     - No default complexity (i.e. special characters)
@@ -25,7 +25,6 @@ export interface CreateUserInput {
   lastName: string;
   username: string;
   email: string;
-  phone?: string;   // The only not required data
   password: string;
   role: Role; 
 }
@@ -36,7 +35,6 @@ export interface UpdateUserInput {
   lastName?: string;
   username?: string;
   email?: string;
-  phone?: string;
   password?: string;
   role?: Role;
 }
@@ -79,7 +77,6 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
     lastName: String(body.lastName).trim(),
     username: String(body.username).trim(),
     email: String(body.email).trim(),
-    phone: body?.phone ? String(body.phone).trim() : undefined,
     password: String(body.password),
     role: (body?.role as Role) ?? "intern",
   };
@@ -106,10 +103,6 @@ function validateUpdateUser(body: any): UpdateUserInput {
   if (body.email !== undefined) {
     if (!isEmail(body.email)) throw makeBadRequest("email must be a valid address");
     out.email = String(body.email).trim();
-  }
-  if (body.phone !== undefined) {
-    if (!isNonEmptyString(body.phone)) throw makeBadRequest("phone must be a non-empty string");
-    out.phone = String(body.phone).trim();
   }
   if (body.password !== undefined) {
     if (!isNonEmptyString(body.password) || String(body.password).length < 8) {
@@ -138,7 +131,6 @@ function shapeUser(u: any) {
     lastName: u.lastName ?? "",
     username: u.username ?? "",
     email: u.emailAddresses?.[0]?.emailAddress ?? "",
-    phone: u.phoneNumbers?.[0]?.phoneNumber ?? "",
     role,
     createdAt: new Date(u.createdAt),
     updatedAt: new Date(u.updatedAt),
@@ -154,7 +146,6 @@ function toClerkUpdatePayload(body: UpdateUserInput) {
   if (body.lastName !== undefined) payload.lastName = body.lastName;
   if (body.username !== undefined) payload.username = body.username;
   if (body.email !== undefined) payload.emailAddress = [body.email];
-  if (body.phone !== undefined) payload.phoneNumber = [body.phone];
   if (body.password !== undefined) payload.password = body.password;
   if (body.role !== undefined) payload.publicMetadata = { role: body.role };
 
@@ -172,7 +163,6 @@ export async function createUser(input: CreateUserInput) {
     firstName: parsed.firstName,
     lastName: parsed.lastName,
     username: parsed.username,
-    ...(parsed.phone ? { phoneNumber: [parsed.phone] } : {}),
     publicMetadata: { role: parsed.role },
   });
   return shapeUser(user);
