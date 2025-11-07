@@ -26,6 +26,7 @@ model SocialMediaMetrics {
   metricValue   Int
   lastSynced    DateTime?
   socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])
+  metricDate    DateTime?
 }
 
 model DatabaseReport {

@@ -26,8 +26,8 @@ export async function fetchFacebookMetrics(
 
   const metricsConfig = [
     { name: "page_follows", period: "day" },
-    { name: "page_actions_post_reactions_like_total", period: "days_28" },
-    { name: "page_media_view", period: "days_28" },
+    { name: "page_actions_post_reactions_like_total", period: "days" },
+    { name: "page_media_view", period: "days" },
   ];
 
   const insightsResults: any = {};
