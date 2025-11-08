@@ -1,10 +1,8 @@
 // apis: meta, instagram, tiktok, linkedin, twitter, google analytics
 import cron from "node-cron";
-import { PrismaClient } from "@prisma/client";
 import fetch from "node-fetch";
 import { updateSocialMediaAuth, getSocialMediaAuth} from "../db/social-media-auth";
 
-const prisma = new PrismaClient();
 
 
 export type Provider =
@@ -34,6 +32,7 @@ const REFRESH_WINDOW_MS: Record<Provider, number> = {
 };
 
 type AuthRow = {
+  id: string;
   socialMediaId: string;
   accessToken: string;
   refreshToken: string | null;
@@ -49,68 +48,241 @@ export async function checkAndRefreshTokens() {
     for (const rec of rows){
         const provider = rec.socialMedia.provider as Provider;
         const strategy = REFRESH_STRATEGY[provider];
-        const expiresAt = rec.expiresAt ? rec.expiresAt.getTime() : 1000000000000; //check this number
         const refreshWindow = REFRESH_WINDOW_MS[provider];
-        const expiringSoon = expiresAt-now < refreshWindow;
 
-        if(!expiringSoon) continue;
-        try{
+        const expMs = rec.expiresAt?.getTime();
+        const hasExpiry = typeof expMs === "number";
+
+        const expiringSoon = hasExpiry ? expMs! - now <= refreshWindow : false;
+
+        let shouldAct = false;
+        if (strategy ==="refresh"){
+            shouldAct = (hasExpiry && expiringSoon) || (!hasExpiry && !rec.lastRefreshed);
+        }
+        else if (strategy === "validate") {
+            // Validate on cadence using lastRefreshed + refreshWindow
+            const last = rec.lastRefreshed?.getTime() ?? 0;
+            shouldAct = now - last >= refreshWindow;
+        } else {
+            shouldAct = false;
+        }
+        if (!shouldAct) continue;
+
+        try {
             const updated = await refreshDispatcher(provider, rec);
-            if (!updated){
-                console.error("Could not find new token for ", provider);
+            if (!updated) {
+                console.error("[token]", provider, rec.socialMediaId, ":: no-change/needs-manual-auth");
                 continue;
-            }else{
-                await updateSocialMediaAuth(rec.socialMediaId, {
-                    accessToken: updated.accessToken ?? rec.accessToken,
-                    refreshToken: updated.refreshToken ?? rec.refreshToken,
-                    expiresAt: updated.expiresAt ?? rec.expiresAt,
-                    lastRefreshed: new Date(),
-                    });
-                }
-        }
-        catch(e: any){
-            console.error(`fatal error in fetching a refresh/access token for ${provider}`, e);
-        }
-        
+            }
 
-        //if 
+            await updateSocialMediaAuth(rec.id, {
+                accessToken: updated.accessToken ?? rec.accessToken,
+                refreshToken: updated.refreshToken ?? rec.refreshToken,
+                expiresAt: updated.expiresAt ?? rec.expiresAt,
+                lastRefreshed: new Date(),
+            });
+
+            console.log(
+                `[token] ${provider} ${rec.socialMediaId.slice(0, 6)}… :: updated (expiresAt=${
+                updated.expiresAt?.toISOString() ?? "n/a"
+                })`
+            );
+        } catch (e: any) {
+            console.error(
+                `[token] ${provider} ${rec.socialMediaId.slice(0, 6)}… :: ERROR ${e?.message ?? e}`
+            );
+        }
     }
 
 }
 
 
 // these are NOT DONE. just did returns so everyhting would stop being red squiggly
-async function refreshGoogle(rec: AuthRow) {
-    return {AccessToken: "abc", refreshToken: rec.refreshToken, expiresAt: new Date() };
-}
-
 async function refreshInstagram(rec: AuthRow) {
-    return {AccessToken: "abc", refreshToken: rec.refreshToken, expiresAt: new Date() };
+  const url = new URL("https://graph.instagram.com/refresh_access_token");
+  url.searchParams.set("grant_type", "ig_refresh_token");
+  url.searchParams.set("access_token", rec.accessToken);
+
+  const res = await fetch(url.toString());
+  const j = await res.json();
+  if (!res.ok) {
+    throw new Error(`Instagram refresh failed: ${res.status} ${JSON.stringify(j)}`);
+  }
+
+  const expiresAt = j.expires_in ? new Date(Date.now() + Number(j.expires_in) * 1000) : null;
+
+  return {
+    accessToken: j.access_token as string,
+    refreshToken: rec.refreshToken, // IG long-lived flow typically doesn't return a refresh token
+    expiresAt,
+  };
 }
 
+// Google Analytics refresh
+async function refreshGoogleAnalytics(rec: AuthRow) {
+  if (!rec.refreshToken) return null;
+
+  const body = new URLSearchParams({
+    client_id: process.env.GOOGLE_CLIENT_ID ?? "",
+    client_secret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+    grant_type: "refresh_token",
+    refresh_token: rec.refreshToken,
+  });
+
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+
+  const j = await res.json();
+  if (!res.ok) {
+    throw new Error(`Google Analytics refresh failed: ${res.status} ${JSON.stringify(j)}`);
+  }
+
+  const expiresAt = j.expires_in
+    ? new Date(Date.now() + Number(j.expires_in) * 1000)
+    : null;
+
+  return {
+    accessToken: j.access_token as string,
+    refreshToken: (j.refresh_token as string) ?? rec.refreshToken,
+    expiresAt,
+  };
+}
+
+// FACEBOOK: validate (page tokens may be non-expiring)
 async function validateFacebook(rec: AuthRow) {
-    return {AccessToken: "abc", refreshToken: rec.refreshToken, expiresAt: new Date() };
+  const appId = process.env.FB_APP_ID;
+  const appSecret = process.env.FB_APP_SECRET;
+  if (!appId || !appSecret) return null;
+
+  const url = new URL("https://graph.facebook.com/debug_token");
+  url.searchParams.set("input_token", rec.accessToken);
+  url.searchParams.set("access_token", `${appId}|${appSecret}`);
+
+  const res = await fetch(url.toString());
+  const j = await res.json();
+  if (!res.ok) {
+    throw new Error(`Facebook debug failed: ${res.status} ${JSON.stringify(j)}`);
+  }
+
+  const isValid = j?.data?.is_valid === true;
+  const expSec = j?.data?.expires_at as number | undefined;
+  const expiresAt = expSec ? new Date(expSec * 1000) : rec.expiresAt ?? null;
+
+  if (!isValid) {
+    // invalid → require re-auth (no DB updates)
+    return null;
+  }
+
+  // keep same token; update expiresAt if provided
+  return { accessToken: rec.accessToken, refreshToken: rec.refreshToken, expiresAt };
 }
 
+// TWITTER/X: OAuth2 refresh (~2h)
 async function refreshTwitter(rec: AuthRow) {
-    return {AccessToken: "abc", refreshToken: rec.refreshToken, expiresAt: new Date() };
+  if (!rec.refreshToken) return null;
+
+  const body = new URLSearchParams({
+    client_id: process.env.TWITTER_CLIENT_ID ?? "",
+    grant_type: "refresh_token",
+    refresh_token: rec.refreshToken,
+  });
+
+  const res = await fetch("https://api.twitter.com/2/oauth2/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${Buffer.from(
+        `${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`
+      ).toString("base64")}`,
+    },
+    body,
+  });
+
+  const j = await res.json();
+  if (!res.ok) {
+    throw new Error(`Twitter refresh failed: ${res.status} ${JSON.stringify(j)}`);
+  }
+
+  const expiresAt = j.expires_in ? new Date(Date.now() + Number(j.expires_in) * 1000) : null;
+
+  return {
+    accessToken: j.access_token as string,
+    refreshToken: (j.refresh_token as string) ?? rec.refreshToken,
+    expiresAt,
+  };
 }
 
+// LINKEDIN: refresh (~60 days)
 async function refreshLinkedIn(rec: AuthRow) {
-    return {AccessToken: "abc", refreshToken: rec.refreshToken, expiresAt: new Date() };
+  if (!rec.refreshToken) return null;
+
+  const body = new URLSearchParams({
+    grant_type: "refresh_token",
+    refresh_token: rec.refreshToken,
+    client_id: process.env.LINKEDIN_CLIENT_ID ?? "",
+    client_secret: process.env.LINKEDIN_CLIENT_SECRET ?? "",
+  });
+
+  const res = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+
+  const j = await res.json();
+  if (!res.ok) {
+    throw new Error(`LinkedIn refresh failed: ${res.status} ${JSON.stringify(j)}`);
+  }
+
+  const expiresAt = j.expires_in ? new Date(Date.now() + Number(j.expires_in) * 1000) : null;
+
+  return {
+    accessToken: j.access_token as string,
+    refreshToken: (j.refresh_token as string) ?? rec.refreshToken,
+    expiresAt,
+  };
 }
 
+// TIKTOK: refresh (~24h access tokens)
 async function refreshTikTok(rec: AuthRow) {
-    return {AccessToken: "abc", refreshToken: rec.refreshToken, expiresAt: new Date() };
-}
+  if (!rec.refreshToken) return null;
 
+  const body = new URLSearchParams({
+    client_key: process.env.TIKTOK_CLIENT_KEY ?? "",
+    client_secret: process.env.TIKTOK_CLIENT_SECRET ?? "",
+    grant_type: "refresh_token",
+    refresh_token: rec.refreshToken,
+  });
+
+  const res = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+
+  const j = await res.json();
+  if (!res.ok) {
+    throw new Error(`TikTok refresh failed: ${res.status} ${JSON.stringify(j)}`);
+  }
+
+  const expiresAt = j.expires_in ? new Date(Date.now() + Number(j.expires_in) * 1000) : null;
+
+  return {
+    accessToken: j.access_token as string,
+    refreshToken: (j.refresh_token as string) ?? rec.refreshToken,
+    expiresAt,
+  };
+}
 
 async function refreshDispatcher(
   provider: Provider,
   rec: AuthRow
 ): Promise<{ accessToken?: string; refreshToken?: string | null; expiresAt?: Date | null } | null> {
   switch (provider) {
-    case "GOOGLE_ANALYTICS":   return refreshGoogle(rec);
+    case "GOOGLE_ANALYTICS":   return refreshGoogleAnalytics(rec);
     case "INSTAGRAM":return refreshInstagram(rec);
     case "FACEBOOK": return validateFacebook(rec);
     case "TWITTER":  return refreshTwitter(rec);
