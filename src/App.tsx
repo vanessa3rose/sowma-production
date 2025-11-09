@@ -6,6 +6,7 @@ import TopBanner from "./components/TopBanner";
 import Homepage from "./pages/Homepage";
 import SocialMediaPage from "./pages/SocialMediaPage";
 import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
 
 const App = () => {
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="/social-media" component={SocialMediaPage} />
           <Route path="/login" component={LoginPage} />
           <Route path="/google-analytics" component={GoogleAnalyticsPage} />
+          <Route path="/signup" component={SignupPage} />
 
           <Route>
             <p className="p-4 text-black">404: Page Not Found</p>
