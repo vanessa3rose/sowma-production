@@ -6,6 +6,7 @@ import TopBanner from "./components/TopBanner";
 import Homepage from "./pages/Homepage";
 import SocialMediaPage from "./pages/SocialMediaPage";
 import LoginPage from "./pages/LoginPage";
+import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
 
 const App = () => {
   const [location] = useLocation();
@@ -13,23 +14,25 @@ const App = () => {
   const hideLayout = hideLayoutRoutes.includes(location);
 
   return (
-    <>
+    <div className={`${!hideLayout && "flex min-h-screen bg-white"}`}>
       {!hideLayout && <LeftSidebar />}
-      {!hideLayout && <TopBanner />}
+      <div
+        className={`${!hideLayout && "flex-grow flex flex-col ml-[20%] pt-28 px-6 bg-white"}`}
+      >
+        {!hideLayout && <TopBanner />}
 
-      <Switch>
-        <Route path="/" component={Homepage} />
-        <Route path="/social-media" component={SocialMediaPage} />
-        <Route path="/login" component={LoginPage} />
+        <Switch>
+          <Route path="/" component={Homepage} />
+          <Route path="/social-media" component={SocialMediaPage} />
+          <Route path="/login" component={LoginPage} />
+          <Route path="/google-analytics" component={GoogleAnalyticsPage} />
 
-        {/* Shows a 404 error if the path doesn't match anything */}
-        {
           <Route>
-            <p className="p-4">404: Page Not Found</p>
+            <p className="p-4 text-black">404: Page Not Found</p>
           </Route>
-        }
-      </Switch>
-    </>
+        </Switch>
+      </div>
+    </div>
   );
 };
 
