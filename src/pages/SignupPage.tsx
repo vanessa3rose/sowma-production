@@ -13,7 +13,7 @@ export default function LoginPanel() {
   const [isPasswordEmpty, setIsPasswordEmpty] = useState(false);
   const [emailNotFound, setEmailNotFound] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [accessLevel, setAccessLevel] = useState("");
+  const [accessLevel, setAccessLevel] = useState("Intern");
   // Event handlers
   const handleLogin = () => {
     setEmailNotFound(false);
@@ -159,6 +159,7 @@ export default function LoginPanel() {
             </p>
           )}
         </div>
+
         {/* Password Field */}
         <div className="flex flex-col gap-1">
           <LoginTextBox
@@ -219,6 +220,7 @@ export default function LoginPanel() {
             </p>
           )}
         </div>
+
         {/* Desired Access Field */}
         <LoginTextBox label="Desired Level of Access:">
         <button
@@ -244,6 +246,7 @@ export default function LoginPanel() {
         Intern
         </button>
         </LoginTextBox>
+
         {/* Login button */}
           <div className="flex justify-center">
           <button

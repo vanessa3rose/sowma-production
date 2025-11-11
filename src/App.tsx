@@ -11,7 +11,7 @@ import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
 
 const App = () => {
   const [location] = useLocation();
-  const hideLayoutRoutes = ["/login"];
+  const hideLayoutRoutes = ["/login", "/signup"];
   const hideLayout = hideLayoutRoutes.includes(location);
 
   return (
