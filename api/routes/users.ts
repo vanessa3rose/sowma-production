@@ -41,6 +41,16 @@ function isEmail(v: unknown): v is string {
   return typeof v === "string" && /.+@.+\..+/.test(v);
 }
 
+// Username validation - between 4 and 64 characters, specific prohibited characters
+function isUsername(v: unknown): v is string {
+  if (typeof v !== "string") return false;
+  const s = v.trim();
+  if (s.length < 4 || s.length > 64) return false;
+  if (/[\^\$\!\.\#\+\~]/.test(s)) return false; // forbidden specials
+  if (!/^[A-Za-z0-9_-]+$/.test(s)) return false; // Latin letters/numbers/underscore/hyphen
+  return true;
+}
+
 // Creates error object that is returned if a bad user is created
 function makeBadRequest(message: string) {
   const err: any = new Error(message);
@@ -54,7 +64,11 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
 
   if (!isNonEmptyString(body?.firstName)) errors.push("firstName is required");
   if (!isNonEmptyString(body?.lastName)) errors.push("lastName is required");
-  if (!isNonEmptyString(body?.username)) errors.push("username is required");
+  if (!isUsername(body?.username)) {
+    errors.push(
+      "username must be 4 and 64 characters, Latin letters/numbers/underscore/hyphen only; no ^$!.#+~"
+    );
+  }
   if (!isEmail(body?.email)) errors.push("email must be a valid address"); // Uses function isEmail()
   if (!isNonEmptyString(body?.password) || String(body.password).length < 8) {
     // Uses function isNonEmptyString()
@@ -96,8 +110,10 @@ function validateUpdateUser(body: any): UpdateUserInput {
     out.lastName = String(body.lastName).trim();
   }
   if (body.username !== undefined) {
-    if (!isNonEmptyString(body.username))
-      throw makeBadRequest("username must be a non-empty string");
+    if (!isUsername(body.username))
+      throw makeBadRequest(
+        "username must be 4 and 64 characters, Latin letters/numbers/underscore/hyphen only; no ^$!.#+~"
+      );
     out.username = String(body.username).trim();
   }
   if (body.email !== undefined) {
@@ -132,7 +148,7 @@ function shapeUser(u: any) {
     firstName: u.firstName ?? "",
     lastName: u.lastName ?? "",
     username: u.username ?? "",
-    email: u.emailAddresses?.[0]?.emailAddress ?? "",
+    email: u.emailAddress?.[0]?.emailAddress ?? "",
     role,
     createdAt: new Date(u.createdAt),
     updatedAt: new Date(u.updatedAt),
@@ -149,7 +165,13 @@ function toClerkUpdatePayload(body: UpdateUserInput) {
   if (body.username !== undefined) payload.username = body.username;
   if (body.email !== undefined) payload.emailAddress = [body.email];
   if (body.password !== undefined) payload.password = body.password;
-  if (body.role !== undefined) payload.publicMetadata = { role: body.role };
+
+  if (body.role !== undefined) {
+    payload.publicMetadata = {
+      ...(payload.publicMetadata ?? {}),
+      role: body.role,
+    };
+  }
 
   return payload;
 }
@@ -207,7 +229,7 @@ usersRouter.post("/", async (req, res) => {
     const created = await createUser(req.body);
     return res.status(201).json({ ok: true, data: created });
   } catch (err: any) {
-    // LOG full error to your server console
+    // LOG full error to server console
     console.error("Clerk createUser error:", JSON.stringify(err, null, 2));
     const status = (err as any)?.status === 400 ? 400 : 422; // Clerk validation errors are 422
     const message =
