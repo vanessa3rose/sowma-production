@@ -10,38 +10,23 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const COLORS = [
-  "#7987FF", // blue
-  "#F765A3", // pink
-  "#FFA9D0", // light pink
-  "#A155B9", // purple
-];
+const COLORS = ["#7987FF", "#F765A3", "#FFA9D0", "#A155B9"];
 
 type LineChartProps = {
   data: any[];
-  width: number;
-  height: number;
   xAxisKey: string;
   dataKeys: string[];
   showArea?: boolean;
 };
 
-const LineCharts = ({
-  data,
-  width,
-  height,
-  xAxisKey,
-  dataKeys,
-  showArea,
-}: LineChartProps) => {
+const LineCharts = ({ data, xAxisKey, dataKeys, showArea }: LineChartProps) => {
   return (
-    <ResponsiveContainer width={width} height={height}>
+    <ResponsiveContainer width="100%" height="100%">
       {showArea ? (
         <AreaChart
           data={data}
           margin={{ top: 20, right: 50, left: 20, bottom: 20 }}
         >
-          {/* Gradient definitions for area chart */}
           <defs>
             {dataKeys.map((key, index) => (
               <linearGradient
@@ -74,7 +59,6 @@ const LineCharts = ({
           <YAxis tick={{ fontFamily: "Poppins, sans-serif" }} />
           <Legend wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 
-          {/* Area components with gradients */}
           {dataKeys.map((key, index) => (
             <Area
               key={key}
@@ -100,7 +84,6 @@ const LineCharts = ({
           <YAxis tick={{ fontFamily: "Poppins, sans-serif" }} />
           <Legend wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 
-          {/* Line components with dots */}
           {dataKeys.map((key, index) => (
             <Line
               key={key}
