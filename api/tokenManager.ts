@@ -96,8 +96,6 @@ export async function checkAndRefreshTokens() {
 
 }
 
-
-// these are NOT DONE. just did returns so everyhting would stop being red squiggly
 async function refreshInstagram(rec: AuthRow) {
   const url = new URL("https://graph.instagram.com/refresh_access_token");
   url.searchParams.set("grant_type", "ig_refresh_token");
