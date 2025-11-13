@@ -16,7 +16,7 @@ export default function LoginTextBox({
   value,
   width,
   onChange,
-  children, 
+  children,
 }: LoginTextBoxProps) {
   const widthClass = width ? width : "w-[577px]"; // the default width if not specified
   return (
@@ -51,7 +51,3 @@ export default function LoginTextBox({
     </div>
   );
 }
-
-
-
-

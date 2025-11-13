@@ -1,4 +1,4 @@
-// pages/Homepage.tsx
+/* NOTE: This file is for testing and should be DELETED */
 import { usePDFExporter } from "../hooks/usePDFExporter";
 import ExportableChartWrapper from "../components/export-pdf/ExportableChartWrapper";
 import BigCard from "../components/cards/BigCard";
@@ -30,11 +30,7 @@ export default function Homepage() {
           chart={
             // 👇 This wrapper gives the chart a real height.
             <div className="w-full h-[220px]">
-              <LineCharts
-                data={mockData}
-                xAxisKey="day"
-                dataKeys={["views"]}
-              />
+              <LineCharts data={mockData} xAxisKey="day" dataKeys={["views"]} />
             </div>
           }
         />

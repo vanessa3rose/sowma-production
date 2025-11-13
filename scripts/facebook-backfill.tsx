@@ -42,7 +42,9 @@ export async function fetchFacebookInsights(
   pageId: string,
   pageAccessToken: string,
   targetDate: Date,
-): Promise<Omit<FacebookPublicMetrics, 'total_posts' | 'total_shares' | 'total_comments'>> {
+): Promise<
+  Omit<FacebookPublicMetrics, "total_posts" | "total_shares" | "total_comments">
+> {
   const since = toUnixTimestamp(getStartOfDay(targetDate));
   const until = toUnixTimestamp(getEndOfDay(targetDate));
 
@@ -57,7 +59,7 @@ export async function fetchFacebookInsights(
   for (const { name, period } of metricsConfig) {
     try {
       const insightsUrl = `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/insights?metric=${name}&period=${period}&since=${since}&until=${until}&access_token=${pageAccessToken}`;
-      
+
       const res = await fetch(insightsUrl);
 
       if (res.ok) {
@@ -94,7 +96,11 @@ async function fetchDailyPostMetrics(
   pageId: string,
   pageAccessToken: string,
   targetDate: Date,
-): Promise<{ total_posts: number; total_shares: number; total_comments: number }> {
+): Promise<{
+  total_posts: number;
+  total_shares: number;
+  total_comments: number;
+}> {
   const since = toUnixTimestamp(getStartOfDay(targetDate));
   const until = toUnixTimestamp(getEndOfDay(targetDate));
 
@@ -107,20 +113,23 @@ async function fetchDailyPostMetrics(
   while (nextUrl && pageCount < 10) {
     pageCount++;
     const postsRes = await fetch(nextUrl);
-    
+
     if (!postsRes.ok) break;
-    
+
     const postsData = await postsRes.json();
-    
+
     if (!postsData.data || postsData.data.length === 0) break;
-    
+
     posts.push(...postsData.data);
     nextUrl = postsData.paging?.next || null;
   }
 
   return {
     total_posts: posts.length,
-    total_shares: posts.reduce((sum, post) => sum + (post.shares?.count || 0), 0),
+    total_shares: posts.reduce(
+      (sum, post) => sum + (post.shares?.count || 0),
+      0,
+    ),
     total_comments: posts.reduce(
       (sum, post) => sum + (post.comments?.summary?.total_count || 0),
       0,
@@ -132,7 +141,11 @@ async function fetchDailyPostMetrics(
 async function fetchCurrentTotals(
   pageId: string,
   pageAccessToken: string,
-): Promise<{ total_posts: number; total_shares: number; total_comments: number }> {
+): Promise<{
+  total_posts: number;
+  total_shares: number;
+  total_comments: number;
+}> {
   let posts: any[] = [];
   let nextUrl: string | null =
     `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/posts?fields=shares,comments.summary(true)&access_token=${pageAccessToken}`;
@@ -142,20 +155,23 @@ async function fetchCurrentTotals(
   while (nextUrl && pageCount < 10) {
     pageCount++;
     const postsRes = await fetch(nextUrl);
-    
+
     if (!postsRes.ok) break;
-    
+
     const postsData = await postsRes.json();
-    
+
     if (!postsData.data || postsData.data.length === 0) break;
-    
+
     posts.push(...postsData.data);
     nextUrl = postsData.paging?.next || null;
   }
 
   return {
     total_posts: posts.length,
-    total_shares: posts.reduce((sum, post) => sum + (post.shares?.count || 0), 0),
+    total_shares: posts.reduce(
+      (sum, post) => sum + (post.shares?.count || 0),
+      0,
+    ),
     total_comments: posts.reduce(
       (sum, post) => sum + (post.comments?.summary?.total_count || 0),
       0,
@@ -252,8 +268,12 @@ export async function syncFacebookMetrics() {
 
 export async function backfillFacebookMetrics(startDate: Date, endDate: Date) {
   console.log("\n🔄 [backfillFacebookMetrics] Starting BACKWARDS backfill...");
-  console.log(`📅 Date range: ${formatDate(startDate)} to ${formatDate(endDate)}`);
-  console.log(`⚠️  Working BACKWARDS from ${formatDate(endDate)} to ${formatDate(startDate)}\n`);
+  console.log(
+    `📅 Date range: ${formatDate(startDate)} to ${formatDate(endDate)}`,
+  );
+  console.log(
+    `⚠️  Working BACKWARDS from ${formatDate(endDate)} to ${formatDate(startDate)}\n`,
+  );
 
   const accounts = await prisma.socialMedia.findMany({
     where: { provider: "FACEBOOK" },
@@ -285,7 +305,9 @@ export async function backfillFacebookMetrics(startDate: Date, endDate: Date) {
       FACEBOOK_PAGE_TOKEN,
     );
 
-    console.log(`📈 Baseline: ${baseline.total_posts} posts, ${baseline.total_shares} shares, ${baseline.total_comments} comments\n`);
+    console.log(
+      `📈 Baseline: ${baseline.total_posts} posts, ${baseline.total_shares} shares, ${baseline.total_comments} comments\n`,
+    );
 
     // Start from END date and work backwards
     const currentDate = new Date(endDate);
@@ -310,7 +332,9 @@ export async function backfillFacebookMetrics(startDate: Date, endDate: Date) {
         cumulativeComments -= dailyMetrics.total_comments;
         tempDate.setDate(tempDate.getDate() - 1);
       }
-      console.log(`📊 Adjusted baseline for ${formatDate(endDate)}: ${cumulativePosts} posts\n`);
+      console.log(
+        `📊 Adjusted baseline for ${formatDate(endDate)}: ${cumulativePosts} posts\n`,
+      );
     }
 
     while (currentDate >= startDate) {
@@ -321,7 +345,7 @@ export async function backfillFacebookMetrics(startDate: Date, endDate: Date) {
         // Skip if exists
         if (await metricsExistForDate(account.id, currentDate)) {
           console.log(`⏭️  Already exists, skipping`);
-          
+
           // Still need to subtract this day's posts for accurate calculation
           const dailyMetrics = await fetchDailyPostMetrics(
             FACEBOOK_PAGE_ID,
@@ -331,7 +355,7 @@ export async function backfillFacebookMetrics(startDate: Date, endDate: Date) {
           cumulativePosts -= dailyMetrics.total_posts;
           cumulativeShares -= dailyMetrics.total_shares;
           cumulativeComments -= dailyMetrics.total_comments;
-          
+
           currentDate.setDate(currentDate.getDate() - 1);
           continue;
         }
@@ -346,7 +370,8 @@ export async function backfillFacebookMetrics(startDate: Date, endDate: Date) {
         // Use cumulative totals (what existed at END of this day)
         const metricsForDate = {
           page_follows: insights.page_follows,
-          page_actions_post_reactions_like_total: insights.page_actions_post_reactions_like_total,
+          page_actions_post_reactions_like_total:
+            insights.page_actions_post_reactions_like_total,
           page_media_view: insights.page_media_view,
           total_posts: cumulativePosts,
           total_shares: cumulativeShares,
@@ -354,10 +379,9 @@ export async function backfillFacebookMetrics(startDate: Date, endDate: Date) {
         };
 
         // Save metrics
-        for (const [metricName, metricVal] of Object.entries(metricsForDate) as [
-          keyof FacebookPublicMetrics,
-          number,
-        ][]) {
+        for (const [metricName, metricVal] of Object.entries(
+          metricsForDate,
+        ) as [keyof FacebookPublicMetrics, number][]) {
           const metricEnum = FACEBOOK_TO_PRISMA_METRIC[metricName];
           if (!metricEnum) continue;
 
@@ -372,7 +396,9 @@ export async function backfillFacebookMetrics(startDate: Date, endDate: Date) {
           });
         }
 
-        console.log(`   Saved: ${cumulativePosts} posts, ${cumulativeShares} shares, ${cumulativeComments} comments`);
+        console.log(
+          `   Saved: ${cumulativePosts} posts, ${cumulativeShares} shares, ${cumulativeComments} comments`,
+        );
 
         // Get posts created THIS day to subtract for previous day
         const dailyMetrics = await fetchDailyPostMetrics(
@@ -381,7 +407,9 @@ export async function backfillFacebookMetrics(startDate: Date, endDate: Date) {
           new Date(currentDate),
         );
 
-        console.log(`   Posts created on ${dateStr}: ${dailyMetrics.total_posts}`);
+        console.log(
+          `   Posts created on ${dateStr}: ${dailyMetrics.total_posts}`,
+        );
 
         // Subtract for next iteration (previous day)
         cumulativePosts -= dailyMetrics.total_posts;
@@ -389,7 +417,6 @@ export async function backfillFacebookMetrics(startDate: Date, endDate: Date) {
         cumulativeComments -= dailyMetrics.total_comments;
 
         console.log(`   Previous day will have: ${cumulativePosts} posts\n`);
-
       } catch (err) {
         console.error(`❌ Failed for ${dateStr}:`, err);
       }
@@ -409,10 +436,7 @@ async function main() {
     const args = process.argv.slice(2);
 
     if (args[0] === "backfill") {
-      await backfillFacebookMetrics(
-        new Date(args[1]),
-        new Date(args[2]),
-      );
+      await backfillFacebookMetrics(new Date(args[1]), new Date(args[2]));
     } else {
       await syncFacebookMetrics();
     }

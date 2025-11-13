@@ -8,7 +8,7 @@ import SocialMediaPage from "./pages/SocialMediaPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
-import TestExportPDF from "./pages/TestExportPDF"; //TODO: Remove
+import TestExportPDF from "./pages/TestExportPDF"; /* NOTE: Testing page, should be deleted, along with its Route below */
 
 const App = () => {
   const [location] = useLocation();
