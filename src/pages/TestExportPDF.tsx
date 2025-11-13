@@ -1,3 +1,4 @@
+// pages/Homepage.tsx
 import { usePDFExporter } from "../hooks/usePDFExporter";
 import ExportableChartWrapper from "../components/export-pdf/ExportableChartWrapper";
 import BigCard from "../components/cards/BigCard";
@@ -21,19 +22,23 @@ export default function Homepage() {
         Test Export
       </button>
 
-      <BigCard
-        title="Instagram Views"
-        displayMode="chart-only"
-        className="w-full h-[300px]"
-        chart={
-          <ExportableChartWrapper id="Instagram" register={registerChart}>
-            <div className="w-full h-full">
-              <LineCharts data={mockData} xAxisKey="day" dataKeys={["views"]} />
+      <ExportableChartWrapper id="Instagram" register={registerChart}>
+        <BigCard
+          title="Instagram Views"
+          displayMode="chart-only"
+          className="w-full h-[300px]"
+          chart={
+            // 👇 This wrapper gives the chart a real height.
+            <div className="w-full h-[220px]">
+              <LineCharts
+                data={mockData}
+                xAxisKey="day"
+                dataKeys={["views"]}
+              />
             </div>
-          </ExportableChartWrapper>
-        }
-      />
-
+          }
+        />
+      </ExportableChartWrapper>
     </div>
   );
 }
