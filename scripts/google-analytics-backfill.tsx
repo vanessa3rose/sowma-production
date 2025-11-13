@@ -32,8 +32,7 @@ async function getSocialMediaIdByProvider(): Promise<string | null> {
 
 // Initialize the Analytics Data API client
 const analyticsDataClient = new BetaAnalyticsDataClient({ auth });
-async function runReport(startDate: string, endDate: string) {
-  //changed to accept date range
+async function runReport(startDate: string, endDate: string) { //changed to accept date range
   console.log("Starting GA API request...");
   const [response] = await analyticsDataClient.runReport({
     property: "properties/393011442",
@@ -160,7 +159,7 @@ async function main() {
 
       if (!start || !end) {
         throw new Error(
-          "Usage: npx tsx scripts/google-analytics.ts backfill YYYY-MM-DD YYYY-MM-DD",
+          'Usage: npx tsx scripts/google-analytics.ts backfill YYYY-MM-DD YYYY-MM-DD',
         );
       }
 
