@@ -66,7 +66,7 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
   if (!isNonEmptyString(body?.lastName)) errors.push("lastName is required");
   if (!isUsername(body?.username)) {
     errors.push(
-      "username must be 4 and 64 characters, Latin letters/numbers/underscore/hyphen only; no ^$!.#+~",
+      "username must be 4 and 64 characters, Latin letters/numbers/underscore/hyphen only; no ^$!.#+~"
     );
   }
   if (!isEmail(body?.email)) errors.push("email must be a valid address"); // Uses function isEmail()
@@ -112,7 +112,7 @@ function validateUpdateUser(body: any): UpdateUserInput {
   if (body.username !== undefined) {
     if (!isUsername(body.username))
       throw makeBadRequest(
-        "username must be 4 and 64 characters, Latin letters/numbers/underscore/hyphen only; no ^$!.#+~",
+        "username must be 4 and 64 characters, Latin letters/numbers/underscore/hyphen only; no ^$!.#+~"
       );
     out.username = String(body.username).trim();
   }

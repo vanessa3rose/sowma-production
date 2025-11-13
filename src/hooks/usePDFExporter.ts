@@ -22,10 +22,7 @@ export function usePDFExporter() {
       const element = chartRefs.current[chartKeys[i]];
       if (!element) continue;
 
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-      }); /* SUGGESTION: 3 scale?? */
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true }); /* SUGGESTION: 3 scale?? */
       const imgData = canvas.toDataURL("image/png");
       const imgHeight = (canvas.height * pageWidth) / canvas.width;
 
