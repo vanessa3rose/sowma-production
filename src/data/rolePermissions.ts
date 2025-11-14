@@ -1,4 +1,7 @@
-export const ROLE_PERMISSIONS = {
+export const ROLE_PERMISSIONS :  Record<
+"Admin" | "Intern",
+Record<string, boolean> // * had to add this so that the compiler knows that every key will be a valid key of the right type
+> = {
   Admin: {
     "Browse all pages": true,
     "Change Date Range": true,
