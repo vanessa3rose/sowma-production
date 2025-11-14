@@ -55,7 +55,6 @@ export default function LoginPanel() {
     setIsPasswordEmpty(passEmpty);
     setIsNameEmpty(nameEmpty);
     setislastNameEmpty(lastNameEmpty);
-    console.log("[Login clicked]", { email, password });
     if (emailEmpty || passEmpty || nameEmpty || lastNameEmpty) {
       console.log("Validation failed — empty fields");
       if (emailEmpty) {
