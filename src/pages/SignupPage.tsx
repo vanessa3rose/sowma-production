@@ -11,7 +11,7 @@ async function submitSignUp(FormData: {
   role: string;
 }) {
   try {
-    const res = await fetch("../../api/routes/users", {
+    const res = await fetch("http://localhost:4000/api/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

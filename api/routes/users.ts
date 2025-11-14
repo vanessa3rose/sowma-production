@@ -7,7 +7,7 @@ import { Router, Request, Response } from "express"; // Express for nodes
 import { clerkClient } from "@clerk/clerk-sdk-node"; // Clerk for security
 
 // Below are the user types, declared in schema.prisma
-export type Role = "admin" | "intern";
+export type Role = "Admin" | "Intern";
 
 // Used when creating a brand-new, nonexistent user
 export interface CreateUserInput {
@@ -72,8 +72,8 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
     // Uses function isNonEmptyString()
     errors.push("password must be at least 8 characters");
   }
-  if (body?.role && body.role !== "admin" && body.role !== "intern") {
-    errors.push("role must be 'admin' or 'intern'");
+  if (body?.role && body.role !== "Admin" && body.role !== "Intern") {
+    errors.push("role must be 'Admin' or 'Intern'");
   }
 
   if (errors.length)
@@ -85,7 +85,7 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
     lastName: String(body.lastName).trim(),
     email: String(body.email).trim(),
     password: String(body.password),
-    role: (body?.role as Role) ?? "intern",
+    role: (body?.role as Role) ?? "Intern",
   };
 }
 
@@ -118,8 +118,8 @@ function validateUpdateUser(body: any): UpdateUserInput {
     out.password = String(body.password);
   }
   if (body.role !== undefined) {
-    if (body.role !== "admin" && body.role !== "intern") {
-      throw makeBadRequest("role must be 'admin' or 'intern'");
+    if (body.role !== "Admin" && body.role !== "Intern") {
+      throw makeBadRequest("role must be 'Admin' or 'Intern'");
     }
     out.role = body.role;
   }
@@ -132,7 +132,7 @@ function validateUpdateUser(body: any): UpdateUserInput {
 // Takes a Clerk output and reformats to fit our system
 function shapeUser(u: any) {
   const role =
-    (u.publicMetadata?.role as "admin" | "intern" | undefined) ?? "intern";
+    (u.publicMetadata?.role as "Admin" | "Intern" | undefined) ?? "Intern";
   return {
     id: u.id,
     firstName: u.firstName ?? "",
