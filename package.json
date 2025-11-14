@@ -13,6 +13,7 @@
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.53.4",
     "@clerk/clerk-sdk-node": "^5.1.6",
     "@google-analytics/data": "^5.2.1",
     "@headlessui/react": "^2.2.9",
@@ -24,6 +25,8 @@
     "express": "^5.1.0",
     "git-filter-repo": "^0.0.30",
     "node-cron": "^4.2.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
     "node-fetch": "^2.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

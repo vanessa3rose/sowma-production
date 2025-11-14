@@ -27,6 +27,7 @@ model SocialMediaMetrics {
   metricValue   Int
   lastSynced    DateTime?
   socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])
+  metricDate    DateTime?
 }
 
 model SocialMediaAuth {
@@ -53,6 +54,20 @@ model DatabaseReportCount {
   report   DatabaseReport @relation(fields: [reportId], references: [id])
 
   @@unique([reportId, count])
+}
+
+model User {
+  email     String @id        // Required
+  firstName String            // Required
+  lastName  String            // Required
+  username  String @unique    // Required
+  password  String            // Required
+  role      Role              // Required
+}
+
+enum Role {
+  ADMIN
+  INTERN
 }
 
 enum Provider {

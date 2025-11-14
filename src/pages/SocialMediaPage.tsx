@@ -88,7 +88,7 @@ export default function SocialMediaPage() {
             <BigCard
               title="Impressions"
               chart={
-                <div className="w-full h-[300px] lg:h-[500px]">
+                <div className="w-full">
                   <LineCharts
                     data={lineTestData}
                     xAxisKey="date"
@@ -98,12 +98,12 @@ export default function SocialMediaPage() {
                 </div>
               }
               displayMode="both"
-              className="w-full h-full"
+              className="w-full"
             />
             <BigCard
               title="Demographics - Gender"
               chart={
-                <div className="w-full h-[400px] lg:h-[600px]">
+                <div className="w-full">
                   <PieCharts
                     data={pieTestData}
                     dataKey="value"
@@ -112,7 +112,7 @@ export default function SocialMediaPage() {
                 </div>
               }
               displayMode="both"
-              className="w-full h-full"
+              className="w-full"
             />
           </div>
 
@@ -121,7 +121,7 @@ export default function SocialMediaPage() {
             <BigCard
               title="Reach Sources"
               chart={
-                <div className="w-full h-[400px] lg:h-[600px]">
+                <div className="w-full">
                   <PieCharts
                     data={pieTestData}
                     dataKey="value"
@@ -130,13 +130,13 @@ export default function SocialMediaPage() {
                 </div>
               }
               displayMode="both"
-              className="w-full h-full"
+              className="w-full"
             />
             <BigCard
               title="Days Posted"
-              chart={<div className="w-full h-[300px] lg:h-[600px]" />}
+              chart={<div className="w-full" />}
               displayMode="both"
-              className="w-full h-full"
+              className="w-full"
             />
           </div>
         </div>
