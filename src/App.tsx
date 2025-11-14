@@ -25,6 +25,7 @@ const App = () => {
         <Switch>
           <Route path="/" component={Homepage} />
           <Route path="/social-media" component={SocialMediaPage} />
+          <Route path="/social/:platform" component={SocialMediaPage} />
           <Route path="/login" component={LoginPage} />
           <Route path="/google-analytics" component={GoogleAnalyticsPage} />
           <Route path="/signup" component={SignupPage} />
