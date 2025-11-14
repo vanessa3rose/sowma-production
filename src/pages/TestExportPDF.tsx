@@ -30,11 +30,7 @@ export default function Homepage() {
           chart={
             // 👇 This wrapper gives the chart a real height.
             <div className="w-full h-[220px]">
-              <LineCharts
-                data={mockData}
-                xAxisKey="day"
-                dataKeys={["views"]}
-              />
+              <LineCharts data={mockData} xAxisKey="day" dataKeys={["views"]} />
             </div>
           }
         />

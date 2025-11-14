@@ -7,7 +7,7 @@ export async function createSocialMediaAuth(input: {
   socialMediaId: string;
   accessToken: string;
   refreshToken: string | null;
-  expiresAt : Date | null;
+  expiresAt: Date | null;
   lastRefreshed: Date | null;
 }) {
   return prisma.socialMediaAuth.create({ data: input });
