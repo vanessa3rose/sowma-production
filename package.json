@@ -15,8 +15,11 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.53.4",
     "@clerk/clerk-sdk-node": "^5.1.6",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@google-analytics/data": "^5.2.1",
     "@headlessui/react": "^2.2.9",
+    "@mui/material": "^7.3.5",
     "@prisma/client": "^6.17.0",
     "@types/node-fetch": "^2.6.13",
     "cors": "^2.8.5",
