@@ -1,16 +1,15 @@
 import { useState } from "react";
 import LoginTextBox from "../components/login/LoginTextBox";
 import SignupPicture from "../assets/Signup-picture.png";
-import { createUser } from "../../api/routes/users";
 
 // this function is called when the sign up button is pressed
 async function submitSignUp(FormData: {
   email: string;
   password: string;
   name: string;
-  lastName: string;
-  username: string;
-  role: string;
+  lastname: string;
+  // username: string;
+  accessLevel: string;
 }) {
   try {
     const res = await fetch("../../api/routes/users", {
@@ -289,8 +288,8 @@ export default function LoginPanel() {
                 email,
                 password,
                 name,
-                lastName,
-                username,
+                lastname,
+                // username,
                 accessLevel,
               })
             }

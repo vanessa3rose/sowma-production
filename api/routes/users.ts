@@ -13,7 +13,7 @@ export type Role = "admin" | "intern";
 export interface CreateUserInput {
   firstName: string;
   lastName: string;
-  username: string;
+  // username: string;
   email: string;
   password: string;
   role: Role;
@@ -23,7 +23,7 @@ export interface CreateUserInput {
 export interface UpdateUserInput {
   firstName?: string;
   lastName?: string;
-  username?: string;
+  // username?: string;
   email?: string;
   password?: string;
   role?: Role;
@@ -42,14 +42,14 @@ function isEmail(v: unknown): v is string {
 }
 
 // Username validation - between 4 and 64 characters, specific prohibited characters
-function isUsername(v: unknown): v is string {
-  if (typeof v !== "string") return false;
-  const s = v.trim();
-  if (s.length < 4 || s.length > 64) return false;
-  if (/[\^\$\!\.\#\+\~]/.test(s)) return false; // forbidden specials
-  if (!/^[A-Za-z0-9_-]+$/.test(s)) return false; // Latin letters/numbers/underscore/hyphen
-  return true;
-}
+// function isUsername(v: unknown): v is string {
+//   if (typeof v !== "string") return false;
+//   const s = v.trim();
+//   if (s.length < 4 || s.length > 64) return false;
+//   if (/[\^\$\!\.\#\+\~]/.test(s)) return false; // forbidden specials
+//   if (!/^[A-Za-z0-9_-]+$/.test(s)) return false; // Latin letters/numbers/underscore/hyphen
+//   return true;
+// }
 
 // Creates error object that is returned if a bad user is created
 function makeBadRequest(message: string) {
@@ -64,11 +64,11 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
 
   if (!isNonEmptyString(body?.firstName)) errors.push("firstName is required");
   if (!isNonEmptyString(body?.lastName)) errors.push("lastName is required");
-  if (!isUsername(body?.username)) {
-    errors.push(
-      "username must be 4 and 64 characters, Latin letters/numbers/underscore/hyphen only; no ^$!.#+~"
-    );
-  }
+  // if (!isUsername(body?.username)) {
+  //   errors.push(
+  //     "username must be 4 and 64 characters, Latin letters/numbers/underscore/hyphen only; no ^$!.#+~"
+  //   );
+  // }
   if (!isEmail(body?.email)) errors.push("email must be a valid address"); // Uses function isEmail()
   if (!isNonEmptyString(body?.password) || String(body.password).length < 8) {
     // Uses function isNonEmptyString()
@@ -85,7 +85,7 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
   return {
     firstName: String(body.firstName).trim(),
     lastName: String(body.lastName).trim(),
-    username: String(body.username).trim(),
+    // username: String(body.username).trim(),
     email: String(body.email).trim(),
     password: String(body.password),
     role: (body?.role as Role) ?? "intern",
@@ -109,13 +109,13 @@ function validateUpdateUser(body: any): UpdateUserInput {
       throw makeBadRequest("lastName must be a non-empty string");
     out.lastName = String(body.lastName).trim();
   }
-  if (body.username !== undefined) {
-    if (!isUsername(body.username))
-      throw makeBadRequest(
-        "username must be 4 and 64 characters, Latin letters/numbers/underscore/hyphen only; no ^$!.#+~"
-      );
-    out.username = String(body.username).trim();
-  }
+  // if (body.username !== undefined) {
+  //   if (!isUsername(body.username))
+  //     throw makeBadRequest(
+  //       "username must be 4 and 64 characters, Latin letters/numbers/underscore/hyphen only; no ^$!.#+~"
+  //     );
+  //   out.username = String(body.username).trim();
+  // }
   if (body.email !== undefined) {
     if (!isEmail(body.email))
       throw makeBadRequest("email must be a valid address");
@@ -147,7 +147,7 @@ function shapeUser(u: any) {
     id: u.id,
     firstName: u.firstName ?? "",
     lastName: u.lastName ?? "",
-    username: u.username ?? "",
+    //username: u.username ?? "",
     email: u.emailAddress?.[0]?.emailAddress ?? "",
     role,
     createdAt: new Date(u.createdAt),
@@ -162,7 +162,7 @@ function toClerkUpdatePayload(body: UpdateUserInput) {
 
   if (body.firstName !== undefined) payload.firstName = body.firstName;
   if (body.lastName !== undefined) payload.lastName = body.lastName;
-  if (body.username !== undefined) payload.username = body.username;
+  //if (body.username !== undefined) payload.username = body.;
   if (body.email !== undefined) payload.emailAddress = [body.email];
   if (body.password !== undefined) payload.password = body.password;
 
@@ -186,18 +186,20 @@ export async function createUser(input: CreateUserInput) {
     password: parsed.password,
     firstName: parsed.firstName,
     lastName: parsed.lastName,
-    username: parsed.username,
+    //username: parsed.username,
     publicMetadata: { role: parsed.role },
   });
   return shapeUser(user);
 }
 
 // Searches for users by keynames (email, username)
-export async function getUsers(filter?: { email?: string; username?: string }) {
+
+//export async function getUsers(filter?: { email?: string; username?: string }) {
+export async function getUsers(filter?: { email?: string}) {
   const list = await clerkClient.users.getUserList({
     limit: 50,
     emailAddress: filter?.email ? [filter.email] : undefined,
-    username: filter?.username ? [filter.username] : undefined,
+    // username: filter?.username ? [filter.username] : undefined,
     orderBy: "-created_at",
   });
   return list.data.map(shapeUser);
@@ -247,9 +249,10 @@ usersRouter.get("/", async (req: Request, res: Response) => {
   try {
     const email =
       typeof req.query.email === "string" ? req.query.email : undefined;
-    const username =
-      typeof req.query.username === "string" ? req.query.username : undefined;
-    const users = await getUsers({ email, username });
+    // const username =
+    //   typeof req.query.username === "string" ? req.query.username : undefined;
+    // const users = await getUsers({ email, username });
+    const users = await getUsers({ email });
     return res.status(200).json({ ok: true, data: users });
   } catch (err: any) {
     return res
