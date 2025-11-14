@@ -39,16 +39,6 @@ function isEmail(v: unknown): v is string {
   return typeof v === "string" && /.+@.+\..+/.test(v);
 }
 
-// Username validation - between 4 and 64 characters, specific prohibited characters
-// function isUsername(v: unknown): v is string {
-//   if (typeof v !== "string") return false;
-//   const s = v.trim();
-//   if (s.length < 4 || s.length > 64) return false;
-//   if (/[\^\$\!\.\#\+\~]/.test(s)) return false; // forbidden specials
-//   if (!/^[A-Za-z0-9_-]+$/.test(s)) return false; // Latin letters/numbers/underscore/hyphen
-//   return true;
-// }
-
 // Creates error object that is returned if a bad user is created
 function makeBadRequest(message: string) {
   const err: any = new Error(message);
@@ -62,11 +52,6 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
 
   if (!isNonEmptyString(body?.firstName)) errors.push("firstName is required");
   if (!isNonEmptyString(body?.lastName)) errors.push("lastName is required");
-  // if (!isUsername(body?.username)) {
-  //   errors.push(
-  //     "username must be 4 and 64 characters, Latin letters/numbers/underscore/hyphen only; no ^$!.#+~"
-  //   );
-  // }
   if (!isEmail(body?.email)) errors.push("email must be a valid address"); // Uses function isEmail()
   if (!isNonEmptyString(body?.password) || String(body.password).length < 8) {
     // Uses function isNonEmptyString()
@@ -174,7 +159,6 @@ export async function createUser(input: CreateUserInput) {
     lastName: parsed.lastName,
     emailAddress: [parsed.email],
     password: parsed.password,
-    //username: parsed.username,
     publicMetadata: { role: parsed.role },
   });
   return shapeUser(user);
@@ -182,7 +166,6 @@ export async function createUser(input: CreateUserInput) {
 
 // Searches for users by keynames (email, username)
 
-//export async function getUsers(filter?: { email?: string; username?: string }) {
 export async function getUsers(filter?: { email?: string }) {
   const list = await clerkClient.users.getUserList({
     limit: 50,
