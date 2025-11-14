@@ -183,7 +183,7 @@ export async function createUser(input: CreateUserInput) {
 // Searches for users by keynames (email, username)
 
 //export async function getUsers(filter?: { email?: string; username?: string }) {
-export async function getUsers(filter?: { email?: string}) {
+export async function getUsers(filter?: { email?: string }) {
   const list = await clerkClient.users.getUserList({
     limit: 50,
     emailAddress: filter?.email ? [filter.email] : undefined,

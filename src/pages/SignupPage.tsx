@@ -279,23 +279,22 @@ export default function LoginPanel() {
 
           {/* Login button */}
           <div className="flex justify-center">
-          <button
-            type="submit"
-            className="w-[332px] h-[76px] rounded-[30px] bg-[#0077B6] hover:bg-[#00679E] transition text-white font-poppins font-bold text-[26px]"
-            onClick={() =>
-              submitSignUp({
-                email,
-                password,
-                firstName,
-                lastName,
-                role,
-              })
-            }
-          >
-            Sign Up
-          </button>
-
-        </div>
+            <button
+              type="submit"
+              className="w-[332px] h-[76px] rounded-[30px] bg-[#0077B6] hover:bg-[#00679E] transition text-white font-poppins font-bold text-[26px]"
+              onClick={() =>
+                submitSignUp({
+                  email,
+                  password,
+                  firstName,
+                  lastName,
+                  role,
+                })
+              }
+            >
+              Sign Up
+            </button>
+          </div>
         </form>
       </div>
       <div className="w-full md:w-1/2 h-[500px] md:h-auto">
