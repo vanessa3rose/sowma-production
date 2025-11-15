@@ -138,7 +138,7 @@ export default function SocialMediaPage() {
                 displayMode="both"
                 className="w-full h-full"
                 chart={
-                  <div className="w-full h-[300px] lg:h-[500px]">
+                  <div className="w-full">
                     {chart.type === "line" ? (
                       <LineCharts
                         data={lineTestData}

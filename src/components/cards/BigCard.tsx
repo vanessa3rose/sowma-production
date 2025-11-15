@@ -39,7 +39,7 @@ const BigCard: React.FC<BigCardProps> = ({
       }}
     >
       {/* Header with title and subtitle */}
-      <div className="flex justify-between items-center mb-6 opacity-100 ">
+      <div className="flex justify-between items-center opacity-100">
         <h3
           style={{
             fontFamily: "Poppins, sans-serif",
@@ -144,7 +144,9 @@ const BigCard: React.FC<BigCardProps> = ({
       )}
 
       {/* Chart Display */}
-      {shouldShowChart && chart && <div className="w-full">{chart}</div>}
+      {shouldShowChart && chart && (
+        <div className="flex h-[300px] lg:min-h-full w-full py-4">{chart}</div>
+      )}
     </div>
   );
 };
