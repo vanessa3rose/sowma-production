@@ -1,32 +1,61 @@
 import { useState } from "react";
 import LoginTextBox from "../components/login/LoginTextBox";
 import SignupPicture from "../assets/Signup-picture.png";
+
+// this function is called when the sign up button is pressed
+async function submitSignUp(FormData: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: string;
+}) {
+  try {
+    const res = await fetch("http://localhost:4000/api/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(FormData),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Signup failed");
+    }
+
+    console.log("User created:", data.data);
+  } catch (err) {
+    console.error("Signup error:", err);
+  }
+}
+
 export default function LoginPanel() {
   // State variables
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setname] = useState("");
-  const [lastname, setlastname] = useState("");
+  const [firstName, setname] = useState("");
+  const [lastName, setlastName] = useState("");
   const [isEmailEmpty, setIsEmailEmpty] = useState(false);
   const [isNameEmpty, setIsNameEmpty] = useState(false);
-  const [isLastNameEmpty, setisLastNameEmpty] = useState(false);
+  const [islastNameEmpty, setislastNameEmpty] = useState(false);
   const [isPasswordEmpty, setIsPasswordEmpty] = useState(false);
   const [emailNotFound, setEmailNotFound] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [accessLevel, setAccessLevel] = useState("Intern");
+  const [role, setrole] = useState("Intern");
   // Event handlers
   const handleLogin = () => {
     setEmailNotFound(false);
     const emailEmpty = email.trim().length === 0;
     const passEmpty = password.trim().length === 0;
-    const nameEmpty = name.trim().length == 0;
-    const lastnameEmpty = lastname.trim().length == 0;
+    const nameEmpty = firstName.trim().length == 0;
+    const lastNameEmpty = lastName.trim().length == 0;
     setIsEmailEmpty(emailEmpty);
     setIsPasswordEmpty(passEmpty);
     setIsNameEmpty(nameEmpty);
-    setisLastNameEmpty(lastnameEmpty);
-    console.log("[Login clicked]", { email, password });
-    if (emailEmpty || passEmpty || nameEmpty || lastnameEmpty) {
+    setislastNameEmpty(lastNameEmpty);
+    if (emailEmpty || passEmpty || nameEmpty || lastNameEmpty) {
       console.log("Validation failed — empty fields");
       if (emailEmpty) {
         console.log("Validation failed - empty email field");
@@ -37,7 +66,7 @@ export default function LoginPanel() {
       if (nameEmpty) {
         console.log("Validation failed - empty name field");
       }
-      if (lastnameEmpty) {
+      if (lastNameEmpty) {
         console.log("Validation failed - empty name field");
       }
       return;
@@ -70,7 +99,7 @@ export default function LoginPanel() {
                 label="First Name:"
                 placeholder=""
                 type="name"
-                value={name}
+                value={firstName}
                 onChange={(e) => setname(e.target.value)}
                 width="w-60"
                 // icon={
@@ -100,8 +129,8 @@ export default function LoginPanel() {
                 label="Last Name:"
                 placeholder=""
                 type="name"
-                value={lastname}
-                onChange={(e) => setlastname(e.target.value)}
+                value={lastName}
+                onChange={(e) => setlastName(e.target.value)}
                 width="w-60"
                 // icon={
                 //         <svg
@@ -118,7 +147,7 @@ export default function LoginPanel() {
                 //         </svg>
                 // }
               />
-              {isLastNameEmpty && (
+              {islastNameEmpty && (
                 <p className="text-red-600 text-sm font-poppins">
                   Last name cannot be empty.
                 </p>
@@ -226,22 +255,22 @@ export default function LoginPanel() {
             <button
               type="button"
               className={`flex-1 mx-2 py-2 rounded-full font-semibold text-[20px] transition-colors ${
-                accessLevel === "Admin"
+                role === "Admin"
                   ? "bg-[#4781C2] text-white"
                   : "text-gray-600 hover:bg-blue-50"
               }`}
-              onClick={() => setAccessLevel("Admin")}
+              onClick={() => setrole("Admin")}
             >
               Admin
             </button>
             <button
               type="button"
               className={`flex-1 mx-2 py-2 rounded-full font-semibold text-[20px] transition-colors ${
-                accessLevel === "Intern"
+                role === "Intern"
                   ? "bg-[#4781C2] text-white"
                   : "text-gray-600 hover:bg-blue-50"
               }`}
-              onClick={() => setAccessLevel("Intern")}
+              onClick={() => setrole("Intern")}
             >
               Intern
             </button>
@@ -252,6 +281,15 @@ export default function LoginPanel() {
             <button
               type="submit"
               className="w-[332px] h-[76px] rounded-[30px] bg-[#0077B6] hover:bg-[#00679E] transition text-white font-poppins font-bold text-[26px]"
+              onClick={() =>
+                submitSignUp({
+                  email,
+                  password,
+                  firstName,
+                  lastName,
+                  role,
+                })
+              }
             >
               Sign Up
             </button>
