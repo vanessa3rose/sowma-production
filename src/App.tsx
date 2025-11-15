@@ -8,6 +8,7 @@ import SocialMediaPage from "./pages/SocialMediaPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
+import TestExportPDF from "./pages/TestExportPDF"; //TODO: Remove
 
 const App = () => {
   const [location] = useLocation();
@@ -28,6 +29,7 @@ const App = () => {
           <Route path="/login" component={LoginPage} />
           <Route path="/google-analytics" component={GoogleAnalyticsPage} />
           <Route path="/signup" component={SignupPage} />
+          <Route path="/test-export" component={TestExportPDF} />
 
           <Route>
             <p className="p-4 text-black">404: Page Not Found</p>
