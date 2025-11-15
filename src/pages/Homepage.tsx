@@ -7,6 +7,8 @@ import tiktok from "../assets/tiktok.jpg";
 
 import ExportButton from "../components/export-pdf/ExportButton";
 import DateRangeButton from "../components/date-range/DateRangeButton";
+import { useEffect, useState } from "react";
+import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
 
 import BarCharts from "../components/charts/BarCharts";
 import PieCharts from "../components/charts/PieCharts";
@@ -14,7 +16,59 @@ import LineCharts from "../components/charts/LineCharts";
 
 import BigCard from "../components/cards/BigCard";
 
+type FollowerPoint = {
+  date: string;
+  followers: number;
+};
+
+
 export default function Homepage() {
+  //state for the card
+  const [followerCountData, setFollowerCountData] = useState<FollowerPoint[]>([]);
+  //defaults
+  const defaultProvider = "INSTAGRAM";
+  const defaultStartDate = "2024-01-01";
+  const defaultEndDate = "2025-11-14"
+  
+  function mapBackendToMetricPoints(raw: SocialMediaMetric[]): FollowerPoint[] {
+  return raw
+    .slice()
+    .sort((a, b) =>
+      (a.metricDate ?? a.lastSynced ?? "").localeCompare(
+        b.metricDate ?? b.lastSynced ?? "",
+      ),
+    )
+    .map((m) => {
+      const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+      return {
+        date: timestamp.slice(0, 10),
+        followers: m.metricValue,
+      };
+    });
+}
+
+
+  async function getBackendMetrics() {
+    try {
+      const followerCountRaw = await fetchMetrics({
+        provider: defaultProvider,
+        metric: "FOLLOWERS",   
+        startDate: defaultStartDate,
+        endDate: defaultEndDate,
+      });
+
+      // Map into your chart format
+      console.log(followerCountRaw);
+      setFollowerCountData(mapBackendToMetricPoints(followerCountRaw));
+    } catch (error) {
+      console.error("Error fetching follower metrics:", error);
+    }
+  }    
+
+  useEffect(() => {
+    getBackendMetrics();
+  }, []);
+
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
       {/* Top control bar */}
@@ -86,7 +140,16 @@ export default function Homepage() {
         <BigCard
           title="Follower Count"
           subtitle=""
-          chart={undefined}
+          chart={
+          <div className="w-full h-64">
+            <LineCharts
+              data={followerCountData}
+              xAxisKey="date"
+              dataKeys={["followers"]}
+              showArea={false}
+            />
+          </div>
+          }
           displayMode="both"
           className="flex-1 w-full h-full"
         />
