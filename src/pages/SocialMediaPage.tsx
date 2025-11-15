@@ -1,3 +1,4 @@
+import { useRoute } from "wouter";
 import DateRangeButton from "../components/date-range/DateRangeButton";
 import ExportButton from "../components/export-pdf/ExportButton";
 import BigCard from "../components/cards/BigCard";
@@ -20,7 +21,53 @@ const lineTestData = [
   { date: "05", followers: 180, likes: 60, comments: 12 },
 ];
 
+const CHART_CONFIGS = {
+  instagram: [
+    { id: "impressions", title: "Impressions", type: "line" },
+    { id: "followers_count", title: "Followers", type: "line" },
+    { id: "total_likes", title: "Total Likes", type: "line" },
+    { id: "total_comments", title: "Total Comments", type: "line" },
+    { id: "media_count", title: "Media Reactions", type: "line" },
+  ],
+  twitter: [
+    { id: "followers_count", title: "Followers", type: "line" },
+    { id: "following_count", title: "Following", type: "line" },
+    { id: "tweet_count", title: "Tweet Count", type: "line" },
+    { id: "listed_count", title: "Listed Count", type: "line" },
+  ],
+  facebook: [
+    { id: "page_follows", title: "Page Follows", type: "line" },
+    {
+      id: "page_actions_post_reactions_like_total",
+      title: "Total reactions/likes",
+      type: "line",
+    },
+    { id: "page_media_view", title: "Page Views", type: "line" },
+    { id: "total_comments", title: "Total Comments", type: "line" },
+    { id: "total_posts", title: "Total Posts", type: "line" },
+    { id: "total_shares", title: "Total Shares", type: "line" },
+  ],
+  google: [
+    { id: "activeUsers", title: "Active Users", type: "line" },
+    { id: "screenPageViews", title: "Page Views", type: "line" },
+    { id: "active7DayUsers", title: "Active 7 Day Users", type: "line" },
+    { id: "engagementRate", title: "Engagement Rate", type: "line" },
+    { id: "newUsers", title: "New Users", type: "line" },
+  ],
+};
+
+type Platform = keyof typeof CHART_CONFIGS;
+
 export default function SocialMediaPage() {
+  // ⭐ Using Wouter's dynamic route match
+  const [match, params] = useRoute("/social/:platform");
+
+  const platform = (params?.platform as Platform) || null;
+
+  const formattedPlatform = platform
+    ? platform.charAt(0).toUpperCase() + platform.slice(1)
+    : "Social Media";
+
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
@@ -46,7 +93,7 @@ export default function SocialMediaPage() {
             </svg>
           </button>
           <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
-            Instagram
+            {formattedPlatform}
           </h1>
         </div>
         <div className="flex space-x-2 mt-2 lg:mt-0">
@@ -81,64 +128,35 @@ export default function SocialMediaPage() {
           />
         </div>
 
-        {/* Chart Cards */}
+        {/* Chart Cards (Dynamic) */}
         <div className="w-full lg:w-3/4 flex flex-col gap-4 lg:h-full">
-          {/* First Row */}
-          <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
-            <BigCard
-              title="Impressions"
-              chart={
-                <div className="w-full">
-                  <LineCharts
-                    data={lineTestData}
-                    xAxisKey="date"
-                    dataKeys={["likes"]}
-                    showArea={true}
-                  />
-                </div>
-              }
-              displayMode="both"
-              className="w-full"
-            />
-            <BigCard
-              title="Demographics - Gender"
-              chart={
-                <div className="w-full">
-                  <PieCharts
-                    data={pieTestData}
-                    dataKey="value"
-                    nameKey="source"
-                  />
-                </div>
-              }
-              displayMode="both"
-              className="w-full"
-            />
-          </div>
-
-          {/* Second Row */}
-          <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
-            <BigCard
-              title="Reach Sources"
-              chart={
-                <div className="w-full">
-                  <PieCharts
-                    data={pieTestData}
-                    dataKey="value"
-                    nameKey="source"
-                  />
-                </div>
-              }
-              displayMode="both"
-              className="w-full"
-            />
-            <BigCard
-              title="Days Posted"
-              chart={<div className="w-full" />}
-              displayMode="both"
-              className="w-full"
-            />
-          </div>
+          {platform &&
+            CHART_CONFIGS[platform].map((chart) => (
+              <BigCard
+                key={chart.id}
+                title={chart.title}
+                displayMode="both"
+                className="w-full h-full"
+                chart={
+                  <div className="w-full">
+                    {chart.type === "line" ? (
+                      <LineCharts
+                        data={lineTestData}
+                        xAxisKey="date"
+                        dataKeys={["followers", "likes", "comments"]}
+                        showArea={true}
+                      />
+                    ) : (
+                      <PieCharts
+                        data={pieTestData}
+                        dataKey="value"
+                        nameKey="source"
+                      />
+                    )}
+                  </div>
+                }
+              />
+            ))}
         </div>
       </div>
     </div>

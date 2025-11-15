@@ -43,7 +43,7 @@ export default function LoginPanel() {
   const [isPasswordEmpty, setIsPasswordEmpty] = useState(false);
   const [emailNotFound, setEmailNotFound] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setrole] = useState("Intern");
+  const [role, setRole] = useState("Intern");
   // Event handlers
   const handleLogin = () => {
     setEmailNotFound(false);
@@ -231,7 +231,7 @@ export default function LoginPanel() {
                   ? "bg-[#4781C2] text-white"
                   : "text-gray-600 hover:bg-blue-50"
               }`}
-              onClick={() => setrole("Admin")}
+              onClick={() => setRole("Admin")}
             >
               Admin
             </button>
@@ -242,7 +242,7 @@ export default function LoginPanel() {
                   ? "bg-[#4781C2] text-white"
                   : "text-gray-600 hover:bg-blue-50"
               }`}
-              onClick={() => setrole("Intern")}
+              onClick={() => setRole("Intern")}
             >
               Intern
             </button>
