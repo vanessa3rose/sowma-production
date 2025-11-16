@@ -16,54 +16,144 @@ import LineCharts from "../components/charts/LineCharts";
 
 import BigCard from "../components/cards/BigCard";
 
+
+type ImpressionsPoint = {
+  date: string;
+  impressions: number;
+};
+
+type DaysPostedPoint = {
+  date: string;
+  posts: number;
+};
+
+type WebsiteSessionsPoint = {
+  date: string;
+  sessions: number;
+};
+
 type FollowerPoint = {
   date: string;
   followers: number;
 };
 
-
 export default function Homepage() {
   //state for the card
-  const [followerCountData, setFollowerCountData] = useState<FollowerPoint[]>([]);
-  //defaults
-  const defaultProvider = "INSTAGRAM";
+  const [impressionsData, setImpressionsData] = useState<ImpressionsPoint[]>([]);
+  const [daysPostedData, setDaysPostedData] = useState<DaysPostedPoint[]>([]);
+  const [websiteSessionsData, setWebsiteSessionsData] = useState<
+    WebsiteSessionsPoint[]
+  >([]);
+
+  const [followerCountData, setFollowerCountData] = useState<FollowerPoint[]>([]);  //defaults
+  const defaultSocialProvider = "INSTAGRAM"; // for social metrics
+  const googleAnalyticsProvider = "GOOGLE_ANALYTICS"; 
   const defaultStartDate = "2024-01-01";
-  const defaultEndDate = "2025-11-14"
+  const defaultEndDate = "3000-01-01";
   
-  function mapBackendToMetricPoints(raw: SocialMediaMetric[]): FollowerPoint[] {
-  return raw
-    .slice()
-    .sort((a, b) =>
-      (a.metricDate ?? a.lastSynced ?? "").localeCompare(
-        b.metricDate ?? b.lastSynced ?? "",
-      ),
-    )
-    .map((m) => {
+  function getSortedMetrics(raw: SocialMediaMetric[]): SocialMediaMetric[] {
+    return raw
+      .slice()
+      .sort((a, b) =>
+        (a.metricDate ?? a.lastSynced ?? "").localeCompare(
+          b.metricDate ?? b.lastSynced ?? "",
+        ),
+      );
+  }
+
+  function mapToImpressionsPoints(raw: SocialMediaMetric[]): ImpressionsPoint[] {
+    return getSortedMetrics(raw).map((m) => {
+      const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+      return {
+        date: timestamp.slice(0, 10),
+        impressions: m.metricValue,
+      };
+    });
+  }
+
+  function mapToDaysPostedPoints(raw: SocialMediaMetric[]): DaysPostedPoint[] {
+    return getSortedMetrics(raw).map((m) => {
+      const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+      return {
+        date: timestamp.slice(0, 10),
+        posts: m.metricValue,
+      };
+    });
+  }
+
+  function mapToWebsiteSessionsPoints(
+    raw: SocialMediaMetric[],
+  ): WebsiteSessionsPoint[] {
+    return getSortedMetrics(raw).map((m) => {
+      const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+      return {
+        date: timestamp.slice(0, 10),
+        sessions: m.metricValue,
+      };
+    });
+  }
+
+  function mapToFollowerPoints(raw: SocialMediaMetric[]): FollowerPoint[] {
+    return getSortedMetrics(raw).map((m) => {
       const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
       return {
         date: timestamp.slice(0, 10),
         followers: m.metricValue,
       };
     });
-}
-
+  }
 
   async function getBackendMetrics() {
     try {
-      const followerCountRaw = await fetchMetrics({
-        provider: defaultProvider,
-        metric: "FOLLOWERS",   
-        startDate: defaultStartDate,
-        endDate: defaultEndDate,
-      });
+      const [
+        impressionsRaw,
+        daysPostedRaw,
+        websiteSessionsRaw,
+        followerCountRaw,
+      ] = await Promise.all([
+        // Impressions: using VIEWS for a social provider
+        fetchMetrics({
+          provider: defaultSocialProvider,
+          metric: "VIEWS",
+          startDate: defaultStartDate,
+          endDate: defaultEndDate,
+        }),
+        // Days Posted: using POSTS
+        fetchMetrics({
+          provider: defaultSocialProvider,
+          metric: "POSTS",
+          startDate: defaultStartDate,
+          endDate: defaultEndDate,
+        }),
+        // Website Sessions: from Google Analytics
+        fetchMetrics({
+          provider: googleAnalyticsProvider,
+          metric: "SCREEN_PAGE_VIEWS",
+          startDate: defaultStartDate,
+          endDate: defaultEndDate,
+        }),
+        // Followers
+        fetchMetrics({
+          provider: defaultSocialProvider,
+          metric: "FOLLOWERS",
+          startDate: defaultStartDate,
+          endDate: defaultEndDate,
+        }),
+      ]);
 
-      // Map into your chart format
-      console.log(followerCountRaw);
-      setFollowerCountData(mapBackendToMetricPoints(followerCountRaw));
+      console.log("Impressions raw:", impressionsRaw);
+      console.log("Days posted raw:", daysPostedRaw);
+      console.log("Website sessions raw:", websiteSessionsRaw);
+      console.log("Followers raw:", followerCountRaw);
+
+      setImpressionsData(mapToImpressionsPoints(impressionsRaw));
+      setDaysPostedData(mapToDaysPostedPoints(daysPostedRaw));
+      setWebsiteSessionsData(mapToWebsiteSessionsPoints(websiteSessionsRaw));
+      setFollowerCountData(mapToFollowerPoints(followerCountRaw));
     } catch (error) {
-      console.error("Error fetching follower metrics:", error);
+      console.error("Error fetching backend metrics:", error);
     }
-  }    
+  }
 
   useEffect(() => {
     getBackendMetrics();
@@ -115,21 +205,46 @@ export default function Homepage() {
         <BigCard
           title="Impressions"
           subtitle=""
-          chart={undefined}
+          chart={<div className="w-full h-64">
+              <LineCharts
+                data={impressionsData}
+                xAxisKey="date"
+                dataKeys={["impressions"]}
+                showArea={true}
+              />
+            </div>}
           displayMode="both"
           className="flex-1 w-full h-full"
         />
         <BigCard
           title="Days Posted"
           subtitle=""
-          chart={undefined}
+          chart={
+            <div className="w-full h-64">
+              <LineCharts
+                data={daysPostedData}
+                xAxisKey="date"
+                dataKeys={["posts"]}
+                showArea={false}
+              />
+            </div>
+          }
           displayMode="both"
           className="flex-1 w-full h-full"
         />
         <BigCard
           title="Website Sessions"
           subtitle=""
-          chart={undefined}
+          chart={
+            <div className="w-full h-64">
+              <LineCharts
+                data={websiteSessionsData}
+                xAxisKey="date"
+                dataKeys={["sessions"]}
+                showArea={true}
+              />
+            </div>
+          }
           displayMode="both"
           className="flex-1 w-full h-full"
         />
