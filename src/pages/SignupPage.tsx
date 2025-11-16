@@ -1,32 +1,61 @@
 import { useState } from "react";
 import LoginTextBox from "../components/login/LoginTextBox";
 import SignupPicture from "../assets/Signup-picture.png";
+
+// this function is called when the sign up button is pressed
+async function submitSignUp(FormData: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: string;
+}) {
+  try {
+    const res = await fetch("http://localhost:4000/api/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(FormData),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Signup failed");
+    }
+
+    console.log("User created:", data.data);
+  } catch (err) {
+    console.error("Signup error:", err);
+  }
+}
+
 export default function LoginPanel() {
   // State variables
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setname] = useState("");
-  const [lastname, setlastname] = useState("");
+  const [firstName, setname] = useState("");
+  const [lastName, setlastName] = useState("");
   const [isEmailEmpty, setIsEmailEmpty] = useState(false);
   const [isNameEmpty, setIsNameEmpty] = useState(false);
-  const [isLastNameEmpty, setisLastNameEmpty] = useState(false);
+  const [islastNameEmpty, setislastNameEmpty] = useState(false);
   const [isPasswordEmpty, setIsPasswordEmpty] = useState(false);
   const [emailNotFound, setEmailNotFound] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [accessLevel, setAccessLevel] = useState("Intern");
+  const [role, setRole] = useState("Intern");
   // Event handlers
   const handleLogin = () => {
     setEmailNotFound(false);
     const emailEmpty = email.trim().length === 0;
     const passEmpty = password.trim().length === 0;
-    const nameEmpty = name.trim().length == 0;
-    const lastnameEmpty = lastname.trim().length == 0;
+    const nameEmpty = firstName.trim().length == 0;
+    const lastNameEmpty = lastName.trim().length == 0;
     setIsEmailEmpty(emailEmpty);
     setIsPasswordEmpty(passEmpty);
     setIsNameEmpty(nameEmpty);
-    setisLastNameEmpty(lastnameEmpty);
-    console.log("[Login clicked]", { email, password });
-    if (emailEmpty || passEmpty || nameEmpty || lastnameEmpty) {
+    setislastNameEmpty(lastNameEmpty);
+    if (emailEmpty || passEmpty || nameEmpty || lastNameEmpty) {
       console.log("Validation failed — empty fields");
       if (emailEmpty) {
         console.log("Validation failed - empty email field");
@@ -37,7 +66,7 @@ export default function LoginPanel() {
       if (nameEmpty) {
         console.log("Validation failed - empty name field");
       }
-      if (lastnameEmpty) {
+      if (lastNameEmpty) {
         console.log("Validation failed - empty name field");
       }
       return;
@@ -70,23 +99,9 @@ export default function LoginPanel() {
                 label="First Name:"
                 placeholder=""
                 type="name"
-                value={name}
+                value={firstName}
                 onChange={(e) => setname(e.target.value)}
                 width="w-60"
-                // icon={
-                //         <svg
-                //         xmlns="http://www.w3.org/2000/svg"
-                //         viewBox="0 0 24 24"
-                //         fill="none"
-                //         width="24"
-                //         height="24"
-                //         >
-                //         <path
-                //         d="M4.00049 20C3.45049 20 2.97982 19.8043 2.58849 19.413C2.19715 19.0217 2.00115 18.5507 2.00049 18V6C2.00049 5.45 2.19649 4.97933 2.58849 4.588C2.98049 4.19667 3.45115 4.00067 4.00049 4H20.0005C20.5505 4 21.0215 4.196 21.4135 4.588C21.8055 4.98 22.0012 5.45067 22.0005 6V18C22.0005 18.55 21.8048 19.021 21.4135 19.413C21.0222 19.805 20.5512 20.0007 20.0005 20H4.00049ZM12.0005 13L20.0005 8V6L12.0005 11L4.00049 6V8L12.0005 13Z"
-                //         fill="black"
-                //         />
-                //         </svg>
-                // }
               />
               {isNameEmpty && (
                 <p className="text-red-600 text-sm font-poppins">
@@ -100,25 +115,11 @@ export default function LoginPanel() {
                 label="Last Name:"
                 placeholder=""
                 type="name"
-                value={lastname}
-                onChange={(e) => setlastname(e.target.value)}
+                value={lastName}
+                onChange={(e) => setlastName(e.target.value)}
                 width="w-60"
-                // icon={
-                //         <svg
-                //         xmlns="http://www.w3.org/2000/svg"
-                //         viewBox="0 0 24 24"
-                //         fill="none"
-                //         width="24"
-                //         height="24"
-                //         >
-                //         <path
-                //         d="M4.00049 20C3.45049 20 2.97982 19.8043 2.58849 19.413C2.19715 19.0217 2.00115 18.5507 2.00049 18V6C2.00049 5.45 2.19649 4.97933 2.58849 4.588C2.98049 4.19667 3.45115 4.00067 4.00049 4H20.0005C20.5505 4 21.0215 4.196 21.4135 4.588C21.8055 4.98 22.0012 5.45067 22.0005 6V18C22.0005 18.55 21.8048 19.021 21.4135 19.413C21.0222 19.805 20.5512 20.0007 20.0005 20H4.00049ZM12.0005 13L20.0005 8V6L12.0005 11L4.00049 6V8L12.0005 13Z"
-                //         fill="black"
-                //         />
-                //         </svg>
-                // }
               />
-              {isLastNameEmpty && (
+              {islastNameEmpty && (
                 <p className="text-red-600 text-sm font-poppins">
                   Last name cannot be empty.
                 </p>
@@ -226,22 +227,22 @@ export default function LoginPanel() {
             <button
               type="button"
               className={`flex-1 mx-2 py-2 rounded-full font-semibold text-[20px] transition-colors ${
-                accessLevel === "Admin"
+                role === "Admin"
                   ? "bg-[#4781C2] text-white"
                   : "text-gray-600 hover:bg-blue-50"
               }`}
-              onClick={() => setAccessLevel("Admin")}
+              onClick={() => setRole("Admin")}
             >
               Admin
             </button>
             <button
               type="button"
               className={`flex-1 mx-2 py-2 rounded-full font-semibold text-[20px] transition-colors ${
-                accessLevel === "Intern"
+                role === "Intern"
                   ? "bg-[#4781C2] text-white"
                   : "text-gray-600 hover:bg-blue-50"
               }`}
-              onClick={() => setAccessLevel("Intern")}
+              onClick={() => setRole("Intern")}
             >
               Intern
             </button>
@@ -252,6 +253,15 @@ export default function LoginPanel() {
             <button
               type="submit"
               className="w-[332px] h-[76px] rounded-[30px] bg-[#0077B6] hover:bg-[#00679E] transition text-white font-poppins font-bold text-[26px]"
+              onClick={() =>
+                submitSignUp({
+                  email,
+                  password,
+                  firstName,
+                  lastName,
+                  role,
+                })
+              }
             >
               Sign Up
             </button>
