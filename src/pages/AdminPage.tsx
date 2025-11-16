@@ -1,110 +1,158 @@
 import { useState, useEffect } from "react";
 import { ROLE_PERMISSIONS } from "../data/rolePermissions";
-import { Switch } from '@mui/material';
-
-
-
+import { Switch } from "@mui/material";
 
 export default function AdminPage() {
-    const [rolePerm, setRolePerm] = useState(ROLE_PERMISSIONS);
-    const handleToggle = (role: "Admin" | "Intern", perm: string) => {
-        setRolePerm(prev => ({
-        ...prev,
-        [role]: {
-            ...prev[role],
-            [perm]: !prev[role][perm] //* see comments in data file 
-        }
-        }));
-    }
-    return(
-        // Row #1
-        <div className="grid grid-cols-3 grid-flow-row gap-6 p-5">
-            <div className="text-gray-500 font-medium">Permissions</div>
-            <div className="text-gray-500 font-medium text-center">Admin</div>
-            <div className="text-gray-500 font-medium text-center">Intern</div>
-        <div className="grid grid-cols-3 gap-y-6">
+  const [rolePerm, setRolePerm] = useState(ROLE_PERMISSIONS);
 
-                <div> Browse all pages
-                    <div className="flex justify-center">
-                    <Switch
-                        checked= {rolePerm.Admin["Browse all pages"]}
-                        // on change tells the handler what do when the toggle is change
-                        // so when it is changed then it calls the handle Toggle function to
-                        // change from true to false or false to true
-                        onChange={()=> handleToggle("Admin","Browse all pages")}
-                    />
-                    </div>
-                    <div>
-                    <Switch
-                        checked= {rolePerm.Intern["Browse all pages"]}
-                        onChange={()=> handleToggle("Intern","Browse all pages")}
-                    />
-                    </div>
-                </div>
+  const handleToggle = (role: "Admin" | "Intern", perm: string) => {
+    setRolePerm((prev) => ({
+      ...prev,
+      [role]: {
+        ...prev[role],
+        [perm]: !prev[role][perm],
+      },
+    }));
+  };
+
+  return (
+    <div className="p-5">
+      <div className="flex items-center space-x-2">
+        <button
+          onClick={() => (window.location.href = "/")}
+          className="w-[40px] h-[40px]"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="size-7"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5 8.25 12l7.5-7.5"
+            />
+          </svg>
+        </button>
+        <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
+          Admin
+        </h1>
+      </div>
+
+      {/* HEADER */}
+      <div className="mt-6 grid grid-cols-[minmax(120px,1fr),minmax(80px,1fr),minmax(80px,1fr)] mb-4">
+        <div className="text-gray-500 font-medium">Permissions</div>
+        <div className="text-gray-500 font-medium text-center">Admin</div>
+        <div className="text-gray-500 font-medium text-center">Intern</div>
+      </div>
+
+      {/* ROWS */}
+      <div className="grid grid-cols-[minmax(120px,1fr),minmax(80px,1fr),minmax(80px,1fr)] gap-y-2">
+        {/* ROW 1 */}
+        <div className="text-lg">Browse all pages</div>
+
+        <div className="flex justify-center">
+          <Switch
+            checked={rolePerm.Admin["Browse all pages"]}
+            onChange={() => handleToggle("Admin", "Browse all pages")}
+          />
         </div>
+
+        <div className="flex justify-center">
+          <Switch
+            checked={rolePerm.Intern["Browse all pages"]}
+            onChange={() => handleToggle("Intern", "Browse all pages")}
+          />
         </div>
 
-    );
-    }
+        {/* ROW 2 */}
+        <div className="text-lg">Change Date Range</div>
 
+        <div className="flex justify-center">
+          <Switch
+            checked={rolePerm.Admin["Change Date Range"]}
+            onChange={() => handleToggle("Admin", "Change Date Range")}
+          />
+        </div>
 
+        <div className="flex justify-center">
+          <Switch
+            checked={rolePerm.Intern["Change Date Range"]}
+            onChange={() => handleToggle("Intern", "Change Date Range")}
+          />
+        </div>
 
+        {/* ROW 3 */}
+        <div className="text-lg">Export charts</div>
 
-//     return(
-//         <div class="flex flex-col">
-//             <
-//             {BasicSwitches(Browse all pages, "BrowsePages")}
-//              <div className="">
-//                 <p>"Browse all pages"</p>
-                    
-//              </div>
+        <div className="flex justify-center">
+          <Switch
+            checked={rolePerm.Admin["Export charts"]}
+            onChange={() => handleToggle("Admin", "Export charts")}
+          />
+        </div>
 
-//         </div>
-//     )
-// }
+        <div className="flex justify-center">
+          <Switch
+            checked={rolePerm.Intern["Export charts"]}
+            onChange={() => handleToggle("Intern", "Export charts")}
+          />
+        </div>
 
-// interface BasicSwitchProps {
-//   checked: boolean;
-//   onChange: () => void;
-// }
+        {/* ROW 4 */}
+        <div className="text-lg">Choose metrics on page</div>
 
-// export function BasicSwitch(settingName: string, {checked, onChange }: BasicSwitchProps) {
-//   return (
-//     <Switch
-//       checked={checked}
-//       onChange={onChange}
-//       color="primary"
-//     />
-//   );
-// }
+        <div className="flex justify-center">
+          <Switch
+            checked={rolePerm.Admin["Choose metrics on page"]}
+            onChange={() => handleToggle("Admin", "Choose metrics on page")}
+          />
+        </div>
 
-// export function onChange(newRolePerm: boolean, rolePerm: boolean, settingName: string) {
-//     newRolePerm = rolePerm
-//     newRolePerm["Admin"][settingName] = True
-//     setValue(newRolePerm)
-// }
+        <div className="flex justify-center">
+          <Switch
+            checked={rolePerm.Intern["Choose metrics on page"]}
+            onChange={() => handleToggle("Intern", "Choose metrics on page")}
+          />
+        </div>
 
-// [rolePerm, setRolePerm] = useState(ROLE_PERMISSIONS)
-// handleClick() =>
-// newRolePerm = rolePerm
-// newRolePerm["Admin"]["BrowsePage"] = True
-// setValue(newRolePerm)
+        {/* ROW 5 */}
+        <div className="text-lg">Tag events/one-off events</div>
 
+        <div className="flex justify-center">
+          <Switch
+            checked={rolePerm.Admin["Tag events/one-off events "]}
+            onChange={() => handleToggle("Admin", "Tag events/one-off events")}
+          />
+        </div>
 
-// export function BasicSwitches(settingName: string) {
-//     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//        setRolePerm([""]);
-//     };
-  
-//     return (
+        <div className="flex justify-center">
+          <Switch
+            checked={rolePerm.Intern["Tag events/one-off events "]}
+            onChange={() => handleToggle("Intern", "Tag events/one-off events")}
+          />
+        </div>
 
-//     <Switch defaultChecked 
-//         checked={}
-//         onChange={handleChange} />
- 
-//   );
-// }
+        {/* ROW 6 */}
+        <div className="text-lg">Invite/Remove viewers</div>
 
+        <div className="flex justify-center">
+          <Switch
+            checked={rolePerm.Admin["Invite/Remove viewers"]}
+            onChange={() => handleToggle("Admin", "Invite/Remove viewers")}
+          />
+        </div>
 
-
-
+        <div className="flex justify-center">
+          <Switch
+            checked={rolePerm.Intern["Invite/Remove viewers"]}
+            onChange={() => handleToggle("Intern", "Invite/Remove viewers")}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
