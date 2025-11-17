@@ -7,6 +7,8 @@ import tiktok from "../assets/tiktok.jpg";
 
 import ExportButton from "../components/export-pdf/ExportButton";
 import DateRangeButton from "../components/date-range/DateRangeButton";
+import { useEffect, useState } from "react";
+import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
 
 import BarCharts from "../components/charts/BarCharts";
 import PieCharts from "../components/charts/PieCharts";
@@ -14,13 +16,190 @@ import LineCharts from "../components/charts/LineCharts";
 
 import BigCard from "../components/cards/BigCard";
 
+type ImpressionsPoint = {
+  date: string;
+  impressions: number;
+};
+
+type DaysPostedPoint = {
+  date: string;
+  posts: number;
+};
+
+type WebsiteSessionsPoint = {
+  date: string;
+  sessions: number;
+};
+
+type FollowerPoint = {
+  date: string;
+  followers: number;
+};
+
+// social providers we want to switch between
+type SocialProvider = "FACEBOOK" | "INSTAGRAM" | "TWITTER";
+
 export default function Homepage() {
+  // ---- STATE FOR EACH CARD ----
+  const [impressionsData, setImpressionsData] = useState<ImpressionsPoint[]>(
+    [],
+  );
+  const [daysPostedData, setDaysPostedData] = useState<DaysPostedPoint[]>([]);
+  const [websiteSessionsData, setWebsiteSessionsData] = useState<
+    WebsiteSessionsPoint[]
+  >([]);
+  const [followerCountData, setFollowerCountData] = useState<FollowerPoint[]>(
+    [],
+  );
+
+  // ---- NEW: SELECTED PROVIDER FOR SOCIAL METRICS ----
+  const [selectedProvider, setSelectedProvider] =
+    useState<SocialProvider>("FACEBOOK");
+
+  // ---- CONSTANTS ----
+  const googleAnalyticsProvider = "GOOGLE_ANALYTICS";
+  const defaultStartDate = "2024-01-01";
+  const defaultEndDate = "3000-01-01";
+
+  // ---- HELPERS TO SHAPE DATA ----
+  function getSortedMetrics(raw: SocialMediaMetric[]): SocialMediaMetric[] {
+    return raw
+      .slice()
+      .sort((a, b) =>
+        (a.metricDate ?? a.lastSynced ?? "").localeCompare(
+          b.metricDate ?? b.lastSynced ?? "",
+        ),
+      );
+  }
+
+  function mapToImpressionsPoints(
+    raw: SocialMediaMetric[],
+  ): ImpressionsPoint[] {
+    return getSortedMetrics(raw).map((m) => {
+      const timestamp =
+        m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+      return {
+        date: timestamp.slice(0, 10),
+        impressions: m.metricValue,
+      };
+    });
+  }
+
+  function mapToDaysPostedPoints(raw: SocialMediaMetric[]): DaysPostedPoint[] {
+    return getSortedMetrics(raw).map((m) => {
+      const timestamp =
+        m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+      return {
+        date: timestamp.slice(0, 10),
+        posts: m.metricValue,
+      };
+    });
+  }
+
+  function mapToWebsiteSessionsPoints(
+    raw: SocialMediaMetric[],
+  ): WebsiteSessionsPoint[] {
+    return getSortedMetrics(raw).map((m) => {
+      const timestamp =
+        m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+      return {
+        date: timestamp.slice(0, 10),
+        sessions: m.metricValue,
+      };
+    });
+  }
+
+  function mapToFollowerPoints(raw: SocialMediaMetric[]): FollowerPoint[] {
+    return getSortedMetrics(raw).map((m) => {
+      const timestamp =
+        m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+      return {
+        date: timestamp.slice(0, 10),
+        followers: m.metricValue,
+      };
+    });
+  }
+
+  // ---- FETCH DATA (USES selectedProvider) ----
+  async function getBackendMetrics() {
+    try {
+      const [
+        impressionsRaw,
+        daysPostedRaw,
+        websiteSessionsRaw,
+        followerCountRaw,
+      ] = await Promise.all([
+        // Impressions: using VIEWS for selected social provider
+        fetchMetrics({
+          provider: selectedProvider,
+          metric: "VIEWS",
+          startDate: defaultStartDate,
+          endDate: defaultEndDate,
+        }),
+        // Days Posted: using POSTS
+        fetchMetrics({
+          provider: selectedProvider,
+          metric: "POSTS",
+          startDate: defaultStartDate,
+          endDate: defaultEndDate,
+        }),
+        // Website Sessions: from Google Analytics (unchanged)
+        fetchMetrics({
+          provider: googleAnalyticsProvider,
+          metric: "SCREEN_PAGE_VIEWS",
+          startDate: defaultStartDate,
+          endDate: defaultEndDate,
+        }),
+        // Followers
+        fetchMetrics({
+          provider: selectedProvider,
+          metric: "FOLLOWERS",
+          startDate: defaultStartDate,
+          endDate: defaultEndDate,
+        }),
+      ]);
+
+      console.log("Impressions raw:", impressionsRaw);
+      console.log("Days posted raw:", daysPostedRaw);
+      console.log("Website sessions raw:", websiteSessionsRaw);
+      console.log("Followers raw:", followerCountRaw);
+
+      setImpressionsData(mapToImpressionsPoints(impressionsRaw));
+      setDaysPostedData(mapToDaysPostedPoints(daysPostedRaw));
+      setWebsiteSessionsData(mapToWebsiteSessionsPoints(websiteSessionsRaw));
+      setFollowerCountData(mapToFollowerPoints(followerCountRaw));
+    } catch (error) {
+      console.error("Error fetching backend metrics:", error);
+    }
+  }
+
+  // re-fetch whenever provider changes
+  useEffect(() => {
+    getBackendMetrics();
+  }, [selectedProvider]);
+
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
       {/* Top control bar */}
       <div className="flex flex-wrap w-full justify-between items-center gap-4">
         <div className="flex flex-wrap items-center gap-4">
           <DateRangeButton />
+
+          {/* NEW: Provider dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Provider:</span>
+            <select
+              value={selectedProvider}
+              onChange={(e) =>
+                setSelectedProvider(e.target.value as SocialProvider)
+              }
+              className="border rounded-md px-2 py-1 text-sm bg-white"
+            >
+              <option value="FACEBOOK">Facebook</option>
+              <option value="INSTAGRAM">Instagram</option>
+              <option value="TWITTER">Twitter</option>
+            </select>
+          </div>
 
           <div className="flex flex-row gap-2">
             {[google, instagram, facebook, tiktok, linkedin, twitter].map(
@@ -61,21 +240,48 @@ export default function Homepage() {
         <BigCard
           title="Impressions"
           subtitle=""
-          chart={undefined}
+          chart={
+            <div className="w-full h-64">
+              <LineCharts
+                data={impressionsData}
+                xAxisKey="date"
+                dataKeys={["impressions"]}
+                showArea={true}
+              />
+            </div>
+          }
           displayMode="both"
           className="flex-1 w-full h-full"
         />
         <BigCard
           title="Days Posted"
           subtitle=""
-          chart={undefined}
+          chart={
+            <div className="w-full h-64">
+              <LineCharts
+                data={daysPostedData}
+                xAxisKey="date"
+                dataKeys={["posts"]}
+                showArea={false}
+              />
+            </div>
+          }
           displayMode="both"
           className="flex-1 w-full h-full"
         />
         <BigCard
           title="Website Sessions"
           subtitle=""
-          chart={undefined}
+          chart={
+            <div className="w-full h-64">
+              <LineCharts
+                data={websiteSessionsData}
+                xAxisKey="date"
+                dataKeys={["sessions"]}
+                showArea={true}
+              />
+            </div>
+          }
           displayMode="both"
           className="flex-1 w-full h-full"
         />
@@ -86,7 +292,16 @@ export default function Homepage() {
         <BigCard
           title="Follower Count"
           subtitle=""
-          chart={undefined}
+          chart={
+            <div className="w-full h-64">
+              <LineCharts
+                data={followerCountData}
+                xAxisKey="date"
+                dataKeys={["followers"]}
+                showArea={false}
+              />
+            </div>
+          }
           displayMode="both"
           className="flex-1 w-full h-full"
         />
