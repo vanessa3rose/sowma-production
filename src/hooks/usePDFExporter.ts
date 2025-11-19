@@ -14,7 +14,7 @@ export function usePDFExporter() {
   };
 
   /* Exports the charts to a PDF */
-  const exportChartsToPDF = async (chartKeys: string[]) => {
+  const exportChartsToPDF = async (chartKeys: string[], filename = "selected-charts.pdf") => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
 
@@ -33,7 +33,7 @@ export function usePDFExporter() {
       pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
     }
 
-    pdf.save("selected-charts.pdf");
+    pdf.save(filename);
   };
 
   return { registerChart, exportChartsToPDF };

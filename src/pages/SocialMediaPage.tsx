@@ -6,6 +6,15 @@ import SmallCard from "../components/cards/SmallCard";
 import LineCharts from "../components/charts/LineCharts";
 import PieCharts from "../components/charts/PieCharts";
 
+/* PDF Export imports */
+import ExportableChartWrapper from "../components/export-pdf/ExportableChartWrapper";
+import { usePDFExporter } from "../hooks/usePDFExporter";
+import {
+  CHART_CONFIGS,
+  Platform,
+  buildChartDomId,
+} from "../config/chartConfigs";
+
 const pieTestData = [
   { source: "Organic", value: 400 },
   { source: "Paid", value: 300 },
@@ -21,52 +30,41 @@ const lineTestData = [
   { date: "05", followers: 180, likes: 60, comments: 12 },
 ];
 
-const CHART_CONFIGS = {
-  instagram: [
-    { id: "impressions", title: "Impressions", type: "line" },
-    { id: "followers_count", title: "Followers", type: "line" },
-    { id: "total_likes", title: "Total Likes", type: "line" },
-    { id: "total_comments", title: "Total Comments", type: "line" },
-    { id: "media_count", title: "Media Reactions", type: "line" },
-  ],
-  twitter: [
-    { id: "followers_count", title: "Followers", type: "line" },
-    { id: "following_count", title: "Following", type: "line" },
-    { id: "tweet_count", title: "Tweet Count", type: "line" },
-    { id: "listed_count", title: "Listed Count", type: "line" },
-  ],
-  facebook: [
-    { id: "page_follows", title: "Page Follows", type: "line" },
-    {
-      id: "page_actions_post_reactions_like_total",
-      title: "Total reactions/likes",
-      type: "line",
-    },
-    { id: "page_media_view", title: "Page Views", type: "line" },
-    { id: "total_comments", title: "Total Comments", type: "line" },
-    { id: "total_posts", title: "Total Posts", type: "line" },
-    { id: "total_shares", title: "Total Shares", type: "line" },
-  ],
-  google: [
-    { id: "activeUsers", title: "Active Users", type: "line" },
-    { id: "screenPageViews", title: "Page Views", type: "line" },
-    { id: "active7DayUsers", title: "Active 7 Day Users", type: "line" },
-    { id: "engagementRate", title: "Engagement Rate", type: "line" },
-    { id: "newUsers", title: "New Users", type: "line" },
-  ],
-};
-
-type Platform = keyof typeof CHART_CONFIGS;
-
 export default function SocialMediaPage() {
   // ⭐ Using Wouter's dynamic route match
-  const [match, params] = useRoute("/social/:platform");
-
+  // Don't use match, so override
+  const [_, params] = useRoute("/social/:platform");
   const platform = (params?.platform as Platform) || null;
 
   const formattedPlatform = platform
     ? platform.charAt(0).toUpperCase() + platform.slice(1)
     : "Social Media";
+
+  // PDF Exporter Hook
+  const { registerChart, exportChartsToPDF } = usePDFExporter();
+
+  /**
+   * Export handler passed down to ExportButton / ExportModal.
+   * Given an array of platforms, we construct the chart IDs
+   * that match the IDs used in ExportableChartWrapper.
+   *
+   * NOTE: It's safe if some IDs don't exist on the current page;
+   * exportChartsToPDF will simply skip any missing elements.
+   */
+  const handleExport = async (selectedPlatforms: Platform[]) => {
+    const chartIds = selectedPlatforms.flatMap((platformKey) =>
+      CHART_CONFIGS[platformKey].map((chart) =>
+        buildChartDomId(platformKey, chart.id),
+      ),
+    );
+
+    const filename =
+      selectedPlatforms.length === 1
+        ? `${selectedPlatforms[0]}-charts.pdf`
+        : `social-charts-${Date.now()}.pdf`;
+
+    await exportChartsToPDF(chartIds, filename);
+  };
 
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
@@ -98,7 +96,8 @@ export default function SocialMediaPage() {
         </div>
         <div className="flex space-x-2 mt-2 lg:mt-0">
           <DateRangeButton />
-          <ExportButton />
+          {/* Export button now triggers export */}
+          <ExportButton onExport={handleExport} />
         </div>
       </div>
 
@@ -131,32 +130,43 @@ export default function SocialMediaPage() {
         {/* Chart Cards (Dynamic) */}
         <div className="w-full lg:w-3/4 flex flex-col gap-4 lg:h-full">
           {platform &&
-            CHART_CONFIGS[platform].map((chart) => (
-              <BigCard
-                key={chart.id}
-                title={chart.title}
-                displayMode="both"
-                className="w-full h-full"
-                chart={
-                  <div className="w-full">
-                    {chart.type === "line" ? (
-                      <LineCharts
-                        data={lineTestData}
-                        xAxisKey="date"
-                        dataKeys={["followers", "likes", "comments"]}
-                        showArea={true}
-                      />
-                    ) : (
-                      <PieCharts
-                        data={pieTestData}
-                        dataKey="value"
-                        nameKey="source"
-                      />
-                    )}
-                  </div>
-                }
-              />
-            ))}
+            CHART_CONFIGS[platform].map((chart) => {
+              const chartDomId = buildChartDomId(platform, chart.id);
+
+              return (
+                <ExportableChartWrapper
+                  // React key attached to outermost mapped element
+                  key={chartDomId}
+                  // ID used by usePDFExporter to look up this chart's DOM node
+                  id={chartDomId}
+                  register={registerChart}
+                >
+                  <BigCard
+                    title={chart.title}
+                    displayMode="both"
+                    className="w-full h-full"
+                    chart={
+                      <div className="w-full">
+                        {chart.type === "line" ? (
+                          <LineCharts
+                            data={lineTestData}
+                            xAxisKey="date"
+                            dataKeys={["followers", "likes", "comments"]}
+                            showArea={true}
+                          />
+                        ) : (
+                          <PieCharts
+                            data={pieTestData}
+                            dataKey="value"
+                            nameKey="source"
+                          />
+                        )}
+                      </div>
+                    }
+                  />
+                </ExportableChartWrapper>
+              );
+            })}
         </div>
       </div>
     </div>

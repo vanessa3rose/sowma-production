@@ -17,7 +17,13 @@ export default function ExportableChartWrapper({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    register(id, ref.current); /* Should unregister on unmount?? */
+    // Register chart DOM node when it becomes available
+    register(id, ref.current);
+
+    // Clean up registration when the chart is removed from the DOM
+    return () => {
+      register(id, null);
+    };
   }, [id, register]);
 
   return <div ref={ref}>{children}</div>;
