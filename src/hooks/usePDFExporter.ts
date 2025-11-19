@@ -14,6 +14,7 @@ export function usePDFExporter() {
     chartRefs.current[key] = ref;
   };
 
+<<<<<<< HEAD
   /* Register a full-page container by ID */
   const registerPage = (id: string, ref: HTMLElement | null) => {
     pageRefs.current[id] = ref;
@@ -24,6 +25,10 @@ export function usePDFExporter() {
     keys: string[],
     filename = "export.pdf",
   ) => {
+=======
+  /* Exports the charts to a PDF */
+  const exportChartsToPDF = async (chartKeys: string[], filename = "selected-charts.pdf") => {
+>>>>>>> 0eb8d39 (Initial Proposal)
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     let firstPage = true;
