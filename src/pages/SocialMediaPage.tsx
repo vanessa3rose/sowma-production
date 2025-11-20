@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { useRoute } from "wouter";
+
 import DateRangeButton from "../components/date-range/DateRangeButton";
 import ExportButton from "../components/export-pdf/ExportButton";
 import BigCard from "../components/cards/BigCard";
@@ -6,67 +8,201 @@ import SmallCard from "../components/cards/SmallCard";
 import LineCharts from "../components/charts/LineCharts";
 import PieCharts from "../components/charts/PieCharts";
 
-const pieTestData = [
-  { source: "Organic", value: 400 },
-  { source: "Paid", value: 300 },
-  { source: "Referral", value: 200 },
-  { source: "Social", value: 100 },
-];
+import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
 
-const lineTestData = [
-  { date: "01", followers: 100, likes: 20, comments: 5 },
-  { date: "02", followers: 120, likes: 35, comments: 8 },
-  { date: "03", followers: 140, likes: 50, comments: 10 },
-  { date: "04", followers: 160, likes: 45, comments: 7 },
-  { date: "05", followers: 180, likes: 60, comments: 12 },
-];
+// ---------- Types ----------
+type ChartType = "line" | "pie";
 
-const CHART_CONFIGS = {
+type ChartConfig = {
+  id: string;            // internal id for this chart
+  title: string;         // title to show on BigCard
+  type: ChartType;
+  metric: string;        // MUST match your backend Metric enum
+};
+
+type LinePoint = {
+  date: string;
+  value: number;
+};
+
+type MetricSummary = {
+  current: number | null;
+  prev: number | null;
+};
+
+const CHART_CONFIGS: Record<string, ChartConfig[]> = {
   instagram: [
-    { id: "impressions", title: "Impressions", type: "line" },
-    { id: "followers_count", title: "Followers", type: "line" },
-    { id: "total_likes", title: "Total Likes", type: "line" },
-    { id: "total_comments", title: "Total Comments", type: "line" },
-    { id: "media_count", title: "Media Reactions", type: "line" },
+    { id: "impressions",       title: "Impressions",      type: "line", metric: "VIEWS" },
+    { id: "followers_count",   title: "Followers",        type: "line", metric: "FOLLOWERS" },
+    { id: "total_likes",       title: "Total Likes",      type: "line", metric: "LIKES" },
+    { id: "total_comments",    title: "Total Comments",   type: "line", metric: "COMMENTS" },
+    { id: "media_count",       title: "Media Reactions",  type: "line", metric: "POSTS" },
   ],
   twitter: [
-    { id: "followers_count", title: "Followers", type: "line" },
-    { id: "following_count", title: "Following", type: "line" },
-    { id: "tweet_count", title: "Tweet Count", type: "line" },
-    { id: "listed_count", title: "Listed Count", type: "line" },
+    // ⚠️ Adjust metrics to whatever you actually seeded in the DB
+    { id: "followers_count",   title: "Followers",        type: "line", metric: "FOLLOWERS" },
+    { id: "following_count",   title: "Following",        type: "line", metric: "LIKES" },     // TODO: adjust if needed
+    { id: "tweet_count",       title: "Tweet Count",      type: "line", metric: "POSTS" },
+    { id: "listed_count",      title: "Listed Count",     type: "line", metric: "SHARES" },    // TODO: adjust if needed
   ],
   facebook: [
-    { id: "page_follows", title: "Page Follows", type: "line" },
-    {
-      id: "page_actions_post_reactions_like_total",
-      title: "Total reactions/likes",
-      type: "line",
-    },
-    { id: "page_media_view", title: "Page Views", type: "line" },
-    { id: "total_comments", title: "Total Comments", type: "line" },
-    { id: "total_posts", title: "Total Posts", type: "line" },
-    { id: "total_shares", title: "Total Shares", type: "line" },
+    { id: "page_follows",                            title: "Page Follows",         type: "line", metric: "FOLLOWERS" },
+    { id: "page_actions_post_reactions_like_total",  title: "Total reactions/likes", type: "line", metric: "LIKES" },
+    { id: "page_media_view",                         title: "Page Views",           type: "line", metric: "VIEWS" },
+    { id: "total_comments",                          title: "Total Comments",       type: "line", metric: "COMMENTS" },
+    { id: "total_posts",                             title: "Total Posts",          type: "line", metric: "POSTS" },
+    { id: "total_shares",                            title: "Total Shares",         type: "line", metric: "SHARES" },
   ],
   google: [
-    { id: "activeUsers", title: "Active Users", type: "line" },
-    { id: "screenPageViews", title: "Page Views", type: "line" },
-    { id: "active7DayUsers", title: "Active 7 Day Users", type: "line" },
-    { id: "engagementRate", title: "Engagement Rate", type: "line" },
-    { id: "newUsers", title: "New Users", type: "line" },
+    { id: "activeUsers",     title: "Active Users",         type: "line", metric: "ACTIVE_USERS" },
+    { id: "screenPageViews", title: "Page Views",           type: "line", metric: "SCREEN_PAGE_VIEWS" },
+    { id: "active7DayUsers", title: "Active 7 Day Users",   type: "line", metric: "ACTIVE_7_DAY_USERS" },
+    { id: "engagementRate",  title: "Engagement Rate",      type: "line", metric: "ENGAGEMENT_RATE" },
+    { id: "newUsers",        title: "New Users",            type: "line", metric: "NEW_USERS" },
   ],
 };
 
 type Platform = keyof typeof CHART_CONFIGS;
 
+// map URL platform -> backend Provider enum string
+function providerFromPlatform(platform: Platform): string {
+  switch (platform) {
+    case "instagram":
+      return "INSTAGRAM";
+    case "twitter":
+      return "TWITTER";
+    case "facebook":
+      return "FACEBOOK";
+    case "google":
+      return "GOOGLE_ANALYTICS";
+    default:
+      return "INSTAGRAM";
+  }
+}
+
 export default function SocialMediaPage() {
   // ⭐ Using Wouter's dynamic route match
   const [match, params] = useRoute("/social/:platform");
-
   const platform = (params?.platform as Platform) || null;
 
   const formattedPlatform = platform
     ? platform.charAt(0).toUpperCase() + platform.slice(1)
     : "Social Media";
+
+  // ---- State for charts + summaries ----
+  const [chartDataMap, setChartDataMap] = useState<Record<string, LinePoint[]>>(
+    {},
+  );
+  const [metricSummaries, setMetricSummaries] = useState<
+    Record<string, MetricSummary>
+  >({});
+
+  const defaultStartDate = "2024-01-01";
+  const defaultEndDate = "3000-01-01";
+
+  // ---- Helpers ----
+  function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
+    return raw
+      .filter((m) => m.metricDate || m.lastSynced)
+      .slice()
+      .sort((a, b) =>
+        (a.metricDate ?? a.lastSynced)!.localeCompare(
+          (b.metricDate ?? b.lastSynced)!,
+        ),
+      );
+  }
+
+  function toLinePoints(raw: SocialMediaMetric[]): LinePoint[] {
+    return sortByDate(raw).map((m) => {
+      const timestamp = (m.metricDate ?? m.lastSynced)!;
+      return {
+        date: timestamp.slice(0, 10),
+        value: m.metricValue,
+      };
+    });
+  }
+
+  function summarizeSeries(points: LinePoint[]): MetricSummary {
+    if (points.length === 0) return { current: null, prev: null };
+    if (points.length === 1) return { current: points[0].value, prev: null };
+    const latest = points[points.length - 1].value;
+    const prev = points[points.length - 2].value;
+    return { current: latest, prev };
+  }
+
+  function formatPercentChange(summary?: MetricSummary): string {
+    if (!summary || summary.current == null || summary.prev == null) {
+      return "vs. prev. n/a";
+    }
+    if (summary.prev === 0) return "vs. prev. n/a";
+    const pct = ((summary.current - summary.prev) / summary.prev) * 100;
+    const sign = pct >= 0 ? "+" : "";
+    return `${sign}${pct.toFixed(1)}% vs. prev.`;
+  }
+
+  function formatValue(summary?: MetricSummary, suffix?: string): string {
+    if (!summary || summary.current == null) return "-";
+    const base = summary.current.toLocaleString();
+    return suffix ? `${base} ${suffix}` : base;
+  }
+
+  // ---- Fetch metrics whenever platform changes ----
+  useEffect(() => {
+    if (!platform) return;
+
+    const configs = CHART_CONFIGS[platform];
+    if (!configs) return;
+
+    const provider = providerFromPlatform(platform);
+
+    async function loadMetrics() {
+      try {
+        const results = await Promise.all(
+          configs.map((cfg) =>
+            fetchMetrics({
+              provider,
+              metric: cfg.metric, // MUST match backend Metric enum
+              startDate: defaultStartDate,
+              endDate: defaultEndDate,
+            }).then((rows) => ({ cfg, rows })),
+          ),
+        );
+
+        const nextChartDataMap: Record<string, LinePoint[]> = {};
+        const nextSummaries: Record<string, MetricSummary> = {};
+
+        for (const { cfg, rows } of results) {
+          const series = toLinePoints(rows);
+          nextChartDataMap[cfg.id] = series;
+          nextSummaries[cfg.id] = summarizeSeries(series);
+        }
+
+        setChartDataMap(nextChartDataMap);
+        setMetricSummaries(nextSummaries);
+      } catch (err) {
+        console.error("Error loading social media metrics:", err);
+      }
+    }
+
+    loadMetrics();
+  }, [platform]);
+
+  // ---- SmallCard helpers: pick the right chart for each metric ----
+  function findConfigForMetric(
+    platform: Platform,
+    metric: string,
+  ): ChartConfig | undefined {
+    return CHART_CONFIGS[platform].find((c) => c.metric === metric);
+  }
+
+  const followersCfg =
+    platform && findConfigForMetric(platform, "FOLLOWERS");
+  const commentsCfg =
+    platform && findConfigForMetric(platform, "COMMENTS");
+  const likesCfg =
+    platform && findConfigForMetric(platform, "LIKES");
+  const sharesCfg =
+    platform && findConfigForMetric(platform, "SHARES");
 
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
@@ -108,23 +244,63 @@ export default function SocialMediaPage() {
         <div className="w-full lg:w-1/4 flex flex-col gap-4 lg:h-full">
           <SmallCard
             title="Followers"
-            displayMode="both"
+            displayMode="metric-only"
             className="w-full h-full"
+            metricValue={
+              followersCfg
+                ? metricSummaries[followersCfg.id]?.current ?? 0
+                : 0
+            }
+            metricLabel="followers"
+            metricChange={
+              followersCfg
+                ? formatPercentChange(metricSummaries[followersCfg.id])
+                : "vs. prev. n/a"
+            }
           />
           <SmallCard
             title="Comments"
-            displayMode="both"
+            displayMode="metric-only"
             className="w-full h-full"
+            metricValue={
+              commentsCfg
+                ? metricSummaries[commentsCfg.id]?.current ?? 0
+                : 0
+            }
+            metricLabel="comments"
+            metricChange={
+              commentsCfg
+                ? formatPercentChange(metricSummaries[commentsCfg.id])
+                : "vs. prev. n/a"
+            }
           />
           <SmallCard
             title="Likes"
-            displayMode="both"
+            displayMode="metric-only"
             className="w-full h-full"
+            metricValue={
+              likesCfg ? metricSummaries[likesCfg.id]?.current ?? 0 : 0
+            }
+            metricLabel="likes"
+            metricChange={
+              likesCfg
+                ? formatPercentChange(metricSummaries[likesCfg.id])
+                : "vs. prev. n/a"
+            }
           />
           <SmallCard
             title="Shared"
-            displayMode="both"
+            displayMode="metric-only"
             className="w-full h-full"
+            metricValue={
+              sharesCfg ? metricSummaries[sharesCfg.id]?.current ?? 0 : 0
+            }
+            metricLabel="shares"
+            metricChange={
+              sharesCfg
+                ? formatPercentChange(metricSummaries[sharesCfg.id])
+                : "vs. prev. n/a"
+            }
           />
         </div>
 
@@ -138,19 +314,19 @@ export default function SocialMediaPage() {
                 displayMode="both"
                 className="w-full h-full"
                 chart={
-                  <div className="w-full">
+                  <div className="w-full h-64">
                     {chart.type === "line" ? (
                       <LineCharts
-                        data={lineTestData}
+                        data={chartDataMap[chart.id] ?? []}
                         xAxisKey="date"
-                        dataKeys={["followers", "likes", "comments"]}
+                        dataKeys={["value"]}
                         showArea={true}
                       />
                     ) : (
                       <PieCharts
-                        data={pieTestData}
+                        data={[]} // you can wire real pie data later if needed
                         dataKey="value"
-                        nameKey="source"
+                        nameKey="label"
                       />
                     )}
                   </div>
