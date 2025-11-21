@@ -3,7 +3,7 @@ import { SignUp } from "@clerk/clerk-react";
 
 export default function LoginPanel() {
   return (
-    <section className="flex w-full flex-col md:flex-row min-h-[780px] bg-white">
+    <section className="flex w-full flex-col md:flex-row h-screen items-center bg-white">
 
       {/* LEFT SIDE */}
       <div
@@ -30,20 +30,20 @@ export default function LoginPanel() {
               text-black
             "
           >
-            Welcome to the
+            Sign up for the
             <br />
-            <span className="font-bold text-[40px] leading-[60px] text-[#4781C2]">
+            <span className="font-bold text-[40px] leading-[60px] text-[#4781C2] whitespace-nowrap">
               SOWMA Analytics Dashboard
             </span>
           </h1>
         </div>
 
         {/* SignUp Form */}
-        <div className="ml-20"> 
+        <div className=""> 
           <SignUp
             appearance={{
               elements: {
-                rootBox: "w-[520px] max-w-full",
+                rootBox: "max-w-full",
                 card: "w-full p-8 rounded-xl shadow-md border border-gray-200",
               },
             }}
