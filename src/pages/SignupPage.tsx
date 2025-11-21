@@ -4,10 +4,14 @@ import { SignUp } from "@clerk/clerk-react";
 export default function LoginPanel() {
   return (
 <<<<<<< HEAD
+<<<<<<< HEAD
     <section className="flex w-full flex-col md:flex-row min-h-[780px] md:min-h-[780px] bg-white">
       <div className="flex flex-col items-center md:items-start justify-center w-full md:w-1/2 px-6 md:px-12 py-10 gap-6">
 =======
     <section className="flex w-full flex-col md:flex-row min-h-[780px] bg-white">
+=======
+    <section className="flex w-full flex-col md:flex-row h-screen items-center bg-white">
+>>>>>>> d811ef1 (fixed centering issue & tested clerk)
 
       {/* LEFT SIDE */}
       <div
@@ -35,20 +39,20 @@ export default function LoginPanel() {
               text-black
             "
           >
-            Welcome to the
+            Sign up for the
             <br />
-            <span className="font-bold text-[40px] leading-[60px] text-[#4781C2]">
+            <span className="font-bold text-[40px] leading-[60px] text-[#4781C2] whitespace-nowrap">
               SOWMA Analytics Dashboard
             </span>
           </h1>
         </div>
 
         {/* SignUp Form */}
-        <div className="ml-20"> 
+        <div className=""> 
           <SignUp
             appearance={{
               elements: {
-                rootBox: "w-[520px] max-w-full",
+                rootBox: "max-w-full",
                 card: "w-full p-8 rounded-xl shadow-md border border-gray-200",
               },
             }}
