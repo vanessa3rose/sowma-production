@@ -4,7 +4,6 @@ import { SignUp } from "@clerk/clerk-react";
 export default function LoginPanel() {
   return (
     <section className="flex w-full flex-col md:flex-row h-screen items-center bg-white">
-
       {/* LEFT SIDE */}
       <div
         className="
@@ -17,7 +16,6 @@ export default function LoginPanel() {
           gap-10
         "
       >
-
         {/* Header */}
         <div className="w-[520px] max-w-full flex flex-col items-center">
           <h1
@@ -39,7 +37,7 @@ export default function LoginPanel() {
         </div>
 
         {/* SignUp Form */}
-        <div className=""> 
+        <div className="">
           <SignUp
             appearance={{
               elements: {
@@ -49,7 +47,6 @@ export default function LoginPanel() {
             }}
           />
         </div>
-
       </div>
 
       {/* RIGHT SIDE */}
@@ -60,7 +57,6 @@ export default function LoginPanel() {
           className="w-full h-full object-cover"
         />
       </div>
-
     </section>
   );
 }
