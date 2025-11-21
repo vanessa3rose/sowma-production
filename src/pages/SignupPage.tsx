@@ -11,8 +11,11 @@ export default function LoginPanel() {
     <section className="flex w-full flex-col md:flex-row min-h-[780px] bg-white">
 =======
     <section className="flex w-full flex-col md:flex-row h-screen items-center bg-white">
+<<<<<<< HEAD
 >>>>>>> d811ef1 (fixed centering issue & tested clerk)
 
+=======
+>>>>>>> dca4179 (ran prettier)
       {/* LEFT SIDE */}
       <div
         className="
@@ -25,8 +28,11 @@ export default function LoginPanel() {
           gap-10
         "
       >
+<<<<<<< HEAD
 
 >>>>>>> 0c9abb0 (inserted clerk components & changed some frontend styling)
+=======
+>>>>>>> dca4179 (ran prettier)
         {/* Header */}
         <div className="w-[520px] max-w-full flex flex-col items-center">
           <h1
@@ -48,7 +54,7 @@ export default function LoginPanel() {
         </div>
 
         {/* SignUp Form */}
-        <div className=""> 
+        <div className="">
           <SignUp
             appearance={{
               elements: {
@@ -58,7 +64,6 @@ export default function LoginPanel() {
             }}
           />
         </div>
-
       </div>
 
       {/* RIGHT SIDE */}
@@ -69,7 +74,6 @@ export default function LoginPanel() {
           className="w-full h-full object-cover"
         />
       </div>
-
     </section>
   );
 }
