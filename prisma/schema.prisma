@@ -57,11 +57,11 @@ model DatabaseReportCount {
 }
 
 model User {
-  email     String @id        // Required
-  firstName String            // Required
-  lastName  String            // Required
-  password  String            // Required
-  role      Role              // Required
+  email      String    @id @default(cuid())   // Required
+  clerkId    String    @unique                // Required
+  role       Role      @default(INTERN)       // Required
+  createdAt  DateTime  @default(now())        // Required
+ 
 }
 
 enum Role {
