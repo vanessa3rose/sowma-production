@@ -3,7 +3,7 @@ import login from "../assets/login-picture.png";
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen w-full overflow-hidden bg-white">
+    <main className="min-h-screen w-full bg-white">
       <div className="flex w-full h-full justify-center items-center">
         {/* login */}
         <div className="flex-1 justify-center items-center z-10">

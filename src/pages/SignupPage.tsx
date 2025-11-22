@@ -73,7 +73,7 @@ export default function LoginPanel() {
     }
   };
   return (
-    <section className="flex w-full flex-col md:flex-row min-h-[780px] bg-white">
+    <section className="flex w-full flex-col md:flex-row min-h-[780px] md:min-h-[780px] bg-white">
       <div className="flex flex-col items-center md:items-start justify-center w-full md:w-1/2 px-6 md:px-12 py-10 gap-6">
         {/* Header */}
         <h1 className="text-center md:text-left font-poppins text-[40px] leading-[60px] font-medium text-[#000000]">
