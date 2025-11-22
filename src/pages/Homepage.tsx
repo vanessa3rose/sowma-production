@@ -178,6 +178,15 @@ export default function Homepage() {
     getBackendMetrics();
   }, [selectedProvider]);
 
+  const socialLinks = [
+    { name: "google", icon: google },
+    { name: "instagram", icon: instagram },
+    { name: "facebook", icon: facebook },
+    { name: "tiktok", icon: tiktok },
+    { name: "linkedin", icon: linkedin },
+    { name: "twitter", icon: twitter },
+  ];
+
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
       {/* Top control bar */}
@@ -202,16 +211,14 @@ export default function Homepage() {
           </div>
 
           <div className="flex flex-row gap-2">
-            {[google, instagram, facebook, tiktok, linkedin, twitter].map(
-              (icon, idx) => (
-                <a href="/" key={idx}>
-                  <img
-                    src={icon}
-                    className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border border-solid"
-                  />
-                </a>
-              ),
-            )}
+            {socialLinks.map((social, idx) => (
+              <a href={`/social-media/${social.name}`} key={idx}>
+                <img
+                  src={social.icon}
+                  className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border border-solid"
+                />
+              </a>
+            ))}
 
             <a href="/">
               <svg

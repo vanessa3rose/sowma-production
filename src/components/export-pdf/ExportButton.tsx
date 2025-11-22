@@ -8,7 +8,7 @@ export default function ExportButton() {
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="py-2 px-4 gap-2 justify-center items-center inline-flex rounded-[10px] border-[1px] border-solid h-[47px] w-[141px] font-bold text-xl font-[Inter]"
+        className="font-poppins py-2 px-4 gap-2 justify-center items-center inline-flex rounded-[10px] border-[1px] border-solid h-[47px] w-[141px] font-bold text-lg font-[Inter]"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
