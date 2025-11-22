@@ -16,49 +16,83 @@ type FacebookPublicMetrics = {
   total_shares: number;
 };
 
-export async function fetchFacebookMetrics(
-  pageId: string = FACEBOOK_PAGE_ID,
-  pageAccessToken: string = FACEBOOK_PAGE_TOKEN,
-) {
-  console.log(
-    `\n🔍 [fetchFacebookMetrics] Fetching insights for page ${pageId}`,
-  );
+function getStartOfDay(date: Date): Date {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function getEndOfDay(date: Date): Date {
+  const d = new Date(date);
+  d.setHours(23, 59, 59, 999);
+  return d;
+}
+
+function toUnixTimestamp(date: Date): number {
+  return Math.floor(date.getTime() / 1000);
+}
+
+function formatDate(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
+
+async function metricsExistForDate(
+  socialMediaId: string,
+  targetDate: Date,
+): Promise<boolean> {
+  const existing = await prisma.socialMediaMetrics.findFirst({
+    where: {
+      socialMediaId,
+      metricDate: {
+        gte: getStartOfDay(targetDate),
+        lt: getEndOfDay(targetDate),
+      },
+    },
+  });
+  return existing !== null;
+}
+
+// ---------- Core fetchers: copied from backfill style ----------
+
+// Fetch insights metrics (followers, likes, views) for a specific day
+export async function fetchFacebookInsights(
+  pageId: string,
+  pageAccessToken: string,
+  targetDate: Date,
+): Promise<
+  Omit<FacebookPublicMetrics, "total_posts" | "total_shares" | "total_comments">
+> {
+  const since = toUnixTimestamp(getStartOfDay(targetDate));
+  const until = toUnixTimestamp(getEndOfDay(targetDate));
 
   const metricsConfig = [
     { name: "page_follows", period: "day" },
-    { name: "page_actions_post_reactions_like_total", period: "days" },
-    { name: "page_media_view", period: "days" },
+    { name: "page_actions_post_reactions_like_total", period: "day" },
+    { name: "page_media_view", period: "day" },
   ];
 
   const insightsResults: any = {};
 
   for (const { name, period } of metricsConfig) {
     try {
-      const insightsUrl = `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/insights?metric=${name}&period=${period}&access_token=${pageAccessToken}`;
-      console.log(`\nFetching metric: ${name} (period: ${period})`);
+      const insightsUrl = `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/insights?metric=${name}&period=${period}&since=${since}&until=${until}&access_token=${pageAccessToken}`;
 
+      console.log(`Fetching insight metric: ${name} (${formatDate(targetDate)})`);
       const res = await fetch(insightsUrl);
-      console.log(`📡 Status for ${name}: ${res.status}`);
 
       if (res.ok) {
         const data = await res.json();
 
-        // For cumulative metrics like page_follows, use the latest value
-        // For aggregate metrics, sum all values in the period
         if (name === "page_follows") {
-          // Use the most recent day's follower count
           const values = data.data[0]?.values || [];
           insightsResults[name] = values[values.length - 1]?.value || 0;
         } else {
-          // Sum all values for metrics like reactions and views over the period
           const values = data.data[0]?.values || [];
           insightsResults[name] = values.reduce(
             (sum: number, v: any) => sum + (v.value || 0),
             0,
           );
         }
-
-        console.log(`✅ ${name}: ${insightsResults[name]}`);
       } else {
         const text = await res.text();
         console.warn(`⚠️  ${name} failed: ${res.status} — ${text}`);
@@ -70,53 +104,52 @@ export async function fetchFacebookMetrics(
     }
   }
 
-  // Pagination for posts
-  let posts: any[] = [];
-  let nextUrl: string | null =
-    `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/posts?fields=shares,comments.summary(true)&access_token=${pageAccessToken}`;
-  let pageCount = 0;
-
-  console.log("Starting to fetch posts...");
-
-  while (nextUrl) {
-    pageCount++;
-    console.log(`Fetching posts page ${pageCount}`);
-    const postsRes: Response = await fetch(nextUrl);
-    console.log(`Posts response status: ${postsRes.status}`);
-
-    if (!postsRes.ok) {
-      const text = await postsRes.text();
-      throw new Error(
-        `Facebook Posts API failed: ${postsRes.status} — ${text}`,
-      );
-    }
-
-    const postsData = await postsRes.json();
-    const batchCount = postsData?.data?.length || 0;
-    console.log(`Received ${batchCount} posts on this page.`);
-
-    if (!postsData.data || postsData.data.length === 0) {
-      console.log("No posts found — stopping pagination.");
-      break;
-    }
-
-    posts.push(...postsData.data);
-    nextUrl = postsData.paging?.next || null;
-
-    if (!nextUrl) console.log("No next page — reached end.");
-    if (pageCount > 10) {
-      console.warn("Hit pagination safety cap (10 pages) — breaking.");
-      break;
-    }
-  }
-
-  console.log(`Finished fetching posts — total posts: ${posts.length}`);
-
   return {
     page_follows: insightsResults.page_follows || 0,
     page_actions_post_reactions_like_total:
       insightsResults.page_actions_post_reactions_like_total || 0,
     page_media_view: insightsResults.page_media_view || 0,
+  };
+}
+
+// Get current total posts/shares/comments (no date filter), same as backfill
+async function fetchCurrentTotals(
+  pageId: string,
+  pageAccessToken: string,
+): Promise<{
+  total_posts: number;
+  total_shares: number;
+  total_comments: number;
+}> {
+  let posts: any[] = [];
+  let nextUrl: string | null =
+    `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/posts?fields=shares,comments.summary(true)&access_token=${pageAccessToken}`;
+
+  let pageCount = 0;
+
+  console.log("Fetching current totals (posts/shares/comments)...");
+
+  while (nextUrl && pageCount < 10) {
+    pageCount++;
+    const postsRes = await fetch(nextUrl);
+
+    if (!postsRes.ok) {
+      const text = await postsRes.text();
+      console.warn(
+        `⚠️  Posts API failed while fetching totals: ${postsRes.status} — ${text}`,
+      );
+      break;
+    }
+
+    const postsData = await postsRes.json();
+
+    if (!postsData.data || postsData.data.length === 0) break;
+
+    posts.push(...postsData.data);
+    nextUrl = postsData.paging?.next || null;
+  }
+
+  return {
     total_posts: posts.length,
     total_shares: posts.reduce(
       (sum, post) => sum + (post.shares?.count || 0),
@@ -129,8 +162,36 @@ export async function fetchFacebookMetrics(
   };
 }
 
-export async function syncFacebookMetrics() {
-  console.log("\n[syncFacebookMetrics] Starting Facebook metrics sync...");
+// Convenience wrapper: same overall shape as your old fetchFacebookMetrics,
+// but using the *exact* day-based logic from the backfill helpers.
+export async function fetchFacebookMetrics(
+  pageId: string = FACEBOOK_PAGE_ID,
+  pageAccessToken: string = FACEBOOK_PAGE_TOKEN,
+  targetDate: Date = new Date(),
+): Promise<FacebookPublicMetrics> {
+  console.log(
+    `\n🔍 [fetchFacebookMetrics] Fetching day metrics for ${pageId} on ${formatDate(targetDate)}`,
+  );
+
+  const insights = await fetchFacebookInsights(
+    pageId,
+    pageAccessToken,
+    targetDate,
+  );
+  const totals = await fetchCurrentTotals(pageId, pageAccessToken);
+
+  return {
+    ...insights,
+    ...totals,
+  };
+}
+
+export async function syncFacebookMetrics(targetDate: Date = new Date()) {
+  console.log(
+    `\n[syncFacebookMetrics] Starting Facebook metrics sync for ${formatDate(
+      targetDate,
+    )}...`,
+  );
   const accounts = await prisma.socialMedia.findMany({
     where: { provider: "FACEBOOK" },
   });
@@ -149,10 +210,23 @@ export async function syncFacebookMetrics() {
 
   for (const account of accounts) {
     console.log(`\nSyncing account: ${account.username} (${account.userId})`);
+
+    // optional: avoid dup rows for same day
+    const exists = await metricsExistForDate(account.id, targetDate);
+    if (exists) {
+      console.log(
+        `⏭️  Metrics already exist for ${account.username} on ${formatDate(
+          targetDate,
+        )} — skipping`,
+      );
+      continue;
+    }
+
     try {
       const metrics = await fetchFacebookMetrics(
         FACEBOOK_PAGE_ID,
         FACEBOOK_PAGE_TOKEN,
+        targetDate,
       );
       console.log("Metrics fetched successfully, writing to DB...");
 
@@ -169,14 +243,22 @@ export async function syncFacebookMetrics() {
             metricName: metricEnum,
             metricValue: metricVal,
             lastSynced: new Date(),
+            metricDate: getStartOfDay(targetDate),
           },
         });
         console.log(`Saved metric: ${metricEnum} = ${metricVal}`);
       }
 
-      console.log(`✅ Successfully synced ${account.username}`);
+      console.log(
+        `✅ Successfully synced ${account.username} for ${formatDate(
+          targetDate,
+        )}`,
+      );
     } catch (err) {
-      console.error(`❌ Failed syncing ${account.username}`, err);
+      console.error(
+        `❌ Failed syncing ${account.username} for ${formatDate(targetDate)}`,
+        err,
+      );
     }
   }
 
@@ -186,7 +268,20 @@ export async function syncFacebookMetrics() {
 
 async function main() {
   try {
-    await syncFacebookMetrics();
+    const args = process.argv.slice(2);
+
+    let targetDate = new Date();
+    if (args[0]) {
+      const parsed = new Date(args[0]);
+      if (Number.isNaN(parsed.getTime())) {
+        throw new Error(
+          `Invalid date argument "${args[0]}". Expected YYYY-MM-DD.`,
+        );
+      }
+      targetDate = parsed;
+    }
+
+    await syncFacebookMetrics(targetDate);
     console.log("Script finished successfully.");
   } catch (err) {
     console.error("Unhandled error in main()", err);

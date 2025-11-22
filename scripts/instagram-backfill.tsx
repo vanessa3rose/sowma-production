@@ -13,7 +13,9 @@ const INSTAGRAM_TO_PRISMA_METRIC: Record<string, Metric> = {
   media_count: Metric.POSTS,
   total_likes: Metric.LIKES,
   total_comments: Metric.COMMENTS,
+  total_shares: Metric.SHARES,
   impressions: Metric.VIEWS,
+  days_posted: Metric.DAYS_POSTED,
 };
 
 type InstagramMetricKey =
@@ -21,7 +23,9 @@ type InstagramMetricKey =
   | "media_count"
   | "total_likes"
   | "total_comments"
-  | "impressions";
+  | "total_shares"
+  | "impressions"
+  | "days_posted";
 
 type InstagramMetrics = Partial<Record<InstagramMetricKey, number>>;
 
@@ -127,26 +131,33 @@ async function fetchInstagramMetricsForDate(
         (acc: any, m: any) => {
           acc.likes += m.like_count ?? 0;
           acc.comments += m.comments_count ?? 0;
+          acc.shares += m.shares_count ?? 0;
           return acc;
         },
-        { likes: 0, comments: 0 },
+        { likes: 0, comments: 0, shares: 0 },
       );
 
       metrics.total_likes = totals.likes;
       metrics.total_comments = totals.comments;
+      metrics.total_shares = totals.shares;
+      metrics.days_posted = filtered.length > 0 ? 1 : 0;
       console.log(
-        `✅ Likes: ${metrics.total_likes}, Comments: ${metrics.total_comments}`,
+        `✅ Likes: ${metrics.total_likes}, Comments: ${metrics.total_comments}, Shares: ${metrics.total_shares}, Days Posted: ${metrics.days_posted}`,
       );
     } else {
       const text = await mediaRes.text();
       console.warn(`⚠️ Media aggregation failed: ${mediaRes.status} - ${text}`);
       metrics.total_likes = 0;
       metrics.total_comments = 0;
+      metrics.total_shares = 0;
+      metrics.days_posted = 0;
     }
   } catch (e) {
     console.warn("⚠️ Media aggregation error:", (e as Error).message);
     metrics.total_likes = 0;
     metrics.total_comments = 0;
+    metrics.total_shares = 0;
+    metrics.days_posted = 0;
   }
 
   return metrics;

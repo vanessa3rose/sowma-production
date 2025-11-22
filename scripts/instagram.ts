@@ -1,300 +1,284 @@
 import { fileURLToPath } from "node:url";
 import { PrismaClient, Metric } from "../src/generated/prisma";
-import {
-  createSocialMediaMetric,
-  getMetricsBySocialMediaId,
-  updateSocialMediaMetric,
-  closePrisma as closeMetricsPrisma,
-} from "../db/social-media-metrics";
-
 import "dotenv/config";
 import fetch from "node-fetch";
 
 const prisma = new PrismaClient();
 
-const GRAPH_API_BASE =
-  process.env.INSTAGRAM_GRAPH_API_BASE ?? "https://graph.facebook.com";
-const GRAPH_API_VERSION = process.env.INSTAGRAM_GRAPH_API_VERSION ?? "v18.0";
-const INSTAGRAM_ACCESS_TOKEN = process.env.INSTAGRAM_ACCESS_TOKEN;
-const DEFAULT_MEDIA_SAMPLE_SIZE =
-  Number(process.env.INSTAGRAM_MEDIA_SAMPLE_SIZE) || 25;
+// Same envs / assumptions as your backfill script
+const INSTAGRAM_BUSINESS_ACCOUNT_ID =
+  process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID!;
+const INSTAGRAM_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!; // same as backfill
+const DEFAULT_MEDIA_SAMPLE_SIZE = 25;
 
-const INSTAGRAM_BUSINESS_PAGE_ID = process.env.INSTAGRAM_BUSINESS_PAGE_ID;
-const INSTAGRAM_USER_ID = process.env.INSTAGRAM_USER_ID;
-const ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN; // or process.env.INSTAGRAM_ACCESS_TOKEN
+// Mapping between raw Instagram metrics → Prisma Metric enum
+const INSTAGRAM_TO_PRISMA_METRIC: Record<string, Metric> = {
+  followers_count: Metric.FOLLOWERS,
+  media_count: Metric.POSTS,
+  total_likes: Metric.LIKES,
+  total_comments: Metric.COMMENTS,
+  total_shares: Metric.SHARES,
+  impressions: Metric.VIEWS,
+  days_posted: Metric.DAYS_POSTED,
+};
 
 type InstagramMetricKey =
   | "followers_count"
   | "media_count"
-  | "impressions"
   | "total_likes"
-  | "total_comments";
+  | "total_comments"
+  | "total_shares"
+  | "impressions"
+  | "days_posted";
 
 type InstagramMetrics = Partial<Record<InstagramMetricKey, number>>;
 
-const INSTAGRAM_TO_PRISMA_METRIC: Partial<Record<InstagramMetricKey, Metric>> =
-  {
-    followers_count: Metric.FOLLOWERS,
-    media_count: Metric.POSTS,
-    impressions: Metric.VIEWS,
-    total_likes: Metric.LIKES,
-    total_comments: Metric.COMMENTS,
-  };
-
-function requireAccessToken() {
-  if (!INSTAGRAM_ACCESS_TOKEN) {
-    throw new Error("Missing INSTAGRAM_ACCESS_TOKEN environment variable");
-  }
+// 🕓 Utilities (same as backfill)
+function getStartOfDay(date: Date): Date {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
 }
 
-function buildGraphUrl(path: string, params: URLSearchParams) {
-  requireAccessToken();
-  const normalizedBase = GRAPH_API_BASE.replace(/\/+$/, "");
-  const normalizedVersion = GRAPH_API_VERSION.replace(/^\/+/, "");
-  const normalizedPath = path.replace(/^\/+/, "");
-  params.set("access_token", INSTAGRAM_ACCESS_TOKEN as string);
-  return `${normalizedBase}/${normalizedVersion}/${normalizedPath}?${params.toString()}`;
+function getEndOfDay(date: Date): Date {
+  const d = new Date(date);
+  d.setHours(23, 59, 59, 999);
+  return d;
 }
 
-async function fetchFromGraph<T>(
-  path: string,
-  params: URLSearchParams,
-): Promise<T> {
-  const url = buildGraphUrl(path, params);
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(
-      `Instagram API request failed (${res.status} ${res.statusText}): ${body}`,
-    );
-  }
-
-  return (await res.json()) as T;
+function toUnixTimestamp(date: Date): number {
+  return Math.floor(date.getTime() / 1000);
 }
 
-export async function fetchInstagramMetrics(
+function formatDate(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
+
+// 📅 Fetch metrics for a single date (EXACTLY like your backfill)
+async function fetchInstagramMetricsForDate(
   userId: string,
+  targetDate: Date,
 ): Promise<InstagramMetrics> {
-  requireAccessToken();
+  const since = toUnixTimestamp(getStartOfDay(targetDate));
+  const until = toUnixTimestamp(getEndOfDay(targetDate));
 
   const metrics: InstagramMetrics = {};
 
-  // Pull account-level metrics (followers, posts)
-  const accountData = await fetchFromGraph<{
-    followers_count?: number;
-    media_count?: number;
-  }>(
-    userId,
-    new URLSearchParams({
-      fields: ["followers_count", "media_count"].join(","),
-    }),
-  );
-
-  if (typeof accountData.followers_count === "number") {
-    metrics.followers_count = accountData.followers_count;
-  }
-  if (typeof accountData.media_count === "number") {
-    metrics.media_count = accountData.media_count;
-  }
-
-  // Pull daily insights (impressions)
+  // 1️⃣ Account-level metrics (followers, posts count)
   try {
-    const insights = await fetchFromGraph<{
-      data?: Array<{
-        name?: string;
-        values?: Array<{ value?: number }>;
-      }>;
-    }>(
-      `${userId}/insights`,
-      new URLSearchParams({
-        metric: "impressions",
-        period: "day",
-      }),
-    );
+    const accountUrl = `https://graph.facebook.com/v20.0/${userId}?fields=followers_count,media_count&access_token=${INSTAGRAM_ACCESS_TOKEN}`;
+    const accountRes = await fetch(accountUrl);
 
-    const impressionInsight = insights.data?.find(
-      (entry) => entry.name === "impressions",
-    );
-    const latestImpressions = impressionInsight?.values?.[0]?.value;
-    if (typeof latestImpressions === "number") {
-      metrics.impressions = latestImpressions;
+    if (accountRes.ok) {
+      const accountData = await accountRes.json();
+      metrics.followers_count = accountData.followers_count ?? 0;
+      metrics.media_count = accountData.media_count ?? 0;
+      console.log(
+        `✅ [${formatDate(targetDate)}] Followers: ${metrics.followers_count}, Posts: ${metrics.media_count}`,
+      );
+    } else {
+      const text = await accountRes.text();
+      console.warn(`⚠️ Account data failed: ${accountRes.status} - ${text}`);
+      metrics.followers_count = 0;
+      metrics.media_count = 0;
     }
-  } catch (error) {
-    console.warn(
-      `⚠️ Unable to pull Instagram impressions for user ${userId}: ${(error as Error).message}`,
-    );
+  } catch (e) {
+    console.warn("⚠️ Account data error:", (e as Error).message);
+    metrics.followers_count = 0;
+    metrics.media_count = 0;
   }
 
-  // Aggregate media engagement (likes, comments) across recent posts to map to our Prisma metrics.
+  // 2️⃣ Daily impressions (reach)
   try {
-    const media = await fetchFromGraph<{
-      data?: Array<{ like_count?: number; comments_count?: number }>;
-    }>(
-      `${userId}/media`,
-      new URLSearchParams({
-        fields: ["id", "like_count", "comments_count"].join(","),
-        limit: String(DEFAULT_MEDIA_SAMPLE_SIZE),
-      }),
-    );
+    const insightsUrl = `https://graph.facebook.com/v20.0/${userId}/insights?metric=reach&period=day&since=${since}&until=${until}&access_token=${INSTAGRAM_ACCESS_TOKEN}`;
+    const insightsRes = await fetch(insightsUrl);
 
-    const { totalLikes, totalComments } = (media.data ?? []).reduce(
-      (acc, item) => {
-        if (typeof item.like_count === "number")
-          acc.totalLikes += item.like_count;
-        if (typeof item.comments_count === "number")
-          acc.totalComments += item.comments_count;
-        return acc;
-      },
-      { totalLikes: 0, totalComments: 0 },
-    );
+    if (insightsRes.ok) {
+      const insights = await insightsRes.json();
+      const impressionInsight = insights.data?.find(
+        (d: any) => d.name === "reach",
+      );
+      metrics.impressions = impressionInsight?.values?.[0]?.value ?? 0;
+      console.log(
+        `✅ [${formatDate(targetDate)}] Impressions: ${metrics.impressions}`,
+      );
+    } else {
+      const text = await insightsRes.text();
+      console.warn(
+        `⚠️ Impression data failed: ${insightsRes.status} - ${text}`,
+      );
+      metrics.impressions = 0;
+    }
+  } catch (e) {
+    console.warn("⚠️ Impression data error:", (e as Error).message);
+    metrics.impressions = 0;
+  }
 
-    if (totalLikes > 0) metrics.total_likes = totalLikes;
-    if (totalComments > 0) metrics.total_comments = totalComments;
-  } catch (error) {
-    console.warn(
-      `⚠️ Unable to aggregate Instagram media metrics for user ${userId}: ${(error as Error).message}`,
-    );
+  // 3️⃣ Media likes/comments/shares for posts CREATED that day
+  try {
+    const mediaUrl = `https://graph.facebook.com/v20.0/${userId}/media?fields=id,like_count,comments_count,shares_count,timestamp&limit=${DEFAULT_MEDIA_SAMPLE_SIZE}&access_token=${INSTAGRAM_ACCESS_TOKEN}`;
+    const mediaRes = await fetch(mediaUrl);
+
+    if (mediaRes.ok) {
+      const media = await mediaRes.json();
+
+      const filtered = (media.data ?? []).filter((m: any) => {
+        if (!m.timestamp) return false;
+        const created = new Date(m.timestamp);
+        return (
+          created >= getStartOfDay(targetDate) &&
+          created <= getEndOfDay(targetDate)
+        );
+      });
+
+      const totals = filtered.reduce(
+        (acc: any, m: any) => {
+          acc.likes += m.like_count ?? 0;
+          acc.comments += m.comments_count ?? 0;
+          acc.shares += m.shares_count ?? 0;
+          return acc;
+        },
+        { likes: 0, comments: 0, shares: 0 },
+      );
+
+      metrics.total_likes = totals.likes;
+      metrics.total_comments = totals.comments;
+      metrics.total_shares = totals.shares;
+      metrics.days_posted = filtered.length > 0 ? 1 : 0;
+
+      console.log(
+        `✅ [${formatDate(targetDate)}] Likes: ${metrics.total_likes}, Comments: ${metrics.total_comments}, Shares: ${metrics.total_shares}, Days Posted: ${metrics.days_posted}`,
+      );
+    } else {
+      const text = await mediaRes.text();
+      console.warn(`⚠️ Media aggregation failed: ${mediaRes.status} - ${text}`);
+      metrics.total_likes = 0;
+      metrics.total_comments = 0;
+      metrics.total_shares = 0;
+      metrics.days_posted = 0;
+    }
+  } catch (e) {
+    console.warn("⚠️ Media aggregation error:", (e as Error).message);
+    metrics.total_likes = 0;
+    metrics.total_comments = 0;
+    metrics.total_shares = 0;
+    metrics.days_posted = 0;
   }
 
   return metrics;
 }
 
-async function persistInstagramMetrics(
-  accountId: string,
-  metrics: InstagramMetrics,
-) {
-  if (!Object.keys(metrics).length) return;
-
-  const existingMetrics = await getMetricsBySocialMediaId(accountId);
-  const latestMetricsByName = new Map<
-    Metric,
-    Awaited<ReturnType<typeof getMetricsBySocialMediaId>>[number]
-  >();
-
-  for (const record of existingMetrics) {
-    if (!latestMetricsByName.has(record.metricName)) {
-      latestMetricsByName.set(record.metricName, record);
-    }
-  }
-
-  for (const [metricName, metricVal] of Object.entries(metrics) as [
-    InstagramMetricKey,
-    number,
-  ][]) {
-    if (!Number.isFinite(metricVal)) continue;
-    const metricEnum = INSTAGRAM_TO_PRISMA_METRIC[metricName];
-    if (!metricEnum) continue;
-
-    const payload = {
-      socialMediaId: accountId,
-      metricName: metricEnum,
-      metricValue: Math.round(metricVal),
-      lastSynced: new Date(),
-    };
-
-    const existingRecord = latestMetricsByName.get(metricEnum);
-
-    if (existingRecord) {
-      const updated = await updateSocialMediaMetric(existingRecord.id, {
-        metricValue: payload.metricValue,
-        lastSynced: payload.lastSynced,
-      });
-      latestMetricsByName.set(metricEnum, updated);
-    } else {
-      const created = await createSocialMediaMetric(payload);
-      latestMetricsByName.set(metricEnum, created);
-    }
-  }
+// 🔎 Check if data already exists for that account + date
+async function metricsExistForDate(
+  socialMediaId: string,
+  targetDate: Date,
+): Promise<boolean> {
+  const existing = await prisma.socialMediaMetrics.findFirst({
+    where: {
+      socialMediaId,
+      metricDate: {
+        gte: getStartOfDay(targetDate),
+        lt: getEndOfDay(targetDate),
+      },
+    },
+  });
+  return existing !== null;
 }
 
-export async function syncInstagramMetrics() {
+// 📈 Sync metrics for a SINGLE DAY (default = today)
+export async function syncInstagramMetrics(targetDate: Date = new Date()) {
+  console.log(
+    `\n🔄 [syncInstagramMetrics] Starting sync for ${formatDate(targetDate)}...`,
+  );
+
   const accounts = await prisma.socialMedia.findMany({
     where: { provider: "INSTAGRAM" },
   });
 
+  console.log(`📸 Found ${accounts.length} Instagram accounts.`);
+
   for (const account of accounts) {
+    console.log(`\n📊 Syncing: ${account.username}`);
+
+    // Skip if we already have metrics for this day
+    if (await metricsExistForDate(account.id, targetDate)) {
+      console.log(
+        `⏭️  Metrics already exist for ${account.username} on ${formatDate(
+          targetDate,
+        )} — skipping`,
+      );
+      continue;
+    }
+
     try {
-      const metrics = await fetchInstagramMetrics(account.userId);
-      await persistInstagramMetrics(account.id, metrics);
-      console.log(`✅ Synced Instagram metrics for ${account.username}`);
+      const metrics = await fetchInstagramMetricsForDate(
+        account.userId,
+        targetDate,
+      );
+
+      for (const [key, value] of Object.entries(metrics) as [
+        InstagramMetricKey,
+        number,
+      ][]) {
+        if (!Number.isFinite(value)) continue;
+        const metricEnum = INSTAGRAM_TO_PRISMA_METRIC[key];
+        if (!metricEnum) continue;
+
+        await prisma.socialMediaMetrics.create({
+          data: {
+            socialMediaId: account.id,
+            metricName: metricEnum,
+            metricValue: Math.round(value),
+            lastSynced: new Date(),
+            metricDate: getStartOfDay(targetDate),
+          },
+        });
+      }
+
+      console.log(
+        `✅ Synced Instagram metrics for ${account.username} on ${formatDate(
+          targetDate,
+        )}`,
+      );
     } catch (error) {
       console.error(
-        `❌ Failed syncing Instagram metrics for ${account.username}`,
+        `❌ Failed syncing Instagram metrics for ${account.username} on ${formatDate(
+          targetDate,
+        )}`,
         error,
       );
     }
   }
+
+  console.log("\n✅ Sync completed!");
 }
 
-async function fetchInstagramData() {
-  const url = `https://graph.facebook.com/v20.0/${INSTAGRAM_BUSINESS_PAGE_ID}?fields=followers_count&access_token=${ACCESS_TOKEN}`;
-
-  try {
-    console.log(`Fetching data from: ${url}`);
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error. Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log("Instagram Data:", data);
-
-    const socialMediaMetrics: InstagramMetrics = {};
-    if (typeof data.followers_count === "number") {
-      socialMediaMetrics.followers_count = data.followers_count;
-    }
-
-    if (!Object.keys(socialMediaMetrics).length) {
-      console.warn("⚠️ No Instagram metrics found in API response.");
-      return;
-    }
-
-    let socialMediaAccount = INSTAGRAM_BUSINESS_PAGE_ID
-      ? await prisma.socialMedia.findFirst({
-          where: {
-            provider: "INSTAGRAM",
-            userId: INSTAGRAM_BUSINESS_PAGE_ID,
-          },
-        })
-      : null;
-
-    if (!socialMediaAccount && INSTAGRAM_USER_ID) {
-      socialMediaAccount = await prisma.socialMedia.findFirst({
-        where: {
-          provider: "INSTAGRAM",
-          userId: INSTAGRAM_USER_ID,
-        },
-      });
-    }
-
-    if (!socialMediaAccount) {
-      console.warn(
-        "⚠️ No Instagram social media record found to persist metrics.",
-      );
-      return;
-    }
-
-    await persistInstagramMetrics(socialMediaAccount.id, socialMediaMetrics);
-    console.log(
-      `✅ Persisted Instagram metrics for ${socialMediaAccount.username}`,
-    );
-  } catch (error) {
-    console.error("Error fetching Instagram data:", error);
-  }
-}
-
+// 🚀 Entry point (single day)
+// Usage:
+//   node instagram-sync.mts          → sync today
+//   node instagram-sync.mts 2025-11-20  → sync that date
 async function main() {
   try {
-    await fetchInstagramData();
-    await syncInstagramMetrics();
+    const args = process.argv.slice(2);
+
+    let targetDate = new Date();
+    if (args[0]) {
+      const parsed = new Date(args[0]);
+      if (Number.isNaN(parsed.getTime())) {
+        throw new Error(
+          `Invalid date argument "${args[0]}". Expected YYYY-MM-DD.`,
+        );
+      }
+      targetDate = parsed;
+    }
+
+    await syncInstagramMetrics(targetDate);
+    console.log("✅ Done");
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error:", err);
     process.exitCode = 1;
   } finally {
     await prisma.$disconnect();
-    await closeMetricsPrisma();
   }
 }
 
