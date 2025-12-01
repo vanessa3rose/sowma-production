@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRoute } from "wouter";
+import { LineChart as SparkLineChart, Line, ResponsiveContainer } from "recharts";
 
 import DateRangeButton from "../components/date-range/DateRangeButton";
 import ExportButton from "../components/export-pdf/ExportButton";
@@ -39,7 +40,7 @@ const CHART_CONFIGS: Record<string, ChartConfig[]> = {
     { id: "media_count",       title: "Media Reactions",  type: "line", metric: "POSTS" },
   ],
   twitter: [
-    // ⚠️ Adjust metrics to whatever you actually seeded in the DB
+    //  Adjust metrics to whatever you actually seeded in the DB
     { id: "followers_count",   title: "Followers",        type: "line", metric: "FOLLOWERS" },
     { id: "following_count",   title: "Following",        type: "line", metric: "LIKES" },     // TODO: adjust if needed
     { id: "tweet_count",       title: "Tweet Count",      type: "line", metric: "POSTS" },
@@ -81,7 +82,7 @@ function providerFromPlatform(platform: Platform): string {
 }
 
 export default function SocialMediaPage() {
-  // ⭐ Using Wouter's dynamic route match
+  //  Using Wouter's dynamic route match
   const [match, params] = useRoute("/social/:platform");
   const platform = (params?.platform as Platform) || null;
 
@@ -202,6 +203,18 @@ export default function SocialMediaPage() {
     platform && findConfigForMetric(platform, "LIKES");
   const sharesCfg =
     platform && findConfigForMetric(platform, "SHARES");
+  const commentsSeries =
+    commentsCfg ? chartDataMap[commentsCfg.id] ?? [] : [];
+  const likesSeries = likesCfg ? chartDataMap[likesCfg.id] ?? [] : [];
+  const sharesSeries = sharesCfg ? chartDataMap[sharesCfg.id] ?? [] : [];
+
+  const MiniSparkline = ({ data }: { data: LinePoint[] }) => (
+    <ResponsiveContainer width="100%" height="100%">
+      <SparkLineChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+        <Line type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={2} dot={false} />
+      </SparkLineChart>
+    </ResponsiveContainer>
+  );
 
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
@@ -244,7 +257,7 @@ export default function SocialMediaPage() {
           <SmallCard
             title="Followers"
             displayMode="metric-only"
-            className="w-full h-full"
+            className="w-full"
             metricValue={
               followersCfg
                 ? metricSummaries[followersCfg.id]?.current ?? 0
@@ -259,8 +272,8 @@ export default function SocialMediaPage() {
           />
           <SmallCard
             title="Comments"
-            displayMode="metric-only"
-            className="w-full h-full"
+            displayMode="both"
+            className="w-full"
             metricValue={
               commentsCfg
                 ? metricSummaries[commentsCfg.id]?.current ?? 0
@@ -272,11 +285,12 @@ export default function SocialMediaPage() {
                 ? formatPercentChange(metricSummaries[commentsCfg.id])
                 : "+ 0%"
             }
+            chart={commentsCfg ? <MiniSparkline data={commentsSeries} /> : undefined}
           />
           <SmallCard
             title="Likes"
-            displayMode="metric-only"
-            className="w-full h-full"
+            displayMode="both"
+            className="w-full"
             metricValue={
               likesCfg ? metricSummaries[likesCfg.id]?.current ?? 0 : 0
             }
@@ -286,11 +300,13 @@ export default function SocialMediaPage() {
                 ? formatPercentChange(metricSummaries[likesCfg.id])
                 : "+ 0%"
             }
+            chart={likesCfg ? <MiniSparkline data={likesSeries} /> : undefined}
           />
           <SmallCard
             title="Shared"
-            displayMode="metric-only"
-            className="w-full h-full"
+            displayMode="both"
+            className="w-full"
+            
             metricValue={
               sharesCfg ? metricSummaries[sharesCfg.id]?.current ?? 0 : 0
             }
@@ -300,6 +316,7 @@ export default function SocialMediaPage() {
                 ? formatPercentChange(metricSummaries[sharesCfg.id])
                 : "+ 0%"
             }
+            chart={sharesCfg ? <MiniSparkline data={sharesSeries} /> : undefined}
           />
         </div>
 
