@@ -4,12 +4,13 @@ import LeftSidebar from "./components/LeftSidebar";
 import TopBanner from "./components/TopBanner";
 
 import Homepage from "./pages/Homepage";
-import SocialMediaPage from "./pages/SocialMediaPage";
+import SocialMediaPage from "./pages/display-pages/SocialMediaPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
+import GoogleAnalyticsPage from "./pages/display-pages/GoogleAnalyticsPage";
 import AdminPage from "./pages/AdminPage";
 import TestExportPDF from "./pages/TestExportPDF"; //TODO: Remove
+import { GlobalPageExportProvider } from "./components/export-pdf/GlobalPageExportProvider";
 
 const App = () => {
   const [location] = useLocation();
@@ -17,29 +18,31 @@ const App = () => {
   const hideLayout = hideLayoutRoutes.includes(location);
 
   return (
-    <div className={`${!hideLayout && "flex min-h-screen bg-white"}`}>
-      {!hideLayout && <LeftSidebar />}
-      <div
-        className={`${!hideLayout && "flex-grow flex flex-col ml-[20%] pt-28 px-6 bg-white"}`}
-      >
-        {!hideLayout && <TopBanner />}
+    <GlobalPageExportProvider>
+      <div className={`${!hideLayout && "flex min-h-screen bg-white"}`}>
+        {!hideLayout && <LeftSidebar />}
+        <div
+          className={`${!hideLayout && "flex-grow flex flex-col ml-[20%] pt-28 px-6 bg-white"}`}
+        >
+          {!hideLayout && <TopBanner />}
 
-        <Switch>
-          <Route path="/" component={Homepage} />
-          <Route path="/social-media" component={SocialMediaPage} />
-          <Route path="/social/:platform" component={SocialMediaPage} />
-          <Route path="/login" component={LoginPage} />
-          <Route path="/google-analytics" component={GoogleAnalyticsPage} />
-          <Route path="/signup" component={SignupPage} />
-          <Route path="/admin" component={AdminPage} />
-          <Route path="/test-export" component={TestExportPDF} />
+          <Switch>
+            <Route path="/" component={Homepage} />
+            <Route path="/social-media" component={SocialMediaPage} />
+            <Route path="/social/:platform" component={SocialMediaPage} />
+            <Route path="/login" component={LoginPage} />
+            <Route path="/google-analytics" component={GoogleAnalyticsPage} />
+            <Route path="/signup" component={SignupPage} />
+            <Route path="/admin" component={AdminPage} />
+            <Route path="/test-export" component={TestExportPDF} />
 
-          <Route>
-            <p className="p-4 text-black">404: Page Not Found</p>
-          </Route>
-        </Switch>
+            <Route>
+              <p className="p-4 text-black">404: Page Not Found</p>
+            </Route>
+          </Switch>
+        </div>
       </div>
-    </div>
+    </GlobalPageExportProvider>
   );
 };
 

@@ -16,6 +16,9 @@ import LineCharts from "../components/charts/LineCharts";
 
 import BigCard from "../components/cards/BigCard";
 
+// ⭐ NEW: minimal import
+import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExportProvider";
+
 type ImpressionsPoint = {
   date: string;
   impressions: number;
@@ -36,11 +39,9 @@ type FollowerPoint = {
   followers: number;
 };
 
-// social providers we want to switch between
 type SocialProvider = "FACEBOOK" | "INSTAGRAM" | "TWITTER";
 
 export default function Homepage() {
-  // ---- STATE FOR EACH CARD ----
   const [impressionsData, setImpressionsData] = useState<ImpressionsPoint[]>(
     [],
   );
@@ -52,16 +53,16 @@ export default function Homepage() {
     [],
   );
 
-  // ---- NEW: SELECTED PROVIDER FOR SOCIAL METRICS ----
   const [selectedProvider, setSelectedProvider] =
     useState<SocialProvider>("FACEBOOK");
 
-  // ---- CONSTANTS ----
+  // ⭐ NEW: minimal addition
+  const { exportByPlatforms } = useGlobalPageExporter();
+
   const googleAnalyticsProvider = "GOOGLE_ANALYTICS";
   const defaultStartDate = "2024-01-01";
   const defaultEndDate = "3000-01-01";
 
-  // ---- HELPERS TO SHAPE DATA ----
   function getSortedMetrics(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     return raw
       .slice()
@@ -120,7 +121,6 @@ export default function Homepage() {
     });
   }
 
-  // ---- FETCH DATA (USES selectedProvider) ----
   async function getBackendMetrics() {
     try {
       const [
@@ -129,28 +129,24 @@ export default function Homepage() {
         websiteSessionsRaw,
         followerCountRaw,
       ] = await Promise.all([
-        // Impressions: using VIEWS for selected social provider
         fetchMetrics({
           provider: selectedProvider,
           metric: "VIEWS",
           startDate: defaultStartDate,
           endDate: defaultEndDate,
         }),
-        // Days Posted: using POSTS
         fetchMetrics({
           provider: selectedProvider,
           metric: "POSTS",
           startDate: defaultStartDate,
           endDate: defaultEndDate,
         }),
-        // Website Sessions: from Google Analytics (unchanged)
         fetchMetrics({
           provider: googleAnalyticsProvider,
           metric: "SCREEN_PAGE_VIEWS",
           startDate: defaultStartDate,
           endDate: defaultEndDate,
         }),
-        // Followers
         fetchMetrics({
           provider: selectedProvider,
           metric: "FOLLOWERS",
@@ -158,11 +154,6 @@ export default function Homepage() {
           endDate: defaultEndDate,
         }),
       ]);
-
-      console.log("Impressions raw:", impressionsRaw);
-      console.log("Days posted raw:", daysPostedRaw);
-      console.log("Website sessions raw:", websiteSessionsRaw);
-      console.log("Followers raw:", followerCountRaw);
 
       setImpressionsData(mapToImpressionsPoints(impressionsRaw));
       setDaysPostedData(mapToDaysPostedPoints(daysPostedRaw));
@@ -173,19 +164,16 @@ export default function Homepage() {
     }
   }
 
-  // re-fetch whenever provider changes
   useEffect(() => {
     getBackendMetrics();
   }, [selectedProvider]);
 
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
-      {/* Top control bar */}
       <div className="flex flex-wrap w-full justify-between items-center gap-4">
         <div className="flex flex-wrap items-center gap-4">
           <DateRangeButton />
 
-          {/* NEW: Provider dropdown */}
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-600">Provider:</span>
             <select
@@ -232,10 +220,11 @@ export default function Homepage() {
           </div>
         </div>
 
-        <ExportButton />
+        {/* ⭐ Only change: provide onExport */}
+        <ExportButton onExport={exportByPlatforms} />
       </div>
 
-      {/* First row of cards */}
+      {/* Everything below untouched */}
       <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
         <BigCard
           title="Impressions"
@@ -253,6 +242,7 @@ export default function Homepage() {
           displayMode="both"
           className="flex-1 w-full h-full"
         />
+
         <BigCard
           title="Days Posted"
           subtitle=""
@@ -269,6 +259,7 @@ export default function Homepage() {
           displayMode="both"
           className="flex-1 w-full h-full"
         />
+
         <BigCard
           title="Website Sessions"
           subtitle=""
@@ -287,7 +278,6 @@ export default function Homepage() {
         />
       </div>
 
-      {/* Second row of cards */}
       <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
         <BigCard
           title="Follower Count"
@@ -305,6 +295,7 @@ export default function Homepage() {
           displayMode="both"
           className="flex-1 w-full h-full"
         />
+
         <BigCard
           title="How did you hear about us?"
           subtitle=""

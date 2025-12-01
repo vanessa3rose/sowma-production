@@ -1,19 +1,22 @@
 // Cards
-import BigCard from "../components/cards/BigCard";
-import SmallCard from "../components/cards/SmallCard";
+import BigCard from "../../components/cards/BigCard";
+import SmallCard from "../../components/cards/SmallCard";
 // Charts
-import LineCharts from "../components/charts/LineCharts";
-import PieCharts from "../components/charts/PieCharts";
+import LineCharts from "../../components/charts/LineCharts";
+import PieCharts from "../../components/charts/PieCharts";
 // Buttons
-import DateRangeButton from "../components/date-range/DateRangeButton";
-import ExportButton from "../components/export-pdf/ExportButton";
+import DateRangeButton from "../../components/date-range/DateRangeButton";
+import ExportButton from "../../components/export-pdf/ExportButton";
+
+// ⭐ NEW: minimal import
+import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 
 // ---------------- Types ----------------
 export type GAMetrics = {
   activeUsers: number;
   screenPageViews: number;
   active7DayUsers: number;
-  engagementRate: number; // 0-1 from GA; display as %
+  engagementRate: number;
   newUsers: number;
 };
 
@@ -24,14 +27,13 @@ export type TimePoint = {
   active7DayUsers?: number;
 };
 
-// Data Structure for GA API
 export type GAData = {
   metrics: GAMetrics;
   usersOverTime: TimePoint[];
   pageviewsOverTime: TimePoint[];
 };
 
-// Mock data ignore this code
+// mock data …
 const mock: GAData = {
   metrics: {
     activeUsers: 42873,
@@ -66,6 +68,8 @@ const mock: GAData = {
 export default function GoogleAnalyticsPage() {
   const d = mock;
 
+  const { exportByPlatforms } = useGlobalPageExporter();
+
   const returningUsers = Math.max(
     d.metrics.activeUsers - d.metrics.newUsers,
     0,
@@ -84,20 +88,7 @@ export default function GoogleAnalyticsPage() {
             onClick={() => (window.location.href = "/")}
             className="w-[40px] h-[40px]"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="size-7"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
+            <svg/>
           </button>
           <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
             Google
@@ -105,7 +96,7 @@ export default function GoogleAnalyticsPage() {
         </div>
         <div className="flex space-x-2 mt-2 lg:mt-0">
           <DateRangeButton />
-          <ExportButton />
+          <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
 
