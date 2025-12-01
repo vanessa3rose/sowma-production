@@ -3,7 +3,7 @@ import { SignIn } from "@clerk/clerk-react";
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen w-full overflow-hidden bg-white">
+    <main className="min-h-screen w-full bg-white">
       <div className="flex w-full h-full justify-center items-center">
         {/* LEFT SIDE */}
         <div className="flex flex-col flex-1 w-full justify-start items-center gap-10 pt-10">
