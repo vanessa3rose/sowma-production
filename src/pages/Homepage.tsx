@@ -212,7 +212,7 @@ export default function Homepage() {
 
           <div className="flex flex-row gap-2">
             {socialLinks.map((social, idx) => (
-              <a href={`/social-media/${social.name}`} key={idx}>
+              <a href={`/social/${social.name}`} key={idx}>
                 <img
                   src={social.icon}
                   className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border border-solid"
