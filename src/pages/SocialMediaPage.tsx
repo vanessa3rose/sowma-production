@@ -131,10 +131,9 @@ export default function SocialMediaPage() {
   }
 
   function formatPercentChange(summary?: MetricSummary): string {
-    if (!summary || summary.current == null || summary.prev == null) {
-      return "vs. prev. n/a";
+    if (!summary || summary.current == null || summary.prev == null || summary.prev == 0) {
+      return "+ 0%";
     }
-    if (summary.prev === 0) return "vs. prev. n/a";
     const pct = ((summary.current - summary.prev) / summary.prev) * 100;
     const sign = pct >= 0 ? "+" : "";
     return `${sign}${pct.toFixed(1)}% vs. prev.`;
@@ -255,7 +254,7 @@ export default function SocialMediaPage() {
             metricChange={
               followersCfg
                 ? formatPercentChange(metricSummaries[followersCfg.id])
-                : "vs. prev. n/a"
+                : "+ 0%"
             }
           />
           <SmallCard
@@ -271,7 +270,7 @@ export default function SocialMediaPage() {
             metricChange={
               commentsCfg
                 ? formatPercentChange(metricSummaries[commentsCfg.id])
-                : "vs. prev. n/a"
+                : "+ 0%"
             }
           />
           <SmallCard
@@ -285,7 +284,7 @@ export default function SocialMediaPage() {
             metricChange={
               likesCfg
                 ? formatPercentChange(metricSummaries[likesCfg.id])
-                : "vs. prev. n/a"
+                : "+ 0%"
             }
           />
           <SmallCard
@@ -299,7 +298,7 @@ export default function SocialMediaPage() {
             metricChange={
               sharesCfg
                 ? formatPercentChange(metricSummaries[sharesCfg.id])
-                : "vs. prev. n/a"
+                : "+ 0%"
             }
           />
         </div>

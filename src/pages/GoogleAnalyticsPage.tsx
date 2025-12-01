@@ -12,7 +12,7 @@ import ExportButton from "../components/export-pdf/ExportButton";
 
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
 
-// ---------------- Types ----------------
+//Types
 export type GAMetrics = {
   activeUsers: number;
   screenPageViews: number;
@@ -26,12 +26,6 @@ export type TimePoint = {
   activeUsers?: number;
   screenPageViews?: number;
   active7DayUsers?: number;
-};
-
-export type GAData = {
-  metrics: GAMetrics;
-  usersOverTime: TimePoint[];
-  pageviewsOverTime: TimePoint[];
 };
 
 // for % change
@@ -48,7 +42,7 @@ type MetricKey =
   | "newUsers";
 
 export default function GoogleAnalyticsPage() {
-  // ---- State ----
+  //state
   const [metrics, setMetrics] = useState<GAMetrics | null>(null);
   const [usersOverTime, setUsersOverTime] = useState<TimePoint[]>([]);
   const [pageviewsOverTime, setPageviewsOverTime] = useState<TimePoint[]>([]);
@@ -60,7 +54,7 @@ export default function GoogleAnalyticsPage() {
   const defaultStartDate = "2024-01-01";
   const defaultEndDate = "3000-01-01";
 
-  // ---- Helpers to shape data ----
+  //helpers
   function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     return raw
       .filter((m) => m.metricDate || m.lastSynced)
@@ -113,9 +107,9 @@ export default function GoogleAnalyticsPage() {
 
   function formatPercentChange(summary?: MetricSummary | null): string {
     if (!summary || summary.current == null || summary.prev == null) {
-      return "vs. prev. n/a";
+      return "+ 0%";
     }
-    if (summary.prev === 0) return "vs. prev. n/a";
+    if (summary.prev === 0) return "+ 0%";
     const pct = ((summary.current - summary.prev) / summary.prev) * 100;
     const sign = pct >= 0 ? "+" : "";
     return `${sign}${pct.toFixed(1)}% vs. prev.`;
@@ -124,7 +118,7 @@ export default function GoogleAnalyticsPage() {
   // for engagement rate: percentage points (pp)
   function formatEngagementChange(summary?: MetricSummary | null): string {
     if (!summary || summary.current == null || summary.prev == null) {
-      return "Δ n/a";
+      return "0";
     }
     const deltaPoints = summary.current - summary.prev;
     const sign = deltaPoints >= 0 ? "+" : "";
