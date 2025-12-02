@@ -3,19 +3,7 @@ import { SignUp } from "@clerk/clerk-react";
 
 export default function LoginPanel() {
   return (
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <section className="flex w-full flex-col md:flex-row min-h-[780px] md:min-h-[780px] bg-white">
-      <div className="flex flex-col items-center md:items-start justify-center w-full md:w-1/2 px-6 md:px-12 py-10 gap-6">
-=======
-    <section className="flex w-full flex-col md:flex-row min-h-[780px] bg-white">
-=======
     <section className="flex w-full flex-col md:flex-row h-screen items-center bg-white">
-<<<<<<< HEAD
->>>>>>> d811ef1 (fixed centering issue & tested clerk)
-
-=======
->>>>>>> dca4179 (ran prettier)
       {/* LEFT SIDE */}
       <div
         className="
@@ -28,11 +16,6 @@ export default function LoginPanel() {
           gap-10
         "
       >
-<<<<<<< HEAD
-
->>>>>>> 0c9abb0 (inserted clerk components & changed some frontend styling)
-=======
->>>>>>> dca4179 (ran prettier)
         {/* Header */}
         <div className="w-[520px] max-w-full flex flex-col items-center">
           <h1

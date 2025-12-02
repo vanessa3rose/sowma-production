@@ -1,12 +1,6 @@
-// pages/SocialMediaPage.tsx
-
 import { useEffect, useState } from "react";
 import { useRoute } from "wouter";
-import {
-  LineChart as SparkLineChart,
-  Line,
-  ResponsiveContainer,
-} from "recharts";
+import { LineChart as SparkLineChart, Line, ResponsiveContainer } from "recharts";
 
 import DateRangeButton from "../components/date-range/DateRangeButton";
 import ExportButton from "../components/export-pdf/ExportButton";
@@ -15,21 +9,58 @@ import SmallCard from "../components/cards/SmallCard";
 import LineCharts from "../components/charts/LineCharts";
 import PieCharts from "../components/charts/PieCharts";
 
-import {
-  CHART_CONFIGS,
-  type Platform,
-} from "../config/chartConfigs";
-
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
-import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExportProvider";
 
-/* ---------- Types derived from CHART_CONFIGS ---------- */
+// ---------- Types ----------
+type ChartType = "line" | "pie";
 
-type ChartConfig = (typeof CHART_CONFIGS)[Platform][number];
+type ChartConfig = {
+  id: string;            // internal id for this chart
+  title: string;         // title to show on BigCard
+  type: ChartType;
+  metric: string;        // MUST match your backend Metric enum
+};
 
 type LinePoint = {
   date: string;
   value: number;
+};
+
+type MetricSummary = {
+  current: number | null;
+  prev: number | null;
+};
+
+const CHART_CONFIGS: Record<string, ChartConfig[]> = {
+  instagram: [
+    { id: "impressions",       title: "Impressions",      type: "line", metric: "VIEWS" },
+    { id: "followers_count",   title: "Followers",        type: "line", metric: "FOLLOWERS" },
+    { id: "total_likes",       title: "Total Likes",      type: "line", metric: "LIKES" },
+    { id: "total_comments",    title: "Total Comments",   type: "line", metric: "COMMENTS" },
+    { id: "media_count",       title: "Media Reactions",  type: "line", metric: "POSTS" },
+  ],
+  twitter: [
+    //  Adjust metrics to whatever you actually seeded in the DB
+    { id: "followers_count",   title: "Followers",        type: "line", metric: "FOLLOWERS" },
+    { id: "following_count",   title: "Following",        type: "line", metric: "LIKES" },     // TODO: adjust if needed
+    { id: "tweet_count",       title: "Tweet Count",      type: "line", metric: "POSTS" },
+    { id: "listed_count",      title: "Listed Count",     type: "line", metric: "SHARES" },    // TODO: adjust if needed
+  ],
+  facebook: [
+    { id: "page_follows",                            title: "Page Follows",         type: "line", metric: "FOLLOWERS" },
+    { id: "page_actions_post_reactions_like_total",  title: "Total reactions/likes", type: "line", metric: "LIKES" },
+    { id: "page_media_view",                         title: "Page Views",           type: "line", metric: "VIEWS" },
+    { id: "total_comments",                          title: "Total Comments",       type: "line", metric: "COMMENTS" },
+    { id: "total_posts",                             title: "Total Posts",          type: "line", metric: "POSTS" },
+    { id: "total_shares",                            title: "Total Shares",         type: "line", metric: "SHARES" },
+  ],
+  google: [
+    { id: "activeUsers",     title: "Active Users",         type: "line", metric: "ACTIVE_USERS" },
+    { id: "screenPageViews", title: "Page Views",           type: "line", metric: "SCREEN_PAGE_VIEWS" },
+    { id: "active7DayUsers", title: "Active 7 Day Users",   type: "line", metric: "ACTIVE_7_DAY_USERS" },
+    { id: "engagementRate",  title: "Engagement Rate",      type: "line", metric: "ENGAGEMENT_RATE" },
+    { id: "newUsers",        title: "New Users",            type: "line", metric: "NEW_USERS" },
+  ],
 };
 
 type MetricSummary = {
@@ -54,7 +85,24 @@ function providerFromPlatform(platform: Platform): string {
   }
 }
 
+// map URL platform -> backend Provider enum string
+function providerFromPlatform(platform: Platform): string {
+  switch (platform) {
+    case "instagram":
+      return "INSTAGRAM";
+    case "twitter":
+      return "TWITTER";
+    case "facebook":
+      return "FACEBOOK";
+    case "google":
+      return "GOOGLE_ANALYTICS";
+    default:
+      return "INSTAGRAM";
+  }
+}
+
 export default function SocialMediaPage() {
+  //  Using Wouter's dynamic route match
   const [match, params] = useRoute("/social/:platform");
   const platform = (params?.platform as Platform) || null;
 
@@ -62,21 +110,22 @@ export default function SocialMediaPage() {
     ? platform.charAt(0).toUpperCase() + platform.slice(1)
     : "Social Media";
 
-  const { exportByPlatforms } = useGlobalPageExporter();
-
-  const [chartDataMap, setChartDataMap] =
-    useState<Record<string, LinePoint[]>>({});
-  const [metricSummaries, setMetricSummaries] =
-    useState<Record<string, MetricSummary>>({});
+  // ---- State for charts + summaries ----
+  const [chartDataMap, setChartDataMap] = useState<Record<string, LinePoint[]>>(
+    {},
+  );
+  const [metricSummaries, setMetricSummaries] = useState<
+    Record<string, MetricSummary>
+  >({});
 
   const defaultStartDate = "2024-01-01";
   const defaultEndDate = "3000-01-01";
 
-  /* ----------------------------- Helpers ----------------------------- */
-
+  // ---- Helpers ----
   function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     return raw
       .filter((m) => m.metricDate || m.lastSynced)
+      .slice()
       .sort((a, b) =>
         (a.metricDate ?? a.lastSynced)!.localeCompare(
           (b.metricDate ?? b.lastSynced)!,
@@ -96,20 +145,14 @@ export default function SocialMediaPage() {
 
   function summarizeSeries(points: LinePoint[]): MetricSummary {
     if (points.length === 0) return { current: null, prev: null };
-    if (points.length === 1)
-      return { current: points[0].value, prev: null };
+    if (points.length === 1) return { current: points[0].value, prev: null };
     const latest = points[points.length - 1].value;
     const prev = points[points.length - 2].value;
     return { current: latest, prev };
   }
 
   function formatPercentChange(summary?: MetricSummary): string {
-    if (
-      !summary ||
-      summary.current == null ||
-      summary.prev == null ||
-      summary.prev === 0
-    ) {
+    if (!summary || summary.current == null || summary.prev == null || summary.prev == 0) {
       return "+ 0%";
     }
     const pct = ((summary.current - summary.prev) / summary.prev) * 100;
@@ -117,16 +160,13 @@ export default function SocialMediaPage() {
     return `${sign}${pct.toFixed(1)}% vs. prev.`;
   }
 
-  /* Auto-detect a config for a given backend metric code (Option A) */
-  function findConfigForMetric(
-    platform: Platform,
-    metricCode: string,
-  ): ChartConfig | undefined {
-    return CHART_CONFIGS[platform].find((cfg) => cfg.metric === metricCode);
+  function formatValue(summary?: MetricSummary, suffix?: string): string {
+    if (!summary || summary.current == null) return "-";
+    const base = summary.current.toLocaleString();
+    return suffix ? `${base} ${suffix}` : base;
   }
 
-  /* -------------------------- Fetch metrics -------------------------- */
-
+  // ---- Fetch metrics whenever platform changes ----
   useEffect(() => {
     if (!platform) return;
 
@@ -141,7 +181,7 @@ export default function SocialMediaPage() {
           configs.map((cfg) =>
             fetchMetrics({
               provider,
-              metric: cfg.metric, // uses metric from CHART_CONFIGS
+              metric: cfg.metric, // MUST match backend Metric enum
               startDate: defaultStartDate,
               endDate: defaultEndDate,
             }).then((rows) => ({ cfg, rows })),
@@ -167,45 +207,34 @@ export default function SocialMediaPage() {
     loadMetrics();
   }, [platform]);
 
-  /* --------------------- Summary card config lookup --------------------- */
+  // ---- SmallCard helpers: pick the right chart for each metric ----
+  function findConfigForMetric(
+    platform: Platform,
+    metric: string,
+  ): ChartConfig | undefined {
+    return CHART_CONFIGS[platform].find((c) => c.metric === metric);
+  }
 
   const followersCfg =
     platform && findConfigForMetric(platform, "FOLLOWERS");
   const commentsCfg =
     platform && findConfigForMetric(platform, "COMMENTS");
-  const likesCfg = platform && findConfigForMetric(platform, "LIKES");
-  const sharesCfg = platform && findConfigForMetric(platform, "SHARES");
-
+  const likesCfg =
+    platform && findConfigForMetric(platform, "LIKES");
+  const sharesCfg =
+    platform && findConfigForMetric(platform, "SHARES");
   const commentsSeries =
     commentsCfg ? chartDataMap[commentsCfg.id] ?? [] : [];
   const likesSeries = likesCfg ? chartDataMap[likesCfg.id] ?? [] : [];
   const sharesSeries = sharesCfg ? chartDataMap[sharesCfg.id] ?? [] : [];
 
-  /* --------------------------- Sparkline --------------------------- */
-
   const MiniSparkline = ({ data }: { data: LinePoint[] }) => (
     <ResponsiveContainer width="100%" height="100%">
-      <SparkLineChart
-        data={data}
-        margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
-      >
-        <Line
-          type="monotone"
-          dataKey="value"
-          stroke="#3B82F6"
-          strokeWidth={2}
-          dot={false}
-        />
+      <SparkLineChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+        <Line type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={2} dot={false} />
       </SparkLineChart>
     </ResponsiveContainer>
   );
-
-  /* ------------------------- Export handler ------------------------- */
-
-  const handleExport = (selectedPlatforms: Platform[]) =>
-    exportByPlatforms(selectedPlatforms);
-
-  /* ----------------------------- Render ----------------------------- */
 
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
@@ -280,11 +309,7 @@ export default function SocialMediaPage() {
                 ? formatPercentChange(metricSummaries[commentsCfg.id])
                 : "+ 0%"
             }
-            chart={
-              commentsCfg ? (
-                <MiniSparkline data={commentsSeries} />
-              ) : undefined
-            }
+            chart={commentsCfg ? <MiniSparkline data={commentsSeries} /> : undefined}
           />
 
           {/* Likes */}
@@ -301,9 +326,7 @@ export default function SocialMediaPage() {
                 ? formatPercentChange(metricSummaries[likesCfg.id])
                 : "+ 0%"
             }
-            chart={
-              likesCfg ? <MiniSparkline data={likesSeries} /> : undefined
-            }
+            chart={likesCfg ? <MiniSparkline data={likesSeries} /> : undefined}
           />
 
           {/* Shared */}
@@ -311,6 +334,7 @@ export default function SocialMediaPage() {
             title="Shared"
             displayMode="both"
             className="w-full"
+            
             metricValue={
               sharesCfg ? metricSummaries[sharesCfg.id]?.current ?? 0 : 0
             }
@@ -320,9 +344,7 @@ export default function SocialMediaPage() {
                 ? formatPercentChange(metricSummaries[sharesCfg.id])
                 : "+ 0%"
             }
-            chart={
-              sharesCfg ? <MiniSparkline data={sharesSeries} /> : undefined
-            }
+            chart={sharesCfg ? <MiniSparkline data={sharesSeries} /> : undefined}
           />
         </div>
 
@@ -346,7 +368,7 @@ export default function SocialMediaPage() {
                       />
                     ) : (
                       <PieCharts
-                        data={[]} // wire real pie data later if needed
+                        data={[]} // you can wire real pie data later if needed
                         dataKey="value"
                         nameKey="label"
                       />
