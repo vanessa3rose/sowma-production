@@ -1,4 +1,4 @@
-// components/export-pdf/SocialMediaExportPage.tsx
+// pages/export-pages/SocialMediaExportPage.tsx
 import BigCard from "../../components/cards/BigCard";
 import SmallCard from "../../components/cards/SmallCard";
 import LineCharts from "../../components/charts/LineCharts";
@@ -41,7 +41,7 @@ export default function SocialMediaExportPage({
     <div
       id={domId}
       ref={(el) => registerPage(domId, el)}
-      className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4 px-4 py-4"
+      className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 py-4"
     >
       {/* Header title only */}
       <div className="w-full flex items-center mb-2">
@@ -91,7 +91,7 @@ export default function SocialMediaExportPage({
                       data={lineTestData}
                       xAxisKey="date"
                       dataKeys={["followers", "likes", "comments"]}
-                      showArea={true}
+                      showArea
                     />
                   ) : (
                     <PieCharts

@@ -14,9 +14,7 @@ interface HiddenExportRootProps {
   registerPage: (id: string, el: HTMLElement | null) => void;
 }
 
-export default function HiddenExportRoot({
-  registerPage,
-}: HiddenExportRootProps) {
+export default function HiddenExportRoot({ registerPage }: HiddenExportRootProps) {
   return (
     <div
       aria-hidden
