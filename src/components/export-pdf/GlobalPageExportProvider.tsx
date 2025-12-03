@@ -18,25 +18,21 @@ interface ExportContextType {
   exportByPlatforms: (platforms: Platform[]) => Promise<void>;
 }
 
-// Properly typed context
 const ExportContext = createContext<ExportContextType | null>(null);
 
-// -----------------------------
-// Provider Props
 // -----------------------------
 interface ProviderProps {
   children: React.ReactNode;
 }
+// -----------------------------
 
-// -----------------------------
-// Provider Component
-// -----------------------------
 export function GlobalPageExportProvider({ children }: ProviderProps) {
   const googleRef = useRef<any>(null);
   const socialRef = useRef<Record<string, any>>({});
 
-  const { exportCardsToPDF } = usePDFExporter(); // <-- works properly now
+  const { exportCardsToPDF } = usePDFExporter();
 
+  // Save entire bundle from GoogleAnalyticsPage
   const registerGoogle = (payload: any) => {
     googleRef.current = payload;
   };
@@ -50,31 +46,20 @@ export function GlobalPageExportProvider({ children }: ProviderProps) {
       const selections: ExportCardSelection[] = [];
 
       for (const platform of platforms) {
-        // GOOGLE
+        // GOOGLE EXPORT
         if (platform === "google" && googleRef.current) {
-          const g = googleRef.current;
           selections.push({
             type: "google",
-            data: mapGoogleToExportData(
-              g.metrics,
-              g.usersOverTime,
-              g.pageviewsOverTime,
-              g.returningVsNew,
-              g.metricSummaries
-            ),
+            data: mapGoogleToExportData(googleRef.current), // <-- FIXED
           });
         }
 
-        // SOCIAL MEDIA
+        // SOCIAL EXPORT
         if (socialRef.current[platform]) {
           const s = socialRef.current[platform];
           selections.push({
             type: "social",
-            data: mapSocialToExportData(
-              platform,
-              s.chartDataMap,
-              s.metricSummaries
-            ),
+            data: mapSocialToExportData(platform, s.chartDataMap, s.metricSummaries),
           });
         }
       }
@@ -97,9 +82,6 @@ export function GlobalPageExportProvider({ children }: ProviderProps) {
   );
 }
 
-// -----------------------------
-// Hook for consumers
-// -----------------------------
 export const useGlobalPageExporter = () => {
   const ctx = useContext(ExportContext);
   if (!ctx) throw new Error("useGlobalPageExporter must be inside provider");

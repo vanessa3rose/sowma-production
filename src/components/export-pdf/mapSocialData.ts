@@ -1,78 +1,60 @@
 // src/components/export-pdf/mapSocialData.ts
 
 import { SocialMediaExportData } from "../../types/exportTypes";
-import { CHART_CONFIGS, Platform } from "../../config/chartConfigs";
-
-// Dummy gender + reach until backend supports them
-const defaultDemo = [
-  { label: "Men", value: 50 },
-  { label: "Women", value: 35 },
-  { label: "Not Specified", value: 15 },
-];
-
-const defaultReach = [
-  { label: "Explore Page", value: 50 },
-  { label: "Home", value: 35 },
-  { label: "Hashtags", value: 15 },
-];
-
-// Creates fake 12-month heatmap based on random data
-function generateHeatmap() {
-  const months = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-  return months.map((m) => ({
-    month: m,
-    intensity: Array.from({ length: 20 }, () => Math.random()),
-  }));
-}
 
 export function mapSocialToExportData(
-  platform: Platform,
-  chartDataMap: Record<string, { date: string; value: number }[]>,
+  platform: string,
+  chartDataMap: any,
   metricSummaries: Record<string, { current: number | null; prev: number | null }>
 ): SocialMediaExportData {
-  const cfg = CHART_CONFIGS[platform];
+  const safe = (key: string, fallback = 0) =>
+    chartDataMap?.[key]?.current ?? fallback;
 
-  const getMetric = (metric: string) => {
-    const config = cfg.find((c) => c.metric === metric);
-    if (!config) return 0;
-    return metricSummaries[config.id]?.current ?? 0;
-  };
-
-  const getChange = (metric: string) => {
-    const config = cfg.find((c) => c.metric === metric);
-    if (!config) return "+0%";
-    const s = metricSummaries[config.id];
+  const formatChange = (key: string): string => {
+    const s = metricSummaries[key];
     if (!s || s.current == null || s.prev == null || s.prev === 0) return "+0%";
     const pct = ((s.current - s.prev) / s.prev) * 100;
     const sign = pct >= 0 ? "+" : "";
-    return `${sign}${pct.toFixed(1)}% vs. prev.`;
+    return `${sign}${pct.toFixed(1)}%`;
   };
 
-  const impressionsID = cfg[0].id; // first chart ≈ impressions
-  const impressionsSeries = chartDataMap[impressionsID] ?? [];
-
   return {
-    platform: platform[0].toUpperCase() + platform.slice(1),
+    platform,
 
-    followers: getMetric("FOLLOWERS"),
-    followersChangeLabel: getChange("FOLLOWERS"),
+    followers: safe("followers"),
+    followersChangeLabel: formatChange("followers"),
 
-    comments: getMetric("COMMENTS"),
-    commentsChangeLabel: getChange("COMMENTS"),
+    comments: safe("comments"),
+    commentsChangeLabel: formatChange("comments"),
 
-    likes: getMetric("LIKES"),
-    likesChangeLabel: getChange("LIKES"),
+    likes: safe("likes"),
+    likesChangeLabel: formatChange("likes"),
 
-    shared: getMetric("SHARES"),
-    sharedChangeLabel: getChange("SHARES"),
+    shared: safe("shared"),
+    sharedChangeLabel: formatChange("shared"),
 
-    impressions: impressionsSeries.map((p) => ({
-      year: Number(p.date.slice(0, 4)),
-      value: p.value,
-    })),
+    impressions:
+      chartDataMap?.impressions?.map((p: any) => ({
+        year: Number(p.date?.slice(0, 4)) || 2024,
+        value: p.value ?? 0,
+      })) ?? [],
 
-    demographics: defaultDemo,
-    reachSources: defaultReach,
-    daysPosted: generateHeatmap(),
+    demographics:
+      chartDataMap?.demographics?.map((d: any) => ({
+        label: d.label,
+        value: d.value,
+      })) ?? [],
+
+    reachSources:
+      chartDataMap?.reachSources?.map((r: any) => ({
+        label: r.label,
+        value: r.value,
+      })) ?? [],
+
+    daysPosted:
+      chartDataMap?.daysPosted?.map((m: any) => ({
+        month: m.month,
+        intensity: m.intensity ?? [],
+      })) ?? [],
   };
 }

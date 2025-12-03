@@ -1,78 +1,96 @@
 // src/types/exportTypes.ts
 
-export type SocialPlatform = "Instagram" | "Twitter" | "Facebook" | "Google"; // extend as needed
-
-// Whatever you already have for Google Analytics.
-// Adjust these fields to match your real data shape.
-export interface GoogleAnalyticsExportData {
-  users: number;
-  usersChangeLabel: string;           // e.g. "2% increase from last year"
-  bounceRate: number;                 // 0–100
-  bounceRateChangeLabel: string;
-  sessionTimeMinutes: number;
-  sessionTimeChangeLabel: string;
-  pagesPerSession: number;
-  pagesPerSessionChangeLabel: string;
-
-  newUsersPct: number;
-  returningUsersPct: number;
-
-  trafficSources: {
-    label: string;
-    value: number;
-  }[];
-
-  topPages: {
-    label: string;
-    value: number;
-  }[];
-
-  impressions: {
-    year: number;
-    value: number;
-  }[];
+// -------------------------------------------------------
+// Shared Structures
+// -------------------------------------------------------
+export interface LinePoint {
+  date: string;
+  value: number;
 }
 
-// Generic “summary” for a social media platform.
-// Again, wire this to whatever you already fetch.
+// -------------------------------------------------------
+// Social Media Export Types
+// -------------------------------------------------------
 export interface SocialMediaExportData {
-  platform: Exclude<SocialPlatform, "Google">;
+  platform: string;
 
-  // KPI tiles
   followers: number;
   followersChangeLabel: string;
+
   comments: number;
   commentsChangeLabel: string;
+
   likes: number;
   likesChangeLabel: string;
+
   shared: number;
   sharedChangeLabel: string;
 
-  // Line chart for impressions
-  impressions: {
-    year: number;
-    value: number;
-  }[];
+  impressions: { year: number; value: number }[];
 
-  // Donut for gender/demo
-  demographics: {
-    label: string; // "Men" | "Women" | "Not Specified"
-    value: number; // percentage
-  }[];
+  demographics: { label: string; value: number }[];
 
-  // Donut for reach sources
-  reachSources: {
-    label: string; // "Explore Page" etc.
-    value: number; // percentage
-  }[];
+  reachSources: { label: string; value: number }[];
 
-  // Heatmap-ish calendar for days posted
   daysPosted: {
-    month: string; // "Nov", "Dec", etc.
-    intensity: number[]; // 30 or so entries, 0-1 scale for color
+    month: string;
+    intensity: number[]; // 0 → 1 normalized heat values
   }[];
 }
 
+// -------------------------------------------------------
+// GOOGLE ANALYTICS PAGE EXPORT TYPE
+// Mirrors GoogleAnalyticsPage live data exactly
+// -------------------------------------------------------
+
+export interface GoogleAnalyticsExportBundle {
+  metrics: {
+    activeUsers: number;
+    screenPageViews: number;
+    active7DayUsers: number;
+    engagementRate: number;
+    newUsers: number;
+  };
+
+  // Line chart data
+  usersOverTime: {
+    date: string;
+    activeUsers?: number;
+    active7DayUsers?: number;
+  }[];
+
+  pageviewsOverTime: {
+    date: string;
+    screenPageViews: number;
+  }[];
+
+  // Pie chart for New vs Returning
+  returningVsNew: {
+    label: string;
+    value: number;
+  }[];
+
+  // Summary metrics used for percent change labels
+  metricSummaries: Partial<
+    Record<
+      | "activeUsers"
+      | "screenPageViews"
+      | "active7DayUsers"
+      | "engagementRate"
+      | "newUsers",
+      {
+        current: number | null;
+        prev: number | null;
+      }
+    >
+  >;
+}
+
+// -------------------------------------------------------
+// Export Card Selection Union
+// (used by GlobalPageExportProvider + usePDFExporter)
+// -------------------------------------------------------
+
 export type ExportCardSelection =
-  | { type: "google"; data: GoogleAnalyticsExportData }
+  | { type: "google"; data: GoogleAnalyticsExportBundle }
   | { type: "social"; data: SocialMediaExportData };

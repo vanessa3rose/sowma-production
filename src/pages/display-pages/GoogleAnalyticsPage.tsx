@@ -210,7 +210,7 @@ export default function GoogleAnalyticsPage() {
         }));
         setPageviewsOverTime(pageSeries);
 
-        // Register live metrics for PDF Export
+        // 🔥 STEP 3 — Register *full* Google analytics export bundle
         registerGoogle({
           metrics: {
             activeUsers: summaries.activeUsers.current ?? 0,
@@ -222,8 +222,10 @@ export default function GoogleAnalyticsPage() {
                 : 0,
             newUsers: summaries.newUsers.current ?? 0,
           },
+
           usersOverTime: merged,
           pageviewsOverTime: pageSeries,
+
           returningVsNew: [
             { label: "New Users", value: summaries.newUsers.current ?? 0 },
             {
@@ -235,6 +237,7 @@ export default function GoogleAnalyticsPage() {
               ),
             },
           ],
+
           metricSummaries: summaries,
         });
 

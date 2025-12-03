@@ -1,20 +1,11 @@
 // src/components/export-pdf/GoogleExportCard.tsx
 
-import { GoogleAnalyticsExportData } from "../../types/exportTypes";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  CartesianGrid,
-} from "recharts";
+import { GoogleAnalyticsExportBundle } from "../../types/exportTypes";
+import LineCharts from "../charts/LineCharts";
+import PieCharts from "../charts/PieCharts";
 
 interface Props {
-  data: GoogleAnalyticsExportData;
+  data: GoogleAnalyticsExportBundle;
 }
 
 export default function GoogleExportCard({ data }: Props) {
@@ -35,102 +26,94 @@ export default function GoogleExportCard({ data }: Props) {
     >
       <div className="text-3xl font-bold text-black">Google</div>
 
-      {/* KPI Tiles */}
+      {/* ===== Top KPI Row ===== */}
       <div className="grid grid-cols-4 gap-4">
-        <Tile label="Users" value={data.users} change={data.usersChangeLabel} />
         <Tile
-          label="Bounce Rate"
-          value={`${data.bounceRate}%`}
-          change={data.bounceRateChangeLabel}
+          label="Active Users"
+          value={data.metrics.activeUsers}
+          change={formatChange(data.metricSummaries.activeUsers)}
         />
         <Tile
-          label="Session Time"
-          value={`${data.sessionTimeMinutes} min`}
-          change={data.sessionTimeChangeLabel}
+          label="Page Views"
+          value={data.metrics.screenPageViews}
+          change={formatChange(data.metricSummaries.screenPageViews)}
         />
         <Tile
-          label="Pages/Session"
-          value={data.pagesPerSession}
-          change={data.pagesPerSessionChangeLabel}
+          label="7-Day Users"
+          value={data.metrics.active7DayUsers}
+          change={formatChange(data.metricSummaries.active7DayUsers)}
+        />
+        <Tile
+          label="Engagement Rate"
+          value={`${(data.metrics.engagementRate * 100).toFixed(1)}%`}
+          change={formatEngagement(data.metricSummaries.engagementRate)}
         />
       </div>
 
-      {/* Middle Row */}
+      {/* ===== Middle Row ===== */}
       <div className="flex gap-4 flex-1">
-        {/* New vs Returning (Fake donut using bar expand) */}
+        {/* New vs Returning */}
         <div className="bg-white rounded-xl shadow-sm p-4 flex-1 flex flex-col">
           <div className="text-sm font-semibold mb-2">New vs Returning Users</div>
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height="95%">
-              <BarChart
-                data={[
-                  { key: "New", value: data.newUsersPct },
-                  { key: "Returning", value: data.returningUsersPct },
-                ]}
-                stackOffset="expand"
-              >
-                <Bar dataKey="value" stackId="a" radius={9999} />
-              </BarChart>
-            </ResponsiveContainer>
+
+          <div className="w-full h-full">
+            <PieCharts
+              data={data.returningVsNew}
+              dataKey="value"
+              nameKey="label"
+            />
           </div>
         </div>
 
-        {/* Traffic Source Bar */}
+        {/* Active Users Trend */}
         <div className="bg-white rounded-xl shadow-sm p-4 flex-[2] flex flex-col">
-          <div className="text-sm font-semibold mb-2">
-            Traffic Source Breakdown
-          </div>
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.trafficSources}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" tick={{ fontSize: 10 }} />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="text-sm font-semibold mb-2">Active Users (trend)</div>
+
+          <div className="w-full h-full">
+            <LineCharts
+              data={data.usersOverTime}
+              xAxisKey="date"
+              dataKeys={["activeUsers"]}
+              showArea
+            />
           </div>
         </div>
       </div>
 
-      {/* Bottom Row */}
+      {/* ===== Bottom Row ===== */}
       <div className="flex gap-4 h-[150px]">
-        {/* Top pages */}
+        {/* Pageviews Trend */}
         <div className="bg-white rounded-xl shadow-sm p-4 flex-1 flex flex-col">
-          <div className="text-xs font-semibold mb-2">Top Pages</div>
+          <div className="text-xs font-semibold mb-2">Pageviews</div>
 
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data.topPages}>
-              <XAxis dataKey="label" tick={{ fontSize: 9 }} />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="w-full h-full">
+            <LineCharts
+              data={data.pageviewsOverTime}
+              xAxisKey="date"
+              dataKeys={["screenPageViews"]}
+            />
+          </div>
         </div>
 
-        {/* Impressions Trend */}
+        {/* Engagement Rate Trend */}
         <div className="bg-white rounded-xl shadow-sm p-4 flex-1 flex flex-col">
-          <div className="text-sm font-semibold mb-1">Impressions</div>
-          <div className="text-2xl text-indigo-600 font-bold">
-            {data.impressions[data.impressions.length - 1]?.value ?? 0}
-          </div>
+          <div className="text-sm font-semibold mb-1">Engagement Rate</div>
 
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data.impressions}>
-              <XAxis dataKey="year" tick={{ fontSize: 10 }} />
-              <YAxis />
-              <Tooltip />
-              <Line dataKey="value" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="w-full h-full">
+            <LineCharts
+              data={data.usersOverTime}
+              xAxisKey="date"
+              dataKeys={["active7DayUsers"]}
+              showArea
+            />
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
+// ---------- Helpers ----------
 function Tile({
   label,
   value,
@@ -147,4 +130,20 @@ function Tile({
       <div className="text-[10px] text-emerald-600 mt-1">{change}</div>
     </div>
   );
+}
+
+function formatChange(summary: { current: number | null; prev: number | null } | undefined) {
+  if (!summary || summary.current == null || summary.prev == null) return "+0%";
+  if (summary.prev === 0) return "+0%";
+
+  const pct = ((summary.current - summary.prev) / summary.prev) * 100;
+  const sign = pct >= 0 ? "+" : "";
+  return `${sign}${pct.toFixed(1)}%`;
+}
+
+function formatEngagement(summary: { current: number | null; prev: number | null } | undefined) {
+  if (!summary || summary.current == null || summary.prev == null) return "0";
+  const delta = summary.current - summary.prev;
+  const sign = delta >= 0 ? "+" : "";
+  return `${sign}${delta.toFixed(1)}pp`;
 }
