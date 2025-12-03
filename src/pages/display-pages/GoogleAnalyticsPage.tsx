@@ -11,7 +11,6 @@ import PieCharts from "../../components/charts/PieCharts";
 import DateRangeButton from "../../components/date-range/DateRangeButton";
 import ExportButton from "../../components/export-pdf/ExportButton";
 
-// ⭐ PDF Export (merged from version A)
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
@@ -53,16 +52,14 @@ export default function GoogleAnalyticsPage() {
     Partial<Record<MetricKey, MetricSummary>>
   >({});
 
+  const { registerGoogle, exportByPlatforms } = useGlobalPageExporter();
+  const handleExport = () => exportByPlatforms(["google"]);
+
   const provider = "GOOGLE_ANALYTICS";
   const defaultStartDate = "2024-01-01";
   const defaultEndDate = "3000-01-01";
 
-  // ⭐ PDF Export wiring
-  const { exportByPlatforms } = useGlobalPageExporter();
-  const handleExport = () => exportByPlatforms(["google"]);
-
   // ---------------- Helpers ----------------
-
   function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     return raw
       .filter((m) => m.metricDate || m.lastSynced)
@@ -204,13 +201,43 @@ export default function GoogleAnalyticsPage() {
           newUsers: summaries.newUsers.current ?? 0,
         });
 
-        setUsersOverTime(mergeUsersAnd7Day(activeSeries, active7Series));
-        setPageviewsOverTime(
-          pageviewsSeries.map((p) => ({
-            date: p.date,
-            screenPageViews: p.value,
-          })),
-        );
+        const merged = mergeUsersAnd7Day(activeSeries, active7Series);
+        setUsersOverTime(merged);
+
+        const pageSeries = pageviewsSeries.map((p) => ({
+          date: p.date,
+          screenPageViews: p.value,
+        }));
+        setPageviewsOverTime(pageSeries);
+
+        // Register live metrics for PDF Export
+        registerGoogle({
+          metrics: {
+            activeUsers: summaries.activeUsers.current ?? 0,
+            screenPageViews: summaries.screenPageViews.current ?? 0,
+            active7DayUsers: summaries.active7DayUsers.current ?? 0,
+            engagementRate:
+              summaries.engagementRate.current != null
+                ? summaries.engagementRate.current / 100
+                : 0,
+            newUsers: summaries.newUsers.current ?? 0,
+          },
+          usersOverTime: merged,
+          pageviewsOverTime: pageSeries,
+          returningVsNew: [
+            { label: "New Users", value: summaries.newUsers.current ?? 0 },
+            {
+              label: "Returning Users",
+              value: Math.max(
+                (summaries.activeUsers.current ?? 0) -
+                  (summaries.newUsers.current ?? 0),
+                0
+              ),
+            },
+          ],
+          metricSummaries: summaries,
+        });
+
       } catch (err) {
         console.error("Error loading Google Analytics metrics:", err);
       }
@@ -254,8 +281,6 @@ export default function GoogleAnalyticsPage() {
 
         <div className="flex space-x-2 mt-2 lg:mt-0">
           <DateRangeButton />
-
-          {/* ⭐ Hooked up correctly */}
           <ExportButton onExport={() => handleExport()} />
         </div>
       </div>

@@ -1,82 +1,107 @@
-// components/export-pdf/GlobalPageExportProvider.tsx
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  type ReactNode,
-} from "react";
+// src/components/export-pdf/GlobalPageExportProvider.tsx
+
+import React, { createContext, useContext, useRef, useCallback } from "react";
 import { usePDFExporter } from "../../hooks/usePDFExporter";
-import HiddenExportRoot, { PAGE_IDS } from "./HiddenExportRoot";
+
+import { mapGoogleToExportData } from "./mapGoogleData";
+import { mapSocialToExportData } from "./mapSocialData";
+
 import type { Platform } from "../../config/chartConfigs";
+import type { ExportCardSelection } from "../../types/exportTypes";
 
-type ExportContextValue = {
+// -----------------------------
+// Context Types
+// -----------------------------
+interface ExportContextType {
+  registerGoogle: (payload: any) => void;
+  registerSocial: (platform: string, payload: any) => void;
   exportByPlatforms: (platforms: Platform[]) => Promise<void>;
-};
+}
 
-const ExportContext = createContext<ExportContextValue | null>(null);
+// Properly typed context
+const ExportContext = createContext<ExportContextType | null>(null);
 
-export function GlobalPageExportProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  const { registerPage, exportPagesToPDF } = usePDFExporter();
+// -----------------------------
+// Provider Props
+// -----------------------------
+interface ProviderProps {
+  children: React.ReactNode;
+}
+
+// -----------------------------
+// Provider Component
+// -----------------------------
+export function GlobalPageExportProvider({ children }: ProviderProps) {
+  const googleRef = useRef<any>(null);
+  const socialRef = useRef<Record<string, any>>({});
+
+  const { exportCardsToPDF } = usePDFExporter(); // <-- works properly now
+
+  const registerGoogle = (payload: any) => {
+    googleRef.current = payload;
+  };
+
+  const registerSocial = (platform: string, payload: any) => {
+    socialRef.current[platform] = payload;
+  };
 
   const exportByPlatforms = useCallback(
     async (platforms: Platform[]) => {
-      // Map modal selection → full-page DOM IDs
-      const pageIds = platforms
-        .map((platform) => {
-          switch (platform) {
-            case "google":
-              return PAGE_IDS.google;
-            case "instagram":
-              return PAGE_IDS.instagram;
-            case "twitter":
-              return PAGE_IDS.twitter;
-            case "facebook":
-              return PAGE_IDS.facebook;
-            default:
-              return null;
-          }
-        })
-        .filter((id): id is NonNullable<(typeof PAGE_IDS)[keyof typeof PAGE_IDS]> => id !== null)
+      const selections: ExportCardSelection[] = [];
 
-      if (pageIds.length === 0) return;
+      for (const platform of platforms) {
+        // GOOGLE
+        if (platform === "google" && googleRef.current) {
+          const g = googleRef.current;
+          selections.push({
+            type: "google",
+            data: mapGoogleToExportData(
+              g.metrics,
+              g.usersOverTime,
+              g.pageviewsOverTime,
+              g.returningVsNew,
+              g.metricSummaries
+            ),
+          });
+        }
 
-      const filename =
-        platforms.length === 1
-          ? `${platforms[0]}-fullpage.pdf`
-          : `sowma-export-${Date.now()}.pdf`;
+        // SOCIAL MEDIA
+        if (socialRef.current[platform]) {
+          const s = socialRef.current[platform];
+          selections.push({
+            type: "social",
+            data: mapSocialToExportData(
+              platform,
+              s.chartDataMap,
+              s.metricSummaries
+            ),
+          });
+        }
+      }
 
-      await exportPagesToPDF(pageIds, filename);
+      await exportCardsToPDF(selections);
     },
-    [exportPagesToPDF],
-  );
-
-  const value = useMemo(
-    () => ({
-      exportByPlatforms,
-    }),
-    [exportByPlatforms],
+    [exportCardsToPDF]
   );
 
   return (
-    <ExportContext.Provider value={value}>
+    <ExportContext.Provider
+      value={{
+        registerGoogle,
+        registerSocial,
+        exportByPlatforms,
+      }}
+    >
       {children}
-      {/* Off-screen hidden full-page export components */}
-      <HiddenExportRoot registerPage={registerPage} />
     </ExportContext.Provider>
   );
 }
 
-export function useGlobalPageExporter() {
+// -----------------------------
+// Hook for consumers
+// -----------------------------
+export const useGlobalPageExporter = () => {
   const ctx = useContext(ExportContext);
-  if (!ctx) {
-    throw new Error(
-      "useGlobalPageExporter must be used within GlobalPageExportProvider",
-    );
-  }
+  if (!ctx) throw new Error("useGlobalPageExporter must be inside provider");
   return ctx;
-}
+};

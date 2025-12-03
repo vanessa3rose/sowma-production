@@ -1,12 +1,10 @@
+// src/components/export-pdf/ExportButton.tsx
+
 import { useState } from "react";
 import ExportModal from "./ExportModal";
 import type { Platform } from "../../config/chartConfigs";
 
 interface ExportButtonProps {
-  /**
-   * Callback that runs when the user confirms export in the modal.
-   * Receives an array of platforms the user selected to export.
-   */
   onExport: (platforms: Platform[]) => Promise<void> | void;
 }
 
@@ -40,7 +38,7 @@ export default function ExportButton({ onExport }: ExportButtonProps) {
         <ExportModal
           isOpen={isModalOpen}
           setIsOpen={setIsModalOpen}
-          onExport={onExport}
+          onExport={onExport}     // ✔ just pass through
         />
       )}
     </>

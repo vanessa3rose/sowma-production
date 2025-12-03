@@ -47,7 +47,18 @@ const App = () => {
           </Switch>
         </div>
       </div>
+      <div
+        id="pdf-export-container"
+        style={{
+          position: "absolute",
+          top: "-9999px",
+          left: "-9999px",
+          width: "1000px", // fixed logical width for cards
+          pointerEvents: "none",
+        }}
+      />
     </GlobalPageExportProvider> // ⭐ Correct matching closing tag
+    
   );
 };
 

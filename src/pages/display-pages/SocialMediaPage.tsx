@@ -54,7 +54,7 @@ function providerFromPlatform(platform: Platform): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Temporary pie data (until backend supports it)                             */
+/* Temporary pie data (no backend support yet)                                 */
 /* -------------------------------------------------------------------------- */
 
 const pieTestData = [
@@ -76,7 +76,7 @@ export default function SocialMediaPage() {
     ? platform[0].toUpperCase() + platform.slice(1)
     : "Social Media";
 
-  const { exportByPlatforms } = useGlobalPageExporter();
+  const { registerSocial, exportByPlatforms } = useGlobalPageExporter();
   const handleExport = (selected: Platform[]) => exportByPlatforms(selected);
 
   /* ------------------------------ State ---------------------------------- */
@@ -134,7 +134,7 @@ export default function SocialMediaPage() {
     return `${sign}${pct.toFixed(1)}% vs. prev.`;
   }
 
-  /* Auto-detect summary config using metric code (Option A) */
+  /* Auto-detect summary config */
   function findConfigForMetric(platform: Platform, metricCode: string) {
     return CHART_CONFIGS[platform].find((cfg) => cfg.metric === metricCode);
   }
@@ -171,6 +171,12 @@ export default function SocialMediaPage() {
 
         setChartDataMap(nextData);
         setMetricSummaries(nextSummaries);
+
+        registerSocial(platform, {
+          chartDataMap: nextData,
+          metricSummaries: nextSummaries,
+        });
+
       } catch (err) {
         console.error("Error loading metrics:", err);
       }
