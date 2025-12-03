@@ -10,6 +10,7 @@ import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
 import AdminPage from "./pages/AdminPage";
 import TestExportPDF from "./pages/TestExportPDF"; //TODO: Remove
 import GlossaryPage from "./pages/Glossary";
+import Newsletter from "./pages/Newsletter";
 
 const App = () => {
   const [location] = useLocation();
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/admin" component={AdminPage} />
           <Route path="/test-export" component={TestExportPDF} />
           <Route path="/glossary" component={GlossaryPage} />
+          <Route path="/newsletter" component={Newsletter} />
 
           <Route>
             <p className="p-4 text-black">404: Page Not Found</p>
