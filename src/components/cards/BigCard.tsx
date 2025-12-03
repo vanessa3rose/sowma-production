@@ -11,6 +11,7 @@ interface BigCardProps {
   metricChange?: string;
   displayMode: DisplayMode;
   className: string;
+  dropdown?: React.ReactNode;
 }
 
 const BigCard: React.FC<BigCardProps> = ({
@@ -22,6 +23,7 @@ const BigCard: React.FC<BigCardProps> = ({
   metricChange,
   displayMode = "both",
   className = "",
+  dropdown,
 }) => {
   const shouldShowChart =
     displayMode === "both" || displayMode === "chart-only";
@@ -38,7 +40,7 @@ const BigCard: React.FC<BigCardProps> = ({
         padding: "20px",
       }}
     >
-      {/* Header with title and subtitle */}
+            {/* Header with title, subtitle, and optional dropdown */}
       <div className="flex justify-between items-center opacity-100">
         <h3
           style={{
@@ -50,41 +52,46 @@ const BigCard: React.FC<BigCardProps> = ({
         >
           {title}
         </h3>
-        {subtitle && (
-          <div className="flex items-center gap-1 cursor-pointer opacity-100">
-            <span
-              style={{
-                fontFamily: "Poppins, sans-serif",
-                fontWeight: 500,
-                fontSize: "12px",
-                lineHeight: "100%",
-                letterSpacing: "0%",
-                textAlign: "right",
-                color: "#000000",
-              }}
-            >
-              {subtitle}
-            </span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              style={{
-                width: "12px",
-                height: "12px",
-                color: "#000000",
-              }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m19.5 8.25-7.5 7.5-7.5-7.5"
-              />
-            </svg>
-          </div>
-        )}
+
+        <div className="flex items-center gap-2">
+          {subtitle && (
+            <div className="flex items-center gap-1 cursor-pointer opacity-100">
+              <span
+                style={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: 500,
+                  fontSize: "12px",
+                  lineHeight: "100%",
+                  letterSpacing: "0%",
+                  textAlign: "right",
+                  color: "#000000",
+                }}
+              >
+                {subtitle}
+              </span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                style={{
+                  width: "12px",
+                  height: "12px",
+                  color: "#000000",
+                }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                />
+              </svg>
+            </div>
+          )}
+
+          {dropdown && <div>{dropdown}</div>}
+        </div>
       </div>
 
       {/* Metric Display - shown above chart when both are present */}
