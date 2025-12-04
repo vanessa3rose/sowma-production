@@ -21,7 +21,7 @@ export function usePDFExporter() {
         return;
       }
 
-      // Clear and mount root
+      // Clear container and mount temporary React root
       container.innerHTML = "";
       const root = ReactDOM.createRoot(container);
 
@@ -37,8 +37,8 @@ export function usePDFExporter() {
         </>
       );
 
-      // Let React + charts render
-      await new Promise((res) => setTimeout(res, 450));
+      // Allow charts and layout to settle
+      await new Promise((res) => setTimeout(res, 600));
 
       const cardEls = Array.from(container.children) as HTMLElement[];
       if (cardEls.length === 0) {
@@ -47,50 +47,53 @@ export function usePDFExporter() {
         return;
       }
 
+      // PDF setup
       const pdf = new jsPDF("p", "pt", "letter");
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-      const halfH = pageH / 2;
 
-      const horizontalMargin = 24; // outer margin inside page
-      const verticalMargin = 24; // margin inside each half
-
-      let slotIndex = 0; // 0 = top half, 1 = bottom half
+      const margin = 24;
+      let firstPage = true;
 
       for (const el of cardEls) {
-        // New page if we’ve already used both slots
-        if (slotIndex === 2) {
-          pdf.addPage();
-          slotIndex = 0;
-        }
+        // Ensure each card gets its own page
+        if (!firstPage) pdf.addPage();
+        firstPage = false;
 
-        const canvas = await html2canvas(el, { scale: 2 });
+        const canvas = await html2canvas(el, {
+          scale: 2,       // high resolution
+          useCORS: true,
+        });
+
         const imgData = canvas.toDataURL("image/png");
+        const cardWidth = canvas.width;
+        const cardHeight = canvas.height;
 
-        const slotTop = slotIndex * halfH;
+        const cardRatio = cardWidth / cardHeight;
+        const maxW = pageW - margin * 2;
+        const maxH = pageH - margin * 2;
 
-        // Max drawable area inside this half-page “slot”
-        const maxWidth = pageW - horizontalMargin * 2;
-        const maxHeight = halfH - verticalMargin * 2;
+        // Render at natural size unless it exceeds page bounds
+        let renderW = cardWidth;
+        let renderH = cardHeight;
 
-        const imgRatio = canvas.width / canvas.height;
-
-        // Start with max width, then clamp by height if needed
-        let renderW = maxWidth;
-        let renderH = renderW / imgRatio;
-
-        if (renderH > maxHeight) {
-          renderH = maxHeight;
-          renderW = renderH * imgRatio;
+        // If card is too wide → scale down
+        if (renderW > maxW) {
+          renderW = maxW;
+          renderH = renderW / cardRatio;
         }
 
-        // Center within the slot
-        const x = (pageW - renderW) / 2;
-        const y = slotTop + (halfH - renderH) / 2;
+        // If card is still too tall → scale down
+        if (renderH > maxH) {
+          renderH = maxH;
+          renderW = renderH * cardRatio;
+        }
+
+        // Place card at top of page with margin
+        const x = margin;
+        const y = margin;
 
         pdf.addImage(imgData, "PNG", x, y, renderW, renderH);
-
-        slotIndex += 1;
       }
 
       pdf.save(filename);
