@@ -8,34 +8,24 @@ export interface LinePoint {
   value: number;
 }
 
-// -------------------------------------------------------
-// Social Media Export Types
-// -------------------------------------------------------
-export interface SocialMediaExportData {
-  platform: string;
+/* -----------------------------------------------------------
+   SOCIAL MEDIA EXPORT BUNDLE
+   Used by SocialMediaExportCard + PDF exporter
+----------------------------------------------------------- */
+
+export interface SocialMediaExportBundle {
+  platformName: string;
 
   followers: number;
-  followersChangeLabel: string;
+  impressions: number;
+  posts: number;
+  engagements: number;
 
-  comments: number;
-  commentsChangeLabel: string;
+  engagementBreakdown: { label: string; value: number }[];
 
-  likes: number;
-  likesChangeLabel: string;
-
-  shared: number;
-  sharedChangeLabel: string;
-
-  impressions: { year: number; value: number }[];
-
-  demographics: { label: string; value: number }[];
-
-  reachSources: { label: string; value: number }[];
-
-  daysPosted: {
-    month: string;
-    intensity: number[]; // 0 → 1 normalized heat values
-  }[];
+  impressionsOverTime: { date: string; impressions: number }[];
+  postsOverTime: { date: string; posts: number }[];
+  followersOverTime: { date: string; followers: number }[];
 }
 
 // -------------------------------------------------------
@@ -93,4 +83,4 @@ export interface GoogleAnalyticsExportBundle {
 
 export type ExportCardSelection =
   | { type: "google"; data: GoogleAnalyticsExportBundle }
-  | { type: "social"; data: SocialMediaExportData };
+  | { type: "social"; data: SocialMediaExportBundle };

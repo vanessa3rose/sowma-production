@@ -1,60 +1,42 @@
-// src/components/export-pdf/mapSocialData.ts
+import {
+  SocialMediaExportBundle,
+} from "../../types/exportTypes";
 
-import { SocialMediaExportData } from "../../types/exportTypes";
+/* Utility to sort by date (ISO strings sort correctly as strings) */
+function sortByDate<T extends { date: string }>(arr: T[]): T[] {
+  return arr.slice().sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/* -----------------------------------------------------------
+   MAP RAW SOCIAL MEDIA METRICS → EXPORT FORMAT
+----------------------------------------------------------- */
 
 export function mapSocialToExportData(
-  platform: string,
-  chartDataMap: any,
-  metricSummaries: Record<string, { current: number | null; prev: number | null }>
-): SocialMediaExportData {
-  const safe = (key: string, fallback = 0) =>
-    chartDataMap?.[key]?.current ?? fallback;
+  platformName: string,
 
-  const formatChange = (key: string): string => {
-    const s = metricSummaries[key];
-    if (!s || s.current == null || s.prev == null || s.prev === 0) return "+0%";
-    const pct = ((s.current - s.prev) / s.prev) * 100;
-    const sign = pct >= 0 ? "+" : "";
-    return `${sign}${pct.toFixed(1)}%`;
-  };
+  followers: number,
+  impressions: number,
+  posts: number,
+  engagements: number,
 
+  rawImpressions: { date: string; impressions: number }[],
+  rawPosts: { date: string; posts: number }[],
+  rawFollowers: { date: string; followers: number }[],
+
+  breakdown: { label: string; value: number }[]
+): SocialMediaExportBundle {
   return {
-    platform,
+    platformName,
 
-    followers: safe("followers"),
-    followersChangeLabel: formatChange("followers"),
+    followers,
+    impressions,
+    posts,
+    engagements,
 
-    comments: safe("comments"),
-    commentsChangeLabel: formatChange("comments"),
+    engagementBreakdown: breakdown,
 
-    likes: safe("likes"),
-    likesChangeLabel: formatChange("likes"),
-
-    shared: safe("shared"),
-    sharedChangeLabel: formatChange("shared"),
-
-    impressions:
-      chartDataMap?.impressions?.map((p: any) => ({
-        year: Number(p.date?.slice(0, 4)) || 2024,
-        value: p.value ?? 0,
-      })) ?? [],
-
-    demographics:
-      chartDataMap?.demographics?.map((d: any) => ({
-        label: d.label,
-        value: d.value,
-      })) ?? [],
-
-    reachSources:
-      chartDataMap?.reachSources?.map((r: any) => ({
-        label: r.label,
-        value: r.value,
-      })) ?? [],
-
-    daysPosted:
-      chartDataMap?.daysPosted?.map((m: any) => ({
-        month: m.month,
-        intensity: m.intensity ?? [],
-      })) ?? [],
+    impressionsOverTime: sortByDate(rawImpressions),
+    postsOverTime: sortByDate(rawPosts),
+    followersOverTime: sortByDate(rawFollowers),
   };
 }

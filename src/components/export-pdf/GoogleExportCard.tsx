@@ -1,8 +1,9 @@
-// src/components/export-pdf/GoogleExportCard.tsx
-
 import { GoogleAnalyticsExportBundle } from "../../types/exportTypes";
 import LineCharts from "../charts/LineCharts";
 import PieCharts from "../charts/PieCharts";
+
+import KPI from "./export-elements/KPI";
+import SoftCard from "./export-elements/SoftCard";
 
 interface Props {
   data: GoogleAnalyticsExportBundle;
@@ -76,6 +77,7 @@ export default function GoogleExportCard({ data }: Props) {
 
       {/* MIDDLE ROW */}
       <div className="flex gap-6 h-[360px]">
+        {/* Pie */}
         <SoftCard className="w-[45%] flex flex-col h-full">
           <div
             style={{ fontSize: "20px", marginBottom: "14px" }}
@@ -93,6 +95,7 @@ export default function GoogleExportCard({ data }: Props) {
           </div>
         </SoftCard>
 
+        {/* Line */}
         <SoftCard className="w-2/3 flex flex-col">
           <div
             style={{ fontSize: "20px", marginBottom: "14px" }}
@@ -150,80 +153,6 @@ export default function GoogleExportCard({ data }: Props) {
           </div>
         </SoftCard>
       </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* KPI — FULLY MATCHES YOUR WEB UI STYLE                             */
-/* ------------------------------------------------------------------ */
-
-function KPI({
-  title,
-  value,
-  delta,
-  unit,
-}: {
-  title: string;
-  value: string | number;
-  delta: string;
-  unit: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      {/* Title */}
-      <div className="text-black" style={{ fontSize: "17px" }}>
-        {title}
-      </div>
-
-      {/* Main Metric */}
-      <div
-        style={{
-          fontSize: "30px",
-          lineHeight: "44px",
-          fontWeight: 600,
-          color: "#547CFF",
-        }}
-      >
-        {value}
-      </div>
-
-      {/* Delta Row */}
-      <div className="flex items-center gap-1">
-        <span style={{ color: "#22C55E", fontSize: "15px", fontWeight: 500 }}>
-          {delta}
-        </span>
-
-        <span style={{ color: "#6B7280", fontSize: "15px" }}>{unit}</span>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Soft card container                                                */
-/* ------------------------------------------------------------------ */
-
-function SoftCard({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={className}
-      style={{
-        backgroundColor: "#ffffff",
-        borderRadius: "18px",
-        padding: "20px",
-        boxShadow:
-          "0 22px 44px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.06)",
-        border: "1px solid rgba(148,163,184,0.18)",
-      }}
-    >
-      {children}
     </div>
   );
 }

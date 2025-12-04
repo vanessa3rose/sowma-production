@@ -172,9 +172,43 @@ export default function SocialMediaPage() {
         setChartDataMap(nextData);
         setMetricSummaries(nextSummaries);
 
+        /* -------- Register social for export -------- */
+
+        // Extract keys if they exist
+        const followersId = configs.find((c) => c.metric === "FOLLOWERS")?.id;
+        const impressionsId = configs.find((c) => c.metric === "VIEWS")?.id;
+        const postsId = configs.find((c) => c.metric === "POSTS")?.id;
+
         registerSocial(platform, {
-          chartDataMap: nextData,
-          metricSummaries: nextSummaries,
+          chartDataMap: {
+            impressions: impressionsId ? nextData[impressionsId] ?? [] : [],
+            posts: postsId ? nextData[postsId] ?? [] : [],
+            followers: followersId ? nextData[followersId] ?? [] : [],
+          },
+
+          metricSummaries: {
+            followers: followersId ? nextSummaries[followersId] ?? null : null,
+            impressions: impressionsId ? nextSummaries[impressionsId] ?? null : null,
+            posts: postsId ? nextSummaries[postsId] ?? null : null,
+
+            // engagements is *synthetic*, so default to 0
+            engagements: {
+              current:
+                (nextSummaries[likesCfg?.id ?? ""]?.current ?? 0) +
+                (nextSummaries[commentsCfg?.id ?? ""]?.current ?? 0) +
+                (nextSummaries[sharesCfg?.id ?? ""]?.current ?? 0),
+              prev:
+                (nextSummaries[likesCfg?.id ?? ""]?.prev ?? 0) +
+                (nextSummaries[commentsCfg?.id ?? ""]?.prev ?? 0) +
+                (nextSummaries[sharesCfg?.id ?? ""]?.prev ?? 0),
+            },
+          },
+
+          engagementBreakdown: [
+            { label: "Likes", value: nextSummaries[likesCfg?.id ?? ""]?.current ?? 0 },
+            { label: "Comments", value: nextSummaries[commentsCfg?.id ?? ""]?.current ?? 0 },
+            { label: "Shares", value: nextSummaries[sharesCfg?.id ?? ""]?.current ?? 0 },
+          ],
         });
 
       } catch (err) {
