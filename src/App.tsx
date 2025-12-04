@@ -10,6 +10,7 @@ import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
 import AdminPage from "./pages/AdminPage";
 import TestExportPDF from "./pages/TestExportPDF"; //TODO: Remove
 import GlossaryPage from "./pages/Glossary";
+import ErrorPage from "./pages/ErrorPage";
 import Newsletter from "./pages/Newsletter";
 
 const App = () => {
@@ -33,6 +34,7 @@ const App = () => {
           <Route path="/admin" component={AdminPage} />
           <Route path="/test-export" component={TestExportPDF} />
           <Route path="/glossary" component={GlossaryPage} />
+          <Route path="/error" component={ErrorPage} />
           <Route path="/newsletter" component={Newsletter} />
 
           <Route>
