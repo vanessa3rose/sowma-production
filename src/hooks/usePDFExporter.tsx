@@ -38,7 +38,7 @@ export function usePDFExporter() {
       );
 
       // Allow charts and layout to settle
-      await new Promise((res) => setTimeout(res, 600));
+      await new Promise((res) => setTimeout(res, 2000));
 
       const cardEls = Array.from(container.children) as HTMLElement[];
       if (cardEls.length === 0) {

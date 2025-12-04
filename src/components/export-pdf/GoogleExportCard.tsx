@@ -2,7 +2,7 @@
 
 import { GoogleAnalyticsExportBundle } from "../../types/exportTypes";
 import LineCharts from "../charts/LineCharts";
-import ExportDonut from "./ExportDonut";
+import PieCharts from "../charts/PieCharts";
 
 interface Props {
   data: GoogleAnalyticsExportBundle;
@@ -50,21 +50,32 @@ export default function GoogleExportCard({ data }: Props) {
 
       {/* MIDDLE ROW */}
       <div className="flex gap-4 h-[350px]">
-        <SoftCard className="w-1/3 flex flex-col h-full">
-          <div className="text-sm font-semibold mb-2">New vs Returning Users</div>
-          <div className="flex-1 min-h-[250px]">
-            <ExportDonut data={data.returningVsNew} />
+        {/* Pie: New vs Returning – back to Recharts PieChart */}
+        <SoftCard className="w-[45%] flex flex-col h-full">
+          <div className="text-sm font-semibold mb-2">
+            New vs Returning Users
+          </div>
+          {/* IMPORTANT: give the ResponsiveContainer a concrete height */}
+          <div style={{ width: "100%", height: "260px" }}>
+            <PieCharts
+              data={data.returningVsNew}
+              dataKey="value"
+              nameKey="label"
+            />
           </div>
         </SoftCard>
 
+        {/* Line: Active Users */}
         <SoftCard className="w-2/3 flex flex-col">
           <div className="text-sm font-semibold mb-2">Active Users (trend)</div>
-          <LineCharts
-            data={data.usersOverTime}
-            xAxisKey="date"
-            dataKeys={["activeUsers"]}
-            showArea
-          />
+          <div style={{ width: "100%", height: "300px" }}>
+            <LineCharts
+              data={data.usersOverTime}
+              xAxisKey="date"
+              dataKeys={["activeUsers"]}
+              showArea
+            />
+          </div>
         </SoftCard>
       </div>
 
@@ -72,22 +83,26 @@ export default function GoogleExportCard({ data }: Props) {
       <div className="flex gap-4 h-[350px]">
         <SoftCard className="w-1/2 flex flex-col">
           <div className="text-sm font-semibold mb-2">Pageviews</div>
-          <LineCharts
-            data={data.pageviewsOverTime}
-            xAxisKey="date"
-            dataKeys={["screenPageViews"]}
-            showArea
-          />
+          <div style={{ width: "100%", height: "300px" }}>
+            <LineCharts
+              data={data.pageviewsOverTime}
+              xAxisKey="date"
+              dataKeys={["screenPageViews"]}
+              showArea
+            />
+          </div>
         </SoftCard>
 
         <SoftCard className="w-1/2 flex flex-col">
           <div className="text-sm font-semibold mb-2">7-Day Users Trend</div>
-          <LineCharts
-            data={data.usersOverTime}
-            xAxisKey="date"
-            dataKeys={["active7DayUsers"]}
-            showArea
-          />
+          <div style={{ width: "100%", height: "300px" }}>
+            <LineCharts
+              data={data.usersOverTime}
+              xAxisKey="date"
+              dataKeys={["active7DayUsers"]}
+              showArea
+            />
+          </div>
         </SoftCard>
       </div>
     </div>
@@ -121,11 +136,8 @@ function SoftCard({
         backgroundColor: "#ffffff",
         borderRadius: "18px",
         padding: "16px",
-
-        // Stronger soft drop shadow — still realistic for UI
         boxShadow:
           "0 18px 36px rgba(15,23,42,0.10), 0 4px 10px rgba(15,23,42,0.06)",
-
         border: "1px solid rgba(148,163,184,0.22)",
       }}
     >

@@ -29,8 +29,8 @@ const PieCharts = ({ data, dataKey, nameKey }: PieChartsProps) => {
             data={data}
             dataKey={dataKey}
             nameKey={nameKey}
-            outerRadius="35%"
-            innerRadius="25%"
+            outerRadius="70%"
+            innerRadius="50%"
             label={({ value, percent }: PieLabelRenderProps) =>
               `${value} (${((percent as number) * 100).toFixed(0)}%)`
             }
