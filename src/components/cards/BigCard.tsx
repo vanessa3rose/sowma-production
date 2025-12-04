@@ -40,7 +40,7 @@ const BigCard: React.FC<BigCardProps> = ({
         padding: "20px",
       }}
     >
-            {/* Header with title, subtitle, and optional dropdown */}
+      {/* Header with title, subtitle, and optional dropdown */}
       <div className="flex justify-between items-center opacity-100">
         <h3
           style={{

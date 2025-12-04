@@ -10,8 +10,8 @@ import DateRangeButton from "../components/date-range/DateRangeButton";
 import { useEffect, useState } from "react";
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
 
-import BarCharts from "../components/charts/BarCharts";
-import PieCharts from "../components/charts/PieCharts";
+//import BarCharts from "../components/charts/BarCharts";
+//import PieCharts from "../components/charts/PieCharts";
 import LineCharts from "../components/charts/LineCharts";
 
 import BigCard from "../components/cards/BigCard";
@@ -265,7 +265,9 @@ export default function Homepage() {
               <option value="TWITTER">Twitter</option>
             </select>
           }
+
           chart={
+            impressionsData.length > 0 ? (
             <div className="w-full h-64">
               <LineCharts
                 data={impressionsData}
@@ -274,6 +276,10 @@ export default function Homepage() {
                 showArea={true}
               />
             </div>
+            ) : (
+            <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              No impressions data available.
+            </div>)
           }
           displayMode="both"
           className="flex-1 w-full h-full"
@@ -296,6 +302,7 @@ export default function Homepage() {
             </select>
           }
           chart={
+            daysPostedData.length > 0 ?(
             <div className="w-full h-64">
               <LineCharts
                 data={daysPostedData}
@@ -304,6 +311,12 @@ export default function Homepage() {
                 showArea={false}
               />
             </div>
+            ) :
+            (
+              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+                No days posted data available.
+              </div>
+            )
           }
           displayMode="both"
           className="flex-1 w-full h-full"
@@ -313,6 +326,7 @@ export default function Homepage() {
           title="Google Analytics Website Sessions"
           subtitle=""
           chart={
+            websiteSessionsData.length > 0 ? (
             <div className="w-full h-64">
               <LineCharts
                 data={websiteSessionsData}
@@ -321,6 +335,12 @@ export default function Homepage() {
                 showArea={true}
               />
             </div>
+            ):
+            (
+            <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              No website sessions data available.
+            </div>
+            )
           }
           displayMode="both"
           className="flex-1 w-full h-full"
@@ -346,6 +366,7 @@ export default function Homepage() {
             </select>
           }
           chart={
+            followerCountData.length > 0 ? (
             <div className="w-full h-64">
               <LineCharts
                 data={followerCountData}
@@ -354,6 +375,10 @@ export default function Homepage() {
                 showArea={false}
               />
             </div>
+            ) :
+            (<div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              No follower count data available.
+            </div>)
           }
           displayMode="both"
           className="flex-1 w-full h-full"
@@ -362,7 +387,11 @@ export default function Homepage() {
         <BigCard
           title="How did you hear about us?"
           subtitle=""
-          chart={undefined}
+          chart={
+          <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              No data available.
+          </div>
+          }
           displayMode="both"
           className="flex-1 w-full h-full"
         />

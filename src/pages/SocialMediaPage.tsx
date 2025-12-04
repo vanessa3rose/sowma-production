@@ -330,6 +330,7 @@ export default function SocialMediaPage() {
                 displayMode="both"
                 className="w-full h-full"
                 chart={
+                  (chartDataMap[chart.id] ?? []).length > 0 ?(
                   <div className="w-full h-64">
                     {chart.type === "line" ? (
                       <LineCharts
@@ -346,6 +347,10 @@ export default function SocialMediaPage() {
                       />
                     )}
                   </div>
+                  ) :
+                  (<div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+                    No data currently available.
+                  </div>)
                 }
               />
             ))}
