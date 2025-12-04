@@ -1,7 +1,8 @@
 // src/components/export-pdf/GoogleExportCard.tsx
+
 import { GoogleAnalyticsExportBundle } from "../../types/exportTypes";
 import LineCharts from "../charts/LineCharts";
-import ExportDonut from "./ExportDonut"; // your custom SVG donut
+import ExportDonut from "./ExportDonut";
 
 interface Props {
   data: GoogleAnalyticsExportBundle;
@@ -27,36 +28,36 @@ export default function GoogleExportCard({ data }: Props) {
 
       {/* KPI ROW */}
       <div className="grid grid-cols-4 gap-4">
-        <ShadowCard>
+        <SoftCard>
           <Tile label="Active Users" value={data.metrics.activeUsers} />
-        </ShadowCard>
+        </SoftCard>
 
-        <ShadowCard>
+        <SoftCard>
           <Tile label="Page Views" value={data.metrics.screenPageViews} />
-        </ShadowCard>
+        </SoftCard>
 
-        <ShadowCard>
+        <SoftCard>
           <Tile label="7-Day Users" value={data.metrics.active7DayUsers} />
-        </ShadowCard>
+        </SoftCard>
 
-        <ShadowCard>
+        <SoftCard>
           <Tile
             label="Engagement Rate"
             value={`${(data.metrics.engagementRate * 100).toFixed(1)}%`}
           />
-        </ShadowCard>
+        </SoftCard>
       </div>
 
       {/* MIDDLE ROW */}
       <div className="flex gap-4 h-[350px]">
-        <ShadowCard className="w-1/3 flex flex-col h-full">
+        <SoftCard className="w-1/3 flex flex-col h-full">
           <div className="text-sm font-semibold mb-2">New vs Returning Users</div>
           <div className="flex-1 min-h-[250px]">
             <ExportDonut data={data.returningVsNew} />
           </div>
-        </ShadowCard>
+        </SoftCard>
 
-        <ShadowCard className="w-2/3 flex flex-col">
+        <SoftCard className="w-2/3 flex flex-col">
           <div className="text-sm font-semibold mb-2">Active Users (trend)</div>
           <LineCharts
             data={data.usersOverTime}
@@ -64,12 +65,12 @@ export default function GoogleExportCard({ data }: Props) {
             dataKeys={["activeUsers"]}
             showArea
           />
-        </ShadowCard>
+        </SoftCard>
       </div>
 
       {/* BOTTOM ROW */}
       <div className="flex gap-4 h-[350px]">
-        <ShadowCard className="w-1/2 flex flex-col">
+        <SoftCard className="w-1/2 flex flex-col">
           <div className="text-sm font-semibold mb-2">Pageviews</div>
           <LineCharts
             data={data.pageviewsOverTime}
@@ -77,9 +78,9 @@ export default function GoogleExportCard({ data }: Props) {
             dataKeys={["screenPageViews"]}
             showArea
           />
-        </ShadowCard>
+        </SoftCard>
 
-        <ShadowCard className="w-1/2 flex flex-col">
+        <SoftCard className="w-1/2 flex flex-col">
           <div className="text-sm font-semibold mb-2">7-Day Users Trend</div>
           <LineCharts
             data={data.usersOverTime}
@@ -87,7 +88,7 @@ export default function GoogleExportCard({ data }: Props) {
             dataKeys={["active7DayUsers"]}
             showArea
           />
-        </ShadowCard>
+        </SoftCard>
       </div>
     </div>
   );
@@ -103,10 +104,10 @@ function Tile({ label, value }: { label: string; value: any }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Shadow wrapper so every card has an identical soft floating shadow */
+/* SoftCard: subtle, Figma-style depth that works in html2canvas/PDF  */
 /* ------------------------------------------------------------------ */
 
-function ShadowCard({
+function SoftCard({
   children,
   className = "",
 }: {
@@ -115,11 +116,17 @@ function ShadowCard({
 }) {
   return (
     <div
-      className={`bg-white rounded-2xl p-4 ${className}`}
+      className={className}
       style={{
+        backgroundColor: "#ffffff",
+        borderRadius: "18px",
+        padding: "16px",
+
+        // Stronger soft drop shadow — still realistic for UI
         boxShadow:
-          "0 4px 8px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.08)",
-        borderRadius: "16px",
+          "0 18px 36px rgba(15,23,42,0.10), 0 4px 10px rgba(15,23,42,0.06)",
+
+        border: "1px solid rgba(148,163,184,0.22)",
       }}
     >
       {children}
