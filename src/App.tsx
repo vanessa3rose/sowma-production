@@ -17,7 +17,7 @@ const App = () => {
   const hideLayoutRoutes = ["/login", "/signup"];
   const hideLayout = hideLayoutRoutes.includes(location);
 
-  const [ismobile, setisMobile] = useState(false);
+  const [isMobile, setisMobile] = useState(false);
 
 
   return (
@@ -30,16 +30,18 @@ const App = () => {
         </div>
 
         {/* Mobile sidebar/making it visible only on small screens*/}
-        <LeftSidebar
-          mobile
-          open={ismobile}
-          onClose={() => setisMobile(false)}
-        />
+        <div className="md:hidden">
+          <LeftSidebar
+            mobile
+            open={isMobile}
+            onClose={() => setisMobile(false)}
+          />
+        </div>
 
         {/* Button to collapse the page */}
         <button
           className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-200 rounded-lg shadow"
-          onClick={() => setisMobile(true)}
+          onClick={() => setisMobile(!isMobile)}
         >
           ☰
         </button>

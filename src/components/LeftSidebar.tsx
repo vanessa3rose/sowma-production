@@ -3,7 +3,7 @@ import logo from "../assets/logo.png";
 const LeftSidebar = ({ mobile = false, open = false, onClose = () => {}  }) => {
   const sidebarClasses = mobile
     ? `fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50
-       transform transition-transform duration-300
+       transform transition-transform duration-300 p-4 border-r border-gray-600 pl-12
        ${open ? "translate-x-0" : "-translate-x-full"}`
     : "fixed top-0 left-0 flex flex-col w-1/5 space-y-5 h-full items-center bg-white border-r border-gray-600 p-4 z-50";
 
@@ -18,16 +18,6 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {}  }) => {
       )}
 
       <div className={sidebarClasses}>
-        {/* Close button for mobile */}
-        {mobile && (
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 text-gray-700 text-xl"
-          >
-            ✕
-          </button>
-        )}
-
         {/* Logo */}
         <img
           src={logo}
