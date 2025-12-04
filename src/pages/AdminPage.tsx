@@ -56,8 +56,8 @@ export default function AdminPage() {
       {/* HEADER */}
       <div className="flex flex-row my-6 w-full pl-12">
         <div className="w-1/3 font-poppins text-lg text-gray-500 font-light">Permissions</div>
-        <div className="w-1/3 font-poppins text-lg text-gray-500 font-thin text-center">Admin</div>
-        <div className="w-1/3 font-poppins text-lg text-gray-500 font-thin text-center">Intern</div>
+        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light text-center">Admin</div>
+        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light text-center">Intern</div>
       </div>
 
       {/* ROWS */}
