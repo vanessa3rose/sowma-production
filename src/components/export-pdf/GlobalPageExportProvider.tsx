@@ -1,97 +1,66 @@
 // src/components/export-pdf/GlobalPageExportProvider.tsx
 
-import React, { createContext, useContext, useRef, useCallback } from "react";
+import React, { createContext, useContext } from "react";
+import {
+  ExportCardSelection,
+  SocialExportBundle,
+  GoogleAnalyticsExportBundle,
+} from "../../types/exportTypes";
+
+import {
+  fetchGoogleExportBundle,
+  fetchSocialExportBundle,
+} from "./fetchExportData";
+
+import { Platform } from "../../config/chartConfigs";
 import { usePDFExporter } from "../../hooks/usePDFExporter";
 
-import { mapGoogleToExportData } from "./mapGoogleData";
-import { mapSocialToExportData } from "./mapSocialData";
-
-import type { Platform } from "../../config/chartConfigs";
-import type { ExportCardSelection } from "../../types/exportTypes";
-
-// -----------------------------
-// Context Types
-// -----------------------------
-interface ExportContextType {
-  registerGoogle: (payload: any) => void;
-  registerSocial: (platform: string, payload: any) => void;
+interface ExportContextValue {
   exportByPlatforms: (platforms: Platform[]) => Promise<void>;
 }
 
-const ExportContext = createContext<ExportContextType | null>(null);
+const ExportContext = createContext<ExportContextValue | null>(null);
 
-// -----------------------------
-interface ProviderProps {
-  children: React.ReactNode;
-}
-// -----------------------------
-
-export function GlobalPageExportProvider({ children }: ProviderProps) {
-  const googleRef = useRef<any>(null);
-  const socialRef = useRef<Record<string, any>>({});
-
+export function GlobalPageExportProvider({ children }: { children: React.ReactNode }) {
   const { exportCardsToPDF } = usePDFExporter();
 
-  // Save bundle from GoogleAnalyticsPage
-  const registerGoogle = (payload: any) => {
-    googleRef.current = payload;
-  };
+  async function exportByPlatforms(platforms: Platform[]) {
+    const selections: ExportCardSelection[] = [];
 
-  // Save bundle from SocialMediaPage
-  const registerSocial = (platform: string, payload: any) => {
-    socialRef.current[platform] = payload;
-  };
+    for (const platform of platforms) {
+      if (platform === "google") {
+        const bundle: GoogleAnalyticsExportBundle =
+          await fetchGoogleExportBundle();
 
-  // -----------------------------
-  // MAIN EXPORT ENTRY POINT
-  // -----------------------------
-  const exportByPlatforms = useCallback(
-    async (platforms: Platform[]) => {
-      const selections: ExportCardSelection[] = [];
+        selections.push({
+          type: "google",
+          data: bundle,
+        });
+      } else {
+        const bundle: SocialExportBundle = await fetchSocialExportBundle(
+          platform
+        );
 
-      for (const platform of platforms) {
-        // GOOGLE EXPORT
-        if (platform === "google" && googleRef.current) {
-          selections.push({
-            type: "google",
-            data: mapGoogleToExportData(googleRef.current),
-          });
-        }
-
-        // SOCIAL EXPORT
-        const socialBundle = socialRef.current[platform];
-        if (socialBundle) {
-          selections.push({
-            type: "social",
-            data: mapSocialToExportData(
-              platform,
-              socialBundle.chartDataMap,
-              socialBundle.metricSummaries
-            ),
-          });
-        }
+        selections.push({
+          type: "social",
+          platform,
+          data: bundle,
+        });
       }
+    }
 
-      await exportCardsToPDF(selections);
-    },
-    [exportCardsToPDF]
-  );
+    await exportCardsToPDF(selections);
+  }
 
   return (
-    <ExportContext.Provider
-      value={{
-        registerGoogle,
-        registerSocial,
-        exportByPlatforms,
-      }}
-    >
+    <ExportContext.Provider value={{ exportByPlatforms }}>
       {children}
     </ExportContext.Provider>
   );
 }
 
-export const useGlobalPageExporter = () => {
+export function useGlobalPageExporter() {
   const ctx = useContext(ExportContext);
   if (!ctx) throw new Error("useGlobalPageExporter must be inside provider");
   return ctx;
-};
+}

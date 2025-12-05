@@ -1,3 +1,6 @@
+// pages/Homepage.tsx
+import { useEffect, useState } from "react";
+
 import facebook from "../assets/facebook.jpg";
 import google from "../assets/google.jpg";
 import instagram from "../assets/instagram.jpg";
@@ -7,16 +10,12 @@ import tiktok from "../assets/tiktok.jpg";
 
 import ExportButton from "../components/export-pdf/ExportButton";
 import DateRangeButton from "../components/date-range/DateRangeButton";
-import { useEffect, useState } from "react";
+
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
 
-import BarCharts from "../components/charts/BarCharts";
-import PieCharts from "../components/charts/PieCharts";
 import LineCharts from "../components/charts/LineCharts";
-
 import BigCard from "../components/cards/BigCard";
 
-// ⭐ NEW: minimal import
 import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExportProvider";
 
 type ImpressionsPoint = {
@@ -56,7 +55,6 @@ export default function Homepage() {
   const [selectedProvider, setSelectedProvider] =
     useState<SocialProvider>("FACEBOOK");
 
-  // ⭐ NEW: minimal addition
   const { exportByPlatforms } = useGlobalPageExporter();
 
   const googleAnalyticsProvider = "GOOGLE_ANALYTICS";
@@ -179,6 +177,7 @@ export default function Homepage() {
 
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
+      {/* Header row */}
       <div className="flex flex-wrap w-full justify-between items-center gap-4">
         <div className="flex flex-wrap items-center gap-4">
           <DateRangeButton />
@@ -227,11 +226,11 @@ export default function Homepage() {
           </div>
         </div>
 
-        {/* ⭐ Only change: provide onExport */}
+        {/* 🔑 Export from homepage: can choose ANY platforms */}
         <ExportButton onExport={exportByPlatforms} />
       </div>
 
-      {/* Everything below untouched */}
+      {/* Main charts row */}
       <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
         <BigCard
           title="Impressions"
@@ -242,7 +241,7 @@ export default function Homepage() {
                 data={impressionsData}
                 xAxisKey="date"
                 dataKeys={["impressions"]}
-                showArea={true}
+                showArea
               />
             </div>
           }
@@ -259,7 +258,6 @@ export default function Homepage() {
                 data={daysPostedData}
                 xAxisKey="date"
                 dataKeys={["posts"]}
-                showArea={false}
               />
             </div>
           }
@@ -276,7 +274,7 @@ export default function Homepage() {
                 data={websiteSessionsData}
                 xAxisKey="date"
                 dataKeys={["sessions"]}
-                showArea={true}
+                showArea
               />
             </div>
           }
@@ -295,7 +293,6 @@ export default function Homepage() {
                 data={followerCountData}
                 xAxisKey="date"
                 dataKeys={["followers"]}
-                showArea={false}
               />
             </div>
           }

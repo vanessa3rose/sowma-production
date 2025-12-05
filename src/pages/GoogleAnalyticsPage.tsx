@@ -1,4 +1,4 @@
-// pages/display-pages/GoogleAnalyticsPage.tsx
+// pages/GoogleAnalyticsPage.tsx
 import { useEffect, useState } from "react";
 
 // Cards
@@ -12,19 +12,18 @@ import DateRangeButton from "../components/date-range/DateRangeButton";
 import ExportButton from "../components/export-pdf/ExportButton";
 
 import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExportProvider";
-
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
 
-// ---------------- Types ----------------
-export type GAMetrics = {
+// ---------- Types ----------
+type GAMetrics = {
   activeUsers: number;
   screenPageViews: number;
   active7DayUsers: number;
-  engagementRate: number; // stored 0–1, displayed as %
+  engagementRate: number; // stored as 0–1, displayed as %
   newUsers: number;
 };
 
-export type TimePoint = {
+type TimePoint = {
   date: string;
   activeUsers?: number;
   screenPageViews?: number;
@@ -36,44 +35,36 @@ type MetricSummary = {
   prev: number | null;
 };
 
-type MetricKey =
-  | "activeUsers"
-  | "screenPageViews"
-  | "active7DayUsers"
-  | "engagementRate"
-  | "newUsers";
-
 export default function GoogleAnalyticsPage() {
-  // ---- Global export system ----
-  const { registerGoogle, exportByPlatforms } = useGlobalPageExporter();
-
-  // ---- State ----
   const [metrics, setMetrics] = useState<GAMetrics | null>(null);
   const [usersOverTime, setUsersOverTime] = useState<TimePoint[]>([]);
-  const [pageviewsOverTime, setPageviewsOverTime] = useState<TimePoint[]>([]);
+  const [pageviewsOverTime, setPageviewsOverTime] = useState<
+    { date: string; screenPageViews: number }[]
+  >([]);
   const [metricSummaries, setMetricSummaries] = useState<
-    Partial<Record<MetricKey, MetricSummary>>
+    Record<string, MetricSummary>
   >({});
+
+  const { exportByPlatforms } = useGlobalPageExporter();
 
   const provider = "GOOGLE_ANALYTICS";
   const defaultStartDate = "2024-01-01";
   const defaultEndDate = "3000-01-01";
 
-  // ---------------- Helpers ----------------
+  // ---------- Helpers ----------
   function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     return raw
       .filter((m) => m.metricDate || m.lastSynced)
       .slice()
-      .sort(
-        (a, b) =>
-          (a.metricDate ?? a.lastSynced)!.localeCompare(
-            (b.metricDate ?? b.lastSynced)!
-          )
+      .sort((a, b) =>
+        (a.metricDate ?? a.lastSynced)!.localeCompare(
+          (b.metricDate ?? b.lastSynced)!,
+        ),
       );
   }
 
   function toLinePoints(
-    raw: SocialMediaMetric[]
+    raw: SocialMediaMetric[],
   ): { date: string; value: number }[] {
     return sortByDate(raw).map((m) => ({
       date: (m.metricDate ?? m.lastSynced)!.slice(0, 10),
@@ -81,111 +72,95 @@ export default function GoogleAnalyticsPage() {
     }));
   }
 
-  function summarizeSeries(pts: { date: string; value: number }[]): MetricSummary {
-    if (pts.length === 0) return { current: null, prev: null };
-    if (pts.length === 1) return { current: pts[0].value, prev: null };
+  function summarize(points: { value: number }[]): MetricSummary {
+    if (points.length === 0) return { current: null, prev: null };
+    if (points.length === 1) return { current: points[0].value, prev: null };
     return {
-      current: pts[pts.length - 1].value,
-      prev: pts[pts.length - 2].value,
+      current: points[points.length - 1].value,
+      prev: points[points.length - 2].value,
     };
   }
 
-  function mergeUsersAnd7Day(
+  function mergeUsers(
     active: { date: string; value: number }[],
-    active7: { date: string; value: number }[]
+    active7: { date: string; value: number }[],
   ): TimePoint[] {
     const map: Record<string, TimePoint> = {};
 
     active.forEach((p) => {
-      map[p.date] ??= { date: p.date };
+      if (!map[p.date]) map[p.date] = { date: p.date };
       map[p.date].activeUsers = p.value;
     });
 
     active7.forEach((p) => {
-      map[p.date] ??= { date: p.date };
+      if (!map[p.date]) map[p.date] = { date: p.date };
       map[p.date].active7DayUsers = p.value;
     });
 
     return Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
   }
 
-  function formatPercentChange(summary?: MetricSummary | null): string {
-    if (!summary || summary.current == null || summary.prev == null) return "+ 0%";
+  function pct(summary?: MetricSummary): string {
+    if (!summary || summary.current == null || summary.prev == null) {
+      return "+ 0%";
+    }
     if (summary.prev === 0) return "+ 0%";
 
-    const pct = ((summary.current - summary.prev) / summary.prev) * 100;
-    const sign = pct >= 0 ? "+" : "";
-    return `${sign}${pct.toFixed(1)}% vs. prev.`;
+    const change = ((summary.current - summary.prev) / summary.prev) * 100;
+    const sign = change >= 0 ? "+" : "";
+    return `${sign}${change.toFixed(1)}%`;
   }
 
-  // Engagement Rate: percentage point change
-  function formatEngagementChange(summary?: MetricSummary | null): string {
-    if (!summary || summary.current == null || summary.prev == null) return "0";
+  function engagementDelta(summary?: MetricSummary): string {
+    if (!summary || summary.current == null || summary.prev == null) {
+      return "+0.0pp";
+    }
     const delta = summary.current - summary.prev;
     const sign = delta >= 0 ? "+" : "";
     return `${sign}${delta.toFixed(1)}pp`;
   }
 
-  // ---------------- Fetch Google Analytics data ----------------
+  // ---------- Load GA metrics for on-screen display ----------
   useEffect(() => {
-    async function loadGA() {
+    async function load() {
       try {
+        const fetcher = (metric: string) =>
+          fetchMetrics({
+            provider,
+            metric,
+            startDate: defaultStartDate,
+            endDate: defaultEndDate,
+          });
+
         const [
-          activeUsersRaw,
-          pageviewsRaw,
+          activeRaw,
+          pageRaw,
           active7Raw,
-          engagementRaw,
+          engageRaw,
           newUsersRaw,
         ] = await Promise.all([
-          fetchMetrics({
-            provider,
-            metric: "ACTIVE_USERS",
-            startDate: defaultStartDate,
-            endDate: defaultEndDate,
-          }),
-          fetchMetrics({
-            provider,
-            metric: "SCREEN_PAGE_VIEWS",
-            startDate: defaultStartDate,
-            endDate: defaultEndDate,
-          }),
-          fetchMetrics({
-            provider,
-            metric: "ACTIVE_7_DAY_USERS",
-            startDate: defaultStartDate,
-            endDate: defaultEndDate,
-          }),
-          fetchMetrics({
-            provider,
-            metric: "ENGAGEMENT_RATE",
-            startDate: defaultStartDate,
-            endDate: defaultEndDate,
-          }),
-          fetchMetrics({
-            provider,
-            metric: "NEW_USERS",
-            startDate: defaultStartDate,
-            endDate: defaultEndDate,
-          }),
+          fetcher("ACTIVE_USERS"),
+          fetcher("SCREEN_PAGE_VIEWS"),
+          fetcher("ACTIVE_7_DAY_USERS"),
+          fetcher("ENGAGEMENT_RATE"),
+          fetcher("NEW_USERS"),
         ]);
 
-        const activeSeries = toLinePoints(activeUsersRaw);
-        const pageviewsSeries = toLinePoints(pageviewsRaw);
-        const active7Series = toLinePoints(active7Raw);
-        const engagementSeries = toLinePoints(engagementRaw);
-        const newUsersSeries = toLinePoints(newUsersRaw);
+        const activePts = toLinePoints(activeRaw);
+        const pagePts = toLinePoints(pageRaw);
+        const active7Pts = toLinePoints(active7Raw);
+        const engagePts = toLinePoints(engageRaw);
+        const newPts = toLinePoints(newUsersRaw);
 
-        const summaries = {
-          activeUsers: summarizeSeries(activeSeries),
-          screenPageViews: summarizeSeries(pageviewsSeries),
-          active7DayUsers: summarizeSeries(active7Series),
-          engagementRate: summarizeSeries(engagementSeries),
-          newUsers: summarizeSeries(newUsersSeries),
+        const summaries: Record<string, MetricSummary> = {
+          activeUsers: summarize(activePts),
+          screenPageViews: summarize(pagePts),
+          active7DayUsers: summarize(active7Pts),
+          engagementRate: summarize(engagePts),
+          newUsers: summarize(newPts),
         };
-
         setMetricSummaries(summaries);
 
-        // Set current metric values
         setMetrics({
           activeUsers: summaries.activeUsers.current ?? 0,
           screenPageViews: summaries.screenPageViews.current ?? 0,
@@ -197,55 +172,23 @@ export default function GoogleAnalyticsPage() {
           newUsers: summaries.newUsers.current ?? 0,
         });
 
-        const mergedUsers = mergeUsersAnd7Day(activeSeries, active7Series);
-        setUsersOverTime(mergedUsers);
-
-        const pageSeries = pageviewsSeries.map((p) => ({
-          date: p.date,
-          screenPageViews: p.value,
-        }));
-        setPageviewsOverTime(pageSeries);
-
-        // 🔥 Register FULL Google bundle for GLOBAL export system
-        registerGoogle({
-          metrics: {
-            activeUsers: summaries.activeUsers.current ?? 0,
-            screenPageViews: summaries.screenPageViews.current ?? 0,
-            active7DayUsers: summaries.active7DayUsers.current ?? 0,
-            engagementRate:
-              summaries.engagementRate.current != null
-                ? summaries.engagementRate.current / 100
-                : 0,
-            newUsers: summaries.newUsers.current ?? 0,
-          },
-
-          usersOverTime: mergedUsers,
-          pageviewsOverTime: pageSeries,
-
-          returningVsNew: [
-            { label: "New Users", value: summaries.newUsers.current ?? 0 },
-            {
-              label: "Returning Users",
-              value: Math.max(
-                (summaries.activeUsers.current ?? 0) -
-                  (summaries.newUsers.current ?? 0),
-                0
-              ),
-            },
-          ],
-
-          metricSummaries: summaries,
-        });
+        setUsersOverTime(mergeUsers(activePts, active7Pts));
+        setPageviewsOverTime(
+          pagePts.map((p) => ({
+            date: p.date,
+            screenPageViews: p.value,
+          })),
+        );
       } catch (err) {
         console.error("Error loading Google Analytics metrics:", err);
       }
     }
 
-    loadGA();
+    load();
   }, []);
 
-  // Safe defaults
-  const dMetrics: GAMetrics = metrics ?? {
+  // ---------- Safe defaults ----------
+  const d: GAMetrics = metrics ?? {
     activeUsers: 0,
     screenPageViews: 0,
     active7DayUsers: 0,
@@ -253,169 +196,136 @@ export default function GoogleAnalyticsPage() {
     newUsers: 0,
   };
 
-  const returningUsers = Math.max(dMetrics.activeUsers - dMetrics.newUsers, 0);
+  const returningUsers = Math.max(d.activeUsers - d.newUsers, 0);
 
   const returningVsNew = [
-    { label: "New Users", value: dMetrics.newUsers },
+    { label: "New Users", value: d.newUsers },
     { label: "Returning Users", value: returningUsers },
   ];
 
-  // ---------------- Rendering ----------------
+  // ---------- Render ----------
   return (
-    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
+    <div className="w-full min-h-screen bg-white flex flex-col gap-4">
       {/* Header */}
-      <div className="w-full flex flex-col lg:flex-row justify-between items-center px-4 py-2">
-        <div className="flex items-center space-x-2">
-          <button onClick={() => (window.location.href = "/")} className="w-[40px] h-[40px]">
-            <svg />
-          </button>
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">Google</h1>
-        </div>
+      <div className="w-full flex justify-between items-center px-4 py-2">
+        <h1 className="font-poppins font-semibold text-4xl">Google</h1>
 
-        <div className="flex space-x-2 mt-2 lg:mt-0">
+        <div className="flex gap-2">
           <DateRangeButton />
-
-          {/* 🔥 This now supports exporting ANY platform from ANY page */}
+          {/* 🔑 Global export: can export ANY platforms from here */}
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex flex-col gap-4 px-4 lg:h-full">
-        {/* Small Cards Row */}
-        <div className="w-full flex flex-col lg:flex-row gap-4">
-          <SmallCard
-            title="Active Users"
-            displayMode="metric-only"
-            className="w-full h-full"
-            metricValue={dMetrics.activeUsers}
-            metricLabel="users"
-            metricChange={formatPercentChange(metricSummaries.activeUsers)}
-          />
+      {/* Top metric row */}
+      <div className="px-4 flex flex-col lg:flex-row gap-4">
+        <SmallCard
+          title="Active Users"
+          metricValue={d.activeUsers}
+          metricChange={pct(metricSummaries.activeUsers)}
+          displayMode="metric-only"
+          className="w-full h-full"
+        />
 
-          <SmallCard
-            title="Page Views"
-            displayMode="metric-only"
-            className="w-full h-full"
-            metricValue={dMetrics.screenPageViews}
-            metricLabel="views"
-            metricChange={formatPercentChange(metricSummaries.screenPageViews)}
-          />
+        <SmallCard
+          title="Page Views"
+          metricValue={d.screenPageViews}
+          metricChange={pct(metricSummaries.screenPageViews)}
+          displayMode="metric-only"
+          className="w-full h-full"
+        />
 
-          <SmallCard
-            title="Active 7-Day Users"
-            displayMode="metric-only"
-            className="w-full h-full"
-            metricValue={dMetrics.active7DayUsers}
-            metricLabel="users (7D)"
-            metricChange={formatPercentChange(metricSummaries.active7DayUsers)}
-          />
+        <SmallCard
+          title="Active 7-Day Users"
+          metricValue={d.active7DayUsers}
+          metricChange={pct(metricSummaries.active7DayUsers)}
+          displayMode="metric-only"
+          className="w-full h-full"
+        />
 
-          <SmallCard
-            title="Engagement Rate"
-            displayMode="metric-only"
-            className="w-full h-full"
-            metricValue={Number((dMetrics.engagementRate * 100).toFixed(1))}
-            metricLabel="% engaged"
-            metricChange={formatEngagementChange(metricSummaries.engagementRate)}
-          />
+        <SmallCard
+          title="Engagement Rate"
+          metricValue={Number((d.engagementRate * 100).toFixed(1))}
+          metricLabel="% engaged"
+          metricChange={engagementDelta(metricSummaries.engagementRate)}
+          displayMode="metric-only"
+          className="w-full h-full"
+        />
 
-          <SmallCard
-            title="New Users"
-            displayMode="metric-only"
-            className="w-full h-full"
-            metricValue={dMetrics.newUsers}
-            metricLabel="new"
-            metricChange={formatPercentChange(metricSummaries.newUsers)}
-          />
-        </div>
+        <SmallCard
+          title="New Users"
+          metricValue={d.newUsers}
+          metricChange={pct(metricSummaries.newUsers)}
+          displayMode="metric-only"
+          className="w-full h-full"
+        />
+      </div>
 
-        {/* Big Cards */}
-        <div className="w-full flex flex-col gap-4 lg:h-full">
-          {/* FIRST ROW */}
-          <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
-            <div className="lg:w-2/3">
-              <BigCard
-                title="Active Users"
-                subtitle="Last 30 days"
-                metricValue={dMetrics.activeUsers}
-                metricLabel="total"
-                metricChange={formatPercentChange(metricSummaries.activeUsers)}
-                chart={
-                  <div className="w-full h-64">
-                    <LineCharts
-                      data={usersOverTime}
-                      xAxisKey="date"
-                      dataKeys={["activeUsers"]}
-                      showArea
-                    />
-                  </div>
-                }
-                displayMode="both"
-                className="w-full h-full"
+      {/* Large chart cards */}
+      <div className="px-4 flex flex-col gap-4">
+        <BigCard
+          title="Active Users"
+          subtitle="Over time"
+          chart={
+            <div className="w-full h-64">
+              <LineCharts
+                data={usersOverTime}
+                xAxisKey="date"
+                dataKeys={["activeUsers"]}
+                showArea
               />
             </div>
+          }
+          displayMode="both"
+          className="w-full"
+        />
 
-            <div className="lg:w-1/3">
-              <BigCard
-                title="New vs Returning Users"
-                chart={
-                  <div className="w-full h-64">
-                    <PieCharts
-                      data={returningVsNew}
-                      dataKey="value"
-                      nameKey="label"
-                    />
-                  </div>
-                }
-                displayMode="both"
-                className="w-full h-full"
+        <BigCard
+          title="New vs Returning Users"
+          chart={
+            <div className="w-full h-64">
+              <PieCharts
+                data={returningVsNew}
+                dataKey="value"
+                nameKey="label"
               />
             </div>
-          </div>
+          }
+          displayMode="both"
+          className="w-full"
+        />
 
-          {/* SECOND ROW */}
-          <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
-            <div className="lg:w-1/2">
-              <BigCard
-                title="Pageviews"
-                subtitle="Last 30 days"
-                metricValue={dMetrics.screenPageViews}
-                metricLabel="total"
-                metricChange={formatPercentChange(metricSummaries.screenPageViews)}
-                chart={
-                  <div className="w-full h-64">
-                    <LineCharts
-                      data={pageviewsOverTime}
-                      xAxisKey="date"
-                      dataKeys={["screenPageViews"]}
-                    />
-                  </div>
-                }
-                displayMode="both"
-                className="w-full h-full"
+        <BigCard
+          title="Pageviews"
+          subtitle="Over time"
+          chart={
+            <div className="w-full h-64">
+              <LineCharts
+                data={pageviewsOverTime}
+                xAxisKey="date"
+                dataKeys={["screenPageViews"]}
               />
             </div>
+          }
+          displayMode="both"
+          className="w-full"
+        />
 
-            <div className="lg:w-1/2">
-              <BigCard
-                title="Active 7-Day Users (trend)"
-                chart={
-                  <div className="w-full h-64">
-                    <LineCharts
-                      data={usersOverTime}
-                      xAxisKey="date"
-                      dataKeys={["active7DayUsers"]}
-                      showArea
-                    />
-                  </div>
-                }
-                displayMode="both"
-                className="w-full h-full"
+        <BigCard
+          title="Active 7-Day Users (trend)"
+          chart={
+            <div className="w-full h-64">
+              <LineCharts
+                data={usersOverTime}
+                xAxisKey="date"
+                dataKeys={["active7DayUsers"]}
+                showArea
               />
             </div>
-          </div>
-        </div>
+          }
+          displayMode="both"
+          className="w-full"
+        />
       </div>
     </div>
   );
