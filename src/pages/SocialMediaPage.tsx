@@ -1,6 +1,12 @@
+// src/pages/SocialMediaPage.tsx
+
 import { useEffect, useState } from "react";
 import { useRoute } from "wouter";
-import { LineChart as SparkLineChart, Line, ResponsiveContainer } from "recharts";
+import {
+  LineChart as SparkLineChart,
+  Line,
+  ResponsiveContainer,
+} from "recharts";
 
 import DateRangeButton from "../components/date-range/DateRangeButton";
 import ExportButton from "../components/export-pdf/ExportButton";
@@ -10,82 +16,24 @@ import LineCharts from "../components/charts/LineCharts";
 import PieCharts from "../components/charts/PieCharts";
 
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
+import {
+  CHART_CONFIGS,
+  Platform,
+  ChartConfig,
+} from "../config/chartConfigs";
 
-// ---------- Types ----------
-type ChartType = "line" | "pie";
-
-type ChartConfig = {
-  id: string;            // internal id for this chart
-  title: string;         // title to show on BigCard
-  type: ChartType;
-  metric: string;        // MUST match your backend Metric enum
-};
-
-type LinePoint = {
+// ---------- Local Types ----------
+interface LinePoint {
   date: string;
   value: number;
-};
-
-type MetricSummary = {
-  current: number | null;
-  prev: number | null;
-};
-
-const CHART_CONFIGS: Record<string, ChartConfig[]> = {
-  instagram: [
-    { id: "impressions",       title: "Impressions",      type: "line", metric: "VIEWS" },
-    { id: "followers_count",   title: "Followers",        type: "line", metric: "FOLLOWERS" },
-    { id: "total_likes",       title: "Total Likes",      type: "line", metric: "LIKES" },
-    { id: "total_comments",    title: "Total Comments",   type: "line", metric: "COMMENTS" },
-    { id: "media_count",       title: "Media Reactions",  type: "line", metric: "POSTS" },
-  ],
-  twitter: [
-    //  Adjust metrics to whatever you actually seeded in the DB
-    { id: "followers_count",   title: "Followers",        type: "line", metric: "FOLLOWERS" },
-    { id: "following_count",   title: "Following",        type: "line", metric: "LIKES" },     // TODO: adjust if needed
-    { id: "tweet_count",       title: "Tweet Count",      type: "line", metric: "POSTS" },
-    { id: "listed_count",      title: "Listed Count",     type: "line", metric: "SHARES" },    // TODO: adjust if needed
-  ],
-  facebook: [
-    { id: "page_follows",                            title: "Page Follows",         type: "line", metric: "FOLLOWERS" },
-    { id: "page_actions_post_reactions_like_total",  title: "Total reactions/likes", type: "line", metric: "LIKES" },
-    { id: "page_media_view",                         title: "Page Views",           type: "line", metric: "VIEWS" },
-    { id: "total_comments",                          title: "Total Comments",       type: "line", metric: "COMMENTS" },
-    { id: "total_posts",                             title: "Total Posts",          type: "line", metric: "POSTS" },
-    { id: "total_shares",                            title: "Total Shares",         type: "line", metric: "SHARES" },
-  ],
-  google: [
-    { id: "activeUsers",     title: "Active Users",         type: "line", metric: "ACTIVE_USERS" },
-    { id: "screenPageViews", title: "Page Views",           type: "line", metric: "SCREEN_PAGE_VIEWS" },
-    { id: "active7DayUsers", title: "Active 7 Day Users",   type: "line", metric: "ACTIVE_7_DAY_USERS" },
-    { id: "engagementRate",  title: "Engagement Rate",      type: "line", metric: "ENGAGEMENT_RATE" },
-    { id: "newUsers",        title: "New Users",            type: "line", metric: "NEW_USERS" },
-  ],
-};
-
-type MetricSummary = {
-  current: number | null;
-  prev: number | null;
-};
-
-/* ---------- Map URL platform -> backend provider enum ---------- */
-
-function providerFromPlatform(platform: Platform): string {
-  switch (platform) {
-    case "instagram":
-      return "INSTAGRAM";
-    case "twitter":
-      return "TWITTER";
-    case "facebook":
-      return "FACEBOOK";
-    case "google":
-      return "GOOGLE_ANALYTICS";
-    default:
-      return "INSTAGRAM";
-  }
 }
 
-// map URL platform -> backend Provider enum string
+interface MetricSummary {
+  current: number | null;
+  prev: number | null;
+}
+
+// ---------- Provider Mapping ----------
 function providerFromPlatform(platform: Platform): string {
   switch (platform) {
     case "instagram":
@@ -102,26 +50,22 @@ function providerFromPlatform(platform: Platform): string {
 }
 
 export default function SocialMediaPage() {
-  //  Using Wouter's dynamic route match
-  const [match, params] = useRoute("/social/:platform");
-  const platform = (params?.platform as Platform) || null;
+  const [, params] = useRoute("/social/:platform");
+  const platform = (params?.platform as Platform) ?? null;
 
   const formattedPlatform = platform
     ? platform.charAt(0).toUpperCase() + platform.slice(1)
     : "Social Media";
 
-  // ---- State for charts + summaries ----
-  const [chartDataMap, setChartDataMap] = useState<Record<string, LinePoint[]>>(
-    {},
-  );
-  const [metricSummaries, setMetricSummaries] = useState<
-    Record<string, MetricSummary>
-  >({});
+  const [chartDataMap, setChartDataMap] =
+    useState<Record<string, LinePoint[]>>({});
+  const [metricSummaries, setMetricSummaries] =
+    useState<Record<string, MetricSummary>>({});
 
   const defaultStartDate = "2024-01-01";
   const defaultEndDate = "3000-01-01";
 
-  // ---- Helpers ----
+  // ---------- Helpers ----------
   function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     return raw
       .filter((m) => m.metricDate || m.lastSynced)
@@ -134,108 +78,99 @@ export default function SocialMediaPage() {
   }
 
   function toLinePoints(raw: SocialMediaMetric[]): LinePoint[] {
-    return sortByDate(raw).map((m) => {
-      const timestamp = (m.metricDate ?? m.lastSynced)!;
-      return {
-        date: timestamp.slice(0, 10),
-        value: m.metricValue,
-      };
-    });
+    return sortByDate(raw).map((m) => ({
+      date: (m.metricDate ?? m.lastSynced)!.slice(0, 10),
+      value: m.metricValue,
+    }));
   }
 
   function summarizeSeries(points: LinePoint[]): MetricSummary {
     if (points.length === 0) return { current: null, prev: null };
     if (points.length === 1) return { current: points[0].value, prev: null };
-    const latest = points[points.length - 1].value;
-    const prev = points[points.length - 2].value;
-    return { current: latest, prev };
+    return {
+      current: points[points.length - 1].value,
+      prev: points[points.length - 2].value,
+    };
   }
 
   function formatPercentChange(summary?: MetricSummary): string {
-    if (!summary || summary.current == null || summary.prev == null || summary.prev == 0) {
+    if (
+      !summary ||
+      summary.current == null ||
+      summary.prev == null ||
+      summary.prev === 0
+    )
       return "+ 0%";
-    }
+
     const pct = ((summary.current - summary.prev) / summary.prev) * 100;
-    const sign = pct >= 0 ? "+" : "";
-    return `${sign}${pct.toFixed(1)}% vs. prev.`;
+    return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}% vs. prev`;
   }
 
-  function formatValue(summary?: MetricSummary, suffix?: string): string {
-    if (!summary || summary.current == null) return "-";
-    const base = summary.current.toLocaleString();
-    return suffix ? `${base} ${suffix}` : base;
-  }
-
-  // ---- Fetch metrics whenever platform changes ----
+  // ---------- Fetch Metrics ----------
   useEffect(() => {
     if (!platform) return;
 
     const configs = CHART_CONFIGS[platform];
-    if (!configs) return;
-
     const provider = providerFromPlatform(platform);
 
-    async function loadMetrics() {
+    async function load() {
       try {
         const results = await Promise.all(
-          configs.map((cfg) =>
+          configs.map((cfg: ChartConfig) =>
             fetchMetrics({
               provider,
-              metric: cfg.metric, // MUST match backend Metric enum
+              metric: cfg.metric,
               startDate: defaultStartDate,
               endDate: defaultEndDate,
-            }).then((rows) => ({ cfg, rows })),
-          ),
+            }).then((rows) => ({ cfg, rows }))
+          )
         );
 
-        const nextChartDataMap: Record<string, LinePoint[]> = {};
-        const nextSummaries: Record<string, MetricSummary> = {};
+        const nextMap: Record<string, LinePoint[]> = {};
+        const nextSum: Record<string, MetricSummary> = {};
 
         for (const { cfg, rows } of results) {
           const series = toLinePoints(rows);
-          nextChartDataMap[cfg.id] = series;
-          nextSummaries[cfg.id] = summarizeSeries(series);
+          nextMap[cfg.id] = series;
+          nextSum[cfg.id] = summarizeSeries(series);
         }
 
-        setChartDataMap(nextChartDataMap);
-        setMetricSummaries(nextSummaries);
+        setChartDataMap(nextMap);
+        setMetricSummaries(nextSum);
       } catch (err) {
-        console.error("Error loading social media metrics:", err);
+        console.error("Failed to load social media metrics:", err);
       }
     }
 
-    loadMetrics();
+    load();
   }, [platform]);
 
-  // ---- SmallCard helpers: pick the right chart for each metric ----
-  function findConfigForMetric(
-    platform: Platform,
-    metric: string,
-  ): ChartConfig | undefined {
-    return CHART_CONFIGS[platform].find((c) => c.metric === metric);
-  }
-
-  const followersCfg =
-    platform && findConfigForMetric(platform, "FOLLOWERS");
-  const commentsCfg =
-    platform && findConfigForMetric(platform, "COMMENTS");
-  const likesCfg =
-    platform && findConfigForMetric(platform, "LIKES");
-  const sharesCfg =
-    platform && findConfigForMetric(platform, "SHARES");
-  const commentsSeries =
-    commentsCfg ? chartDataMap[commentsCfg.id] ?? [] : [];
-  const likesSeries = likesCfg ? chartDataMap[likesCfg.id] ?? [] : [];
-  const sharesSeries = sharesCfg ? chartDataMap[sharesCfg.id] ?? [] : [];
-
+  // ---------- Sparkline ----------
   const MiniSparkline = ({ data }: { data: LinePoint[] }) => (
     <ResponsiveContainer width="100%" height="100%">
-      <SparkLineChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-        <Line type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={2} dot={false} />
+      <SparkLineChart
+        data={data}
+        margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+      >
+        <Line
+          type="monotone"
+          dataKey="value"
+          stroke="#3B82F6"
+          strokeWidth={2}
+          dot={false}
+        />
       </SparkLineChart>
     </ResponsiveContainer>
   );
 
+  // ---------- Export ----------
+  function handleExport() {
+    window.dispatchEvent(
+      new CustomEvent("export-social", { detail: { platform } })
+    );
+  }
+
+  // ---------- UI ----------
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
@@ -245,113 +180,53 @@ export default function SocialMediaPage() {
             onClick={() => (window.location.href = "/")}
             className="w-[40px] h-[40px]"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="size-7"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
+            ←
           </button>
+
           <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
             {formattedPlatform}
           </h1>
         </div>
+
         <div className="flex space-x-2 mt-2 lg:mt-0">
           <DateRangeButton />
-          {/* Uses global full-page PDF exporter */}
           <ExportButton onExport={handleExport} />
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row gap-4 px-4 lg:h-full">
-        {/* Sidebar Cards */}
+        {/* Sidebar */}
         <div className="w-full lg:w-1/4 flex flex-col gap-4 lg:h-full">
-          {/* Followers */}
-          <SmallCard
-            title="Followers"
-            displayMode="metric-only"
-            className="w-full"
-            metricValue={
-              followersCfg
-                ? metricSummaries[followersCfg.id]?.current ?? 0
-                : 0
-            }
-            metricLabel="followers"
-            metricChange={
-              followersCfg
-                ? formatPercentChange(metricSummaries[followersCfg.id])
-                : "+ 0%"
-            }
-          />
+          {["FOLLOWERS", "COMMENTS", "LIKES", "SHARES"].map((metricKey) => {
+            const cfg = CHART_CONFIGS[platform!].find(
+              (c) => c.metric === metricKey
+            );
 
-          {/* Comments */}
-          <SmallCard
-            title="Comments"
-            displayMode="both"
-            className="w-full"
-            metricValue={
-              commentsCfg
-                ? metricSummaries[commentsCfg.id]?.current ?? 0
-                : 0
-            }
-            metricLabel="comments"
-            metricChange={
-              commentsCfg
-                ? formatPercentChange(metricSummaries[commentsCfg.id])
-                : "+ 0%"
-            }
-            chart={commentsCfg ? <MiniSparkline data={commentsSeries} /> : undefined}
-          />
+            if (!cfg) return null;
 
-          {/* Likes */}
-          <SmallCard
-            title="Likes"
-            displayMode="both"
-            className="w-full"
-            metricValue={
-              likesCfg ? metricSummaries[likesCfg.id]?.current ?? 0 : 0
-            }
-            metricLabel="likes"
-            metricChange={
-              likesCfg
-                ? formatPercentChange(metricSummaries[likesCfg.id])
-                : "+ 0%"
-            }
-            chart={likesCfg ? <MiniSparkline data={likesSeries} /> : undefined}
-          />
+            const summary = metricSummaries[cfg.id];
+            const series = chartDataMap[cfg.id] ?? [];
 
-          {/* Shared */}
-          <SmallCard
-            title="Shared"
-            displayMode="both"
-            className="w-full"
-            
-            metricValue={
-              sharesCfg ? metricSummaries[sharesCfg.id]?.current ?? 0 : 0
-            }
-            metricLabel="shares"
-            metricChange={
-              sharesCfg
-                ? formatPercentChange(metricSummaries[sharesCfg.id])
-                : "+ 0%"
-            }
-            chart={sharesCfg ? <MiniSparkline data={sharesSeries} /> : undefined}
-          />
+            return (
+              <SmallCard
+                key={cfg.id}
+                title={cfg.title}
+                displayMode="both"
+                className="w-full"
+                metricValue={summary?.current ?? 0}
+                metricLabel={cfg.title.toLowerCase()}
+                metricChange={formatPercentChange(summary)}
+                chart={<MiniSparkline data={series} />}
+              />
+            );
+          })}
         </div>
 
-        {/* Chart Cards (Dynamic) */}
+        {/* Chart Cards */}
         <div className="w-full lg:w-3/4 flex flex-col gap-4 lg:h-full">
           {platform &&
-            CHART_CONFIGS[platform].map((chart) => (
+            CHART_CONFIGS[platform].map((chart: ChartConfig) => (
               <BigCard
                 key={chart.id}
                 title={chart.title}
@@ -364,11 +239,11 @@ export default function SocialMediaPage() {
                         data={chartDataMap[chart.id] ?? []}
                         xAxisKey="date"
                         dataKeys={["value"]}
-                        showArea={true}
+                        showArea
                       />
                     ) : (
                       <PieCharts
-                        data={[]} // you can wire real pie data later if needed
+                        data={[]}
                         dataKey="value"
                         nameKey="label"
                       />

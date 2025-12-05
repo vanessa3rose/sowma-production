@@ -1,12 +1,19 @@
+// src/config/chartConfigs.ts
+
+export type ChartType = "line" | "pie";
+
+export interface ChartConfig {
+  id: string;
+  title: string;
+  type: ChartType;
+  metric: string;
+}
+
 /**
  * Central configuration for which charts exist per social platform.
- * This is used both by the SocialMediaPage (to render charts)
- * and the ExportModal / export system.
- *
- * ⚠ Each config MUST include `metric` so SocialMediaPage
- *    can fetch backend data correctly.
+ * Used by SocialMediaPage and PDF export.
  */
-export const CHART_CONFIGS = {
+export const CHART_CONFIGS: Record<string, ChartConfig[]> = {
   instagram: [
     { id: "impressions",       title: "Impressions",      type: "line", metric: "VIEWS" },
     { id: "followers_count",   title: "Followers",        type: "line", metric: "FOLLOWERS" },
@@ -17,9 +24,9 @@ export const CHART_CONFIGS = {
 
   twitter: [
     { id: "followers_count",   title: "Followers",        type: "line", metric: "FOLLOWERS" },
-    { id: "following_count",   title: "Following",        type: "line", metric: "LIKES" },     // adjust if backend differs
+    { id: "following_count",   title: "Following",        type: "line", metric: "LIKES" },
     { id: "tweet_count",       title: "Tweet Count",      type: "line", metric: "POSTS" },
-    { id: "listed_count",      title: "Listed Count",     type: "line", metric: "SHARES" },    // adjust if needed
+    { id: "listed_count",      title: "Listed Count",     type: "line", metric: "SHARES" },
   ],
 
   facebook: [
@@ -38,14 +45,13 @@ export const CHART_CONFIGS = {
     { id: "engagementRate",    title: "Engagement Rate",     type: "line", metric: "ENGAGEMENT_RATE" },
     { id: "newUsers",          title: "New Users",           type: "line", metric: "NEW_USERS" },
   ],
-} as const;
-
-/** All valid social platforms supported by the dashboard. */
-export type Platform = keyof typeof CHART_CONFIGS;
+};
 
 /**
- * Human-readable labels for platforms, for use in the UI.
+ * Platform = union of all keys ("instagram" | "twitter" | "facebook" | "google")
  */
+export type Platform = keyof typeof CHART_CONFIGS;
+
 export const PLATFORM_LABELS: Record<Platform, string> = {
   instagram: "Instagram",
   twitter: "Twitter",
@@ -53,8 +59,5 @@ export const PLATFORM_LABELS: Record<Platform, string> = {
   google: "Google Analytics",
 };
 
-/**
- * Helper to generate a stable DOM/chart ID.
- */
 export const buildChartDomId = (platform: Platform, chartId: string) =>
   `${platform}-${chartId}`;
