@@ -178,14 +178,21 @@ export default function Homepage() {
     getBackendMetrics();
   }, [selectedProvider]);
 
-  const socialLinks = [
-    { name: "google", icon: google },
-    { name: "instagram", icon: instagram },
-    { name: "facebook", icon: facebook },
-    { name: "tiktok", icon: tiktok },
-    { name: "linkedin", icon: linkedin },
-    { name: "twitter", icon: twitter },
-  ];
+    const socialLinks = [
+        { name: "google", icon: google },      // exception
+        { name: "instagram", icon: instagram },
+        { name: "facebook", icon: facebook },
+        { name: "tiktok", icon: tiktok },      // exception
+        { name: "linkedin", icon: linkedin },  // exception
+        { name: "twitter", icon: twitter },
+    ];
+
+
+    const exceptionRoutes: Record<string, string> = {
+        google: "/google-analytics",
+        linkedin: "/error",
+        tiktok: "/error",
+    };
 
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
@@ -211,16 +218,21 @@ export default function Homepage() {
           </div>
 
           <div className="flex flex-row gap-2">
-            {socialLinks.map((social, idx) => (
-              <a href={`/social/${social.name}`} key={idx}>
-                <img
-                  src={social.icon}
-                  className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border border-solid"
-                />
-              </a>
-            ))}
+            {socialLinks.map((social, idx) => {
+                const href = exceptionRoutes[social.name] || `/social/${social.name}`; // fallback to default
 
-            <a href="/">
+                return (
+                <a href={href} key={idx}>
+                    <img
+                    src={social.icon}
+                    alt={social.name}
+                    className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border border-solid"
+                    />
+                </a>
+                );
+            })}
+
+            <a href="/Newsletter">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"

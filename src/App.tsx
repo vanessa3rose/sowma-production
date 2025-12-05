@@ -10,18 +10,52 @@ import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
 import AdminPage from "./pages/AdminPage";
 import TestExportPDF from "./pages/TestExportPDF"; //TODO: Remove
 import GlossaryPage from "./pages/Glossary";
+import { useState } from "react";
+import ErrorPage from "./pages/ErrorPage";
+import Newsletter from "./pages/Newsletter";
 
 const App = () => {
   const [location] = useLocation();
   const hideLayoutRoutes = ["/login", "/signup"];
   const hideLayout = hideLayoutRoutes.includes(location);
 
+  const [isMobile, setisMobile] = useState(false);
+
+
   return (
     <div className={`${!hideLayout && "flex min-h-screen bg-white"}`}>
-      {!hideLayout && <LeftSidebar />}
-      <div
-        className={`${!hideLayout && "flex-grow flex flex-col ml-[20%] pt-0 px-6 bg-white"}`}
-      >
+    {!hideLayout && (
+      <>
+        {/* Desktop sidebar */}
+        <div className="hidden md:block">
+          <LeftSidebar />
+        </div>
+
+        {/* Mobile sidebar/making it visible only on small screens*/}
+        <div className="md:hidden">
+          <LeftSidebar
+            mobile
+            open={isMobile}
+            onClose={() => setisMobile(false)}
+          />
+        </div>
+
+        {/* Button to collapse the page */}
+        <button
+          className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-200 rounded-lg shadow"
+          onClick={() => setisMobile(!isMobile)}
+        >
+          ☰
+        </button>
+      </>
+    )}
+
+    {/* Content on page */}
+    <div
+      className={`flex-grow flex flex-col pt-0 px-6 bg-white ${
+        !hideLayout ? "md:ml-[20%]" : ""
+      }`}
+    >
         <Switch>
           <Route path="/" component={Homepage} />
           <Route path="/social-media" component={SocialMediaPage} />
@@ -32,6 +66,8 @@ const App = () => {
           <Route path="/admin" component={AdminPage} />
           <Route path="/test-export" component={TestExportPDF} />
           <Route path="/glossary" component={GlossaryPage} />
+          <Route path="/error" component={ErrorPage} />
+          <Route path="/newsletter" component={Newsletter} />
 
           <Route>
             <p className="p-4 text-black">404: Page Not Found</p>
