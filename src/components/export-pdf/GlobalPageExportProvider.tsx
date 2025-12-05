@@ -7,10 +7,9 @@ import {
   GoogleAnalyticsExportBundle,
 } from "../../types/exportTypes";
 
-import {
-  fetchGoogleExportBundle,
-  fetchSocialExportBundle,
-} from "./fetchExportData";
+import { fetchGoogleExportBundle } from "./fetchExportData";
+// ⭐ NEW: social export is now fetched independently
+import { fetchSocialExportBundle } from "./fetchSocialExportBundle";
 
 import { Platform } from "../../config/chartConfigs";
 import { usePDFExporter } from "../../hooks/usePDFExporter";
@@ -21,7 +20,11 @@ interface ExportContextValue {
 
 const ExportContext = createContext<ExportContextValue | null>(null);
 
-export function GlobalPageExportProvider({ children }: { children: React.ReactNode }) {
+export function GlobalPageExportProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { exportCardsToPDF } = usePDFExporter();
 
   async function exportByPlatforms(platforms: Platform[]) {
@@ -29,6 +32,7 @@ export function GlobalPageExportProvider({ children }: { children: React.ReactNo
 
     for (const platform of platforms) {
       if (platform === "google") {
+        // ✅ leave GA path exactly as-is
         const bundle: GoogleAnalyticsExportBundle =
           await fetchGoogleExportBundle();
 
@@ -37,6 +41,7 @@ export function GlobalPageExportProvider({ children }: { children: React.ReactNo
           data: bundle,
         });
       } else {
+        // ⭐ NEW: independent social export path
         const bundle: SocialExportBundle = await fetchSocialExportBundle(
           platform
         );

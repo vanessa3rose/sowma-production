@@ -1,59 +1,72 @@
+// src/components/export-pdf/mapSocialData.ts
 import type { SocialExportBundle } from "../../types/exportTypes";
 
 /**
- * Compute numeric percent delta (not formatted).
+ * Compute a numeric delta (percentage change).
+ * If prev is null or 0, returns 0.
  */
-function computeDeltaNumber(curr: number | null, prev: number | null): number {
+function computeDelta(curr: number | null, prev: number | null): number {
   if (curr == null || prev == null || prev === 0) return 0;
-  return ((curr - prev) / prev) * 100;
+  const pct = ((curr - prev) / prev) * 100;
+  return Number(pct.toFixed(1));
 }
+
+/**
+ * Platform-specific ID mapping.
+ */
+const PLATFORM_MAP = {
+  instagram: {
+    followersId: "followers",
+    impressionsId: "impressions",
+    postsId: "media_count",
+    likesId: "likes",
+    commentsId: "comments",
+    sharesId: null,
+  },
+  twitter: {
+    followersId: "followers",
+    impressionsId: "tweet_impressions",
+    postsId: "tweets",
+    likesId: "favorites",
+    commentsId: "replies",
+    sharesId: "retweets",
+  },
+  facebook: {
+    followersId: "page_follows",
+    impressionsId: "page_media_view",
+    postsId: "total_posts",
+    likesId: "page_actions_post_reactions_like_total",
+    commentsId: "total_comments",
+    sharesId: "total_shares",
+  },
+} as const;
+
+type Point = { date: string; value: number };
 
 export function mapSocialToExportData(
   platform: string,
-  chartDataMap: Record<string, { date: string; value: number }[]>,
+  chartDataMap: Record<string, Point[]>,
   metricSummaries: Record<string, { current: number | null; prev: number | null }>
 ): SocialExportBundle {
-  // ----------- ID AUTODETECTION -----------
-  const followersId = Object.keys(chartDataMap).find((id) =>
-    id.toLowerCase().includes("follower")
-  );
+  const map = PLATFORM_MAP[platform as keyof typeof PLATFORM_MAP];
+  if (!map) throw new Error(`Unsupported platform: ${platform}`);
 
-  const impressionsId = Object.keys(chartDataMap).find((id) =>
-    id.toLowerCase().includes("view") ||
-    id.toLowerCase().includes("impression")
-  );
+  console.log("🔍 EXPORT DEBUG — Platform =", platform);
+  console.log("📌 chartDataMap keys:", Object.keys(chartDataMap));
+  console.log("📌 metricSummaries:", metricSummaries);
 
-  const postsId = Object.keys(chartDataMap).find((id) =>
-    id.toLowerCase().includes("post")
-  );
+  const followersSeries = chartDataMap[map.followersId] ?? [];
+  const impressionsSeries = chartDataMap[map.impressionsId] ?? [];
+  const postsSeries = chartDataMap[map.postsId] ?? [];
 
-  const likesId = Object.keys(chartDataMap).find((id) =>
-    id.toLowerCase().includes("like")
-  );
+  const followersSummary = metricSummaries[map.followersId];
+  const impressionsSummary = metricSummaries[map.impressionsId];
+  const postsSummary = metricSummaries[map.postsId];
 
-  const commentsId = Object.keys(chartDataMap).find((id) =>
-    id.toLowerCase().includes("comment")
-  );
+  const likesSummary = map.likesId ? metricSummaries[map.likesId] : null;
+  const commentsSummary = map.commentsId ? metricSummaries[map.commentsId] : null;
+  const sharesSummary = map.sharesId ? metricSummaries[map.sharesId] : null;
 
-  const sharesId = Object.keys(chartDataMap).find((id) =>
-    id.toLowerCase().includes("share")
-  );
-
-  // ----------- SERIES LOOKUP -----------
-  const followersSeries = followersId ? chartDataMap[followersId] : [];
-  const impressionsSeries = impressionsId ? chartDataMap[impressionsId] : [];
-  const postsSeries = postsId ? chartDataMap[postsId] : [];
-
-  // ----------- SUMMARY LOOKUP -----------
-  const followersSummary = followersId ? metricSummaries[followersId] : null;
-  const impressionsSummary = impressionsId ? metricSummaries[impressionsId] : null;
-  const postsSummary = postsId ? metricSummaries[postsId] : null;
-
-  const likesSummary = likesId ? metricSummaries[likesId] : null;
-  const commentsSummary = commentsId ? metricSummaries[commentsId] : null;
-  const sharesSummary = sharesId ? metricSummaries[sharesId] : null;
-
-  // ----------- ENGAGEMENT METRICS -----------
   const engagementsCurrent =
     (likesSummary?.current ?? 0) +
     (commentsSummary?.current ?? 0) +
@@ -64,67 +77,88 @@ export function mapSocialToExportData(
     (commentsSummary?.prev ?? 0) +
     (sharesSummary?.prev ?? 0);
 
-  const engagementOverTime = chartDataMap[engagementsCurrent]
-    ? chartDataMap[engagementsCurrent]
-    : []; // SAFETY: not always present
-
   const engagementBreakdown = [
-    { label: "Comments", value: commentsSummary?.current ?? 0 },
     { label: "Likes", value: likesSummary?.current ?? 0 },
+    { label: "Comments", value: commentsSummary?.current ?? 0 },
     { label: "Shares", value: sharesSummary?.current ?? 0 },
   ];
 
-  // ----------- RETURN FULL BUNDLE -----------
-  return {
+  // 🔧 normalize metricSummaries to match SocialExportBundle type
+  const normalizedSummaries: Record<string, { current: number; prev: number }> = {};
+  Object.entries(metricSummaries).forEach(([key, s]) => {
+    normalizedSummaries[key] = {
+      current: s.current ?? 0,
+      prev: s.prev ?? 0,
+    };
+  });
+
+  // ✅ engagementsOverTime with null-safe IDs and typed callbacks
+  const engagementsOverTime = (() => {
+    const dates = new Set<string>();
+
+    const addDatesFrom = (id: string | null) => {
+      if (!id) return;
+      (chartDataMap[id] ?? []).forEach((p: Point) => {
+        dates.add(p.date);
+      });
+    };
+
+    addDatesFrom(map.likesId);
+    addDatesFrom(map.commentsId);
+    addDatesFrom(map.sharesId);
+
+    const sumSeriesForDate = (id: string | null, date: string): number => {
+      if (!id) return 0;
+      const arr = chartDataMap[id] ?? [];
+      const found = arr.find((p: Point) => p.date === date);
+      return found ? found.value : 0;
+    };
+
+    return Array.from(dates)
+      .sort()
+      .map((date) => ({
+        date,
+        value:
+          sumSeriesForDate(map.likesId, date) +
+          sumSeriesForDate(map.commentsId, date) +
+          sumSeriesForDate(map.sharesId, date),
+      }));
+  })();
+
+  const bundle: SocialExportBundle = {
     platform,
 
     followers: followersSummary?.current ?? 0,
-    followersDelta: computeDeltaNumber(
+    followersDelta: computeDelta(
       followersSummary?.current ?? null,
       followersSummary?.prev ?? null
     ),
 
     impressions: impressionsSummary?.current ?? 0,
-    impressionsDelta: computeDeltaNumber(
+    impressionsDelta: computeDelta(
       impressionsSummary?.current ?? null,
       impressionsSummary?.prev ?? null
     ),
 
     posts: postsSummary?.current ?? 0,
-    postsDelta: computeDeltaNumber(
+    postsDelta: computeDelta(
       postsSummary?.current ?? null,
       postsSummary?.prev ?? null
     ),
 
     engagements: engagementsCurrent,
-    engagementsDelta: computeDeltaNumber(engagementsCurrent, engagementsPrev),
+    engagementsDelta: computeDelta(engagementsCurrent, engagementsPrev),
 
     engagementBreakdown,
+    engagementsOverTime,
 
     impressionsOverTime: impressionsSeries,
     postsOverTime: postsSeries,
     followersOverTime: followersSeries,
-    engagementsOverTime: engagementOverTime,
 
     chartDataMap,
-
-    // ⭐ FIXED: Always return numbers, never null
-    metricSummaries: normalizeSummaries(metricSummaries),
+    metricSummaries: normalizedSummaries,
   };
-}
 
-function normalizeSummaries(
-  metricSummaries: Record<string, { current: number | null; prev: number | null }>
-): Record<string, { current: number; prev: number }> {
-  const normalized: Record<string, { current: number; prev: number }> = {};
-
-  for (const key of Object.keys(metricSummaries)) {
-    const entry = metricSummaries[key];
-    normalized[key] = {
-      current: entry?.current ?? 0,
-      prev: entry?.prev ?? 0,
-    };
-  }
-
-  return normalized;
+  return bundle;
 }

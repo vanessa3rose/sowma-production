@@ -1,5 +1,4 @@
 // src/components/export-pdf/SocialMediaExportCard.tsx
-
 import { SocialExportBundle } from "../../types/exportTypes";
 import LineCharts from "../charts/LineCharts";
 import PieCharts from "../charts/PieCharts";
@@ -44,7 +43,7 @@ export default function SocialMediaExportCard({ data }: Props) {
           <KPI
             title="Followers"
             value={data.followers}
-            delta={data.followersDelta}
+            delta={`${data.followersDelta}%`}
             unit="followers"
           />
         </SoftCard>
@@ -53,7 +52,7 @@ export default function SocialMediaExportCard({ data }: Props) {
           <KPI
             title="Impressions"
             value={data.impressions}
-            delta={data.impressionsDelta}
+            delta={`${data.impressionsDelta}%`}
             unit="views"
           />
         </SoftCard>
@@ -62,7 +61,7 @@ export default function SocialMediaExportCard({ data }: Props) {
           <KPI
             title="Posts"
             value={data.posts}
-            delta={data.postsDelta}
+            delta={`${data.postsDelta}%`}
             unit="posts"
           />
         </SoftCard>
@@ -71,24 +70,26 @@ export default function SocialMediaExportCard({ data }: Props) {
           <KPI
             title="Engagements"
             value={data.engagements}
-            delta={data.engagementsDelta}
+            delta={`${data.engagementsDelta}%`}
             unit="actions"
           />
         </SoftCard>
       </div>
 
-      {/* MIDDLE ROW — PIE + LINE */}
-      <div className="flex gap-6 h-[360px]">
-        {/* PIE: Engagement Breakdown */}
-        <SoftCard className="w-[45%] flex flex-col h-full">
+      {/* ======= MIDDLE ROW (Pie + Impressions Trend) ======= */}
+      <div className="flex gap-6" style={{ height: "360px" }}>
+        {/* PIE CARD */}
+        <SoftCard
+          className="flex flex-col"
+          style={{ width: "45%", height: "360px" }}
+        >
           <div
-            style={{ fontSize: "20px", marginBottom: "14px" }}
             className="font-semibold"
+            style={{ fontSize: "20px", marginBottom: "14px" }}
           >
             Engagement Breakdown
           </div>
 
-          {/* *** FIXED PIE WRAPPER (matches GoogleExportCard) *** */}
           <div style={{ width: "100%", height: "290px" }}>
             <PieCharts
               data={data.engagementBreakdown}
@@ -98,11 +99,14 @@ export default function SocialMediaExportCard({ data }: Props) {
           </div>
         </SoftCard>
 
-        {/* LINE: Impressions Trend */}
-        <SoftCard className="w-2/3 flex flex-col">
+        {/* IMPRESSIONS TREND */}
+        <SoftCard
+          className="flex flex-col flex-1"
+          style={{ height: "360px" }}
+        >
           <div
-            style={{ fontSize: "20px", marginBottom: "14px" }}
             className="font-semibold"
+            style={{ fontSize: "20px", marginBottom: "14px" }}
           >
             Impressions (trend)
           </div>
@@ -118,9 +122,13 @@ export default function SocialMediaExportCard({ data }: Props) {
         </SoftCard>
       </div>
 
-      {/* BOTTOM ROW — POSTS + FOLLOWERS */}
-      <div className="flex gap-6 h-[360px]">
-        <SoftCard className="w-1/2 flex flex-col">
+      {/* ======= BOTTOM ROW (Posts + Followers) ======= */}
+      <div className="flex gap-6" style={{ height: "360px" }}>
+        {/* POSTS */}
+        <SoftCard
+          className="flex flex-col flex-1"
+          style={{ height: "360px" }}
+        >
           <div
             className="font-semibold"
             style={{ fontSize: "20px", marginBottom: "14px" }}
@@ -138,7 +146,11 @@ export default function SocialMediaExportCard({ data }: Props) {
           </div>
         </SoftCard>
 
-        <SoftCard className="w-1/2 flex flex-col">
+        {/* FOLLOWERS */}
+        <SoftCard
+          className="flex flex-col flex-1"
+          style={{ height: "360px" }}
+        >
           <div
             className="font-semibold"
             style={{ fontSize: "20px", marginBottom: "14px" }}
