@@ -3,10 +3,10 @@ import { Route, Switch, useLocation } from "wouter";
 import LeftSidebar from "./components/LeftSidebar";
 
 import Homepage from "./pages/Homepage";
-import SocialMediaPage from "./pages/display-pages/SocialMediaPage";
+import SocialMediaPage from "./pages/SocialMediaPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import GoogleAnalyticsPage from "./pages/display-pages/GoogleAnalyticsPage";
+import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
 import AdminPage from "./pages/AdminPage";
 import TestExportPDF from "./pages/TestExportPDF"; //TODO: Remove
 import GlossaryPage from "./pages/Glossary";

@@ -2,25 +2,25 @@
 import { useEffect, useState } from "react";
 
 // Cards
-import BigCard from "../../components/cards/BigCard";
-import SmallCard from "../../components/cards/SmallCard";
+import BigCard from "../components/cards/BigCard";
+import SmallCard from "../components/cards/SmallCard";
 // Charts
-import LineCharts from "../../components/charts/LineCharts";
-import PieCharts from "../../components/charts/PieCharts";
+import LineCharts from "../components/charts/LineCharts";
+import PieCharts from "../components/charts/PieCharts";
 // Buttons
-import DateRangeButton from "../../components/date-range/DateRangeButton";
-import ExportButton from "../../components/export-pdf/ExportButton";
+import DateRangeButton from "../components/date-range/DateRangeButton";
+import ExportButton from "../components/export-pdf/ExportButton";
 
-import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
+import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExportProvider";
 
-import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
 
 // ---------------- Types ----------------
 export type GAMetrics = {
   activeUsers: number;
   screenPageViews: number;
   active7DayUsers: number;
-  engagementRate: number; // 0–1 stored, displayed as %
+  engagementRate: number; // stored 0–1, displayed as %
   newUsers: number;
 };
 
@@ -44,6 +44,9 @@ type MetricKey =
   | "newUsers";
 
 export default function GoogleAnalyticsPage() {
+  // ---- Global export system ----
+  const { registerGoogle, exportByPlatforms } = useGlobalPageExporter();
+
   // ---- State ----
   const [metrics, setMetrics] = useState<GAMetrics | null>(null);
   const [usersOverTime, setUsersOverTime] = useState<TimePoint[]>([]);
@@ -51,9 +54,6 @@ export default function GoogleAnalyticsPage() {
   const [metricSummaries, setMetricSummaries] = useState<
     Partial<Record<MetricKey, MetricSummary>>
   >({});
-
-  const { registerGoogle, exportByPlatforms } = useGlobalPageExporter();
-  const handleExport = () => exportByPlatforms(["google"]);
 
   const provider = "GOOGLE_ANALYTICS";
   const defaultStartDate = "2024-01-01";
@@ -64,15 +64,16 @@ export default function GoogleAnalyticsPage() {
     return raw
       .filter((m) => m.metricDate || m.lastSynced)
       .slice()
-      .sort((a, b) =>
-        (a.metricDate ?? a.lastSynced)!.localeCompare(
-          (b.metricDate ?? b.lastSynced)!,
-        ),
+      .sort(
+        (a, b) =>
+          (a.metricDate ?? a.lastSynced)!.localeCompare(
+            (b.metricDate ?? b.lastSynced)!
+          )
       );
   }
 
   function toLinePoints(
-    raw: SocialMediaMetric[],
+    raw: SocialMediaMetric[]
   ): { date: string; value: number }[] {
     return sortByDate(raw).map((m) => ({
       date: (m.metricDate ?? m.lastSynced)!.slice(0, 10),
@@ -80,32 +81,28 @@ export default function GoogleAnalyticsPage() {
     }));
   }
 
-  function summarizeSeries(
-    pts: { date: string; value: number }[],
-  ): MetricSummary {
-    const len = pts.length;
-    if (len === 0) return { current: null, prev: null };
-    if (len === 1) return { current: pts[0].value, prev: null };
-
+  function summarizeSeries(pts: { date: string; value: number }[]): MetricSummary {
+    if (pts.length === 0) return { current: null, prev: null };
+    if (pts.length === 1) return { current: pts[0].value, prev: null };
     return {
-      current: pts[len - 1].value,
-      prev: pts[len - 2].value,
+      current: pts[pts.length - 1].value,
+      prev: pts[pts.length - 2].value,
     };
   }
 
   function mergeUsersAnd7Day(
     active: { date: string; value: number }[],
-    active7: { date: string; value: number }[],
+    active7: { date: string; value: number }[]
   ): TimePoint[] {
     const map: Record<string, TimePoint> = {};
 
     active.forEach((p) => {
-      if (!map[p.date]) map[p.date] = { date: p.date };
+      map[p.date] ??= { date: p.date };
       map[p.date].activeUsers = p.value;
     });
 
     active7.forEach((p) => {
-      if (!map[p.date]) map[p.date] = { date: p.date };
+      map[p.date] ??= { date: p.date };
       map[p.date].active7DayUsers = p.value;
     });
 
@@ -113,8 +110,7 @@ export default function GoogleAnalyticsPage() {
   }
 
   function formatPercentChange(summary?: MetricSummary | null): string {
-    if (!summary || summary.current == null || summary.prev == null)
-      return "+ 0%";
+    if (!summary || summary.current == null || summary.prev == null) return "+ 0%";
     if (summary.prev === 0) return "+ 0%";
 
     const pct = ((summary.current - summary.prev) / summary.prev) * 100;
@@ -122,16 +118,15 @@ export default function GoogleAnalyticsPage() {
     return `${sign}${pct.toFixed(1)}% vs. prev.`;
   }
 
-  // Engagement Rate is percentage points (pp) change
+  // Engagement Rate: percentage point change
   function formatEngagementChange(summary?: MetricSummary | null): string {
-    if (!summary || summary.current == null || summary.prev == null)
-      return "0";
+    if (!summary || summary.current == null || summary.prev == null) return "0";
     const delta = summary.current - summary.prev;
     const sign = delta >= 0 ? "+" : "";
     return `${sign}${delta.toFixed(1)}pp`;
   }
 
-  // ---------------- Fetch GA Data ----------------
+  // ---------------- Fetch Google Analytics data ----------------
   useEffect(() => {
     async function loadGA() {
       try {
@@ -190,6 +185,7 @@ export default function GoogleAnalyticsPage() {
 
         setMetricSummaries(summaries);
 
+        // Set current metric values
         setMetrics({
           activeUsers: summaries.activeUsers.current ?? 0,
           screenPageViews: summaries.screenPageViews.current ?? 0,
@@ -201,8 +197,8 @@ export default function GoogleAnalyticsPage() {
           newUsers: summaries.newUsers.current ?? 0,
         });
 
-        const merged = mergeUsersAnd7Day(activeSeries, active7Series);
-        setUsersOverTime(merged);
+        const mergedUsers = mergeUsersAnd7Day(activeSeries, active7Series);
+        setUsersOverTime(mergedUsers);
 
         const pageSeries = pageviewsSeries.map((p) => ({
           date: p.date,
@@ -210,7 +206,7 @@ export default function GoogleAnalyticsPage() {
         }));
         setPageviewsOverTime(pageSeries);
 
-        // 🔥 STEP 3 — Register *full* Google analytics export bundle
+        // 🔥 Register FULL Google bundle for GLOBAL export system
         registerGoogle({
           metrics: {
             activeUsers: summaries.activeUsers.current ?? 0,
@@ -223,7 +219,7 @@ export default function GoogleAnalyticsPage() {
             newUsers: summaries.newUsers.current ?? 0,
           },
 
-          usersOverTime: merged,
+          usersOverTime: mergedUsers,
           pageviewsOverTime: pageSeries,
 
           returningVsNew: [
@@ -240,7 +236,6 @@ export default function GoogleAnalyticsPage() {
 
           metricSummaries: summaries,
         });
-
       } catch (err) {
         console.error("Error loading Google Analytics metrics:", err);
       }
@@ -249,7 +244,7 @@ export default function GoogleAnalyticsPage() {
     loadGA();
   }, []);
 
-  // Fallback safe values
+  // Safe defaults
   const dMetrics: GAMetrics = metrics ?? {
     activeUsers: 0,
     screenPageViews: 0,
@@ -258,10 +253,7 @@ export default function GoogleAnalyticsPage() {
     newUsers: 0,
   };
 
-  const returningUsers = Math.max(
-    dMetrics.activeUsers - dMetrics.newUsers,
-    0,
-  );
+  const returningUsers = Math.max(dMetrics.activeUsers - dMetrics.newUsers, 0);
 
   const returningVsNew = [
     { label: "New Users", value: dMetrics.newUsers },
@@ -277,20 +269,20 @@ export default function GoogleAnalyticsPage() {
           <button onClick={() => (window.location.href = "/")} className="w-[40px] h-[40px]">
             <svg />
           </button>
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
-            Google
-          </h1>
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">Google</h1>
         </div>
 
         <div className="flex space-x-2 mt-2 lg:mt-0">
           <DateRangeButton />
-          <ExportButton onExport={() => handleExport()} />
+
+          {/* 🔥 This now supports exporting ANY platform from ANY page */}
+          <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex flex-col gap-4 px-4 lg:h-full">
-        {/* Top Row Small Cards */}
+        {/* Small Cards Row */}
         <div className="w-full flex flex-col lg:flex-row gap-4">
           <SmallCard
             title="Active Users"
@@ -300,6 +292,7 @@ export default function GoogleAnalyticsPage() {
             metricLabel="users"
             metricChange={formatPercentChange(metricSummaries.activeUsers)}
           />
+
           <SmallCard
             title="Page Views"
             displayMode="metric-only"
@@ -308,6 +301,7 @@ export default function GoogleAnalyticsPage() {
             metricLabel="views"
             metricChange={formatPercentChange(metricSummaries.screenPageViews)}
           />
+
           <SmallCard
             title="Active 7-Day Users"
             displayMode="metric-only"
@@ -316,6 +310,7 @@ export default function GoogleAnalyticsPage() {
             metricLabel="users (7D)"
             metricChange={formatPercentChange(metricSummaries.active7DayUsers)}
           />
+
           <SmallCard
             title="Engagement Rate"
             displayMode="metric-only"
@@ -324,6 +319,7 @@ export default function GoogleAnalyticsPage() {
             metricLabel="% engaged"
             metricChange={formatEngagementChange(metricSummaries.engagementRate)}
           />
+
           <SmallCard
             title="New Users"
             displayMode="metric-only"
@@ -334,9 +330,9 @@ export default function GoogleAnalyticsPage() {
           />
         </div>
 
-        {/* Large Chart Cards */}
+        {/* Big Cards */}
         <div className="w-full flex flex-col gap-4 lg:h-full">
-          {/* First Row */}
+          {/* FIRST ROW */}
           <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
             <div className="lg:w-2/3">
               <BigCard
@@ -378,7 +374,7 @@ export default function GoogleAnalyticsPage() {
             </div>
           </div>
 
-          {/* Second Row */}
+          {/* SECOND ROW */}
           <div className="flex flex-col lg:flex-row gap-4 lg:h-full">
             <div className="lg:w-1/2">
               <BigCard
@@ -386,9 +382,7 @@ export default function GoogleAnalyticsPage() {
                 subtitle="Last 30 days"
                 metricValue={dMetrics.screenPageViews}
                 metricLabel="total"
-                metricChange={formatPercentChange(
-                  metricSummaries.screenPageViews,
-                )}
+                metricChange={formatPercentChange(metricSummaries.screenPageViews)}
                 chart={
                   <div className="w-full h-64">
                     <LineCharts
