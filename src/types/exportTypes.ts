@@ -8,24 +8,38 @@ export interface LinePoint {
   value: number;
 }
 
-/* -----------------------------------------------------------
-   SOCIAL MEDIA EXPORT BUNDLE
-   Used by SocialMediaExportCard + PDF exporter
------------------------------------------------------------ */
+/* ============================================================
+   SOCIAL MEDIA EXPORT TYPE
+   ============================================================ */
 
-export interface SocialMediaExportBundle {
-  platformName: string;
+export interface TimeSeriesPoint {
+  date: string;
+  value: number;
+}
 
+export interface SocialExportBundle {
+  platform: string;
+
+  // KPI metrics
   followers: number;
-  impressions: number;
-  posts: number;
-  engagements: number;
+  followersDelta: string;
 
+  impressions: number;
+  impressionsDelta: string;
+
+  posts: number;
+  postsDelta: string;
+
+  engagements: number;
+  engagementsDelta: string;
+
+  // Pie chart
   engagementBreakdown: { label: string; value: number }[];
 
-  impressionsOverTime: { date: string; impressions: number }[];
-  postsOverTime: { date: string; posts: number }[];
-  followersOverTime: { date: string; followers: number }[];
+  // Line charts
+  impressionsOverTime: TimeSeriesPoint[];
+  postsOverTime: TimeSeriesPoint[];
+  followersOverTime: TimeSeriesPoint[];
 }
 
 // -------------------------------------------------------
@@ -83,4 +97,4 @@ export interface GoogleAnalyticsExportBundle {
 
 export type ExportCardSelection =
   | { type: "google"; data: GoogleAnalyticsExportBundle }
-  | { type: "social"; data: SocialMediaExportBundle };
+  | { type: "social"; data: SocialExportBundle };

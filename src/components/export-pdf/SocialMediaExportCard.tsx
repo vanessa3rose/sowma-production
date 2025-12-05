@@ -1,13 +1,13 @@
-import SoftCard from "./export-elements/SoftCard";
-import KPI from "./export-elements/KPI";
+// src/components/export-pdf/SocialMediaExportCard.tsx
 
+import { SocialExportBundle } from "../../types/exportTypes";
 import LineCharts from "../charts/LineCharts";
 import PieCharts from "../charts/PieCharts";
-
-import type { SocialMediaExportBundle } from "../../types/exportTypes";
+import KPI from "./export-elements/KPI";
+import SoftCard from "./export-elements/SoftCard";
 
 interface Props {
-  data: SocialMediaExportBundle;
+  data: SocialExportBundle;
 }
 
 export default function SocialMediaExportCard({ data }: Props) {
@@ -32,67 +32,93 @@ export default function SocialMediaExportCard({ data }: Props) {
         style={{
           fontSize: "46px",
           marginBottom: "8px",
+          textTransform: "capitalize",
         }}
       >
-        {data.platformName}
+        {data.platform}
       </h1>
 
       {/* KPI ROW */}
       <div className="grid grid-cols-4 gap-6">
         <SoftCard>
-          <KPI title="Followers" value={data.followers} delta="+ 0% ↑" unit="" />
+          <KPI
+            title="Followers"
+            value={data.followers}
+            delta={data.followersDelta}
+            unit="followers"
+          />
         </SoftCard>
 
         <SoftCard>
-          <KPI title="Impressions" value={data.impressions} delta="+ 0% ↑" unit="" />
+          <KPI
+            title="Impressions"
+            value={data.impressions}
+            delta={data.impressionsDelta}
+            unit="views"
+          />
         </SoftCard>
 
         <SoftCard>
-          <KPI title="Posts" value={data.posts} delta="+ 0% ↑" unit="" />
+          <KPI
+            title="Posts"
+            value={data.posts}
+            delta={data.postsDelta}
+            unit="posts"
+          />
         </SoftCard>
 
         <SoftCard>
-          <KPI title="Engagements" value={data.engagements} delta="+ 0% ↑" unit="" />
+          <KPI
+            title="Engagements"
+            value={data.engagements}
+            delta={data.engagementsDelta}
+            unit="actions"
+          />
         </SoftCard>
       </div>
 
-      {/* MIDDLE SECTION (Pie + Line) */}
+      {/* MIDDLE ROW — PIE + LINE */}
       <div className="flex gap-6 h-[360px]">
-        {/* Pie: Engagement Breakdown */}
+        {/* PIE: Engagement Breakdown */}
         <SoftCard className="w-[45%] flex flex-col h-full">
           <div
-            className="font-semibold"
             style={{ fontSize: "20px", marginBottom: "14px" }}
+            className="font-semibold"
           >
             Engagement Breakdown
           </div>
 
+          {/* *** FIXED PIE WRAPPER (matches GoogleExportCard) *** */}
           <div style={{ width: "100%", height: "290px" }}>
-            <PieCharts data={data.engagementBreakdown} dataKey="value" nameKey="label" />
+            <PieCharts
+              data={data.engagementBreakdown}
+              dataKey="value"
+              nameKey="label"
+            />
           </div>
         </SoftCard>
 
-        {/* Line: Impressions Trend */}
+        {/* LINE: Impressions Trend */}
         <SoftCard className="w-2/3 flex flex-col">
           <div
-            className="font-semibold"
             style={{ fontSize: "20px", marginBottom: "14px" }}
+            className="font-semibold"
           >
-            Impressions Over Time
+            Impressions (trend)
           </div>
 
           <div style={{ width: "100%", height: "310px" }}>
             <LineCharts
               data={data.impressionsOverTime}
               xAxisKey="date"
-              dataKeys={["impressions"]}
+              dataKeys={["value"]}
               showArea
             />
           </div>
         </SoftCard>
       </div>
 
-      {/* BOTTOM SECTION: Posts + Followers Trend */}
+      {/* BOTTOM ROW — POSTS + FOLLOWERS */}
       <div className="flex gap-6 h-[360px]">
         <SoftCard className="w-1/2 flex flex-col">
           <div
@@ -106,7 +132,7 @@ export default function SocialMediaExportCard({ data }: Props) {
             <LineCharts
               data={data.postsOverTime}
               xAxisKey="date"
-              dataKeys={["posts"]}
+              dataKeys={["value"]}
               showArea
             />
           </div>
@@ -117,14 +143,14 @@ export default function SocialMediaExportCard({ data }: Props) {
             className="font-semibold"
             style={{ fontSize: "20px", marginBottom: "14px" }}
           >
-            Follower Growth
+            Followers Over Time
           </div>
 
           <div style={{ width: "100%", height: "310px" }}>
             <LineCharts
               data={data.followersOverTime}
               xAxisKey="date"
-              dataKeys={["followers"]}
+              dataKeys={["value"]}
               showArea
             />
           </div>
