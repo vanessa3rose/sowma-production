@@ -11,7 +11,7 @@ import PieCharts from "../components/charts/PieCharts";
 
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
 
-// ---------- Types ----------
+// types
 type ChartType = "line" | "pie";
 
 type ChartConfig = {
