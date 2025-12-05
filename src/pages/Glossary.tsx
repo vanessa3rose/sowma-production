@@ -34,7 +34,7 @@ export default function GlossaryPage() {
 
         
         return (
-                <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
+                <div className="w-full min-h-screen lg:h-full bg-white flex flex-col py-4">
                         <div className="w-full flex flex-col lg:flex-row justify-between items-center px-4 py-2">
                                 <div className="flex items-center space-x-2">
                                         {/* back button */}
@@ -68,31 +68,31 @@ export default function GlossaryPage() {
 
                 
                         {/* TODO: allign this with glossary!! */}
-                        <div className="px-16 px-20px py-6">
-                                <h1 className="font-poppins text-2xl font- mb-6">
+                        <div className="px-16 py-6">
+                                <h1 className="font-poppins text-lg  text-gray-500 mb-8">
                                         Refer to the glossary below for definitions of 
                                         common terminology used throughout the dashboard
                                 </h1>
 
                                 {/* Header Row */}
                                 <div 
-                                        className="grid grid-cols-2 border-b
+                                        className="grid grid-cols-2
                                         border-black pb-2 font-poppins 
-                                        font-semibold"
+                                        underline text-gray-500 text-xl"
                                 >
-                                        <h3>Term</h3>
-                                        <h3>Definition</h3>
+                                        <h3 >Term</h3>
+                                        <h3 >Definition</h3>
                                 </div>
 
                                 {/* Rows */}
-                                <div className="font-poppins">
+                                <div className="font-poppins ">
                                         {items.map((item, idx) => (
                                         <div
                                                 key={idx}
-                                                className="grid grid-cols-2 py-8 border-b border-black items-center"
+                                                className="grid grid-cols-2 py-6 border-b border-black items-center"
                                         >
-                                        <p className="font-medium">{item.term}</p>
-                                        <p className="text-gray-700">{item.definition}</p>
+                                        <p className="text-xl">{item.term}</p>
+                                        <p className="text-lg">{item.definition}</p>
                                         </div>
                                         ))}
                                 </div>
