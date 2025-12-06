@@ -1,19 +1,12 @@
 // src/components/export-pdf/mapSocialData.ts
 import type { SocialExportBundle } from "../../types/exportTypes";
 
-/**
- * Compute a numeric delta (percentage change).
- * If prev is null or 0, returns 0.
- */
 function computeDelta(curr: number | null, prev: number | null): number {
   if (curr == null || prev == null || prev === 0) return 0;
   const pct = ((curr - prev) / prev) * 100;
   return Number(pct.toFixed(1));
 }
 
-/**
- * Platform-specific ID mapping - UPDATED FOR TWITTER
- */
 const PLATFORM_MAP = {
   instagram: {
     followersId: "followers_count",
@@ -25,11 +18,11 @@ const PLATFORM_MAP = {
   },
   twitter: {
     followersId: "followers_count",
-    impressionsId: null, // Twitter doesn't track impressions in your config
+    impressionsId: null,
     postsId: "tweet_count",
-    likesId: "following_count", // Twitter "following" count
-    commentsId: "listed_count", // Twitter "listed" count
-    sharesId: null, // No shares equivalent
+    likesId: "following_count",
+    commentsId: "listed_count",
+    sharesId: null,
   },
   facebook: {
     followersId: "page_follows",
@@ -50,12 +43,6 @@ export function mapSocialToExportData(
 ): SocialExportBundle {
   const map = PLATFORM_MAP[platform as keyof typeof PLATFORM_MAP];
   if (!map) throw new Error(`Unsupported platform: ${platform}`);
-
-  console.log("🔍 EXPORT DEBUG — Platform =", platform);
-  console.log("📌 chartDataMap keys:", Object.keys(chartDataMap));
-  console.log("📌 metricSummaries:", metricSummaries);
-  console.log("📌 Sample data for followers:", chartDataMap[map.followersId]?.slice(0, 3));
-  console.log("📌 Sample data for posts:", chartDataMap[map.postsId]?.slice(0, 3));
 
   const followersSeries = chartDataMap[map.followersId] ?? [];
   const impressionsSeries = map.impressionsId ? (chartDataMap[map.impressionsId] ?? []) : [];
@@ -79,7 +66,6 @@ export function mapSocialToExportData(
     (commentsSummary?.prev ?? 0) +
     (sharesSummary?.prev ?? 0);
 
-  // Custom labels for Twitter
   const engagementBreakdown = platform === "twitter" 
     ? [
         { label: "Following", value: likesSummary?.current ?? 0 },
@@ -92,7 +78,6 @@ export function mapSocialToExportData(
         { label: "Shares", value: sharesSummary?.current ?? 0 },
       ];
 
-  // 🔧 normalize metricSummaries to match SocialExportBundle type
   const normalizedSummaries: Record<string, { current: number; prev: number }> = {};
   Object.entries(metricSummaries).forEach(([key, s]) => {
     normalizedSummaries[key] = {
@@ -101,7 +86,6 @@ export function mapSocialToExportData(
     };
   });
 
-  // ✅ engagementsOverTime with null-safe IDs and typed callbacks
   const engagementsOverTime = (() => {
     const dates = new Set<string>();
 
@@ -168,11 +152,6 @@ export function mapSocialToExportData(
     chartDataMap,
     metricSummaries: normalizedSummaries,
   };
-
-  console.log("✅ [mapSocialToExportData] FINAL BUNDLE:", bundle);
-  console.log("📊 Followers series length:", followersSeries.length);
-  console.log("📊 Posts series length:", postsSeries.length);
-  console.log("📊 Impressions series length:", impressionsSeries.length);
   
   return bundle;
 }

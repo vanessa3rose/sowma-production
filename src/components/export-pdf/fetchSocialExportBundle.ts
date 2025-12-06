@@ -5,16 +5,14 @@ import { CHART_CONFIGS, Platform } from "../../config/chartConfigs";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 import { mapSocialToExportData } from "./mapSocialData";
 
-// Same date window you’ve been using elsewhere
 const DEFAULT_START_DATE = "2024-01-01";
 const DEFAULT_END_DATE = "3000-01-01";
 
-// Match the provider mapping you use in SocialMediaPage
 const PROVIDER_MAP: Record<Platform, string> = {
   instagram: "INSTAGRAM",
   twitter: "TWITTER",
   facebook: "FACEBOOK",
-  google: "GOOGLE_ANALYTICS", // we won't actually call this for social export
+  google: "GOOGLE_ANALYTICS",
 };
 
 function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
@@ -36,18 +34,14 @@ function toLinePoints(raw: SocialMediaMetric[]): { date: string; value: number }
 }
 
 function summarizeSeries(points: { value: number }[]): { current: number | null; prev: number | null } {
-  if (points.length === 0) return { current: null, prev: null };
-  if (points.length === 1) return { current: points[0].value, prev: null };
+  if (points.length === 0) return { current: 0, prev: 0 };
+  if (points.length === 1) return { current: points[0].value, prev: 0 };
   return {
     current: points[points.length - 1].value,
     prev: points[points.length - 2].value,
   };
 }
 
-/**
- * Fetch ALL social metrics needed for export directly from the backend.
- * No dependency on SocialMediaPage state.
- */
 export async function fetchSocialExportBundle(
   platform: Platform
 ): Promise<SocialExportBundle> {
@@ -65,7 +59,6 @@ export async function fetchSocialExportBundle(
     throw new Error(`No provider mapping for platform: ${platform}`);
   }
 
-  // Fetch all metrics defined for this platform in CHART_CONFIGS
   const results = await Promise.all(
     configs.map((cfg) =>
       fetchMetrics({
@@ -78,8 +71,7 @@ export async function fetchSocialExportBundle(
   );
 
   const chartDataMap: Record<string, { date: string; value: number }[]> = {};
-  const metricSummaries: Record<string, { current: number | null; prev: number | null }> =
-    {};
+  const metricSummaries: Record<string, { current: number | null; prev: number | null }> = {};
 
   for (const { cfg, rows } of results) {
     const pts = toLinePoints(rows);
@@ -87,11 +79,6 @@ export async function fetchSocialExportBundle(
     metricSummaries[cfg.id] = summarizeSeries(pts);
   }
 
-  console.log("📦 [fetchSocialExportBundle] chartDataMap keys:", Object.keys(chartDataMap));
-  console.log("📦 [fetchSocialExportBundle] metricSummaries:", metricSummaries);
-
   const bundle = mapSocialToExportData(platform, chartDataMap, metricSummaries);
-
-  console.log("✅ [fetchSocialExportBundle] FINAL SOCIAL EXPORT BUNDLE:", bundle);
   return bundle;
 }

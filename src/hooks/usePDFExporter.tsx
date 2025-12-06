@@ -7,43 +7,51 @@ import SocialMediaExportCard from "../components/export-pdf/SocialMediaExportCar
 
 import type { ExportCardSelection } from "../types/exportTypes";
 
-/**
- * Wait for charts to fully render by checking if Recharts has finished
- */
-async function waitForChartsToRender() {
-  // Give React time to mount
-  await new Promise((r) => setTimeout(r, 500));
+async function waitForFullRender(container: HTMLElement) {
+  await new Promise((r) => setTimeout(r, 800));
   
-  // Wait for Recharts to render (check for SVG elements)
+  const images = container.querySelectorAll("img");
+  if (images.length > 0) {
+    await Promise.all(
+      Array.from(images).map(
+        (img) =>
+          new Promise((resolve) => {
+            if (img.complete) resolve(true);
+            else {
+              img.onload = () => resolve(true);
+              img.onerror = () => resolve(true);
+            }
+          })
+      )
+    );
+  }
+
   let attempts = 0;
-  const maxAttempts = 20;
+  const maxAttempts = 30;
   
   while (attempts < maxAttempts) {
-    const container = document.getElementById("pdf-export-container");
-    if (!container) break;
-    
     const svgs = container.querySelectorAll("svg");
-    const hasValidCharts = Array.from(svgs).some(
-      (svg) => svg.getBoundingClientRect().width > 0
-    );
     
-    if (hasValidCharts) {
-      // Extra time to ensure everything is painted
-      await new Promise((r) => setTimeout(r, 500));
-      break;
+    if (svgs.length === 0) {
+      await new Promise((r) => setTimeout(r, 200));
+      attempts++;
+      continue;
     }
-    
-    await new Promise((r) => setTimeout(r, 100));
+
+    const allValid = Array.from(svgs).every((svg) => {
+      const rect = svg.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    });
+
+    if (allValid) break;
+
+    await new Promise((r) => setTimeout(r, 200));
     attempts++;
   }
-  
-  // Final safety buffer
-  await new Promise((r) => setTimeout(r, 500));
+
+  await new Promise((r) => setTimeout(r, 1000));
 }
 
-/**
- * Named export: can be called globally
- */
 export async function exportCardsToPDF(
   selections: ExportCardSelection[],
   filename = "metrics.pdf"
@@ -51,19 +59,22 @@ export async function exportCardsToPDF(
   const container = document.getElementById("pdf-export-container");
   if (!container) throw new Error("Missing #pdf-export-container");
 
-  // Clear and render
   container.innerHTML = "";
   container.style.display = "block";
-  container.style.position = "absolute";
-  container.style.left = "0";
+  container.style.visibility = "visible";
+  container.style.position = "fixed";
+  container.style.left = "-9999px";
   container.style.top = "0";
   container.style.width = "1000px";
   container.style.minHeight = "900px";
+  container.style.zIndex = "-1";
+  container.style.background = "white";
+  container.style.overflow = "hidden";
   
   const root = ReactDOM.createRoot(container);
 
   root.render(
-    <>
+    <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
       {selections.map((s, i) =>
         s.type === "google" ? (
           <GoogleExportCard key={i} data={s.data} />
@@ -71,22 +82,30 @@ export async function exportCardsToPDF(
           <SocialMediaExportCard key={i} data={s.data} />
         )
       )}
-    </>
+    </div>
   );
 
-  // Wait for everything to render properly
-  await waitForChartsToRender();
+  await waitForFullRender(container);
 
-  const pages = [...container.children] as HTMLElement[];
+  const pages = [...container.querySelectorAll(".font-sans")] as HTMLElement[];
+
+  if (pages.length === 0) {
+    root.unmount();
+    container.innerHTML = "";
+    container.style.display = "none";
+    return;
+  }
+
   const pdf = new jsPDF("p", "pt", "letter");
-
   const pageW = pdf.internal.pageSize.getWidth();
   const pageH = pdf.internal.pageSize.getHeight();
   const margin = 24;
 
   let first = true;
 
-  for (const el of pages) {
+  for (let i = 0; i < pages.length; i++) {
+    const el = pages[i];
+
     if (!first) pdf.addPage();
     first = false;
 
@@ -94,8 +113,10 @@ export async function exportCardsToPDF(
       scale: 2,
       useCORS: true,
       logging: false,
-      allowTaint: true,
+      allowTaint: false,
       backgroundColor: "#ffffff",
+      windowWidth: 1000,
+      windowHeight: el.scrollHeight,
     });
     
     const img = canvas.toDataURL("image/png");
@@ -124,15 +145,12 @@ export async function exportCardsToPDF(
 
   pdf.save(filename);
   
-  // Cleanup
   root.unmount();
   container.innerHTML = "";
   container.style.display = "none";
+  container.style.visibility = "hidden";
 }
 
-/**
- * Hook export still works for components
- */
 export function usePDFExporter() {
   return { exportCardsToPDF };
 }

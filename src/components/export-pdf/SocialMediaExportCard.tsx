@@ -10,8 +10,8 @@ interface Props {
 }
 
 export default function SocialMediaExportCard({ data }: Props) {
-  const hasImpressions = data.impressionsOverTime.length > 0;
-  const hasEngagementData = data.engagementsOverTime.length > 0;
+  const hasImpressions = data.impressionsOverTime.length > 0 && data.impressions > 0;
+  const hasPieData = data.engagementBreakdown.some(d => d.value > 0);
   
   return (
     <div
@@ -94,15 +94,15 @@ export default function SocialMediaExportCard({ data }: Props) {
           </div>
 
           <div style={{ width: "100%", height: "290px" }}>
-            {hasEngagementData ? (
+            {hasPieData ? (
               <PieCharts
                 data={data.engagementBreakdown}
                 dataKey="value"
                 nameKey="label"
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-gray-400">
-                No engagement data available
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                No data available
               </div>
             )}
           </div>
@@ -129,7 +129,7 @@ export default function SocialMediaExportCard({ data }: Props) {
                 showArea
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-gray-400">
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
                 No data available
               </div>
             )}
@@ -160,8 +160,8 @@ export default function SocialMediaExportCard({ data }: Props) {
                 showArea
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-gray-400">
-                No posts data available
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                No data available
               </div>
             )}
           </div>
@@ -188,8 +188,8 @@ export default function SocialMediaExportCard({ data }: Props) {
                 showArea
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-gray-400">
-                No followers data available
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                No data available
               </div>
             )}
           </div>
