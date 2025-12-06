@@ -5,8 +5,7 @@ import fetch from "node-fetch";
 
 const prisma = new PrismaClient();
 
-const INSTAGRAM_BUSINESS_PAGE_ID =
-  process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
+const INSTAGRAM_BUSINESS_PAGE_ID = process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
 const INSTAGRAM_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!;
 
 // Mapping between raw Instagram metrics → Prisma Metric enum

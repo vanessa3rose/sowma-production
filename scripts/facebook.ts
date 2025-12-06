@@ -77,7 +77,9 @@ export async function fetchFacebookInsights(
     try {
       const insightsUrl = `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/insights?metric=${name}&period=${period}&since=${since}&until=${until}&access_token=${pageAccessToken}`;
 
-      console.log(`Fetching insight metric: ${name} (${formatDate(targetDate)})`);
+      console.log(
+        `Fetching insight metric: ${name} (${formatDate(targetDate)})`,
+      );
       const res = await fetch(insightsUrl);
 
       if (res.ok) {

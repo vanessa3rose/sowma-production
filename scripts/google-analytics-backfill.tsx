@@ -181,16 +181,16 @@ async function runReport(startDate: string, endDate: string) {
     dateRanges: [{ startDate, endDate }], //changed to not initialize with fixed dates
     dimensions: [{ name: "date" }], //changed to accept days for date range
     metrics: [
-      { name: "activeUsers" },               // 0
-      { name: "screenPageViews" },           // 1
-      { name: "engagementRate" },            // 2
-      { name: "newUsers" },                  // 3
-      { name: "bounceRate" },                // 4
-      { name: "averageSessionDuration" },    // 5
-      { name: "sessions" },                  // 6
-      { name: "engagedSessions" },           // 7
+      { name: "activeUsers" }, // 0
+      { name: "screenPageViews" }, // 1
+      { name: "engagementRate" }, // 2
+      { name: "newUsers" }, // 3
+      { name: "bounceRate" }, // 4
+      { name: "averageSessionDuration" }, // 5
+      { name: "sessions" }, // 6
+      { name: "engagedSessions" }, // 7
       { name: "screenPageViewsPerSession" }, // 8
-      { name: "userEngagementDuration" },    // 9
+      { name: "userEngagementDuration" }, // 9
     ],
   });
 
@@ -306,7 +306,10 @@ async function runReport(startDate: string, endDate: string) {
           console.warn(
             `ℹ️ [Backfill] Metric ${metric.metricName} for ${metricDate
               .toISOString()
-              .slice(0, 10)} already exists (id=${existing.id}). Updating existing row.`,
+              .slice(
+                0,
+                10,
+              )} already exists (id=${existing.id}). Updating existing row.`,
           );
           await updateSocialMediaMetric(existing.id, {
             metricName: metric.metricName,
@@ -335,8 +338,16 @@ async function runReport(startDate: string, endDate: string) {
 
     // Also store breakdown rows for this specific date
     const targetDateStr = metricDate.toISOString().slice(0, 10);
-    await syncNewVsReturningBreakdown(targetDateStr, socialMediaId, existingMetrics);
-    await syncSessionsBySourceBreakdown(targetDateStr, socialMediaId, existingMetrics);
+    await syncNewVsReturningBreakdown(
+      targetDateStr,
+      socialMediaId,
+      existingMetrics,
+    );
+    await syncSessionsBySourceBreakdown(
+      targetDateStr,
+      socialMediaId,
+      existingMetrics,
+    );
 
     processed++;
   }

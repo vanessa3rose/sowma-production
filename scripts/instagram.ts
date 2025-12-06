@@ -6,8 +6,7 @@ import fetch from "node-fetch";
 const prisma = new PrismaClient();
 
 // Env vars
-const INSTAGRAM_BUSINESS_PAGE_ID =
-  process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
+const INSTAGRAM_BUSINESS_PAGE_ID = process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
 const INSTAGRAM_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!;
 const DEFAULT_MEDIA_SAMPLE_SIZE = 25;
 

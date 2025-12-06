@@ -366,7 +366,11 @@ async function runDailyReport(targetDate: string) {
 
   // After aggregate metrics, sync breakdown metrics used for charts
   await syncNewVsReturningBreakdown(targetDate, socialMediaId, existingMetrics);
-  await syncSessionsBySourceBreakdown(targetDate, socialMediaId, existingMetrics);
+  await syncSessionsBySourceBreakdown(
+    targetDate,
+    socialMediaId,
+    existingMetrics,
+  );
 
   console.log(`Finished processing GA metrics for ${targetDate}`);
 }
