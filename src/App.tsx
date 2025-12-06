@@ -8,7 +8,6 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
 import AdminPage from "./pages/AdminPage";
-import TestExportPDF from "./pages/TestExportPDF"; //TODO: Remove
 import GlossaryPage from "./pages/Glossary";
 
 // ⭐ Correct import
@@ -38,7 +37,6 @@ const App = () => {
             <Route path="/google-analytics" component={GoogleAnalyticsPage} />
             <Route path="/signup" component={SignupPage} />
             <Route path="/admin" component={AdminPage} />
-            <Route path="/test-export" component={TestExportPDF} />
             <Route path="/glossary" component={GlossaryPage} />
 
             <Route>
