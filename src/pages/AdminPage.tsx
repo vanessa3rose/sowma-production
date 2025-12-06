@@ -5,6 +5,17 @@ import { Switch } from "@mui/material";
 export default function AdminPage() {
   const [rolePerm, setRolePerm] = useState(ROLE_PERMISSIONS);
 
+  const permissions = [
+    "Browse All Pages",
+    "Change Data Range",
+    "Export Charts",
+    "Choose Metrics On Page",
+    "Tag Events/One-Off Events",
+    "Invite/Remove Viewers",
+  ] as const;
+
+  const roles = ["Admin", "Intern"] as const;
+
   const handleToggle = (role: "Admin" | "Intern", perm: string) => {
     setRolePerm((prev) => ({
       ...prev,
@@ -43,115 +54,42 @@ export default function AdminPage() {
       </div>
 
       {/* HEADER */}
-      <div className="mt-6 grid grid-cols-[minmax(120px,1fr),minmax(80px,1fr),minmax(80px,1fr)] mb-4">
-        <div className="text-gray-500 font-medium">Permissions</div>
-        <div className="text-gray-500 font-medium text-center">Admin</div>
-        <div className="text-gray-500 font-medium text-center">Intern</div>
+      <div className="flex flex-row my-6 w-full pl-12">
+        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light">Permissions</div>
+        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light text-center">Admin</div>
+        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light text-center">Intern</div>
       </div>
 
       {/* ROWS */}
-      <div className="grid grid-cols-[minmax(120px,1fr),minmax(80px,1fr),minmax(80px,1fr)] gap-y-2">
-        {/* ROW 1 */}
-        <div className="text-lg">Browse all pages</div>
+      <div className="flex flex-col space-y-6 pl-12 md:space-y-4">
+        {permissions.map((permission, index) => (
+          <div key={index} className="flex flex-rowborder-b-2">
+            {/* permission */}
+            <div className="w-1/3">
+              <p className="flex items-center h-full font-poppins text-lg">{permission}</p>
+            </div>
 
-        <div className="flex justify-center">
-          <Switch
-            checked={rolePerm.Admin["Browse all pages"]}
-            onChange={() => handleToggle("Admin", "Browse all pages")}
-          />
-        </div>
+            {/* toggles - admin & intern */}
+            {roles.map((role) => (
+              <div key={role} className="w-1/3 flex justify-center items-center">
+                <div className="relative block w-11 h-6">
+                  <input
+                    id={`switch-${role}-${permission}`}
+                    type="checkbox"
+                    checked={rolePerm[role][permission]}
+                    onChange={() => handleToggle(role, permission)}
+                    className="peer appearance-none w-11 h-6 rounded-full cursor-pointer transition-colors duration-300 bg-[#D9D9D9] checked:bg-sowma-blue"
+                  />
 
-        <div className="flex justify-center">
-          <Switch
-            checked={rolePerm.Intern["Browse all pages"]}
-            onChange={() => handleToggle("Intern", "Browse all pages")}
-          />
-        </div>
-
-        {/* ROW 2 */}
-        <div className="text-lg">Change Date Range</div>
-
-        <div className="flex justify-center">
-          <Switch
-            checked={rolePerm.Admin["Change Date Range"]}
-            onChange={() => handleToggle("Admin", "Change Date Range")}
-          />
-        </div>
-
-        <div className="flex justify-center">
-          <Switch
-            checked={rolePerm.Intern["Change Date Range"]}
-            onChange={() => handleToggle("Intern", "Change Date Range")}
-          />
-        </div>
-
-        {/* ROW 3 */}
-        <div className="text-lg">Export charts</div>
-
-        <div className="flex justify-center">
-          <Switch
-            checked={rolePerm.Admin["Export charts"]}
-            onChange={() => handleToggle("Admin", "Export charts")}
-          />
-        </div>
-
-        <div className="flex justify-center">
-          <Switch
-            checked={rolePerm.Intern["Export charts"]}
-            onChange={() => handleToggle("Intern", "Export charts")}
-          />
-        </div>
-
-        {/* ROW 4 */}
-        <div className="text-lg">Choose metrics on page</div>
-
-        <div className="flex justify-center">
-          <Switch
-            checked={rolePerm.Admin["Choose metrics on page"]}
-            onChange={() => handleToggle("Admin", "Choose metrics on page")}
-          />
-        </div>
-
-        <div className="flex justify-center">
-          <Switch
-            checked={rolePerm.Intern["Choose metrics on page"]}
-            onChange={() => handleToggle("Intern", "Choose metrics on page")}
-          />
-        </div>
-
-        {/* ROW 5 */}
-        <div className="text-lg">Tag events/one-off events</div>
-
-        <div className="flex justify-center">
-          <Switch
-            checked={rolePerm.Admin["Tag events/one-off events "]}
-            onChange={() => handleToggle("Admin", "Tag events/one-off events")}
-          />
-        </div>
-
-        <div className="flex justify-center">
-          <Switch
-            checked={rolePerm.Intern["Tag events/one-off events "]}
-            onChange={() => handleToggle("Intern", "Tag events/one-off events")}
-          />
-        </div>
-
-        {/* ROW 6 */}
-        <div className="text-lg">Invite/Remove viewers</div>
-
-        <div className="flex justify-center">
-          <Switch
-            checked={rolePerm.Admin["Invite/Remove viewers"]}
-            onChange={() => handleToggle("Admin", "Invite/Remove viewers")}
-          />
-        </div>
-
-        <div className="flex justify-center">
-          <Switch
-            checked={rolePerm.Intern["Invite/Remove viewers"]}
-            onChange={() => handleToggle("Intern", "Invite/Remove viewers")}
-          />
-        </div>
+                  <label
+                    htmlFor={`switch-${role}-${permission}`}
+                    className="absolute top-0.5 left-[2px] w-5 h-5 bg-white rounded-full border shadow-sm cursor-pointer transition-transform duration-300 border-slate-300 peer-checked:translate-x-6 peer-checked:left-[-2px] peer-checked:border-sowma-blue "
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   );

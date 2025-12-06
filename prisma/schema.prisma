@@ -9,15 +9,14 @@ datasource db {
 }
 
 model SocialMedia {
-  id              String               @id @default(cuid())
-  provider        Provider
-  userId          String
-  username        String
-  displayName     String?
-  profileUrl      String?
-  email           String?
-  SocialMediaAuth SocialMediaAuth?
-  metrics         SocialMediaMetrics[]
+  id          String               @id @default(cuid())
+  provider    Provider
+  userId      String
+  username    String
+  displayName String?
+  profileUrl  String?
+  email       String?
+  metrics     SocialMediaMetrics[]
 }
 
 model SocialMediaMetrics {
@@ -26,7 +25,6 @@ model SocialMediaMetrics {
   metricName    Metric
   metricValue   Int
   lastSynced    DateTime?
-  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])
   metricDate    DateTime?
   breakdownKey  String?
   breakdownValue String?
@@ -59,11 +57,13 @@ model DatabaseReportCount {
 }
 
 model User {
-  email     String @id        // Required
-  firstName String            // Required
-  lastName  String            // Required
-  password  String            // Required
-  role      Role              // Required
+  email     String @id @default(cuid())
+  firstName String
+  lastName  String
+  username  String @unique
+  password  String
+  phone     String
+  role      Role
 }
 
 enum Role {

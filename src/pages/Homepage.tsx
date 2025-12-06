@@ -10,8 +10,8 @@ import DateRangeButton from "../components/date-range/DateRangeButton";
 import { useEffect, useState } from "react";
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
 
-import BarCharts from "../components/charts/BarCharts";
-import PieCharts from "../components/charts/PieCharts";
+//import BarCharts from "../components/charts/BarCharts";
+//import PieCharts from "../components/charts/PieCharts";
 import LineCharts from "../components/charts/LineCharts";
 
 import BigCard from "../components/cards/BigCard";
@@ -52,8 +52,12 @@ export default function Homepage() {
     [],
   );
 
-  // ---- NEW: SELECTED PROVIDER FOR SOCIAL METRICS ----
-  const [selectedProvider, setSelectedProvider] =
+  // ✅ independent provider per social card
+  const [impressionsProvider, setImpressionsProvider] =
+    useState<SocialProvider>("FACEBOOK");
+  const [daysPostedProvider, setDaysPostedProvider] =
+    useState<SocialProvider>("FACEBOOK");
+  const [followersProvider, setFollowersProvider] =
     useState<SocialProvider>("FACEBOOK");
 
   // ---- CONSTANTS ----
@@ -120,63 +124,96 @@ export default function Homepage() {
     });
   }
 
-  // ---- FETCH DATA (USES selectedProvider) ----
-  async function getBackendMetrics() {
+  // ---- FETCHERS FOR EACH CARD (use its own provider) ----
+  async function loadImpressions() {
     try {
-      const [
-        impressionsRaw,
-        daysPostedRaw,
-        websiteSessionsRaw,
-        followerCountRaw,
-      ] = await Promise.all([
-        // Impressions: using VIEWS for selected social provider
-        fetchMetrics({
-          provider: selectedProvider,
-          metric: "VIEWS",
-          startDate: defaultStartDate,
-          endDate: defaultEndDate,
-        }),
-        // Days Posted: using POSTS
-        fetchMetrics({
-          provider: selectedProvider,
-          metric: "POSTS",
-          startDate: defaultStartDate,
-          endDate: defaultEndDate,
-        }),
-        // Website Sessions: from Google Analytics (unchanged)
-        fetchMetrics({
-          provider: googleAnalyticsProvider,
-          metric: "SCREEN_PAGE_VIEWS",
-          startDate: defaultStartDate,
-          endDate: defaultEndDate,
-        }),
-        // Followers
-        fetchMetrics({
-          provider: selectedProvider,
-          metric: "FOLLOWERS",
-          startDate: defaultStartDate,
-          endDate: defaultEndDate,
-        }),
-      ]);
-
-      console.log("Impressions raw:", impressionsRaw);
-      console.log("Days posted raw:", daysPostedRaw);
-      console.log("Website sessions raw:", websiteSessionsRaw);
-      console.log("Followers raw:", followerCountRaw);
-
+      const impressionsRaw = await fetchMetrics({
+        provider: impressionsProvider,
+        metric: "VIEWS",
+        startDate: defaultStartDate,
+        endDate: defaultEndDate,
+      });
       setImpressionsData(mapToImpressionsPoints(impressionsRaw));
-      setDaysPostedData(mapToDaysPostedPoints(daysPostedRaw));
-      setWebsiteSessionsData(mapToWebsiteSessionsPoints(websiteSessionsRaw));
-      setFollowerCountData(mapToFollowerPoints(followerCountRaw));
     } catch (error) {
-      console.error("Error fetching backend metrics:", error);
+      console.error("Error fetching impressions metrics:", error);
     }
   }
 
-  // re-fetch whenever provider changes
+  async function loadDaysPosted() {
+    try {
+      const daysPostedRaw = await fetchMetrics({
+        provider: daysPostedProvider,
+        metric: "POSTS",
+        startDate: defaultStartDate,
+        endDate: defaultEndDate,
+      });
+      setDaysPostedData(mapToDaysPostedPoints(daysPostedRaw));
+    } catch (error) {
+      console.error("Error fetching days posted metrics:", error);
+    }
+  }
+
+  async function loadWebsiteSessions() {
+    try {
+      const websiteSessionsRaw = await fetchMetrics({
+        provider: googleAnalyticsProvider,
+        metric: "SCREEN_PAGE_VIEWS",
+        startDate: defaultStartDate,
+        endDate: defaultEndDate,
+      });
+      setWebsiteSessionsData(mapToWebsiteSessionsPoints(websiteSessionsRaw));
+    } catch (error) {
+      console.error("Error fetching website sessions metrics:", error);
+    }
+  }
+
+  async function loadFollowers() {
+    try {
+      const followerCountRaw = await fetchMetrics({
+        provider: followersProvider,
+        metric: "FOLLOWERS",
+        startDate: defaultStartDate,
+        endDate: defaultEndDate,
+      });
+      setFollowerCountData(mapToFollowerPoints(followerCountRaw));
+    } catch (error) {
+      console.error("Error fetching follower metrics:", error);
+    }
+  }
+
+  // ---- EFFECTS ----
   useEffect(() => {
-    getBackendMetrics();
-  }, [selectedProvider]);
+    loadImpressions();
+  }, [impressionsProvider]);
+
+  useEffect(() => {
+    loadDaysPosted();
+  }, [daysPostedProvider]);
+
+  useEffect(() => {
+    loadFollowers();
+  }, [followersProvider]);
+
+  // GA sessions: just once on mount
+  useEffect(() => {
+    loadWebsiteSessions();
+  }, []);
+
+    const socialLinks = [
+        { name: "google", icon: google },      // exception
+        { name: "instagram", icon: instagram },
+        { name: "facebook", icon: facebook },
+        { name: "tiktok", icon: tiktok },      // exception
+        { name: "linkedin", icon: linkedin },  // exception
+        { name: "twitter", icon: twitter },
+    ];
+
+
+    const exceptionRoutes: Record<string, string> = {
+        google: "/google-analytics",
+        linkedin: "/error",
+        tiktok: "/error",
+    };
 
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
@@ -185,35 +222,22 @@ export default function Homepage() {
         <div className="flex flex-wrap items-center gap-4">
           <DateRangeButton />
 
-          {/* NEW: Provider dropdown */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Provider:</span>
-            <select
-              value={selectedProvider}
-              onChange={(e) =>
-                setSelectedProvider(e.target.value as SocialProvider)
-              }
-              className="border rounded-md px-2 py-1 text-sm bg-white"
-            >
-              <option value="FACEBOOK">Facebook</option>
-              <option value="INSTAGRAM">Instagram</option>
-              <option value="TWITTER">Twitter</option>
-            </select>
-          </div>
-
           <div className="flex flex-row gap-2">
-            {[google, instagram, facebook, tiktok, linkedin, twitter].map(
-              (icon, idx) => (
-                <a href="/" key={idx}>
-                  <img
-                    src={icon}
-                    className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border border-solid"
-                  />
-                </a>
-              ),
-            )}
+            {socialLinks.map((social, idx) => {
+                const href = exceptionRoutes[social.name] || `/social/${social.name}`; // fallback to default
 
-            <a href="/">
+                return (
+                <a href={href} key={idx}>
+                    <img
+                    src={social.icon}
+                    alt={social.name}
+                    className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border border-solid"
+                    />
+                </a>
+                );
+            })}
+
+            <a href="/Newsletter">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -240,7 +264,22 @@ export default function Homepage() {
         <BigCard
           title="Impressions"
           subtitle=""
+          dropdown={
+            <select
+              value={impressionsProvider}
+              onChange={(e) =>
+                setImpressionsProvider(e.target.value as SocialProvider)
+              }
+              className="border rounded-md px-2 py-1 text-xs bg-white text-gray-700"
+            >
+              <option value="FACEBOOK">Facebook</option>
+              <option value="INSTAGRAM">Instagram</option>
+              <option value="TWITTER">Twitter</option>
+            </select>
+          }
+
           chart={
+            impressionsData.length > 0 ? (
             <div className="w-full h-64">
               <LineCharts
                 data={impressionsData}
@@ -249,14 +288,33 @@ export default function Homepage() {
                 showArea={true}
               />
             </div>
+            ) : (
+            <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              No impressions data available.
+            </div>)
           }
           displayMode="both"
           className="flex-1 w-full h-full"
         />
+
         <BigCard
           title="Days Posted"
           subtitle=""
+          dropdown={
+            <select
+              value={daysPostedProvider}
+              onChange={(e) =>
+                setDaysPostedProvider(e.target.value as SocialProvider)
+              }
+              className="border rounded-md px-2 py-1 text-xs bg-white text-gray-700"
+            >
+              <option value="FACEBOOK">Facebook</option>
+              <option value="INSTAGRAM">Instagram</option>
+              <option value="TWITTER">Twitter</option>
+            </select>
+          }
           chart={
+            daysPostedData.length > 0 ?(
             <div className="w-full h-64">
               <LineCharts
                 data={daysPostedData}
@@ -265,14 +323,22 @@ export default function Homepage() {
                 showArea={false}
               />
             </div>
+            ) :
+            (
+              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+                No days posted data available.
+              </div>
+            )
           }
           displayMode="both"
           className="flex-1 w-full h-full"
         />
+
         <BigCard
-          title="Website Sessions"
+          title="Google Analytics Website Sessions"
           subtitle=""
           chart={
+            websiteSessionsData.length > 0 ? (
             <div className="w-full h-64">
               <LineCharts
                 data={websiteSessionsData}
@@ -281,6 +347,12 @@ export default function Homepage() {
                 showArea={true}
               />
             </div>
+            ):
+            (
+            <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              No website sessions data available.
+            </div>
+            )
           }
           displayMode="both"
           className="flex-1 w-full h-full"
@@ -292,7 +364,21 @@ export default function Homepage() {
         <BigCard
           title="Follower Count"
           subtitle=""
+          dropdown={
+            <select
+              value={followersProvider}
+              onChange={(e) =>
+                setFollowersProvider(e.target.value as SocialProvider)
+              }
+              className="border rounded-md px-2 py-1 text-xs bg-white text-gray-700"
+            >
+              <option value="FACEBOOK">Facebook</option>
+              <option value="INSTAGRAM">Instagram</option>
+              <option value="TWITTER">Twitter</option>
+            </select>
+          }
           chart={
+            followerCountData.length > 0 ? (
             <div className="w-full h-64">
               <LineCharts
                 data={followerCountData}
@@ -301,14 +387,23 @@ export default function Homepage() {
                 showArea={false}
               />
             </div>
+            ) :
+            (<div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              No follower count data available.
+            </div>)
           }
           displayMode="both"
           className="flex-1 w-full h-full"
         />
+
         <BigCard
           title="How did you hear about us?"
           subtitle=""
-          chart={undefined}
+          chart={
+          <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              No data available.
+          </div>
+          }
           displayMode="both"
           className="flex-1 w-full h-full"
         />
