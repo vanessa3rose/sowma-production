@@ -30,7 +30,7 @@ export default function LoginPage() {
                 elements: {
                   rootBox: "max-w-full",
                   card: "w-full p-8 rounded-2xl shadow-md border border-gray-200",
-                  formButtonPrimary: "bg-blue-500 hover:bg-blue-600 text-white",
+                  formButtonPrimary: "hover:bg-sowma-blue text-white",
                 },
               }}
             />
