@@ -83,7 +83,7 @@ function providerFromPlatform(platform: Platform): string {
 export default function SocialMediaPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
   
-  const [match, params] = useRoute("/social/:platform");
+  const [_, params] = useRoute("/social/:platform");
   const platform = (params?.platform as Platform) || null;
 
   const formattedPlatform = platform
@@ -136,12 +136,6 @@ export default function SocialMediaPage() {
     const pct = ((summary.current - summary.prev) / summary.prev) * 100;
     const sign = pct >= 0 ? "+" : "";
     return `${sign}${pct.toFixed(1)}% vs. prev.`;
-  }
-
-  function formatValue(summary?: MetricSummary, suffix?: string): string {
-    if (!summary || summary.current == null) return "-";
-    const base = summary.current.toLocaleString();
-    return suffix ? `${base} ${suffix}` : base;
   }
 
   useEffect(() => {
