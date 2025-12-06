@@ -3,6 +3,7 @@ import CheckboxTitle from "./CheckboxTitle";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import DateRangeButton from "../date-range/DateRangeButton";
 import { Platform, PLATFORM_LABELS } from "../../config/chartConfigs";
+import LoadingAnimation from "../LoadingAnimation";
 
 interface ModalProps {
   isOpen: boolean;
@@ -79,13 +80,19 @@ export default function ExportModal({
     }
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+
   /**
    * When the user clicks "Download PDF":
    *  - compute selected platforms from checkedStates
    *  - invoke onExport(selectedPlatforms)
+   *  - shows loading animation
    *  - close the modal
    */
   const handleDownload = async () => {
+    // to show the loading animation
+    setIsLoading(true);
+
     const selectedPlatforms = EXPORTABLE_PLATFORMS.filter(
       (platform) => checkedStates[platform],
     );
@@ -96,6 +103,7 @@ export default function ExportModal({
     }
 
     await onExport(selectedPlatforms);
+    setIsLoading(false);
     setIsOpen(false);
   };
 
@@ -113,27 +121,33 @@ export default function ExportModal({
           </div>
         </DialogTitle>
 
-        {/* "Select All" checkbox */}
-        <CheckboxTitle
-          key={SELECT_ALL_LABEL}
-          name={SELECT_ALL_LABEL}
-          checked={checkedStates[SELECT_ALL_LABEL]}
-          onChange={(checked) =>
-            handleCheckboxChange(SELECT_ALL_LABEL, checked)
-          }
-        />
+        {!isLoading ? (
+          <div className="w-full mt-5">
+            {/* "Select All" checkbox */}
+            <CheckboxTitle
+              key={SELECT_ALL_LABEL}
+              name={SELECT_ALL_LABEL}
+              checked={checkedStates[SELECT_ALL_LABEL]}
+              onChange={(checked) =>
+                handleCheckboxChange(SELECT_ALL_LABEL, checked)
+              }
+            />
 
-        {/* One checkbox per exportable platform */}
-        {EXPORTABLE_PLATFORMS.map((platform) => (
-          <CheckboxTitle
-            key={platform}
-            // Human-readable label (e.g. "Instagram", "Google Analytics")
-            name={PLATFORM_LABELS[platform]}
-            // State is stored under the platform key (e.g. "instagram")
-            checked={checkedStates[platform]}
-            onChange={(checked) => handleCheckboxChange(platform, checked)}
-          />
-        ))}
+            {/* One checkbox per exportable platform */}
+            {EXPORTABLE_PLATFORMS.map((platform) => (
+              <CheckboxTitle
+                key={platform}
+                // Human-readable label (e.g. "Instagram", "Google Analytics")
+                name={PLATFORM_LABELS[platform]}
+                // State is stored under the platform key (e.g. "instagram")
+                checked={checkedStates[platform]}
+                onChange={(checked) => handleCheckboxChange(platform, checked)}
+              />
+            ))}
+          </div>
+        ) : (
+          <LoadingAnimation/>
+        )}
 
         {/* Modal footer buttons */}
         <div className="mt-auto flex justify-end gap-2 pt-4">

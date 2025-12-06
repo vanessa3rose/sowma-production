@@ -40,14 +40,14 @@ export default function SignupPage() {
 
             {/* SignUp Form */}
             <div className="">
-            <SignUp
+              <SignUp
                 appearance={{
-                elements: {
+                  elements: {
                     rootBox: "max-w-full",
                     card: "w-full p-8 rounded-xl shadow-md border border-gray-200",
-                },
+                  },
                 }}
-            />
+              />
             </div>
         </div>
       </div>
