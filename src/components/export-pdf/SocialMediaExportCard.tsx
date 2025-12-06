@@ -10,6 +10,9 @@ interface Props {
 }
 
 export default function SocialMediaExportCard({ data }: Props) {
+  const hasImpressions = data.impressionsOverTime.length > 0;
+  const hasEngagementData = data.engagementsOverTime.length > 0;
+  
   return (
     <div
       style={{
@@ -43,26 +46,26 @@ export default function SocialMediaExportCard({ data }: Props) {
           <KPI
             title="Followers"
             value={data.followers}
-            delta={`${data.followersDelta}%`}
+            delta={`${data.followersDelta > 0 ? '+' : ''}${data.followersDelta}%`}
             unit="followers"
           />
         </SoftCard>
 
         <SoftCard>
           <KPI
-            title="Impressions"
+            title={hasImpressions ? "Impressions" : "Views"}
             value={data.impressions}
-            delta={`${data.impressionsDelta}%`}
+            delta={`${data.impressionsDelta > 0 ? '+' : ''}${data.impressionsDelta}%`}
             unit="views"
           />
         </SoftCard>
 
         <SoftCard>
           <KPI
-            title="Posts"
+            title={data.platform === "twitter" ? "Tweets" : "Posts"}
             value={data.posts}
-            delta={`${data.postsDelta}%`}
-            unit="posts"
+            delta={`${data.postsDelta > 0 ? '+' : ''}${data.postsDelta}%`}
+            unit={data.platform === "twitter" ? "tweets" : "posts"}
           />
         </SoftCard>
 
@@ -70,13 +73,13 @@ export default function SocialMediaExportCard({ data }: Props) {
           <KPI
             title="Engagements"
             value={data.engagements}
-            delta={`${data.engagementsDelta}%`}
+            delta={`${data.engagementsDelta > 0 ? '+' : ''}${data.engagementsDelta}%`}
             unit="actions"
           />
         </SoftCard>
       </div>
 
-      {/* ======= MIDDLE ROW (Pie + Impressions Trend) ======= */}
+      {/* ======= MIDDLE ROW (Pie + Impressions/Engagements Trend) ======= */}
       <div className="flex gap-6" style={{ height: "360px" }}>
         {/* PIE CARD */}
         <SoftCard
@@ -87,19 +90,25 @@ export default function SocialMediaExportCard({ data }: Props) {
             className="font-semibold"
             style={{ fontSize: "20px", marginBottom: "14px" }}
           >
-            Engagement Breakdown
+            {data.platform === "twitter" ? "Account Metrics" : "Engagement Breakdown"}
           </div>
 
           <div style={{ width: "100%", height: "290px" }}>
-            <PieCharts
-              data={data.engagementBreakdown}
-              dataKey="value"
-              nameKey="label"
-            />
+            {hasEngagementData ? (
+              <PieCharts
+                data={data.engagementBreakdown}
+                dataKey="value"
+                nameKey="label"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                No engagement data available
+              </div>
+            )}
           </div>
         </SoftCard>
 
-        {/* IMPRESSIONS TREND */}
+        {/* IMPRESSIONS OR ENGAGEMENTS TREND */}
         <SoftCard
           className="flex flex-col flex-1"
           style={{ height: "360px" }}
@@ -108,16 +117,22 @@ export default function SocialMediaExportCard({ data }: Props) {
             className="font-semibold"
             style={{ fontSize: "20px", marginBottom: "14px" }}
           >
-            Impressions (trend)
+            {hasImpressions ? "Impressions Over Time" : "Engagement Over Time"}
           </div>
 
           <div style={{ width: "100%", height: "310px" }}>
-            <LineCharts
-              data={data.impressionsOverTime}
-              xAxisKey="date"
-              dataKeys={["value"]}
-              showArea
-            />
+            {(hasImpressions ? data.impressionsOverTime : data.engagementsOverTime).length > 0 ? (
+              <LineCharts
+                data={hasImpressions ? data.impressionsOverTime : data.engagementsOverTime}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                showArea
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                No data available
+              </div>
+            )}
           </div>
         </SoftCard>
       </div>
@@ -133,16 +148,22 @@ export default function SocialMediaExportCard({ data }: Props) {
             className="font-semibold"
             style={{ fontSize: "20px", marginBottom: "14px" }}
           >
-            Posts Over Time
+            {data.platform === "twitter" ? "Tweets Over Time" : "Posts Over Time"}
           </div>
 
           <div style={{ width: "100%", height: "310px" }}>
-            <LineCharts
-              data={data.postsOverTime}
-              xAxisKey="date"
-              dataKeys={["value"]}
-              showArea
-            />
+            {data.postsOverTime.length > 0 ? (
+              <LineCharts
+                data={data.postsOverTime}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                showArea
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                No posts data available
+              </div>
+            )}
           </div>
         </SoftCard>
 
@@ -159,12 +180,18 @@ export default function SocialMediaExportCard({ data }: Props) {
           </div>
 
           <div style={{ width: "100%", height: "310px" }}>
-            <LineCharts
-              data={data.followersOverTime}
-              xAxisKey="date"
-              dataKeys={["value"]}
-              showArea
-            />
+            {data.followersOverTime.length > 0 ? (
+              <LineCharts
+                data={data.followersOverTime}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                showArea
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                No followers data available
+              </div>
+            )}
           </div>
         </SoftCard>
       </div>

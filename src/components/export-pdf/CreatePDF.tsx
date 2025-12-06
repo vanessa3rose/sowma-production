@@ -1,4 +1,3 @@
-import React from "react";
 import { exportPDF } from "../../utils/exportPDF";
 
 const PDFSection = () => {

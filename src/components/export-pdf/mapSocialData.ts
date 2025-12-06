@@ -12,24 +12,24 @@ function computeDelta(curr: number | null, prev: number | null): number {
 }
 
 /**
- * Platform-specific ID mapping.
+ * Platform-specific ID mapping - UPDATED FOR TWITTER
  */
 const PLATFORM_MAP = {
   instagram: {
-    followersId: "followers",
+    followersId: "followers_count",
     impressionsId: "impressions",
     postsId: "media_count",
-    likesId: "likes",
-    commentsId: "comments",
+    likesId: "total_likes",
+    commentsId: "total_comments",
     sharesId: null,
   },
   twitter: {
-    followersId: "followers",
-    impressionsId: "tweet_impressions",
-    postsId: "tweets",
-    likesId: "favorites",
-    commentsId: "replies",
-    sharesId: "retweets",
+    followersId: "followers_count",
+    impressionsId: null, // Twitter doesn't track impressions in your config
+    postsId: "tweet_count",
+    likesId: "following_count", // Twitter "following" count
+    commentsId: "listed_count", // Twitter "listed" count
+    sharesId: null, // No shares equivalent
   },
   facebook: {
     followersId: "page_follows",
@@ -54,13 +54,15 @@ export function mapSocialToExportData(
   console.log("🔍 EXPORT DEBUG — Platform =", platform);
   console.log("📌 chartDataMap keys:", Object.keys(chartDataMap));
   console.log("📌 metricSummaries:", metricSummaries);
+  console.log("📌 Sample data for followers:", chartDataMap[map.followersId]?.slice(0, 3));
+  console.log("📌 Sample data for posts:", chartDataMap[map.postsId]?.slice(0, 3));
 
   const followersSeries = chartDataMap[map.followersId] ?? [];
-  const impressionsSeries = chartDataMap[map.impressionsId] ?? [];
+  const impressionsSeries = map.impressionsId ? (chartDataMap[map.impressionsId] ?? []) : [];
   const postsSeries = chartDataMap[map.postsId] ?? [];
 
   const followersSummary = metricSummaries[map.followersId];
-  const impressionsSummary = metricSummaries[map.impressionsId];
+  const impressionsSummary = map.impressionsId ? metricSummaries[map.impressionsId] : null;
   const postsSummary = metricSummaries[map.postsId];
 
   const likesSummary = map.likesId ? metricSummaries[map.likesId] : null;
@@ -77,11 +79,18 @@ export function mapSocialToExportData(
     (commentsSummary?.prev ?? 0) +
     (sharesSummary?.prev ?? 0);
 
-  const engagementBreakdown = [
-    { label: "Likes", value: likesSummary?.current ?? 0 },
-    { label: "Comments", value: commentsSummary?.current ?? 0 },
-    { label: "Shares", value: sharesSummary?.current ?? 0 },
-  ];
+  // Custom labels for Twitter
+  const engagementBreakdown = platform === "twitter" 
+    ? [
+        { label: "Following", value: likesSummary?.current ?? 0 },
+        { label: "Listed", value: commentsSummary?.current ?? 0 },
+        { label: "Other", value: 0 },
+      ]
+    : [
+        { label: "Likes", value: likesSummary?.current ?? 0 },
+        { label: "Comments", value: commentsSummary?.current ?? 0 },
+        { label: "Shares", value: sharesSummary?.current ?? 0 },
+      ];
 
   // 🔧 normalize metricSummaries to match SocialExportBundle type
   const normalizedSummaries: Record<string, { current: number; prev: number }> = {};
@@ -160,5 +169,10 @@ export function mapSocialToExportData(
     metricSummaries: normalizedSummaries,
   };
 
+  console.log("✅ [mapSocialToExportData] FINAL BUNDLE:", bundle);
+  console.log("📊 Followers series length:", followersSeries.length);
+  console.log("📊 Posts series length:", postsSeries.length);
+  console.log("📊 Impressions series length:", impressionsSeries.length);
+  
   return bundle;
 }
