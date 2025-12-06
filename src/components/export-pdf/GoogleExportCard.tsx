@@ -9,7 +9,47 @@ interface Props {
   data: GoogleAnalyticsExportBundle;
 }
 
+function formatPercentChange(current: number | null, prev: number | null): { text: string; color: string } {
+  if (current == null || prev == null || prev === 0) {
+    return { text: "+ 0%", color: "#22C55E" };
+  }
+  const pct = ((current - prev) / prev) * 100;
+  const sign = pct >= 0 ? "+" : "";
+  const arrow = pct >= 0 ? " ↑" : " ↓";
+  const color = pct >= 0 ? "#22C55E" : "#EF4444"; // green : red
+  return { text: `${sign}${pct.toFixed(1)}%${arrow}`, color };
+}
+
+function formatEngagementChange(current: number | null, prev: number | null): { text: string; color: string } {
+  if (current == null || prev == null) {
+    return { text: "+ 0.0pp", color: "#22C55E" };
+  }
+  const deltaPoints = current - prev;
+  const sign = deltaPoints >= 0 ? "+" : "";
+  const color = deltaPoints >= 0 ? "#22C55E" : "#EF4444"; // green : red
+  return { text: `${sign}${deltaPoints.toFixed(1)}pp`, color };
+}
+
 export default function GoogleExportCard({ data }: Props) {
+  const summaries = data.metricSummaries;
+
+  const activeUsersDelta = formatPercentChange(
+    summaries.activeUsers.current,
+    summaries.activeUsers.prev
+  );
+  const pageViewsDelta = formatPercentChange(
+    summaries.screenPageViews.current,
+    summaries.screenPageViews.prev
+  );
+  const active7DayDelta = formatPercentChange(
+    summaries.active7DayUsers.current,
+    summaries.active7DayUsers.prev
+  );
+  const engagementDelta = formatEngagementChange(
+    summaries.engagementRate.current,
+    summaries.engagementRate.prev
+  );
+
   return (
     <div
       style={{
@@ -42,7 +82,8 @@ export default function GoogleExportCard({ data }: Props) {
           <KPI
             title="Active Users"
             value={data.metrics.activeUsers}
-            delta="+ 0% ↑"
+            delta={activeUsersDelta.text}
+            deltaColor={activeUsersDelta.color}
             unit="users"
           />
         </SoftCard>
@@ -51,7 +92,8 @@ export default function GoogleExportCard({ data }: Props) {
           <KPI
             title="Page Views"
             value={data.metrics.screenPageViews}
-            delta="+ 0% ↑"
+            delta={pageViewsDelta.text}
+            deltaColor={pageViewsDelta.color}
             unit="views"
           />
         </SoftCard>
@@ -60,7 +102,8 @@ export default function GoogleExportCard({ data }: Props) {
           <KPI
             title="Active 7-Day Users"
             value={data.metrics.active7DayUsers}
-            delta="+ 0% ↑"
+            delta={active7DayDelta.text}
+            deltaColor={active7DayDelta.color}
             unit="users (7D)"
           />
         </SoftCard>
@@ -69,7 +112,8 @@ export default function GoogleExportCard({ data }: Props) {
           <KPI
             title="Engagement Rate"
             value={`${(data.metrics.engagementRate * 100).toFixed(1)}%`}
-            delta="+ 0% ↑"
+            delta={engagementDelta.text}
+            deltaColor={engagementDelta.color}
             unit="% engaged"
           />
         </SoftCard>

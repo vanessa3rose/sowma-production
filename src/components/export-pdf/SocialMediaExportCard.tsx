@@ -9,9 +9,20 @@ interface Props {
   data: SocialExportBundle;
 }
 
+function formatDelta(delta: number): { text: string; color: string } {
+  const sign = delta > 0 ? "+" : "";
+  const color = delta >= 0 ? "#22C55E" : "#EF4444"; // green : red
+  return { text: `${sign}${delta.toFixed(1)}%`, color };
+}
+
 export default function SocialMediaExportCard({ data }: Props) {
   const hasImpressions = data.impressionsOverTime.length > 0 && data.impressions > 0;
   const hasPieData = data.engagementBreakdown.some(d => d.value > 0);
+
+  const followersDelta = formatDelta(data.followersDelta);
+  const impressionsDelta = formatDelta(data.impressionsDelta);
+  const postsDelta = formatDelta(data.postsDelta);
+  const engagementsDelta = formatDelta(data.engagementsDelta);
   
   return (
     <div
@@ -46,7 +57,8 @@ export default function SocialMediaExportCard({ data }: Props) {
           <KPI
             title="Followers"
             value={data.followers}
-            delta={`${data.followersDelta > 0 ? '+' : ''}${data.followersDelta}%`}
+            delta={followersDelta.text}
+            deltaColor={followersDelta.color}
             unit="followers"
           />
         </SoftCard>
@@ -55,7 +67,8 @@ export default function SocialMediaExportCard({ data }: Props) {
           <KPI
             title={hasImpressions ? "Impressions" : "Views"}
             value={data.impressions}
-            delta={`${data.impressionsDelta > 0 ? '+' : ''}${data.impressionsDelta}%`}
+            delta={impressionsDelta.text}
+            deltaColor={impressionsDelta.color}
             unit="views"
           />
         </SoftCard>
@@ -64,7 +77,8 @@ export default function SocialMediaExportCard({ data }: Props) {
           <KPI
             title={data.platform === "twitter" ? "Tweets" : "Posts"}
             value={data.posts}
-            delta={`${data.postsDelta > 0 ? '+' : ''}${data.postsDelta}%`}
+            delta={postsDelta.text}
+            deltaColor={postsDelta.color}
             unit={data.platform === "twitter" ? "tweets" : "posts"}
           />
         </SoftCard>
@@ -73,7 +87,8 @@ export default function SocialMediaExportCard({ data }: Props) {
           <KPI
             title="Engagements"
             value={data.engagements}
-            delta={`${data.engagementsDelta > 0 ? '+' : ''}${data.engagementsDelta}%`}
+            delta={engagementsDelta.text}
+            deltaColor={engagementsDelta.color}
             unit="actions"
           />
         </SoftCard>

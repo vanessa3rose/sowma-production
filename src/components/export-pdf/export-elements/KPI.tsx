@@ -1,15 +1,17 @@
-// src/components/export-pdf/KPI.tsx
+// src/components/export-pdf/export-elements/KPI.tsx
 
 export default function KPI({
   title,
   value,
   delta,
   unit,
+  deltaColor,
 }: {
   title: string;
   value: string | number;
   delta: string;
   unit: string;
+  deltaColor?: string;
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -32,7 +34,7 @@ export default function KPI({
 
       {/* Delta Row */}
       <div className="flex items-center gap-1">
-        <span style={{ color: "#22C55E", fontSize: "15px", fontWeight: 500 }}>
+        <span style={{ color: deltaColor || "#22C55E", fontSize: "15px", fontWeight: 500 }}>
           {delta}
         </span>
 
