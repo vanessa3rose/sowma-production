@@ -34,7 +34,7 @@ const BigCard: React.FC<BigCardProps> = ({
         backgroundColor: "#ffffff",
         border: "1px solid #E5E5E5",
         borderRadius: "12px",
-        boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
+        boxShadow: "0px 4px 4px #1e1e1e64",
         padding: "20px",
       }}
     >
