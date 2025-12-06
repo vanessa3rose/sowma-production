@@ -28,6 +28,8 @@ model SocialMediaMetrics {
   lastSynced    DateTime?
   socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])
   metricDate    DateTime?
+  breakdownKey  String?
+  breakdownValue String?
 }
 
 model SocialMediaAuth {
@@ -95,6 +97,10 @@ enum Metric {
   PAGES_PER_SESSION
   TOTAL_USERS
   DAYS_POSTED
+  TOTAL_SESSIONS
+  ENGAGED_SESSIONS
+  ENGAGEMENT_TIME
+  SESSIONS_BY_SOURCE
 }
 
 enum Count {

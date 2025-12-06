@@ -5,10 +5,10 @@ import fetch from "node-fetch";
 
 const prisma = new PrismaClient();
 
-// Same envs / assumptions as your backfill script
-const INSTAGRAM_BUSINESS_ACCOUNT_ID =
-  process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID!;
-const INSTAGRAM_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!; // same as backfill
+// Env vars
+const INSTAGRAM_BUSINESS_PAGE_ID =
+  process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
+const INSTAGRAM_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!;
 const DEFAULT_MEDIA_SAMPLE_SIZE = 25;
 
 // Mapping between raw Instagram metrics → Prisma Metric enum
@@ -200,6 +200,17 @@ export async function syncInstagramMetrics(targetDate: Date = new Date()) {
   for (const account of accounts) {
     console.log(`\n📊 Syncing: ${account.username}`);
 
+    // keep DB userId in sync with the business page id
+    if (account.userId !== INSTAGRAM_BUSINESS_PAGE_ID) {
+      await prisma.socialMedia.update({
+        where: { id: account.id },
+        data: { userId: INSTAGRAM_BUSINESS_PAGE_ID },
+      });
+      console.log(
+        `ℹ️ Updated socialMedia.userId for ${account.username} to INSTAGRAM_BUSINESS_PAGE_ID`,
+      );
+    }
+
     // Skip if we already have metrics for this day
     if (await metricsExistForDate(account.id, targetDate)) {
       console.log(
@@ -212,7 +223,7 @@ export async function syncInstagramMetrics(targetDate: Date = new Date()) {
 
     try {
       const metrics = await fetchInstagramMetricsForDate(
-        account.userId,
+        INSTAGRAM_BUSINESS_PAGE_ID,
         targetDate,
       );
 
@@ -255,8 +266,8 @@ export async function syncInstagramMetrics(targetDate: Date = new Date()) {
 
 // 🚀 Entry point (single day)
 // Usage:
-//   node instagram-sync.mts          → sync today
-//   node instagram-sync.mts 2025-11-20  → sync that date
+//   npx tsx scripts/instagram.ts          → sync today
+//   npx tsx scripts/instagram.ts 2025-11-20  → sync that date
 async function main() {
   try {
     const args = process.argv.slice(2);

@@ -1,10 +1,12 @@
 import { fileURLToPath } from "node:url";
 import { PrismaClient, Metric } from "../src/generated/prisma";
+import "dotenv/config";
+import fetch from "node-fetch";
 
 const prisma = new PrismaClient();
 
-const INSTAGRAM_BUSINESS_ACCOUNT_ID =
-  process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID!;
+const INSTAGRAM_BUSINESS_PAGE_ID =
+  process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
 const INSTAGRAM_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!;
 
 // Mapping between raw Instagram metrics → Prisma Metric enum
@@ -193,8 +195,19 @@ async function syncInstagramMetrics() {
   for (const account of accounts) {
     console.log(`\n📊 Syncing: ${account.username}`);
 
+    // keep DB userId in sync with the business page id
+    if (account.userId !== INSTAGRAM_BUSINESS_PAGE_ID) {
+      await prisma.socialMedia.update({
+        where: { id: account.id },
+        data: { userId: INSTAGRAM_BUSINESS_PAGE_ID },
+      });
+      console.log(
+        `ℹ️ Updated socialMedia.userId for ${account.username} to INSTAGRAM_BUSINESS_PAGE_ID`,
+      );
+    }
+
     const metrics = await fetchInstagramMetricsForDate(
-      account.userId,
+      INSTAGRAM_BUSINESS_PAGE_ID,
       new Date(),
     );
 
@@ -241,6 +254,17 @@ export async function backfillInstagramMetrics(startDate: Date, endDate: Date) {
   for (const account of accounts) {
     console.log(`\n📊 Backfilling: ${account.username}`);
 
+    // keep DB userId in sync with the business page id
+    if (account.userId !== INSTAGRAM_BUSINESS_PAGE_ID) {
+      await prisma.socialMedia.update({
+        where: { id: account.id },
+        data: { userId: INSTAGRAM_BUSINESS_PAGE_ID },
+      });
+      console.log(
+        `ℹ️ Updated socialMedia.userId for ${account.username} to INSTAGRAM_BUSINESS_PAGE_ID`,
+      );
+    }
+
     const currentDate = new Date(endDate);
     while (currentDate >= startDate) {
       const dateStr = formatDate(currentDate);
@@ -254,7 +278,7 @@ export async function backfillInstagramMetrics(startDate: Date, endDate: Date) {
 
       try {
         const metrics = await fetchInstagramMetricsForDate(
-          account.userId,
+          INSTAGRAM_BUSINESS_PAGE_ID,
           new Date(currentDate),
         );
 

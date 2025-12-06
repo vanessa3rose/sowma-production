@@ -32,6 +32,139 @@ async function getSocialMediaIdByProvider(): Promise<string | null> {
 
 // Initialize the Analytics Data API client
 const analyticsDataClient = new BetaAnalyticsDataClient({ auth });
+
+/**
+ * Helper: breakdown for New vs Returning (pie chart)
+ * Stores TOTAL_SESSIONS segmented by new/returning via breakdownKey/breakdownValue.
+ */
+async function syncNewVsReturningBreakdown(
+  targetDate: string,
+  socialMediaId: string,
+  existingMetrics: any[],
+) {
+  console.log(`Starting newVsReturning breakdown for ${targetDate}...`);
+
+  const [response] = await analyticsDataClient.runReport({
+    property: "properties/393011442",
+    dateRanges: [{ startDate: targetDate, endDate: targetDate }],
+    dimensions: [{ name: "newVsReturning" }],
+    metrics: [{ name: "sessions" }],
+  });
+
+  const metricDate = new Date(targetDate);
+
+  for (const row of response.rows ?? []) {
+    const label = row.dimensionValues?.[0]?.value ?? "unknown"; // "new" | "returning"
+    const sessions = Number(row.metricValues?.[0]?.value ?? 0);
+
+    const existing = existingMetrics.find(
+      (m) =>
+        m.metricName === Metric.TOTAL_SESSIONS &&
+        m.metricDate &&
+        m.metricDate.getTime() === metricDate.getTime() &&
+        m.breakdownKey === "newVsReturning" &&
+        m.breakdownValue === label,
+    );
+
+    try {
+      if (existing) {
+        console.log(
+          `Updating TOTAL_SESSIONS (${label}) for ${metricDate.toISOString().slice(0, 10)}`,
+        );
+        await updateSocialMediaMetric(existing.id, {
+          metricName: Metric.TOTAL_SESSIONS,
+          metricValue: sessions,
+          lastSynced: new Date(),
+          metricDate,
+          breakdownKey: "newVsReturning",
+          breakdownValue: label,
+        });
+      } else {
+        console.log(
+          `Creating TOTAL_SESSIONS (${label}) for ${metricDate.toISOString().slice(0, 10)}`,
+        );
+        await createSocialMediaMetric({
+          socialMediaId,
+          metricName: Metric.TOTAL_SESSIONS,
+          metricValue: sessions,
+          lastSynced: new Date(),
+          metricDate,
+          breakdownKey: "newVsReturning",
+          breakdownValue: label,
+        });
+      }
+    } catch (err) {
+      console.error(`Error saving TOTAL_SESSIONS (${label}):`, err);
+    }
+  }
+}
+
+/**
+ * Helper: breakdown for Sessions by Source (bar chart)
+ * Stores SESSIONS_BY_SOURCE with breakdownKey="sessionSource".
+ */
+async function syncSessionsBySourceBreakdown(
+  targetDate: string,
+  socialMediaId: string,
+  existingMetrics: any[],
+) {
+  console.log(`Starting sessionsBySource breakdown for ${targetDate}...`);
+
+  const [response] = await analyticsDataClient.runReport({
+    property: "properties/393011442",
+    dateRanges: [{ startDate: targetDate, endDate: targetDate }],
+    dimensions: [{ name: "sessionSource" }],
+    metrics: [{ name: "sessions" }],
+  });
+
+  const metricDate = new Date(targetDate);
+
+  for (const row of response.rows ?? []) {
+    const source = row.dimensionValues?.[0]?.value ?? "unknown";
+    const sessions = Number(row.metricValues?.[0]?.value ?? 0);
+
+    const existing = existingMetrics.find(
+      (m) =>
+        m.metricName === Metric.SESSIONS_BY_SOURCE &&
+        m.metricDate &&
+        m.metricDate.getTime() === metricDate.getTime() &&
+        m.breakdownKey === "sessionSource" &&
+        m.breakdownValue === source,
+    );
+
+    try {
+      if (existing) {
+        console.log(
+          `Updating SESSIONS_BY_SOURCE (${source}) for ${metricDate.toISOString().slice(0, 10)}`,
+        );
+        await updateSocialMediaMetric(existing.id, {
+          metricName: Metric.SESSIONS_BY_SOURCE,
+          metricValue: sessions,
+          lastSynced: new Date(),
+          metricDate,
+          breakdownKey: "sessionSource",
+          breakdownValue: source,
+        });
+      } else {
+        console.log(
+          `Creating SESSIONS_BY_SOURCE (${source}) for ${metricDate.toISOString().slice(0, 10)}`,
+        );
+        await createSocialMediaMetric({
+          socialMediaId,
+          metricName: Metric.SESSIONS_BY_SOURCE,
+          metricValue: sessions,
+          lastSynced: new Date(),
+          metricDate,
+          breakdownKey: "sessionSource",
+          breakdownValue: source,
+        });
+      }
+    } catch (err) {
+      console.error(`Error saving SESSIONS_BY_SOURCE (${source}):`, err);
+    }
+  }
+}
+
 async function runReport(startDate: string, endDate: string) {
   //changed to accept date range
   console.log("Starting GA API request...");
@@ -40,11 +173,17 @@ async function runReport(startDate: string, endDate: string) {
     dateRanges: [{ startDate, endDate }], //changed to not initialize with fixed dates
     dimensions: [{ name: "date" }], //changed to accept days for date range
     metrics: [
-      { name: "activeUsers" },
-      { name: "screenPageViews" },
-      { name: "active7DayUsers" },
-      { name: "engagementRate" },
-      { name: "newUsers" },
+      { name: "activeUsers" },               // 0
+      { name: "screenPageViews" },           // 1
+      { name: "active7DayUsers" },           // 2
+      { name: "engagementRate" },            // 3
+      { name: "newUsers" },                  // 4
+      { name: "bounceRate" },                // 5
+      { name: "averageSessionDuration" },    // 6
+      { name: "sessions" },                  // 7
+      { name: "engagedSessions" },           // 8
+      { name: "screenPageViewsPerSession" }, // 9
+      { name: "userEngagementDuration" },    // 10
     ],
   });
 
@@ -102,23 +241,51 @@ async function runReport(startDate: string, endDate: string) {
         metricName: Metric.NEW_USERS,
         metricValue: Number(metricValues[4]?.value ?? 0),
       },
+      {
+        metricName: Metric.BOUNCE_RATE,
+        metricValue: Number(metricValues[5]?.value ?? 0),
+      },
+      {
+        metricName: Metric.AVG_SESSION_DURATION,
+        metricValue: Number(metricValues[6]?.value ?? 0),
+      },
+      {
+        metricName: Metric.TOTAL_SESSIONS,
+        metricValue: Number(metricValues[7]?.value ?? 0),
+      },
+      {
+        metricName: Metric.ENGAGED_SESSIONS,
+        metricValue: Number(metricValues[8]?.value ?? 0),
+      },
+      {
+        metricName: Metric.PAGES_PER_SESSION,
+        metricValue: Number(metricValues[9]?.value ?? 0),
+      },
+      {
+        metricName: Metric.ENGAGEMENT_TIME,
+        metricValue: Number(metricValues[10]?.value ?? 0),
+      },
     ];
 
     // Log every 10 rows only
     if (processed % 10 === 0) console.log(`Processing row ${processed}`);
 
     for (const metric of metricsToSave) {
-      // Optionally de-duplicate by metricName + metricDate (similar to per-day history)
+      // De-duplicate by metricName + metricDate, only for aggregate rows
       const existing = existingMetrics.find(
         (m) =>
           m.metricName === metric.metricName &&
           m.metricDate &&
-          m.metricDate.getTime() === metricDate.getTime(),
+          m.metricDate.getTime() === metricDate.getTime() &&
+          (m.breakdownKey == null || m.breakdownKey === "") &&
+          (m.breakdownValue == null || m.breakdownValue === ""),
       );
 
       try {
         if (existing) {
-          console.log(`Updating ${metric.metricName}`);
+          console.log(
+            `Updating ${metric.metricName} for ${metricDate.toISOString().slice(0, 10)}`,
+          );
           await updateSocialMediaMetric(existing.id, {
             metricName: metric.metricName,
             metricValue: metric.metricValue,
@@ -126,7 +293,9 @@ async function runReport(startDate: string, endDate: string) {
             metricDate,
           });
         } else {
-          console.log(`Creating ${metric.metricName}`);
+          console.log(
+            `Creating ${metric.metricName} for ${metricDate.toISOString().slice(0, 10)}`,
+          );
           await createSocialMediaMetric({
             socialMediaId,
             metricName: metric.metricName,
@@ -139,6 +308,11 @@ async function runReport(startDate: string, endDate: string) {
         console.error(`Error saving ${metric.metricName}:`, err);
       }
     }
+
+    // Also store breakdown rows for this specific date
+    const targetDateStr = metricDate.toISOString().slice(0, 10);
+    await syncNewVsReturningBreakdown(targetDateStr, socialMediaId, existingMetrics);
+    await syncSessionsBySourceBreakdown(targetDateStr, socialMediaId, existingMetrics);
 
     processed++;
   }

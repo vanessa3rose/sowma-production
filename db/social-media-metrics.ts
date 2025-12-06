@@ -9,6 +9,8 @@ export async function createSocialMediaMetric(input: {
   metricValue: number;
   lastSynced?: Date | null;
   metricDate: Date;
+  breakdownKey?: string | null;
+  breakdownValue?: string | null;
 }) {
   return prisma.socialMediaMetrics.create({ data: input });
 }
@@ -36,6 +38,8 @@ export async function updateSocialMediaMetric(
     metricValue: number;
     lastSynced: Date | null;
     metricDate: Date;
+    breakdownKey?: string | null;
+    breakdownValue?: string | null;
   }>,
 ) {
   return prisma.socialMediaMetrics.update({
