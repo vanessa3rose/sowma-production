@@ -18,8 +18,10 @@ import { GlobalPageExportProvider } from "./components/export-pdf/GlobalPageExpo
 
 const App = () => {
   const [location] = useLocation();
-  const hideLayoutRoutes = ["/login", "/signup"];
-  const hideLayout = hideLayoutRoutes.includes(location);
+
+  const currentPath = location.toLowerCase(); 
+  const hideLayoutRoutes = ["/signup", "/login"];
+  const hideLayout = hideLayoutRoutes.includes(currentPath);
 
   const [isMobile, setisMobile] = useState(false);
 
@@ -65,9 +67,9 @@ const App = () => {
           <Route path="/" component={Homepage} />
           <Route path="/social-media" component={SocialMediaPage} />
           <Route path="/social/:platform" component={SocialMediaPage} />
+          <Route path="/signup" component={SignupPage} />
           <Route path="/login" component={LoginPage} />
           <Route path="/google-analytics" component={GoogleAnalyticsPage} />
-          <Route path="/signup" component={SignupPage} />
           <Route path="/admin" component={AdminPage} />
           <Route path="/glossary" component={GlossaryPage} />
           <Route path="/error" component={ErrorPage} />
