@@ -1,7 +1,14 @@
+// src/components/export-pdf/ExportButton.tsx
+
 import { useState } from "react";
 import ExportModal from "./ExportModal";
+import type { Platform } from "../../config/chartConfigs";
 
-export default function ExportButton() {
+interface ExportButtonProps {
+  onExport: (platforms: Platform[]) => Promise<void> | void;
+}
+
+export default function ExportButton({ onExport }: ExportButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -26,9 +33,13 @@ export default function ExportButton() {
         </svg>
         <span>Export</span>
       </button>
-      {/*Export Modal is called to redirect to other page using Dialog section */}
+
       {isModalOpen && (
-        <ExportModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
+        <ExportModal
+          isOpen={isModalOpen}
+          setIsOpen={setIsModalOpen}
+          onExport={onExport}     // ✔ just pass through
+        />
       )}
     </>
   );

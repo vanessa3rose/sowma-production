@@ -13,13 +13,14 @@ import DateRangeButton from "../components/date-range/DateRangeButton";
 import ExportButton from "../components/export-pdf/ExportButton";
 
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
+import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExportProvider";
 
 //Types
 export type GAMetrics = {
   activeUsers: number;
   screenPageViews: number;
   active7DayUsers: number;
-  engagementRate: number; // 0-1; we’ll display as %
+  engagementRate: number;
   newUsers: number;
 };
 
@@ -30,7 +31,6 @@ export type TimePoint = {
   active7DayUsers?: number;
 };
 
-// for % change
 type MetricSummary = {
   current: number | null;
   prev: number | null;
@@ -44,7 +44,8 @@ type MetricKey =
   | "newUsers";
 
 export default function GoogleAnalyticsPage() {
-  //state
+  const { exportByPlatforms } = useGlobalPageExporter();
+
   const [metrics, setMetrics] = useState<GAMetrics | null>(null);
   const [usersOverTime, setUsersOverTime] = useState<TimePoint[]>([]);
   const [pageviewsOverTime, setPageviewsOverTime] = useState<TimePoint[]>([]);
@@ -56,7 +57,6 @@ export default function GoogleAnalyticsPage() {
   const defaultStartDate = "2024-01-01";
   const defaultEndDate = "3000-01-01";
 
-  //helpers
   function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     return raw
       .filter((m) => m.metricDate || m.lastSynced)
@@ -117,7 +117,6 @@ export default function GoogleAnalyticsPage() {
     return `${sign}${pct.toFixed(1)}% vs. prev.`;
   }
 
-  // for engagement rate: percentage points (pp)
   function formatEngagementChange(summary?: MetricSummary | null): string {
     if (!summary || summary.current == null || summary.prev == null) {
       return "0";
@@ -127,7 +126,6 @@ export default function GoogleAnalyticsPage() {
     return `${sign}${deltaPoints.toFixed(1)}pp`;
   }
 
-  // ---- Fetch from backend ----
   useEffect(() => {
     async function loadGA() {
       try {
@@ -170,21 +168,18 @@ export default function GoogleAnalyticsPage() {
           }),
         ]);
 
-        // time-series for each metric
         const activeSeries = toLinePoints(activeUsersRaw);
         const pageviewsSeries = toLinePoints(pageviewsRaw);
         const active7Series = toLinePoints(active7Raw);
         const engagementSeries = toLinePoints(engagementRaw);
         const newUsersSeries = toLinePoints(newUsersRaw);
 
-        // summaries
         const activeSummary = summarizeSeries(activeSeries);
         const pageviewsSummary = summarizeSeries(pageviewsSeries);
         const active7Summary = summarizeSeries(active7Series);
         const engagementSummary = summarizeSeries(engagementSeries);
         const newUsersSummary = summarizeSeries(newUsersSeries);
 
-        // store metric summaries (for % change text)
         setMetricSummaries({
           activeUsers: activeSummary,
           screenPageViews: pageviewsSummary,
@@ -193,12 +188,10 @@ export default function GoogleAnalyticsPage() {
           newUsers: newUsersSummary,
         });
 
-        // overall GAMetrics (current snapshot values)
         setMetrics({
           activeUsers: activeSummary.current ?? 0,
           screenPageViews: pageviewsSummary.current ?? 0,
           active7DayUsers: active7Summary.current ?? 0,
-          // assume ENGAGEMENT_RATE is stored as percentage 0–100 in DB
           engagementRate:
             engagementSummary.current != null
               ? engagementSummary.current / 100
@@ -206,7 +199,6 @@ export default function GoogleAnalyticsPage() {
           newUsers: newUsersSummary.current ?? 0,
         });
 
-        // combined time series for charts
         setUsersOverTime(mergeUsersAnd7Day(activeSeries, active7Series));
         setPageviewsOverTime(
           pageviewsSeries.map((p) => ({
@@ -222,7 +214,6 @@ export default function GoogleAnalyticsPage() {
     loadGA();
   }, []);
 
-  // safe fallbacks for rendering
   const dMetrics: GAMetrics = metrics ?? {
     activeUsers: 0,
     screenPageViews: 0,
@@ -270,7 +261,7 @@ export default function GoogleAnalyticsPage() {
         </div>
         <div className="flex space-x-2 mt-2 lg:mt-0">
           <DateRangeButton />
-          <ExportButton />
+          <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
 

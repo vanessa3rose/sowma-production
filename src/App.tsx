@@ -8,11 +8,13 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
 import AdminPage from "./pages/AdminPage";
-import TestExportPDF from "./pages/TestExportPDF"; //TODO: Remove
 import GlossaryPage from "./pages/Glossary";
 import { useState } from "react";
 import ErrorPage from "./pages/ErrorPage";
 import Newsletter from "./pages/Newsletter";
+
+// ⭐ Correct import
+import { GlobalPageExportProvider } from "./components/export-pdf/GlobalPageExportProvider";
 
 const App = () => {
   const [location] = useLocation();
@@ -25,6 +27,9 @@ const App = () => {
 
 
   return (
+    // ⭐ Correct opening tag
+    <GlobalPageExportProvider>
+    
     <div className={`${!hideLayout && "flex min-h-screen bg-white"}`}>
     {!hideLayout && (
       <>
@@ -66,17 +71,28 @@ const App = () => {
           <Route path="/login" component={LoginPage} />
           <Route path="/google-analytics" component={GoogleAnalyticsPage} />
           <Route path="/admin" component={AdminPage} />
-          <Route path="/test-export" component={TestExportPDF} />
           <Route path="/glossary" component={GlossaryPage} />
           <Route path="/error" component={ErrorPage} />
           <Route path="/newsletter" component={Newsletter} />
 
-          <Route>
-            <p className="p-4 text-black">404: Page Not Found</p>
-          </Route>
-        </Switch>
+            <Route>
+              <p className="p-4 text-black">404: Page Not Found</p>
+            </Route>
+          </Switch>
+        </div>
       </div>
-    </div>
+      <div
+        id="pdf-export-container"
+        style={{
+          position: "absolute",
+          top: "-9999px",
+          left: "-9999px",
+          width: "1000px", // fixed logical width for cards
+          pointerEvents: "none",
+        }}
+      />
+    </GlobalPageExportProvider>
+    
   );
 };
 
