@@ -1,5 +1,3 @@
-// scripts/google-analytics.ts  (REGULAR daily sync, per-day metrics)
-
 import fs from "fs";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { fileURLToPath } from "node:url";
@@ -53,6 +51,14 @@ async function syncNewVsReturningBreakdown(
     metrics: [{ name: "sessions" }],
   });
 
+  if (!response.rows || response.rows.length === 0) {
+    console.error(
+      `⚠️ GA newVsReturning breakdown returned 0 rows for ${targetDate}. ` +
+        `No breakdown metrics will be stored for this date.`,
+    );
+    return;
+  }
+
   const metricDate = new Date(targetDate);
 
   for (const row of response.rows ?? []) {
@@ -70,8 +76,13 @@ async function syncNewVsReturningBreakdown(
 
     try {
       if (existing) {
-        console.log(
-          `Updating TOTAL_SESSIONS (${label}) for ${metricDate.toISOString().slice(0, 10)}`,
+        console.warn(
+          `ℹ️ TOTAL_SESSIONS (${label}) for ${metricDate
+            .toISOString()
+            .slice(
+              0,
+              10,
+            )} already exists (id=${existing.id}). Updating existing row instead of creating a new one.`,
         );
         await updateSocialMediaMetric(existing.id, {
           metricName: Metric.TOTAL_SESSIONS,
@@ -83,7 +94,9 @@ async function syncNewVsReturningBreakdown(
         });
       } else {
         console.log(
-          `Creating TOTAL_SESSIONS (${label}) for ${metricDate.toISOString().slice(0, 10)}`,
+          `Creating TOTAL_SESSIONS (${label}) for ${metricDate
+            .toISOString()
+            .slice(0, 10)}`,
         );
         await createSocialMediaMetric({
           socialMediaId,
@@ -119,6 +132,14 @@ async function syncSessionsBySourceBreakdown(
     metrics: [{ name: "sessions" }],
   });
 
+  if (!response.rows || response.rows.length === 0) {
+    console.error(
+      `⚠️ GA sessionsBySource breakdown returned 0 rows for ${targetDate}. ` +
+        `No source breakdown metrics will be stored for this date.`,
+    );
+    return;
+  }
+
   const metricDate = new Date(targetDate);
 
   for (const row of response.rows ?? []) {
@@ -136,8 +157,13 @@ async function syncSessionsBySourceBreakdown(
 
     try {
       if (existing) {
-        console.log(
-          `Updating SESSIONS_BY_SOURCE (${source}) for ${metricDate.toISOString().slice(0, 10)}`,
+        console.warn(
+          `ℹ️ SESSIONS_BY_SOURCE (${source}) for ${metricDate
+            .toISOString()
+            .slice(
+              0,
+              10,
+            )} already exists (id=${existing.id}). Updating existing row instead of creating a new one.`,
         );
         await updateSocialMediaMetric(existing.id, {
           metricName: Metric.SESSIONS_BY_SOURCE,
@@ -149,7 +175,9 @@ async function syncSessionsBySourceBreakdown(
         });
       } else {
         console.log(
-          `Creating SESSIONS_BY_SOURCE (${source}) for ${metricDate.toISOString().slice(0, 10)}`,
+          `Creating SESSIONS_BY_SOURCE (${source}) for ${metricDate
+            .toISOString()
+            .slice(0, 10)}`,
         );
         await createSocialMediaMetric({
           socialMediaId,
@@ -179,26 +207,36 @@ async function runDailyReport(targetDate: string) {
     dateRanges: [{ startDate: targetDate, endDate: targetDate }],
     dimensions: [{ name: "date" }], // per-day
     metrics: [
-      { name: "activeUsers" },               // 0
-      { name: "screenPageViews" },           // 1
-      { name: "active7DayUsers" },           // 2
-      { name: "engagementRate" },            // 3
-      { name: "newUsers" },                  // 4
-      { name: "bounceRate" },                // 5
-      { name: "averageSessionDuration" },    // 6
-      { name: "sessions" },                  // 7
-      { name: "engagedSessions" },           // 8
+      { name: "activeUsers" }, // 0
+      { name: "screenPageViews" }, // 1
+      { name: "engagementRate" }, // 3
+      { name: "newUsers" }, // 4
+      { name: "bounceRate" }, // 5
+      { name: "averageSessionDuration" }, // 6
+      { name: "sessions" }, // 7
+      { name: "engagedSessions" }, // 8
       { name: "screenPageViewsPerSession" }, // 9
-      { name: "userEngagementDuration" },    // 10
+      { name: "userEngagementDuration" }, // 10
     ],
   });
 
-  console.log(`Report result: ${response.rows?.length ?? 0} rows`);
+  const rowCount = response.rows?.length ?? 0;
+  console.log(`Report result: ${rowCount} rows`);
+
+  if (!response.rows || response.rows.length === 0) {
+    console.error(
+      `❌ GA API returned 0 rows for ${targetDate}. ` +
+        `This usually means no data for that date or a query mismatch. ` +
+        `Skipping metric save for this date.`,
+    );
+    return;
+  }
+
   console.log("Fetching socialMediaId...");
 
   const socialMediaId = await getSocialMediaIdByProvider();
   if (!socialMediaId) {
-    console.error("No Google Analytics socialMediaId found.");
+    console.error("❌ No Google Analytics socialMediaId found. Aborting sync.");
     return;
   }
 
@@ -223,6 +261,10 @@ async function runDailyReport(targetDate: string) {
     } else {
       // Fallback: use the targetDate we requested
       metricDate = new Date(targetDate);
+      console.warn(
+        `⚠️ Unexpected date format from GA for ${targetDate}. ` +
+          `Using requested targetDate as metricDate.`,
+      );
     }
 
     const metricsToSave = [
@@ -233,10 +275,6 @@ async function runDailyReport(targetDate: string) {
       {
         metricName: Metric.SCREEN_PAGE_VIEWS,
         metricValue: Number(metricValues[1]?.value ?? 0),
-      },
-      {
-        metricName: Metric.ACTIVE_7_DAY_USERS,
-        metricValue: Number(metricValues[2]?.value ?? 0),
       },
       {
         metricName: Metric.ENGAGEMENT_RATE,
@@ -290,8 +328,13 @@ async function runDailyReport(targetDate: string) {
 
       try {
         if (existing) {
-          console.log(
-            `Updating ${metric.metricName} for ${metricDate.toISOString().slice(0, 10)}`,
+          console.warn(
+            `ℹ️ Metric ${metric.metricName} for ${metricDate
+              .toISOString()
+              .slice(
+                0,
+                10,
+              )} already exists (id=${existing.id}). Updating existing row instead of creating a new one.`,
           );
           await updateSocialMediaMetric(existing.id, {
             metricName: metric.metricName,
@@ -301,7 +344,9 @@ async function runDailyReport(targetDate: string) {
           });
         } else {
           console.log(
-            `Creating ${metric.metricName} for ${metricDate.toISOString().slice(0, 10)}`,
+            `Creating ${metric.metricName} for ${metricDate
+              .toISOString()
+              .slice(0, 10)}`,
           );
           await createSocialMediaMetric({
             socialMediaId,

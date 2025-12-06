@@ -69,7 +69,9 @@ async function syncNewVsReturningBreakdown(
     try {
       if (existing) {
         console.log(
-          `Updating TOTAL_SESSIONS (${label}) for ${metricDate.toISOString().slice(0, 10)}`,
+          `Updating TOTAL_SESSIONS (${label}) for ${metricDate
+            .toISOString()
+            .slice(0, 10)} (existing breakdown row id=${existing.id})`,
         );
         await updateSocialMediaMetric(existing.id, {
           metricName: Metric.TOTAL_SESSIONS,
@@ -81,7 +83,9 @@ async function syncNewVsReturningBreakdown(
         });
       } else {
         console.log(
-          `Creating TOTAL_SESSIONS (${label}) for ${metricDate.toISOString().slice(0, 10)}`,
+          `Creating TOTAL_SESSIONS (${label}) for ${metricDate
+            .toISOString()
+            .slice(0, 10)}`,
         );
         await createSocialMediaMetric({
           socialMediaId,
@@ -135,7 +139,9 @@ async function syncSessionsBySourceBreakdown(
     try {
       if (existing) {
         console.log(
-          `Updating SESSIONS_BY_SOURCE (${source}) for ${metricDate.toISOString().slice(0, 10)}`,
+          `Updating SESSIONS_BY_SOURCE (${source}) for ${metricDate
+            .toISOString()
+            .slice(0, 10)} (existing breakdown row id=${existing.id})`,
         );
         await updateSocialMediaMetric(existing.id, {
           metricName: Metric.SESSIONS_BY_SOURCE,
@@ -147,7 +153,9 @@ async function syncSessionsBySourceBreakdown(
         });
       } else {
         console.log(
-          `Creating SESSIONS_BY_SOURCE (${source}) for ${metricDate.toISOString().slice(0, 10)}`,
+          `Creating SESSIONS_BY_SOURCE (${source}) for ${metricDate
+            .toISOString()
+            .slice(0, 10)}`,
         );
         await createSocialMediaMetric({
           socialMediaId,
@@ -175,19 +183,27 @@ async function runReport(startDate: string, endDate: string) {
     metrics: [
       { name: "activeUsers" },               // 0
       { name: "screenPageViews" },           // 1
-      { name: "active7DayUsers" },           // 2
-      { name: "engagementRate" },            // 3
-      { name: "newUsers" },                  // 4
-      { name: "bounceRate" },                // 5
-      { name: "averageSessionDuration" },    // 6
-      { name: "sessions" },                  // 7
-      { name: "engagedSessions" },           // 8
-      { name: "screenPageViewsPerSession" }, // 9
-      { name: "userEngagementDuration" },    // 10
+      { name: "engagementRate" },            // 2
+      { name: "newUsers" },                  // 3
+      { name: "bounceRate" },                // 4
+      { name: "averageSessionDuration" },    // 5
+      { name: "sessions" },                  // 6
+      { name: "engagedSessions" },           // 7
+      { name: "screenPageViewsPerSession" }, // 8
+      { name: "userEngagementDuration" },    // 9
     ],
   });
 
-  console.log(`Report result: ${response.rows?.length ?? 0} rows`);
+  const rowCount = response.rows?.length ?? 0;
+  console.log(`Report result: ${rowCount} rows`);
+
+  if (!rowCount) {
+    console.error(
+      `❌ GA backfill API returned 0 rows for ${startDate} → ${endDate}. No metrics will be written for this range.`,
+    );
+    return;
+  }
+
   console.log("Fetching socialMediaId...");
 
   const socialMediaId = await getSocialMediaIdByProvider();
@@ -218,6 +234,9 @@ async function runReport(startDate: string, endDate: string) {
     } else {
       // Fallback: use the startDate we requested
       metricDate = new Date(startDate);
+      console.warn(
+        `⚠️ Unexpected date format "${dateStr}" from GA; using ${startDate} as metricDate.`,
+      );
     }
 
     const metricsToSave = [
@@ -230,45 +249,46 @@ async function runReport(startDate: string, endDate: string) {
         metricValue: Number(metricValues[1]?.value ?? 0),
       },
       {
-        metricName: Metric.ACTIVE_7_DAY_USERS,
+        metricName: Metric.ENGAGEMENT_RATE,
         metricValue: Number(metricValues[2]?.value ?? 0),
       },
       {
-        metricName: Metric.ENGAGEMENT_RATE,
+        metricName: Metric.NEW_USERS,
         metricValue: Number(metricValues[3]?.value ?? 0),
       },
       {
-        metricName: Metric.NEW_USERS,
+        metricName: Metric.BOUNCE_RATE,
         metricValue: Number(metricValues[4]?.value ?? 0),
       },
       {
-        metricName: Metric.BOUNCE_RATE,
+        metricName: Metric.AVG_SESSION_DURATION,
         metricValue: Number(metricValues[5]?.value ?? 0),
       },
       {
-        metricName: Metric.AVG_SESSION_DURATION,
+        metricName: Metric.TOTAL_SESSIONS,
         metricValue: Number(metricValues[6]?.value ?? 0),
       },
       {
-        metricName: Metric.TOTAL_SESSIONS,
+        metricName: Metric.ENGAGED_SESSIONS,
         metricValue: Number(metricValues[7]?.value ?? 0),
       },
       {
-        metricName: Metric.ENGAGED_SESSIONS,
+        metricName: Metric.PAGES_PER_SESSION,
         metricValue: Number(metricValues[8]?.value ?? 0),
       },
       {
-        metricName: Metric.PAGES_PER_SESSION,
-        metricValue: Number(metricValues[9]?.value ?? 0),
-      },
-      {
         metricName: Metric.ENGAGEMENT_TIME,
-        metricValue: Number(metricValues[10]?.value ?? 0),
+        metricValue: Number(metricValues[9]?.value ?? 0),
       },
     ];
 
     // Log every 10 rows only
-    if (processed % 10 === 0) console.log(`Processing row ${processed}`);
+    if (processed % 10 === 0)
+      console.log(
+        `Processing row ${processed} for date ${metricDate
+          .toISOString()
+          .slice(0, 10)}`,
+      );
 
     for (const metric of metricsToSave) {
       // De-duplicate by metricName + metricDate, only for aggregate rows
@@ -283,8 +303,10 @@ async function runReport(startDate: string, endDate: string) {
 
       try {
         if (existing) {
-          console.log(
-            `Updating ${metric.metricName} for ${metricDate.toISOString().slice(0, 10)}`,
+          console.warn(
+            `ℹ️ [Backfill] Metric ${metric.metricName} for ${metricDate
+              .toISOString()
+              .slice(0, 10)} already exists (id=${existing.id}). Updating existing row.`,
           );
           await updateSocialMediaMetric(existing.id, {
             metricName: metric.metricName,
@@ -294,7 +316,9 @@ async function runReport(startDate: string, endDate: string) {
           });
         } else {
           console.log(
-            `Creating ${metric.metricName} for ${metricDate.toISOString().slice(0, 10)}`,
+            `[Backfill] Creating ${metric.metricName} for ${metricDate
+              .toISOString()
+              .slice(0, 10)}`,
           );
           await createSocialMediaMetric({
             socialMediaId,
