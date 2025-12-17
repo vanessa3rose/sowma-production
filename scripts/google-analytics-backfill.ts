@@ -1,6 +1,7 @@
 import fs from "fs";
 import "dotenv/config";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
+import { fileURLToPath } from "node:url";
 import { GoogleAuth } from "google-auth-library";
 import {
   createSocialMediaMetric,
@@ -10,12 +11,18 @@ import {
 } from "../db/social-media-metrics";
 import { PrismaClient, Provider, Metric } from "../src/generated/prisma";
 
+console.log("[GA] Script loaded");
+
 const prisma = new PrismaClient();
+
+console.log("[GA] Script starting");
 
 // Load service account key
 const jsonKey = JSON.parse(
   fs.readFileSync("service-account.json", "utf8"),
-);
+); 
+
+console.log("[GA] Service account key loaded");
 
 // Create a GoogleAuth instance using the credentials
 const auth = new GoogleAuth({
@@ -26,56 +33,50 @@ const auth = new GoogleAuth({
 // Initialize the Analytics Data API client
 const analyticsDataClient = new BetaAnalyticsDataClient({ auth });
 
-// --- Date helpers ---
-
-function getStartOfToday(): Date {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function getEndOfToday(): Date {
-  const d = new Date();
-  d.setHours(23, 59, 59, 999);
-  return d;
-}
-
-function formatDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
+console.log("[GA] Analytics client initialized");
 
 async function getSocialMediaIdByProvider(): Promise<string | null> {
   const record = await prisma.socialMedia.findFirst({
     where: { provider: Provider.GOOGLE_ANALYTICS },
     select: { id: true },
   });
-  return record?.id || null;
+
+  if (!record) {
+    console.error("[GA] Google Analytics SocialMedia entry not found");
+    return null;
+  }
+
+  console.log(`[GA] Using socialMediaId=${record.id}`);
+  return record.id;
 }
 
 /**
  * Helper: breakdown for New vs Returning (pie chart)
- * Stores TOTAL_SESSIONS segmented by new/returning via breakdownKey/breakdownValue.
  */
 async function syncNewVsReturningBreakdown(
-  metricDate: Date,
+  targetDate: string,
   socialMediaId: string,
   existingMetrics: any[],
 ) {
-  const dateStr = formatDate(metricDate);
+  console.log(`[GA] Syncing newVsReturning for ${targetDate}`);
 
   const [response] = await analyticsDataClient.runReport({
     property: "properties/393011442",
-    dateRanges: [{ startDate: dateStr, endDate: dateStr }],
+    dateRanges: [{ startDate: targetDate, endDate: targetDate }],
     dimensions: [{ name: "newVsReturning" }],
     metrics: [{ name: "sessions" }],
   });
 
   if (!response.rows || response.rows.length === 0) {
-    console.error(
-      `GA newVsReturning breakdown returned no rows for ${dateStr}`,
+    console.warn(
+      `[GA] No newVsReturning rows returned for ${targetDate}`,
     );
     return;
   }
+
+  const metricDate = new Date(targetDate);
+  let created = 0;
+  let updated = 0;
 
   for (const row of response.rows) {
     const label = row.dimensionValues?.[0]?.value ?? "unknown";
@@ -99,6 +100,7 @@ async function syncNewVsReturningBreakdown(
           breakdownValue: label,
           lastSynced: new Date(),
         });
+        updated++;
       } else {
         await createSocialMediaMetric({
           socialMediaId,
@@ -109,40 +111,48 @@ async function syncNewVsReturningBreakdown(
           breakdownValue: label,
           lastSynced: new Date(),
         });
+        created++;
       }
     } catch (err) {
       console.error(
-        `Failed saving TOTAL_SESSIONS (${label}) for ${dateStr}`,
+        `[GA] Failed saving newVsReturning (${label}) for ${targetDate}`,
         err,
       );
     }
   }
+
+  console.log(
+    `[GA] newVsReturning ${targetDate}: created=${created}, updated=${updated}`,
+  );
 }
 
 /**
  * Helper: breakdown for Sessions by Source (bar chart)
- * Stores SESSIONS_BY_SOURCE with breakdownKey="sessionSource".
  */
 async function syncSessionsBySourceBreakdown(
-  metricDate: Date,
+  targetDate: string,
   socialMediaId: string,
   existingMetrics: any[],
 ) {
-  const dateStr = formatDate(metricDate);
+  console.log(`[GA] Syncing sessionsBySource for ${targetDate}`);
 
   const [response] = await analyticsDataClient.runReport({
     property: "properties/393011442",
-    dateRanges: [{ startDate: dateStr, endDate: dateStr }],
+    dateRanges: [{ startDate: targetDate, endDate: targetDate }],
     dimensions: [{ name: "sessionSource" }],
     metrics: [{ name: "sessions" }],
   });
 
   if (!response.rows || response.rows.length === 0) {
-    console.error(
-      `GA sessionsBySource breakdown returned no rows for ${dateStr}`,
+    console.warn(
+      `[GA] No sessionsBySource rows returned for ${targetDate}`,
     );
     return;
   }
+
+  const metricDate = new Date(targetDate);
+  let created = 0;
+  let updated = 0;
 
   for (const row of response.rows) {
     const source = row.dimensionValues?.[0]?.value ?? "unknown";
@@ -166,6 +176,7 @@ async function syncSessionsBySourceBreakdown(
           breakdownValue: source,
           lastSynced: new Date(),
         });
+        updated++;
       } else {
         await createSocialMediaMetric({
           socialMediaId,
@@ -176,58 +187,82 @@ async function syncSessionsBySourceBreakdown(
           breakdownValue: source,
           lastSynced: new Date(),
         });
+        created++;
       }
     } catch (err) {
       console.error(
-        `Failed saving SESSIONS_BY_SOURCE (${source}) for ${dateStr}`,
+        `[GA] Failed saving sessionsBySource (${source}) for ${targetDate}`,
         err,
       );
     }
   }
+
+  console.log(
+    `[GA] sessionsBySource ${targetDate}: created=${created}, updated=${updated}`,
+  );
 }
 
 /**
- * Run GA daily sync for today only.
+ * Run a GA report over a date range and persist metrics per day.
  */
-async function runDailyReport() {
-  const metricDate = getStartOfToday();
-  const dateStr = formatDate(metricDate);
+async function runReport(startDate: string, endDate: string) {
+  console.log(`[GA] Running report ${startDate} → ${endDate}`);
 
-  try {
-    const socialMediaId = await getSocialMediaIdByProvider();
-    if (!socialMediaId) {
-      console.error("Google Analytics SocialMedia entry not found.");
-      return;
-    }
+  const [response] = await analyticsDataClient.runReport({
+    property: "properties/393011442",
+    dateRanges: [{ startDate, endDate }],
+    dimensions: [{ name: "date" }],
+    metrics: [
+      { name: "activeUsers" },
+      { name: "screenPageViews" },
+      { name: "engagementRate" },
+      { name: "newUsers" },
+      { name: "bounceRate" },
+      { name: "averageSessionDuration" },
+      { name: "sessions" },
+      { name: "engagedSessions" },
+      { name: "screenPageViewsPerSession" },
+      { name: "userEngagementDuration" },
+    ],
+  });
 
-    const existingMetrics = await getMetricsBySocialMediaId(
-      socialMediaId,
+  if (!response.rows || response.rows.length === 0) {
+    console.warn(
+      `[GA] No rows returned for ${startDate} → ${endDate}`,
+    );
+    return;
+  }
+
+  console.log(`[GA] ${response.rows.length} day rows returned`);
+
+  const socialMediaId = await getSocialMediaIdByProvider();
+  if (!socialMediaId) return;
+
+  const existingMetrics = await getMetricsBySocialMediaId(
+    socialMediaId,
+  );
+  console.log(
+    `[GA] Loaded ${existingMetrics.length} existing metrics`,
+  );
+
+  let dayIndex = 0;
+
+  for (const row of response.rows) {
+    const dateStr = row.dimensionValues?.[0]?.value;
+    if (!dateStr || dateStr.length !== 8) continue;
+
+    const metricDate = new Date(
+      Number(dateStr.slice(0, 4)),
+      Number(dateStr.slice(4, 6)) - 1,
+      Number(dateStr.slice(6, 8)),
     );
 
-    const [response] = await analyticsDataClient.runReport({
-      property: "properties/393011442",
-      dateRanges: [{ startDate: dateStr, endDate: dateStr }],
-      dimensions: [{ name: "date" }],
-      metrics: [
-        { name: "activeUsers" },
-        { name: "screenPageViews" },
-        { name: "engagementRate" },
-        { name: "newUsers" },
-        { name: "bounceRate" },
-        { name: "averageSessionDuration" },
-        { name: "sessions" },
-        { name: "engagedSessions" },
-        { name: "screenPageViewsPerSession" },
-        { name: "userEngagementDuration" },
-      ],
-    });
+    const isoDate = metricDate.toISOString().slice(0, 10);
+    const values = row.metricValues ?? [];
 
-    if (!response.rows || response.rows.length === 0) {
-      console.error(`GA returned no rows for ${dateStr}`);
-      return;
+    if (dayIndex % 10 === 0) {
+      console.log(`[GA] Processing day ${isoDate}`);
     }
-
-    const values = response.rows[0].metricValues ?? [];
 
     const metricsToSave = [
       { metricName: Metric.ACTIVE_USERS, metricValue: Number(values[0]?.value ?? 0) },
@@ -251,43 +286,81 @@ async function runDailyReport() {
           !m.breakdownValue,
       );
 
-      if (existing) continue;
-
-      await createSocialMediaMetric({
-        socialMediaId,
-        metricName: metric.metricName,
-        metricValue: metric.metricValue,
-        metricDate,
-        lastSynced: new Date(),
-      });
+      try {
+        if (existing) {
+          await updateSocialMediaMetric(existing.id, {
+            metricName: metric.metricName,
+            metricValue: metric.metricValue,
+            metricDate,
+            lastSynced: new Date(),
+          });
+        } else {
+          await createSocialMediaMetric({
+            socialMediaId,
+            metricName: metric.metricName,
+            metricValue: metric.metricValue,
+            metricDate,
+            lastSynced: new Date(),
+          });
+        }
+      } catch (err) {
+        console.error(
+          `[GA] Failed saving ${metric.metricName} for ${isoDate}`,
+          err,
+        );
+      }
     }
 
     await syncNewVsReturningBreakdown(
-      metricDate,
+      isoDate,
       socialMediaId,
       existingMetrics,
     );
     await syncSessionsBySourceBreakdown(
-      metricDate,
+      isoDate,
       socialMediaId,
       existingMetrics,
     );
+
+    dayIndex++;
+  }
+
+  console.log(
+    `[GA] Completed processing ${dayIndex} days (${startDate} → ${endDate})`,
+  );
+}
+
+async function main() {
+  try {
+    const args = process.argv.slice(2);
+
+    if (args[0] === "backfill") {
+      const start = args[1];
+      const end = args[2];
+      if (!start || !end) {
+        throw new Error(
+          "Usage: npx tsx scripts/google-analytics.ts backfill YYYY-MM-DD YYYY-MM-DD",
+        );
+      }
+      await runReport(start, end);
+    } else {
+      const today = new Date().toISOString().slice(0, 10);
+      await runReport(today, today);
+    }
   } catch (err) {
-    console.error(
-      `[google-analytics-daily-sync] Failed for ${dateStr}`,
-      err,
-    );
-    throw err;
+    console.error("[GA] Script failed", err);
+    process.exitCode = 1;
+  } finally {
+    await closePrisma();
+    console.log("[GA] Prisma disconnected, script finished");
   }
 }
 
-/**
- * Auto-run for cron
- */
 (async () => {
   try {
-    await runDailyReport();
-  } finally {
-    await closePrisma();
+    await main();
+  } catch (err) {
+    console.error("[GA] Unhandled error", err);
+    process.exit(1);
   }
 })();
