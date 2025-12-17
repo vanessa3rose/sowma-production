@@ -10,15 +10,16 @@ import LineCharts from "../components/charts/LineCharts";
 import PieCharts from "../components/charts/PieCharts";
 
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
+import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExportProvider";
 
 // types
 type ChartType = "line" | "pie";
 
 type ChartConfig = {
-  id: string;            // internal id for this chart
-  title: string;         // title to show on BigCard
+  id: string;
+  title: string;
   type: ChartType;
-  metric: string;        // MUST match your backend Metric enum
+  metric: string;
 };
 
 type LinePoint = {
@@ -40,11 +41,10 @@ const CHART_CONFIGS: Record<string, ChartConfig[]> = {
     { id: "media_count",       title: "Media Reactions",  type: "line", metric: "POSTS" },
   ],
   twitter: [
-    //  Adjust metrics to whatever you actually seeded in the DB
     { id: "followers_count",   title: "Followers",        type: "line", metric: "FOLLOWERS" },
-    { id: "following_count",   title: "Following",        type: "line", metric: "LIKES" },     // TODO: adjust if needed
+    { id: "following_count",   title: "Following",        type: "line", metric: "LIKES" },
     { id: "tweet_count",       title: "Tweet Count",      type: "line", metric: "POSTS" },
-    { id: "listed_count",      title: "Listed Count",     type: "line", metric: "SHARES" },    // TODO: adjust if needed
+    { id: "listed_count",      title: "Listed Count",     type: "line", metric: "SHARES" },
   ],
   facebook: [
     { id: "page_follows",                            title: "Page Follows",         type: "line", metric: "FOLLOWERS" },
@@ -65,7 +65,6 @@ const CHART_CONFIGS: Record<string, ChartConfig[]> = {
 
 type Platform = keyof typeof CHART_CONFIGS;
 
-// map URL platform -> backend Provider enum string
 function providerFromPlatform(platform: Platform): string {
   switch (platform) {
     case "instagram":
@@ -82,15 +81,15 @@ function providerFromPlatform(platform: Platform): string {
 }
 
 export default function SocialMediaPage() {
-  //  Using Wouter's dynamic route match
-  const [match, params] = useRoute("/social/:platform");
+  const { exportByPlatforms } = useGlobalPageExporter();
+  
+  const [_, params] = useRoute("/social/:platform");
   const platform = (params?.platform as Platform) || null;
 
   const formattedPlatform = platform
     ? platform.charAt(0).toUpperCase() + platform.slice(1)
     : "Social Media";
 
-  // ---- State for charts + summaries ----
   const [chartDataMap, setChartDataMap] = useState<Record<string, LinePoint[]>>(
     {},
   );
@@ -101,7 +100,6 @@ export default function SocialMediaPage() {
   const defaultStartDate = "2024-01-01";
   const defaultEndDate = "3000-01-01";
 
-  // ---- Helpers ----
   function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     return raw
       .filter((m) => m.metricDate || m.lastSynced)
@@ -140,13 +138,6 @@ export default function SocialMediaPage() {
     return `${sign}${pct.toFixed(1)}% vs. prev.`;
   }
 
-  function formatValue(summary?: MetricSummary, suffix?: string): string {
-    if (!summary || summary.current == null) return "-";
-    const base = summary.current.toLocaleString();
-    return suffix ? `${base} ${suffix}` : base;
-  }
-
-  // ---- Fetch metrics whenever platform changes ----
   useEffect(() => {
     if (!platform) return;
 
@@ -161,7 +152,7 @@ export default function SocialMediaPage() {
           configs.map((cfg) =>
             fetchMetrics({
               provider,
-              metric: cfg.metric, // MUST match backend Metric enum
+              metric: cfg.metric,
               startDate: defaultStartDate,
               endDate: defaultEndDate,
             }).then((rows) => ({ cfg, rows })),
@@ -187,7 +178,6 @@ export default function SocialMediaPage() {
     loadMetrics();
   }, [platform]);
 
-  // ---- SmallCard helpers: pick the right chart for each metric ----
   function findConfigForMetric(
     platform: Platform,
     metric: string,
@@ -246,7 +236,7 @@ export default function SocialMediaPage() {
         </div>
         <div className="flex space-x-2 mt-2 lg:mt-0">
           <DateRangeButton />
-          <ExportButton />
+          <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
 
@@ -341,7 +331,7 @@ export default function SocialMediaPage() {
                       />
                     ) : (
                       <PieCharts
-                        data={[]} // you can wire real pie data later if needed
+                        data={[]}
                         dataKey="value"
                         nameKey="label"
                       />

@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ROLE_PERMISSIONS } from "../data/rolePermissions";
-import { Switch } from "@mui/material";
 
 export default function AdminPage() {
   const [rolePerm, setRolePerm] = useState(ROLE_PERMISSIONS);
