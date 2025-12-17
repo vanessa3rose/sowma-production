@@ -1,7 +1,6 @@
 import fs from "fs";
 import "dotenv/config";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
-import { fileURLToPath } from "node:url";
 import { GoogleAuth } from "google-auth-library";
 import {
   createSocialMediaMetric,
@@ -15,22 +14,31 @@ console.log("[GA] Script loaded");
 
 const prisma = new PrismaClient();
 
+// -------------------------------
+// Cadence configuration
+// -------------------------------
+// Change this to control cadence
+// "monthly" | "weekly" | "daily"
+const CADENCE: "monthly" | "weekly" | "daily" = "daily";
+
+// -------------------------------
+
 console.log("[GA] Script starting");
 
 // Load service account key
 const jsonKey = JSON.parse(
   fs.readFileSync("service-account.json", "utf8"),
-); 
+);
 
 console.log("[GA] Service account key loaded");
 
-// Create a GoogleAuth instance using the credentials
+// Auth
 const auth = new GoogleAuth({
   credentials: jsonKey,
   scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
 });
 
-// Initialize the Analytics Data API client
+// GA client
 const analyticsDataClient = new BetaAnalyticsDataClient({ auth });
 
 console.log("[GA] Analytics client initialized");
@@ -51,159 +59,7 @@ async function getSocialMediaIdByProvider(): Promise<string | null> {
 }
 
 /**
- * Helper: breakdown for New vs Returning (pie chart)
- */
-async function syncNewVsReturningBreakdown(
-  targetDate: string,
-  socialMediaId: string,
-  existingMetrics: any[],
-) {
-  console.log(`[GA] Syncing newVsReturning for ${targetDate}`);
-
-  const [response] = await analyticsDataClient.runReport({
-    property: "properties/393011442",
-    dateRanges: [{ startDate: targetDate, endDate: targetDate }],
-    dimensions: [{ name: "newVsReturning" }],
-    metrics: [{ name: "sessions" }],
-  });
-
-  if (!response.rows || response.rows.length === 0) {
-    console.warn(
-      `[GA] No newVsReturning rows returned for ${targetDate}`,
-    );
-    return;
-  }
-
-  const metricDate = new Date(targetDate);
-  let created = 0;
-  let updated = 0;
-
-  for (const row of response.rows) {
-    const label = row.dimensionValues?.[0]?.value ?? "unknown";
-    const sessions = Number(row.metricValues?.[0]?.value ?? 0);
-
-    const existing = existingMetrics.find(
-      (m) =>
-        m.metricName === Metric.TOTAL_SESSIONS &&
-        m.metricDate?.getTime() === metricDate.getTime() &&
-        m.breakdownKey === "newVsReturning" &&
-        m.breakdownValue === label,
-    );
-
-    try {
-      if (existing) {
-        await updateSocialMediaMetric(existing.id, {
-          metricName: Metric.TOTAL_SESSIONS,
-          metricValue: sessions,
-          metricDate,
-          breakdownKey: "newVsReturning",
-          breakdownValue: label,
-          lastSynced: new Date(),
-        });
-        updated++;
-      } else {
-        await createSocialMediaMetric({
-          socialMediaId,
-          metricName: Metric.TOTAL_SESSIONS,
-          metricValue: sessions,
-          metricDate,
-          breakdownKey: "newVsReturning",
-          breakdownValue: label,
-          lastSynced: new Date(),
-        });
-        created++;
-      }
-    } catch (err) {
-      console.error(
-        `[GA] Failed saving newVsReturning (${label}) for ${targetDate}`,
-        err,
-      );
-    }
-  }
-
-  console.log(
-    `[GA] newVsReturning ${targetDate}: created=${created}, updated=${updated}`,
-  );
-}
-
-/**
- * Helper: breakdown for Sessions by Source (bar chart)
- */
-async function syncSessionsBySourceBreakdown(
-  targetDate: string,
-  socialMediaId: string,
-  existingMetrics: any[],
-) {
-  console.log(`[GA] Syncing sessionsBySource for ${targetDate}`);
-
-  const [response] = await analyticsDataClient.runReport({
-    property: "properties/393011442",
-    dateRanges: [{ startDate: targetDate, endDate: targetDate }],
-    dimensions: [{ name: "sessionSource" }],
-    metrics: [{ name: "sessions" }],
-  });
-
-  if (!response.rows || response.rows.length === 0) {
-    console.warn(
-      `[GA] No sessionsBySource rows returned for ${targetDate}`,
-    );
-    return;
-  }
-
-  const metricDate = new Date(targetDate);
-  let created = 0;
-  let updated = 0;
-
-  for (const row of response.rows) {
-    const source = row.dimensionValues?.[0]?.value ?? "unknown";
-    const sessions = Number(row.metricValues?.[0]?.value ?? 0);
-
-    const existing = existingMetrics.find(
-      (m) =>
-        m.metricName === Metric.SESSIONS_BY_SOURCE &&
-        m.metricDate?.getTime() === metricDate.getTime() &&
-        m.breakdownKey === "sessionSource" &&
-        m.breakdownValue === source,
-    );
-
-    try {
-      if (existing) {
-        await updateSocialMediaMetric(existing.id, {
-          metricName: Metric.SESSIONS_BY_SOURCE,
-          metricValue: sessions,
-          metricDate,
-          breakdownKey: "sessionSource",
-          breakdownValue: source,
-          lastSynced: new Date(),
-        });
-        updated++;
-      } else {
-        await createSocialMediaMetric({
-          socialMediaId,
-          metricName: Metric.SESSIONS_BY_SOURCE,
-          metricValue: sessions,
-          metricDate,
-          breakdownKey: "sessionSource",
-          breakdownValue: source,
-          lastSynced: new Date(),
-        });
-        created++;
-      }
-    } catch (err) {
-      console.error(
-        `[GA] Failed saving sessionsBySource (${source}) for ${targetDate}`,
-        err,
-      );
-    }
-  }
-
-  console.log(
-    `[GA] sessionsBySource ${targetDate}: created=${created}, updated=${updated}`,
-  );
-}
-
-/**
- * Run a GA report over a date range and persist metrics per day.
+ * Run GA report and persist aggregate metrics on a fixed cadence
  */
 async function runReport(startDate: string, endDate: string) {
   console.log(`[GA] Running report ${startDate} → ${endDate}`);
@@ -227,9 +83,7 @@ async function runReport(startDate: string, endDate: string) {
   });
 
   if (!response.rows || response.rows.length === 0) {
-    console.warn(
-      `[GA] No rows returned for ${startDate} → ${endDate}`,
-    );
+    console.warn(`[GA] No rows returned for ${startDate} → ${endDate}`);
     return;
   }
 
@@ -238,16 +92,20 @@ async function runReport(startDate: string, endDate: string) {
   const socialMediaId = await getSocialMediaIdByProvider();
   if (!socialMediaId) return;
 
-  const existingMetrics = await getMetricsBySocialMediaId(
-    socialMediaId,
-  );
-  console.log(
-    `[GA] Loaded ${existingMetrics.length} existing metrics`,
-  );
+  const existingMetrics = await getMetricsBySocialMediaId(socialMediaId);
+  console.log(`[GA] Loaded ${existingMetrics.length} existing metrics`);
 
-  let dayIndex = 0;
+  // Ensure deterministic ordering
+  const sortedRows = [...response.rows].sort((a, b) => {
+    const da = a.dimensionValues?.[0]?.value ?? "";
+    const db = b.dimensionValues?.[0]?.value ?? "";
+    return da.localeCompare(db);
+  });
 
-  for (const row of response.rows) {
+  const writtenKeys = new Set<string>();
+  let writtenCount = 0;
+
+  for (const row of sortedRows) {
     const dateStr = row.dimensionValues?.[0]?.value;
     if (!dateStr || dateStr.length !== 8) continue;
 
@@ -257,12 +115,32 @@ async function runReport(startDate: string, endDate: string) {
       Number(dateStr.slice(6, 8)),
     );
 
-    const isoDate = metricDate.toISOString().slice(0, 10);
-    const values = row.metricValues ?? [];
+    // -------------------------------
+    // Cadence gating
+    // -------------------------------
+    let cadenceKey: string;
 
-    if (dayIndex % 10 === 0) {
-      console.log(`[GA] Processing day ${isoDate}`);
+    if (CADENCE === "monthly") {
+      // First of each month
+      if (metricDate.getDate() !== 1) continue;
+      cadenceKey = `${metricDate.getFullYear()}-${metricDate.getMonth() + 1}`;
+    } else if (CADENCE === "weekly") {
+      cadenceKey = `${metricDate.getFullYear()}-W${Math.floor(
+        metricDate.getDate() / 7,
+      )}`;
+    } else {
+      cadenceKey = metricDate.toISOString().slice(0, 10);
     }
+
+    if (writtenKeys.has(cadenceKey)) continue;
+    writtenKeys.add(cadenceKey);
+    writtenCount++;
+    // -------------------------------
+
+    const isoDate = metricDate.toISOString().slice(0, 10);
+    console.log(`[GA] Writing metrics for ${isoDate}`);
+
+    const values = row.metricValues ?? [];
 
     const metricsToSave = [
       { metricName: Metric.ACTIVE_USERS, metricValue: Number(values[0]?.value ?? 0) },
@@ -310,23 +188,10 @@ async function runReport(startDate: string, endDate: string) {
         );
       }
     }
-
-    await syncNewVsReturningBreakdown(
-      isoDate,
-      socialMediaId,
-      existingMetrics,
-    );
-    await syncSessionsBySourceBreakdown(
-      isoDate,
-      socialMediaId,
-      existingMetrics,
-    );
-
-    dayIndex++;
   }
 
   console.log(
-    `[GA] Completed processing ${dayIndex} days (${startDate} → ${endDate})`,
+    `[GA] Completed ${CADENCE} sync: ${writtenCount} records written (${startDate} → ${endDate})`,
   );
 }
 
