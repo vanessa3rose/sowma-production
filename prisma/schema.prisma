@@ -9,25 +9,27 @@ datasource db {
 }
 
 model SocialMedia {
-  id          String               @id @default(cuid())
-  provider    Provider
-  userId      String
-  username    String
-  displayName String?
-  profileUrl  String?
-  email       String?
-  metrics     SocialMediaMetrics[]
+  id              String               @id @default(cuid())
+  provider        Provider
+  userId          String
+  username        String
+  displayName     String?
+  profileUrl      String?
+  email           String?
+  metrics         SocialMediaMetrics[]
+  SocialMediaAuth SocialMediaAuth?
 }
 
 model SocialMediaMetrics {
-  id            String      @id @default(cuid())
-  socialMediaId String
-  metricName    Metric
-  metricValue   Int
-  lastSynced    DateTime?
-  metricDate    DateTime?
-  breakdownKey  String?
+  id             String      @id @default(cuid())
+  socialMediaId  String
+  metricName     Metric
+  metricValue    Int
+  lastSynced     DateTime?
+  metricDate     DateTime?
+  breakdownKey   String?
   breakdownValue String?
+  SocialMedia    SocialMedia @relation(fields: [socialMediaId], references: [id])
 }
 
 model SocialMediaAuth {
@@ -92,7 +94,7 @@ enum Metric {
   ACTIVE_7_DAY_USERS
   ENGAGEMENT_RATE
   NEW_USERS
-  BOUNCE_RATE 
+  BOUNCE_RATE
   AVG_SESSION_DURATION
   PAGES_PER_SESSION
   TOTAL_USERS

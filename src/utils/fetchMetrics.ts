@@ -7,11 +7,10 @@ export type MetricsParams = {
 
 export type SocialMediaMetric = {
   id: string;
-  metricName: string; // or Metric if you want to import that enum type
-  metricValue: number; // ✅ match Prisma
-  lastSynced?: string; // DateTime? → string in JSON
-  metricDate?: string; // DateTime? → string in JSON
-  // socialMedia?: { ... }  // you can add this if you need it
+  metricName: string; 
+  metricValue: number; 
+  lastSynced?: string; 
+  metricDate?: string;
 };
 
 export async function fetchMetrics(params: MetricsParams) {
