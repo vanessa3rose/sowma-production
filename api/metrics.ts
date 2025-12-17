@@ -23,12 +23,12 @@ router.get("/", async (req, res) => {
             : new Date("2000-01-01"),
           lte: endDate ? new Date(endDate as string) : new Date(),
         },
-        socialMedia: {
+        SocialMedia: {
           provider: provider as Provider,
         },
       },
       include: {
-        socialMedia: true,
+        SocialMedia: true,
       },
     });
 
