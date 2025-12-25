@@ -1,26 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { PrismaClient, Metric } from "../src/generated/prisma";
-
-// Utility functions
-function getStartOfDay(date: Date): Date {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function getEndOfDay(date: Date): Date {
-  const d = new Date(date);
-  d.setHours(23, 59, 59, 999);
-  return d;
-}
-
-function toUnixTimestamp(date: Date): number {
-  return Math.floor(date.getTime() / 1000);
-}
-
-function formatDate(date: Date): string {
-  return date.toISOString().split("T")[0];
-}
+import { formatDate, toUnixTimestamp, startOfDay, endOfDay } from "../src/utils/dates"
 
 const prisma = new PrismaClient();
 
@@ -45,8 +25,8 @@ export async function fetchFacebookInsights(
 ): Promise<
   Omit<FacebookPublicMetrics, "total_posts" | "total_shares" | "total_comments">
 > {
-  const since = toUnixTimestamp(getStartOfDay(targetDate));
-  const until = toUnixTimestamp(getEndOfDay(targetDate));
+  const since = toUnixTimestamp(startOfDay(targetDate));
+  const until = toUnixTimestamp(endOfDay(targetDate));
 
   const metricsConfig = [
     { name: "page_follows", period: "day" },
@@ -101,8 +81,8 @@ async function fetchDailyPostMetrics(
   total_shares: number;
   total_comments: number;
 }> {
-  const since = toUnixTimestamp(getStartOfDay(targetDate));
-  const until = toUnixTimestamp(getEndOfDay(targetDate));
+  const since = toUnixTimestamp(startOfDay(targetDate));
+  const until = toUnixTimestamp(endOfDay(targetDate));
 
   let posts: any[] = [];
   let nextUrl: string | null =
@@ -187,8 +167,8 @@ async function metricsExistForDate(
     where: {
       socialMediaId,
       metricDate: {
-        gte: getStartOfDay(targetDate),
-        lt: getEndOfDay(targetDate),
+        gte: startOfDay(targetDate),
+        lt: endOfDay(targetDate),
       },
     },
   });
