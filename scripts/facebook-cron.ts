@@ -1,299 +1,170 @@
-import { fileURLToPath } from "node:url";
 import { PrismaClient, Metric } from "../src/generated/prisma";
+import fetch from "node-fetch";
+import "dotenv/config";
+import {
+  startOfDay,
+  endOfDay,
+  toUnixTimestamp,
+  formatISODate,
+  metricsExistForDay,
+} from "../src/utils/dates";
 
 const prisma = new PrismaClient();
 
-const FACEBOOK_PAGE_ID = process.env.FACEBOOK_PAGE_ID!;
-const FACEBOOK_PAGE_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!;
+const FB_PAGE_ID = process.env.FACEBOOK_PAGE_ID!;
+const ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!;
 const FB_API_VERSION = "v24.0";
+const POSTS_LIMIT = 50;
 
-type FacebookPublicMetrics = {
-  page_follows: number;
-  page_actions_post_reactions_like_total: number;
-  page_media_view: number;
-  total_comments: number;
-  total_posts: number;
-  total_shares: number;
-};
+/* -------------------------------------------------
+   API helpers
+-------------------------------------------------- */
 
-function getStartOfDay(date: Date): Date {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
+async function fetchDailyInsights(date: Date) {
+  const since = toUnixTimestamp(startOfDay(date));
+  const until = toUnixTimestamp(endOfDay(date));
 
-function getEndOfDay(date: Date): Date {
-  const d = new Date(date);
-  d.setHours(23, 59, 59, 999);
-  return d;
-}
-
-function toUnixTimestamp(date: Date): number {
-  return Math.floor(date.getTime() / 1000);
-}
-
-function formatDate(date: Date): string {
-  return date.toISOString().split("T")[0];
-}
-
-async function metricsExistForDate(
-  socialMediaId: string,
-  targetDate: Date,
-): Promise<boolean> {
-  const existing = await prisma.socialMediaMetrics.findFirst({
-    where: {
-      socialMediaId,
-      metricDate: {
-        gte: getStartOfDay(targetDate),
-        lt: getEndOfDay(targetDate),
-      },
-    },
-  });
-  return existing !== null;
-}
-
-// ---------- Core fetchers: copied from backfill style ----------
-
-// Fetch insights metrics (followers, likes, views) for a specific day
-export async function fetchFacebookInsights(
-  pageId: string,
-  pageAccessToken: string,
-  targetDate: Date,
-): Promise<
-  Omit<FacebookPublicMetrics, "total_posts" | "total_shares" | "total_comments">
-> {
-  const since = toUnixTimestamp(getStartOfDay(targetDate));
-  const until = toUnixTimestamp(getEndOfDay(targetDate));
-
-  const metricsConfig = [
-    { name: "page_follows", period: "day" },
-    { name: "page_actions_post_reactions_like_total", period: "day" },
-    { name: "page_media_view", period: "day" },
+  // ONLY non-deprecated metrics
+  const metrics = [
+    "page_follows",
+    "page_media_view",
+    "page_actions_post_reactions_like_total",
   ];
 
-  const insightsResults: any = {};
+  const url =
+    `https://graph.facebook.com/${FB_API_VERSION}/${FB_PAGE_ID}/insights` +
+    `?metric=${metrics.join(",")}` +
+    `&period=day` +
+    `&metric_type=total_value` +
+    `&since=${since}&until=${until}` +
+    `&access_token=${ACCESS_TOKEN}`;
 
-  for (const { name, period } of metricsConfig) {
-    try {
-      const insightsUrl = `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/insights?metric=${name}&period=${period}&since=${since}&until=${until}&access_token=${pageAccessToken}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(await res.text());
 
-      console.log(
-        `Fetching insight metric: ${name} (${formatDate(targetDate)})`,
-      );
-      const res = await fetch(insightsUrl);
+  const json = await res.json();
+  const out: Record<string, number> = {};
 
-      if (res.ok) {
-        const data = await res.json();
-
-        if (name === "page_follows") {
-          const values = data.data[0]?.values || [];
-          insightsResults[name] = values[values.length - 1]?.value || 0;
-        } else {
-          const values = data.data[0]?.values || [];
-          insightsResults[name] = values.reduce(
-            (sum: number, v: any) => sum + (v.value || 0),
-            0,
-          );
-        }
-      } else {
-        const text = await res.text();
-        console.warn(`⚠️  ${name} failed: ${res.status} — ${text}`);
-        insightsResults[name] = 0;
-      }
-    } catch (err) {
-      console.warn(`⚠️  ${name} error:`, err);
-      insightsResults[name] = 0;
-    }
+  for (const row of json.data ?? []) {
+    out[row.name] = row.values?.[0]?.value ?? 0;
   }
 
   return {
-    page_follows: insightsResults.page_follows || 0,
-    page_actions_post_reactions_like_total:
-      insightsResults.page_actions_post_reactions_like_total || 0,
-    page_media_view: insightsResults.page_media_view || 0,
+    followers: out.page_follows ?? 0,
+    views: out.page_media_view ?? 0,
+    likes: out.page_actions_post_reactions_like_total ?? 0,
   };
 }
 
-// Get current total posts/shares/comments (no date filter), same as backfill
-async function fetchCurrentTotals(
-  pageId: string,
-  pageAccessToken: string,
-): Promise<{
-  total_posts: number;
-  total_shares: number;
-  total_comments: number;
-}> {
-  let posts: any[] = [];
-  let nextUrl: string | null =
-    `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/posts?fields=shares,comments.summary(true)&access_token=${pageAccessToken}`;
+async function fetchPostsForDay(date: Date) {
+  const url =
+    `https://graph.facebook.com/${FB_API_VERSION}/${FB_PAGE_ID}/posts` +
+    `?fields=created_time,shares,comments.summary(true)` +
+    `&limit=${POSTS_LIMIT}` +
+    `&access_token=${ACCESS_TOKEN}`;
 
-  let pageCount = 0;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(await res.text());
 
-  console.log("Fetching current totals (posts/shares/comments)...");
+  const json = await res.json();
 
-  while (nextUrl && pageCount < 10) {
-    pageCount++;
-    const postsRes = await fetch(nextUrl);
-
-    if (!postsRes.ok) {
-      const text = await postsRes.text();
-      console.warn(
-        `⚠️  Posts API failed while fetching totals: ${postsRes.status} — ${text}`,
-      );
-      break;
-    }
-
-    const postsData = await postsRes.json();
-
-    if (!postsData.data || postsData.data.length === 0) break;
-
-    posts.push(...postsData.data);
-    nextUrl = postsData.paging?.next || null;
-  }
-
-  return {
-    total_posts: posts.length,
-    total_shares: posts.reduce(
-      (sum, post) => sum + (post.shares?.count || 0),
-      0,
-    ),
-    total_comments: posts.reduce(
-      (sum, post) => sum + (post.comments?.summary?.total_count || 0),
-      0,
-    ),
-  };
+  return (json.data ?? []).filter((p: any) => {
+    const t = new Date(p.created_time).getTime();
+    return t >= startOfDay(date).getTime() &&
+           t <= endOfDay(date).getTime();
+  });
 }
 
-// Convenience wrapper: same overall shape as your old fetchFacebookMetrics,
-// but using the *exact* day-based logic from the backfill helpers.
-export async function fetchFacebookMetrics(
-  pageId: string = FACEBOOK_PAGE_ID,
-  pageAccessToken: string = FACEBOOK_PAGE_TOKEN,
-  targetDate: Date = new Date(),
-): Promise<FacebookPublicMetrics> {
-  console.log(
-    `\n🔍 [fetchFacebookMetrics] Fetching day metrics for ${pageId} on ${formatDate(targetDate)}`,
-  );
+/* -------------------------------------------------
+   Daily cron
+-------------------------------------------------- */
 
-  const insights = await fetchFacebookInsights(
-    pageId,
-    pageAccessToken,
-    targetDate,
-  );
-  const totals = await fetchCurrentTotals(pageId, pageAccessToken);
+export async function runDailyFacebookSync() {
+  const today = startOfDay(new Date());
 
-  return {
-    ...insights,
-    ...totals,
-  };
-}
-
-export async function syncFacebookMetrics(targetDate: Date = new Date()) {
-  console.log(
-    `\n[syncFacebookMetrics] Starting Facebook metrics sync for ${formatDate(
-      targetDate,
-    )}...`,
-  );
   const accounts = await prisma.socialMedia.findMany({
     where: { provider: "FACEBOOK" },
   });
-  console.log(`Found ${accounts.length} Facebook accounts to sync.`);
-
-  const FACEBOOK_TO_PRISMA_METRIC: Partial<
-    Record<keyof FacebookPublicMetrics, Metric>
-  > = {
-    page_follows: Metric.FOLLOWERS,
-    page_actions_post_reactions_like_total: Metric.LIKES,
-    page_media_view: Metric.VIEWS,
-    total_posts: Metric.POSTS,
-    total_shares: Metric.SHARES,
-    total_comments: Metric.COMMENTS,
-  };
 
   for (const account of accounts) {
-    console.log(`\nSyncing account: ${account.username} (${account.userId})`);
-
-    // optional: avoid dup rows for same day
-    const exists = await metricsExistForDate(account.id, targetDate);
-    if (exists) {
-      console.log(
-        `⏭️  Metrics already exist for ${account.username} on ${formatDate(
-          targetDate,
-        )} — skipping`,
-      );
+    if (await metricsExistForDay(account.id, today)) {
+      console.log(`[FB] ${account.username} already synced`);
       continue;
     }
 
-    try {
-      const metrics = await fetchFacebookMetrics(
-        FACEBOOK_PAGE_ID,
-        FACEBOOK_PAGE_TOKEN,
-        targetDate,
-      );
-      console.log("Metrics fetched successfully, writing to DB...");
+    console.log(`[FB] Syncing ${account.username} (${formatISODate(today)})`);
 
-      for (const [metricName, metricVal] of Object.entries(metrics) as [
-        keyof FacebookPublicMetrics,
-        number,
-      ][]) {
-        const metricEnum = FACEBOOK_TO_PRISMA_METRIC[metricName];
-        if (!metricEnum) continue;
+    const posts = await fetchPostsForDay(today);
 
-        await prisma.socialMediaMetrics.create({
-          data: {
-            socialMediaId: account.id,
-            metricName: metricEnum,
-            metricValue: metricVal,
-            lastSynced: new Date(),
-            metricDate: getStartOfDay(targetDate),
-          },
-        });
-        console.log(`Saved metric: ${metricEnum} = ${metricVal}`);
-      }
+    const dailyComments = posts.reduce(
+      (s: number, p: any) => s + (p.comments?.summary?.total_count ?? 0),
+      0,
+    );
 
-      console.log(
-        `✅ Successfully synced ${account.username} for ${formatDate(
-          targetDate,
-        )}`,
-      );
-    } catch (err) {
-      console.error(
-        `❌ Failed syncing ${account.username} for ${formatDate(targetDate)}`,
-        err,
-      );
-    }
+    const dailyShares = posts.reduce(
+      (s: number, p: any) => s + (p.shares?.count ?? 0),
+      0,
+    );
+
+    const daysPosted = posts.length > 0 ? 1 : 0;
+
+    const insights = await fetchDailyInsights(today);
+
+    await prisma.socialMediaMetrics.createMany({
+      data: [
+        {
+          socialMediaId: account.id,
+          metricName: Metric.FOLLOWERS,
+          metricValue: insights.followers,
+          metricDate: today,
+        },
+        {
+          socialMediaId: account.id,
+          metricName: Metric.VIEWS,
+          metricValue: insights.views,
+          metricDate: today,
+        },
+        {
+          socialMediaId: account.id,
+          metricName: Metric.LIKES,
+          metricValue: insights.likes,
+          metricDate: today,
+        },
+        {
+          socialMediaId: account.id,
+          metricName: Metric.COMMENTS,
+          metricValue: dailyComments,
+          metricDate: today,
+        },
+        {
+          socialMediaId: account.id,
+          metricName: Metric.SHARES,
+          metricValue: dailyShares,
+          metricDate: today,
+        },
+        {
+          socialMediaId: account.id,
+          metricName: Metric.DAYS_POSTED,
+          metricValue: daysPosted,
+          metricDate: today,
+        },
+      ],
+    });
   }
 
-  console.log("Sync process completed. Disconnecting Prisma...");
-  await prisma.$disconnect();
+  console.log("[FB] Daily Facebook sync complete");
 }
 
-async function main() {
+/* -------------------------------------------------
+   Entrypoint
+-------------------------------------------------- */
+
+(async () => {
   try {
-    const args = process.argv.slice(2);
-
-    let targetDate = new Date();
-    if (args[0]) {
-      const parsed = new Date(args[0]);
-      if (Number.isNaN(parsed.getTime())) {
-        throw new Error(
-          `Invalid date argument "${args[0]}". Expected YYYY-MM-DD.`,
-        );
-      }
-      targetDate = parsed;
-    }
-
-    await syncFacebookMetrics(targetDate);
-    console.log("Script finished successfully.");
+    await runDailyFacebookSync();
   } catch (err) {
-    console.error("Unhandled error in main()", err);
-    process.exitCode = 1;
+    console.error("Facebook cron failed:", err);
   } finally {
     await prisma.$disconnect();
-    console.log("Prisma disconnected.");
   }
-}
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  void main();
-}
+})();
