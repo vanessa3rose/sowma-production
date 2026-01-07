@@ -1,4 +1,10 @@
 import { PrismaClient, Metric } from "../src/generated/prisma";
+import "dotenv/config";
+import {
+  startOfDay,
+  formatISODate,
+  metricsExistForDay,
+} from "../src/utils/dates";
 
 const prisma = new PrismaClient();
 
@@ -11,40 +17,6 @@ type TwitterPublicMetrics = {
   tweet_count: number;
   listed_count: number;
 };
-
-/**
- * Date helpers
- */
-function getStartOfToday(): Date {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function getEndOfToday(): Date {
-  const d = new Date();
-  d.setHours(23, 59, 59, 999);
-  return d;
-}
-
-/**
- * Check whether today's metrics already exist for an account
- */
-async function metricsExistForToday(
-  socialMediaId: string,
-): Promise<boolean> {
-  const existing = await prisma.socialMediaMetrics.findFirst({
-    where: {
-      socialMediaId,
-      metricDate: {
-        gte: getStartOfToday(),
-        lt: getEndOfToday(),
-      },
-    },
-  });
-
-  return existing !== null;
-}
 
 /**
  * Fetch current snapshot of Twitter public metrics
@@ -74,7 +46,7 @@ async function fetchTwitterMetrics(
  * Daily cron job entrypoint
  */
 export async function runDailyTwitterSync() {
-  const metricDate = getStartOfToday();
+  const metricDate = startOfDay(new Date());
 
   const accounts = await prisma.socialMedia.findMany({
     where: { provider: "TWITTER" },
@@ -90,32 +62,49 @@ export async function runDailyTwitterSync() {
   };
 
   for (const account of accounts) {
-    const alreadySynced = await metricsExistForToday(account.id);
-    if (alreadySynced) continue;
+    // ---- GLOBAL IDEMPOTENCY CHECK ----
+    if (await metricsExistForDay(account.id, metricDate)) {
+      console.log(
+        `[TW] ${account.username} already synced (${formatISODate(metricDate)})`,
+      );
+      continue;
+    }
 
     try {
       const metrics = await fetchTwitterMetrics(account.username);
 
-      for (const [key, value] of Object.entries(metrics) as [
-        keyof TwitterPublicMetrics,
-        number,
-      ][]) {
-        const metricEnum = METRIC_MAP[key];
-        if (!metricEnum) continue;
+      const metricsToInsert = Object.entries(metrics)
+        .map(([key, value]) => {
+          const metricEnum =
+            METRIC_MAP[key as keyof TwitterPublicMetrics];
+          if (!metricEnum) return null;
 
-        await prisma.socialMediaMetrics.create({
-          data: {
-            socialMediaId: account.id,
+          return {
             metricName: metricEnum,
-            metricValue: value,
-            metricDate,
-            lastSynced: new Date(),
-          },
-        });
-      }
+            metricValue: Number(value ?? 0),
+          };
+        })
+        .filter(Boolean) as {
+        metricName: Metric;
+        metricValue: number;
+      }[];
+
+      await prisma.$transaction(
+        metricsToInsert.map((m) =>
+          prisma.socialMediaMetrics.create({
+            data: {
+              socialMediaId: account.id,
+              metricName: m.metricName,
+              metricValue: m.metricValue,
+              metricDate,
+              lastSynced: new Date(),
+            },
+          }),
+        ),
+      );
     } catch (error) {
       console.error(
-        `Twitter sync failed for ${account.username}:`,
+        `[TW] Sync failed for ${account.username} (${formatISODate(metricDate)})`,
         error,
       );
     }
