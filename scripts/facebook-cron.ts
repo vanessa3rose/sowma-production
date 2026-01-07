@@ -24,7 +24,6 @@ async function fetchDailyInsights(date: Date) {
   const since = toUnixTimestamp(startOfDay(date));
   const until = toUnixTimestamp(endOfDay(date));
 
-  // ONLY non-deprecated metrics
   const metrics = [
     "page_follows",
     "page_media_view",
@@ -70,8 +69,10 @@ async function fetchPostsForDay(date: Date) {
 
   return (json.data ?? []).filter((p: any) => {
     const t = new Date(p.created_time).getTime();
-    return t >= startOfDay(date).getTime() &&
-           t <= endOfDay(date).getTime();
+    return (
+      t >= startOfDay(date).getTime() &&
+      t <= endOfDay(date).getTime()
+    );
   });
 }
 
@@ -80,76 +81,89 @@ async function fetchPostsForDay(date: Date) {
 -------------------------------------------------- */
 
 export async function runDailyFacebookSync() {
-  const today = startOfDay(new Date());
+  const metricDate = startOfDay(new Date());
 
   const accounts = await prisma.socialMedia.findMany({
     where: { provider: "FACEBOOK" },
   });
 
   for (const account of accounts) {
-    if (await metricsExistForDay(account.id, today)) {
-      console.log(`[FB] ${account.username} already synced`);
+    // ---- IDEMPOTENCY CHECK ----
+    if (await metricsExistForDay(account.id, metricDate)) {
+      console.log(
+        `[FB] ${account.username} already synced (${formatISODate(metricDate)})`,
+      );
       continue;
     }
 
-    console.log(`[FB] Syncing ${account.username} (${formatISODate(today)})`);
-
-    const posts = await fetchPostsForDay(today);
-
-    const dailyComments = posts.reduce(
-      (s: number, p: any) => s + (p.comments?.summary?.total_count ?? 0),
-      0,
+    console.log(
+      `[FB] Syncing ${account.username} (${formatISODate(metricDate)})`,
     );
 
-    const dailyShares = posts.reduce(
-      (s: number, p: any) => s + (p.shares?.count ?? 0),
-      0,
-    );
+    try {
+      const posts = await fetchPostsForDay(metricDate);
 
-    const daysPosted = posts.length > 0 ? 1 : 0;
+      const dailyComments = posts.reduce(
+        (s: number, p: any) =>
+          s + (p.comments?.summary?.total_count ?? 0),
+        0,
+      );
 
-    const insights = await fetchDailyInsights(today);
+      const dailyShares = posts.reduce(
+        (s: number, p: any) => s + (p.shares?.count ?? 0),
+        0,
+      );
 
-    await prisma.socialMediaMetrics.createMany({
-      data: [
+      const daysPosted = posts.length > 0 ? 1 : 0;
+
+      const insights = await fetchDailyInsights(metricDate);
+
+      const metricsToInsert = [
         {
-          socialMediaId: account.id,
           metricName: Metric.FOLLOWERS,
           metricValue: insights.followers,
-          metricDate: today,
         },
         {
-          socialMediaId: account.id,
           metricName: Metric.VIEWS,
           metricValue: insights.views,
-          metricDate: today,
         },
         {
-          socialMediaId: account.id,
           metricName: Metric.LIKES,
           metricValue: insights.likes,
-          metricDate: today,
         },
         {
-          socialMediaId: account.id,
           metricName: Metric.COMMENTS,
           metricValue: dailyComments,
-          metricDate: today,
         },
         {
-          socialMediaId: account.id,
           metricName: Metric.SHARES,
           metricValue: dailyShares,
-          metricDate: today,
         },
         {
-          socialMediaId: account.id,
           metricName: Metric.DAYS_POSTED,
           metricValue: daysPosted,
-          metricDate: today,
         },
-      ],
-    });
+      ];
+
+      await prisma.$transaction(
+        metricsToInsert.map((m) =>
+          prisma.socialMediaMetrics.create({
+            data: {
+              socialMediaId: account.id,
+              metricName: m.metricName,
+              metricValue: m.metricValue,
+              metricDate,
+              lastSynced: new Date(),
+            },
+          }),
+        ),
+      );
+    } catch (err) {
+      console.error(
+        `[FB] Sync failed for ${account.username} (${formatISODate(metricDate)})`,
+        err,
+      );
+    }
   }
 
   console.log("[FB] Daily Facebook sync complete");
@@ -162,8 +176,6 @@ export async function runDailyFacebookSync() {
 (async () => {
   try {
     await runDailyFacebookSync();
-  } catch (err) {
-    console.error("Facebook cron failed:", err);
   } finally {
     await prisma.$disconnect();
   }

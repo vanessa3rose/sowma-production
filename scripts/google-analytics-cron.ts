@@ -9,8 +9,18 @@ import {
   closePrisma,
 } from "../db/social-media-metrics";
 import { PrismaClient, Provider, Metric } from "../src/generated/prisma";
+import {
+  startOfDay,
+  endOfDay,
+  formatISODate,
+  metricsExistForDay,
+} from "../src/utils/dates";
 
 const prisma = new PrismaClient();
+
+/* -------------------------------------------------
+   GA client setup
+-------------------------------------------------- */
 
 // Load service account key
 const jsonKey = JSON.parse(
@@ -26,23 +36,9 @@ const auth = new GoogleAuth({
 // Initialize the Analytics Data API client
 const analyticsDataClient = new BetaAnalyticsDataClient({ auth });
 
-// --- Date helpers ---
-
-function getStartOfToday(): Date {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function getEndOfToday(): Date {
-  const d = new Date();
-  d.setHours(23, 59, 59, 999);
-  return d;
-}
-
-function formatDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
+/* -------------------------------------------------
+   Helpers
+-------------------------------------------------- */
 
 async function getSocialMediaIdByProvider(): Promise<string | null> {
   const record = await prisma.socialMedia.findFirst({
@@ -52,16 +48,22 @@ async function getSocialMediaIdByProvider(): Promise<string | null> {
   return record?.id || null;
 }
 
+function getYesterdayUTC(): Date {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d;
+}
+
+
 /**
  * Helper: breakdown for New vs Returning (pie chart)
- * Stores TOTAL_SESSIONS segmented by new/returning via breakdownKey/breakdownValue.
  */
 async function syncNewVsReturningBreakdown(
   metricDate: Date,
   socialMediaId: string,
   existingMetrics: any[],
 ) {
-  const dateStr = formatDate(metricDate);
+  const dateStr = formatISODate(metricDate);
 
   const [response] = await analyticsDataClient.runReport({
     property: "properties/393011442",
@@ -121,14 +123,13 @@ async function syncNewVsReturningBreakdown(
 
 /**
  * Helper: breakdown for Sessions by Source (bar chart)
- * Stores SESSIONS_BY_SOURCE with breakdownKey="sessionSource".
  */
 async function syncSessionsBySourceBreakdown(
   metricDate: Date,
   socialMediaId: string,
   existingMetrics: any[],
 ) {
-  const dateStr = formatDate(metricDate);
+  const dateStr = formatISODate(metricDate);
 
   const [response] = await analyticsDataClient.runReport({
     property: "properties/393011442",
@@ -186,17 +187,24 @@ async function syncSessionsBySourceBreakdown(
   }
 }
 
-/**
- * Run GA daily sync for today only.
- */
+/* -------------------------------------------------
+   Daily GA sync
+-------------------------------------------------- */
+
 async function runDailyReport() {
-  const metricDate = getStartOfToday();
-  const dateStr = formatDate(metricDate);
+  const metricDate = startOfDay(getYesterdayUTC());
+  const dateStr = formatISODate(metricDate);
 
   try {
     const socialMediaId = await getSocialMediaIdByProvider();
     if (!socialMediaId) {
       console.error("Google Analytics SocialMedia entry not found.");
+      return;
+    }
+
+    // ---- GLOBAL IDEMPOTENCY CHECK ----
+    if (await metricsExistForDay(socialMediaId, metricDate)) {
+      console.log(`[GA] already synced (${dateStr})`);
       return;
     }
 
@@ -267,6 +275,7 @@ async function runDailyReport() {
       socialMediaId,
       existingMetrics,
     );
+
     await syncSessionsBySourceBreakdown(
       metricDate,
       socialMediaId,
@@ -281,9 +290,10 @@ async function runDailyReport() {
   }
 }
 
-/**
- * Auto-run for cron
- */
+/* -------------------------------------------------
+   Entrypoint
+-------------------------------------------------- */
+
 (async () => {
   try {
     await runDailyReport();

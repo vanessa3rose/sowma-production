@@ -69,8 +69,10 @@ async function fetchMediaForDay(date: Date) {
 
   return (json.data ?? []).filter((m: any) => {
     const t = new Date(m.timestamp).getTime();
-    return t >= startOfDay(date).getTime() &&
-           t <= endOfDay(date).getTime();
+    return (
+      t >= startOfDay(date).getTime() &&
+      t <= endOfDay(date).getTime()
+    );
   });
 }
 
@@ -79,91 +81,101 @@ async function fetchMediaForDay(date: Date) {
 -------------------------------------------------- */
 
 export async function runDailyInstagramSync() {
-  const today = startOfDay(new Date());
+  const metricDate = startOfDay(new Date());
 
   const accounts = await prisma.socialMedia.findMany({
     where: { provider: "INSTAGRAM" },
   });
 
   for (const account of accounts) {
-    if (await metricsExistForDay(account.id, today)) {
-      console.log(`[IG] ${account.username} already synced`);
+    // ---- GLOBAL IDEMPOTENCY CHECK ----
+    if (await metricsExistForDay(account.id, metricDate)) {
+      console.log(
+        `[IG] ${account.username} already synced (${formatISODate(metricDate)})`,
+      );
       continue;
     }
 
-    console.log(`[IG] Syncing ${account.username} (${formatISODate(today)})`);
-
-    /* ---- daily media metrics ---- */
-    const media = await fetchMediaForDay(today);
-
-    const dailyLikes = media.reduce(
-      (s: number, m: any) => s + (m.like_count ?? 0),
-      0,
+    console.log(
+      `[IG] Syncing ${account.username} (${formatISODate(metricDate)})`,
     );
-    const dailyComments = media.reduce(
-      (s: number, m: any) => s + (m.comments_count ?? 0),
-      0,
-    );
-    const daysPosted = media.length > 0 ? 1 : 0;
 
-    /* ---- daily insights ---- */
-    const insights = await fetchDailyInsights(today);
+    try {
+      /* ---- daily media metrics ---- */
+      const media = await fetchMediaForDay(metricDate);
 
-    /* ---- account snapshot ---- */
-    const totals = await fetchAccountTotals();
+      const dailyLikes = media.reduce(
+        (s: number, m: any) => s + (m.like_count ?? 0),
+        0,
+      );
 
-    await prisma.socialMediaMetrics.createMany({
-      data: [
+      const dailyComments = media.reduce(
+        (s: number, m: any) => s + (m.comments_count ?? 0),
+        0,
+      );
+
+      const daysPosted = media.length > 0 ? 1 : 0;
+
+      /* ---- daily insights ---- */
+      const insights = await fetchDailyInsights(metricDate);
+
+      /* ---- account snapshot ---- */
+      const totals = await fetchAccountTotals();
+
+      const metricsToInsert = [
         {
-          socialMediaId: account.id,
           metricName: Metric.LIKES,
           metricValue: dailyLikes,
-          metricDate: today,
         },
         {
-          socialMediaId: account.id,
           metricName: Metric.COMMENTS,
           metricValue: dailyComments,
-          metricDate: today,
         },
         {
-          socialMediaId: account.id,
           metricName: Metric.DAYS_POSTED,
           metricValue: daysPosted,
-          metricDate: today,
         },
         {
-          socialMediaId: account.id,
           metricName: Metric.VIEWS,
           metricValue: insights.views ?? 0,
-          metricDate: today,
         },
         {
-          socialMediaId: account.id,
           metricName: Metric.REACH,
           metricValue: insights.reach ?? 0,
-          metricDate: today,
         },
         {
-          socialMediaId: account.id,
           metricName: Metric.TOTAL_INTERACTIONS,
           metricValue: insights.total_interactions ?? 0,
-          metricDate: today,
         },
         {
-          socialMediaId: account.id,
           metricName: Metric.FOLLOWERS,
           metricValue: totals.followers_count ?? 0,
-          metricDate: today,
         },
         {
-          socialMediaId: account.id,
           metricName: Metric.POSTS,
           metricValue: totals.media_count ?? 0,
-          metricDate: today,
         },
-      ],
-    });
+      ];
+
+      await prisma.$transaction(
+        metricsToInsert.map((m) =>
+          prisma.socialMediaMetrics.create({
+            data: {
+              socialMediaId: account.id,
+              metricName: m.metricName,
+              metricValue: m.metricValue,
+              metricDate,
+              lastSynced: new Date(),
+            },
+          }),
+        ),
+      );
+    } catch (err) {
+      console.error(
+        `[IG] Sync failed for ${account.username} (${formatISODate(metricDate)})`,
+        err,
+      );
+    }
   }
 
   console.log("[IG] Daily Instagram sync complete");
@@ -176,8 +188,6 @@ export async function runDailyInstagramSync() {
 (async () => {
   try {
     await runDailyInstagramSync();
-  } catch (err) {
-    console.error("Instagram cron failed:", err);
   } finally {
     await prisma.$disconnect();
   }
