@@ -81,14 +81,16 @@ async function fetchMediaForDay(date: Date) {
 -------------------------------------------------- */
 
 export async function runDailyInstagramSync() {
-  const metricDate = startOfDay(new Date());
+  // ---- T-1 (yesterday, UTC) ----
+  const metricDate = startOfDay(
+    new Date(Date.now() - 24 * 60 * 60 * 1000),
+  );
 
   const accounts = await prisma.socialMedia.findMany({
     where: { provider: "INSTAGRAM" },
   });
 
   for (const account of accounts) {
-    // ---- GLOBAL IDEMPOTENCY CHECK ----
     if (await metricsExistForDay(account.id, metricDate)) {
       console.log(
         `[IG] ${account.username} already synced (${formatISODate(metricDate)})`,
@@ -101,7 +103,6 @@ export async function runDailyInstagramSync() {
     );
 
     try {
-      /* ---- daily media metrics ---- */
       const media = await fetchMediaForDay(metricDate);
 
       const dailyLikes = media.reduce(
@@ -116,33 +117,15 @@ export async function runDailyInstagramSync() {
 
       const daysPosted = media.length > 0 ? 1 : 0;
 
-      /* ---- daily insights ---- */
       const insights = await fetchDailyInsights(metricDate);
-
-      /* ---- account snapshot ---- */
       const totals = await fetchAccountTotals();
 
       const metricsToInsert = [
-        {
-          metricName: Metric.LIKES,
-          metricValue: dailyLikes,
-        },
-        {
-          metricName: Metric.COMMENTS,
-          metricValue: dailyComments,
-        },
-        {
-          metricName: Metric.DAYS_POSTED,
-          metricValue: daysPosted,
-        },
-        {
-          metricName: Metric.VIEWS,
-          metricValue: insights.views ?? 0,
-        },
-        {
-          metricName: Metric.REACH,
-          metricValue: insights.reach ?? 0,
-        },
+        { metricName: Metric.LIKES, metricValue: dailyLikes },
+        { metricName: Metric.COMMENTS, metricValue: dailyComments },
+        { metricName: Metric.DAYS_POSTED, metricValue: daysPosted },
+        { metricName: Metric.VIEWS, metricValue: insights.views ?? 0 },
+        { metricName: Metric.REACH, metricValue: insights.reach ?? 0 },
         {
           metricName: Metric.TOTAL_INTERACTIONS,
           metricValue: insights.total_interactions ?? 0,
