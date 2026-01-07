@@ -81,14 +81,16 @@ async function fetchPostsForDay(date: Date) {
 -------------------------------------------------- */
 
 export async function runDailyFacebookSync() {
-  const metricDate = startOfDay(new Date());
+  // ---- T-1 (yesterday, UTC) ----
+  const metricDate = startOfDay(
+    new Date(Date.now() - 24 * 60 * 60 * 1000),
+  );
 
   const accounts = await prisma.socialMedia.findMany({
     where: { provider: "FACEBOOK" },
   });
 
   for (const account of accounts) {
-    // ---- IDEMPOTENCY CHECK ----
     if (await metricsExistForDay(account.id, metricDate)) {
       console.log(
         `[FB] ${account.username} already synced (${formatISODate(metricDate)})`,
@@ -119,30 +121,12 @@ export async function runDailyFacebookSync() {
       const insights = await fetchDailyInsights(metricDate);
 
       const metricsToInsert = [
-        {
-          metricName: Metric.FOLLOWERS,
-          metricValue: insights.followers,
-        },
-        {
-          metricName: Metric.VIEWS,
-          metricValue: insights.views,
-        },
-        {
-          metricName: Metric.LIKES,
-          metricValue: insights.likes,
-        },
-        {
-          metricName: Metric.COMMENTS,
-          metricValue: dailyComments,
-        },
-        {
-          metricName: Metric.SHARES,
-          metricValue: dailyShares,
-        },
-        {
-          metricName: Metric.DAYS_POSTED,
-          metricValue: daysPosted,
-        },
+        { metricName: Metric.FOLLOWERS, metricValue: insights.followers },
+        { metricName: Metric.VIEWS, metricValue: insights.views },
+        { metricName: Metric.LIKES, metricValue: insights.likes },
+        { metricName: Metric.COMMENTS, metricValue: dailyComments },
+        { metricName: Metric.SHARES, metricValue: dailyShares },
+        { metricName: Metric.DAYS_POSTED, metricValue: daysPosted },
       ];
 
       await prisma.$transaction(
