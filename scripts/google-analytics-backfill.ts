@@ -26,9 +26,12 @@ const CADENCE: "monthly" | "weekly" | "daily" = "daily";
 console.log("[GA] Script starting");
 
 // Load service account key
-const jsonKey = JSON.parse(
-  fs.readFileSync("service-account.json", "utf8"),
-);
+if (!process.env.GOOGLE_SERVICE_ACCOUNT) {
+  throw new Error("Missing GOOGLE_SERVICE_ACCOUNT environment variable");
+}
+
+// Trim whitespace and parse
+const jsonKey = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT.trim()) as Record<string, any>;
 
 console.log("[GA] Service account key loaded");
 

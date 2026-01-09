@@ -23,9 +23,12 @@ const prisma = new PrismaClient();
 -------------------------------------------------- */
 
 // Load service account key
-const jsonKey = JSON.parse(
-  fs.readFileSync("service-account.json", "utf8"),
-);
+if (!process.env.GOOGLE_SERVICE_ACCOUNT) {
+  throw new Error("Missing GOOGLE_SERVICE_ACCOUNT environment variable");
+}
+
+// Trim whitespace and parse
+const jsonKey = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT.trim()) as Record<string, any>;
 
 // Create a GoogleAuth instance using the credentials
 const auth = new GoogleAuth({
