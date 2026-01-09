@@ -33,7 +33,6 @@ coverage
 
 /prisma
 package.json
-service-account.json
 package-lock.json
 prisma/schema.prisma
 
