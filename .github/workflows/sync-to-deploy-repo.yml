@@ -1,0 +1,29 @@
+name: Sync main to deploy repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Push to deploy repo
+        run: |
+          set -ex
+
+          git config user.name "vanessa3rose"
+          git config user.email "vanessa3rose@gmail.com"
+
+          git remote add deploy https://x-access-token:${DEPLOY_REPO_TOKEN}@github.com/vanessa3rose/sowma-production.git
+          git push deploy main:main --force
+        env:
+          DEPLOY_REPO_TOKEN: ${{ secrets.DEPLOY_REPO_TOKEN }}
