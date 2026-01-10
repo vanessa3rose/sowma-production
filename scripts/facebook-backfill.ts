@@ -52,10 +52,15 @@ function getEarliestPossibleDate(): Date {
 /* -------------------------------------------------
    Facebook API fetchers
 -------------------------------------------------- */
+
+type FBInsightResponse = {
+  data?: { values?: { value?: number }[]; name?: string }[];
+};
+
 async function fetchDailyInsights(date: Date) {
   const since = toUnixTimestamp(startOfDay(date));
   const until = toUnixTimestamp(endOfDay(date));
-  const metrics = ["page_follows","page_actions_post_reactions_like_total","page_media_view"];
+  const metrics = ["page_follows", "page_actions_post_reactions_like_total", "page_media_view"];
   const out: Record<string, number> = {};
 
   for (const metric of metrics) {
@@ -64,23 +69,33 @@ async function fetchDailyInsights(date: Date) {
                 `&access_token=${ACCESS_TOKEN}`;
     const res = await fetch(url);
     if (!res.ok) { out[metric] = 0; continue; }
-    const json = await res.json();
+
+    const json = (await res.json()) as FBInsightResponse;
     const values = json.data?.[0]?.values ?? [];
-    out[metric] = metric === "page_follows" ? values[values.length-1]?.value ?? 0 : values.reduce((s: number, v: any) => s + (v.value ?? 0), 0);
+    out[metric] = metric === "page_follows"
+      ? values[values.length - 1]?.value ?? 0
+      : values.reduce((s, v) => s + (v.value ?? 0), 0);
   }
+
   return out;
 }
+
+type FBPostsResponse = {
+  data?: { shares?: { count?: number }; comments?: { summary?: { total_count?: number } }; created_time?: string }[];
+  paging?: { next?: string };
+};
 
 async function fetchDailyPostMetrics(date: Date) {
   const since = toUnixTimestamp(startOfDay(date));
   const until = toUnixTimestamp(endOfDay(date));
-  let url = `https://graph.facebook.com/${FB_API_VERSION}/${FACEBOOK_PAGE_ID}/posts?fields=shares,comments.summary(true),created_time&since=${since}&until=${until}&access_token=${ACCESS_TOKEN}`;
-  let posts: any[] = [];
+  let url: string | null = `https://graph.facebook.com/${FB_API_VERSION}/${FACEBOOK_PAGE_ID}/posts?fields=shares,comments.summary(true),created_time&since=${since}&until=${until}&access_token=${ACCESS_TOKEN}`;
+  let posts: FBPostsResponse["data"] = [];
 
   while (url) {
     const res = await fetch(url);
     if (!res.ok) break;
-    const json = await res.json();
+
+    const json = (await res.json()) as FBPostsResponse;
     posts.push(...(json.data ?? []));
     url = json.paging?.next ?? null;
   }
@@ -102,7 +117,6 @@ export async function runDailyFacebookSync() {
   if (!account) { console.log("[FB] No Facebook account found"); return; }
 
   const today = startOfDay(new Date());
-  const earliestStored = await getEarliestStoredDate(account.id);
   const earliestPossible = getEarliestPossibleDate();
 
   let currentDate = earliestPossible;
@@ -148,6 +162,8 @@ export async function runDailyFacebookSync() {
   try {
     await runDailyFacebookSync();
   } catch (err) {
-    console.error("Facebook cron failed", err);
+    console.error("Facebook backfill failed", err);
+  } finally {
+    await prisma.$disconnect();
   }
 })();

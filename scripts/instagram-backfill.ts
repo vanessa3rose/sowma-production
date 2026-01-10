@@ -28,21 +28,29 @@ type DailyMetrics = {
   daysPosted: number;
 };
 
+type IGApiResponse = {
+  data?: MediaItem[];
+  paging?: { next?: string };
+};
+
 /* -------------------------------------------------
    Fetch ALL Instagram media with pagination
 -------------------------------------------------- */
 async function fetchAllMedia(): Promise<MediaItem[]> {
-  let url = `https://graph.facebook.com/v20.0/${INSTAGRAM_USER_ID}/media` +
-            `?fields=id,like_count,comments_count,timestamp` +
-            `&limit=50&access_token=${ACCESS_TOKEN}`;
+  let url: string | null = `https://graph.facebook.com/v20.0/${INSTAGRAM_USER_ID}/media` +
+                            `?fields=id,like_count,comments_count,timestamp` +
+                            `&limit=50&access_token=${ACCESS_TOKEN}`;
   const all: MediaItem[] = [];
 
   while (url) {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Media fetch failed: ${await res.text()}`);
-    const json = await res.json();
+
+    // cast json to a typed interface
+    const json = (await res.json()) as IGApiResponse;
+
     all.push(...(json.data ?? []));
-    url = json.paging?.next ?? null;
+    url = json.paging?.next ?? null; // string | null ✅
   }
 
   return all;

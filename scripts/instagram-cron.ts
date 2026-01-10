@@ -18,39 +18,58 @@ const prisma = new PrismaClient();
    Config
 -------------------------------------------------- */
 const IG_USER_ID = process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
-const ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!;
+const ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!; // IG token often same as FB
 const MEDIA_LIMIT = 50;
+
+/* -------------------------------------------------
+   Type definitions for Instagram API
+-------------------------------------------------- */
+type MediaItem = {
+  id: string;
+  timestamp: string;
+  like_count?: number;
+  comments_count?: number;
+};
+
+type DailyInsights = {
+  views?: number;
+  reach?: number;
+  total_interactions?: number;
+};
+
+type AccountTotals = {
+  followers_count?: number;
+  media_count?: number;
+};
 
 /* -------------------------------------------------
    API helpers
 -------------------------------------------------- */
-async function fetchAccountTotals() {
-  const url =
-    `https://graph.facebook.com/v20.0/${IG_USER_ID}` +
-    `?fields=followers_count,media_count` +
-    `&access_token=${ACCESS_TOKEN}`;
+async function fetchAccountTotals(): Promise<AccountTotals> {
+  const url = `https://graph.facebook.com/v20.0/${IG_USER_ID}` +
+              `?fields=followers_count,media_count` +
+              `&access_token=${ACCESS_TOKEN}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  return (await res.json()) as AccountTotals;
 }
 
-async function fetchDailyInsights(date: Date) {
+async function fetchDailyInsights(date: Date): Promise<DailyInsights> {
   const since = toUnixTimestamp(startOfDay(date));
   const until = toUnixTimestamp(endOfDay(date));
 
-  const url =
-    `https://graph.facebook.com/v20.0/${IG_USER_ID}/insights` +
-    `?metric=views,reach,total_interactions` +
-    `&period=day` +
-    `&metric_type=total_value` +
-    `&since=${since}&until=${until}` +
-    `&access_token=${ACCESS_TOKEN}`;
+  const url = `https://graph.facebook.com/v20.0/${IG_USER_ID}/insights` +
+              `?metric=views,reach,total_interactions` +
+              `&period=day` +
+              `&metric_type=total_value` +
+              `&since=${since}&until=${until}` +
+              `&access_token=${ACCESS_TOKEN}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text());
 
-  const json = await res.json();
+  const json = await res.json() as { data?: Array<{ name: string, values?: Array<{ value?: number }> }> };
   const out: Record<string, number> = {};
 
   for (const row of json.data ?? []) {
@@ -60,19 +79,17 @@ async function fetchDailyInsights(date: Date) {
   return out;
 }
 
-async function fetchMediaForDay(date: Date) {
-  const url =
-    `https://graph.facebook.com/v20.0/${IG_USER_ID}/media` +
-    `?fields=like_count,comments_count,timestamp` +
-    `&limit=${MEDIA_LIMIT}` +
-    `&access_token=${ACCESS_TOKEN}`;
+async function fetchMediaForDay(date: Date): Promise<MediaItem[]> {
+  const url = `https://graph.facebook.com/v20.0/${IG_USER_ID}/media` +
+              `?fields=id,like_count,comments_count,timestamp` +
+              `&limit=${MEDIA_LIMIT}` +
+              `&access_token=${ACCESS_TOKEN}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text());
 
-  const json = await res.json();
-
-  return (json.data ?? []).filter((m: any) => {
+  const json = await res.json() as { data?: MediaItem[] };
+  return (json.data ?? []).filter((m) => {
     const t = new Date(m.timestamp).getTime();
     return t >= startOfDay(date).getTime() && t <= endOfDay(date).getTime();
   });
@@ -100,8 +117,8 @@ export async function runDailyInstagramSync() {
     try {
       const media = await fetchMediaForDay(metricDate);
 
-      const dailyLikes = media.reduce((s: number, m: any) => s + (m.like_count ?? 0), 0);
-      const dailyComments = media.reduce((s: number, m: any) => s + (m.comments_count ?? 0), 0);
+      const dailyLikes = media.reduce((sum, m) => sum + (m.like_count ?? 0), 0);
+      const dailyComments = media.reduce((sum, m) => sum + (m.comments_count ?? 0), 0);
       const daysPosted = media.length > 0 ? 1 : 0;
 
       const insights = await fetchDailyInsights(metricDate);
