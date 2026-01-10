@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"vite\" \"vercel dev --listen 4000 --yes\"",
-    "build": "vite build",
     "preview": "vite preview",
+    "build": "prisma generate && tsc && vite build",
+    "postinstall": "prisma generate",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest",
     "coverage": "vitest run --coverage"
@@ -26,6 +27,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^4.0.0",
     "node-cron": "^4.2.1",
+    "node-fetch": "^3.3.2",
     "prisma": "^6.19.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
