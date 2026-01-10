@@ -62,7 +62,7 @@ export default function AdminPage() {
       {/* ROWS */}
       <div className="flex flex-col space-y-6 pl-12 md:space-y-4">
         {permissions.map((permission, index) => (
-          <div key={index} className="flex flex-rowborder-b-2">
+          <div key={index} className="flex flex-row border-b-2">
             {/* permission */}
             <div className="w-1/3">
               <p className="flex items-center h-full font-poppins text-lg">{permission}</p>

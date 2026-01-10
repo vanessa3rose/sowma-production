@@ -1,9 +1,3 @@
-/*
- * File: users.ts
- * Purpose: Manage users & accounts using CLERK
- */
-
-import { Router, Request, Response } from "express"; // Express for nodes
 import { clerkClient } from "@clerk/clerk-sdk-node"; // Clerk for security
 
 // Below are the user types, declared in schema.prisma
@@ -52,9 +46,8 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
 
   if (!isNonEmptyString(body?.firstName)) errors.push("firstName is required");
   if (!isNonEmptyString(body?.lastName)) errors.push("lastName is required");
-  if (!isEmail(body?.email)) errors.push("email must be a valid address"); // Uses function isEmail()
+  if (!isEmail(body?.email)) errors.push("email must be a valid address");
   if (!isNonEmptyString(body?.password) || String(body.password).length < 8) {
-    // Uses function isNonEmptyString()
     errors.push("password must be at least 8 characters");
   }
   if (body?.role && body.role !== "Admin" && body.role !== "Intern") {
@@ -62,9 +55,8 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
   }
 
   if (errors.length)
-    throw makeBadRequest("Validation failed: " + errors.join("; ")); // Called if any errors
+    throw makeBadRequest("Validation failed: " + errors.join("; "));
 
-  // Returns the CreateUserInput if the body passes validation
   return {
     firstName: String(body.firstName).trim(),
     lastName: String(body.lastName).trim(),
@@ -151,7 +143,6 @@ function toClerkUpdatePayload(body: UpdateUserInput) {
 
 //------- CRUD FUNCTIONS -------//
 
-// Creates a NEW user
 export async function createUser(input: CreateUserInput) {
   const parsed = validateCreateUser(input);
   const user = await clerkClient.users.createUser({
@@ -164,8 +155,6 @@ export async function createUser(input: CreateUserInput) {
   return shapeUser(user);
 }
 
-// Searches for users by keynames (email, username)
-
 export async function getUsers(filter?: { email?: string }) {
   const list = await clerkClient.users.getUserList({
     limit: 50,
@@ -175,7 +164,6 @@ export async function getUsers(filter?: { email?: string }) {
   return list.data.map(shapeUser);
 }
 
-// Updates an existing user
 export async function updateUser(userId: string, updates: UpdateUserInput) {
   const parsed = validateUpdateUser(updates);
   const updated = await clerkClient.users.updateUser(
@@ -185,73 +173,55 @@ export async function updateUser(userId: string, updates: UpdateUserInput) {
   return shapeUser(updated);
 }
 
-// Deletes a preexisting user
 export async function deleteUser(userId: string) {
   await clerkClient.users.deleteUser(userId);
   return { id: userId, deleted: true };
 }
 
-//------- API ENDPOINTS -------//
+//------- VERCEL SERVERLESS ENDPOINT -------//
 
-export const usersRouter = Router();
+export default async function handler(req: any, res: any) {
+  // Extract user ID if present (for PUT/DELETE)
+  const userId = req.query.id as string | undefined;
 
-// Posts a new user
-usersRouter.post("/", async (req, res) => {
   try {
-    const created = await createUser(req.body);
-    return res.status(201).json({ ok: true, data: created });
-  } catch (err: any) {
-    // LOG full error to server console
-    console.error("Clerk createUser error:", JSON.stringify(err, null, 2));
-    const status = (err as any)?.status === 400 ? 400 : 422; // Clerk validation errors are 422
-    const message =
-      err?.errors?.map((e: any) => e.long_message || e.message).join("; ") ||
-      err?.message ||
-      "Failed to create user";
-    return res
-      .status(status)
-      .json({ ok: false, error: message, raw: err?.errors });
-  }
-});
+    // GET /api/users?email=...
+    if (req.method === "GET") {
+      const email =
+        typeof req.query.email === "string" ? req.query.email : undefined;
+      const users = await getUsers({ email });
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      return res.status(200).json({ ok: true, data: users });
+    }
 
-// Gets a user
-usersRouter.get("/", async (req: Request, res: Response) => {
-  try {
-    const email =
-      typeof req.query.email === "string" ? req.query.email : undefined;
-    const users = await getUsers({ email });
-    return res.status(200).json({ ok: true, data: users });
-  } catch (err: any) {
-    return res
-      .status(500)
-      .json({ ok: false, error: err?.message || "Failed to fetch users" });
-  }
-});
+    // POST /api/users
+    if (req.method === "POST") {
+      const created = await createUser(req.body);
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      return res.status(201).json({ ok: true, data: created });
+    }
 
-// Overwrites (Updates) a user
-usersRouter.put("/:id", async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const updated = await updateUser(id, req.body);
-    return res.status(200).json({ ok: true, data: updated });
+    // PUT /api/users/:id
+    if (req.method === "PUT" && userId) {
+      const updated = await updateUser(userId, req.body);
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      return res.status(200).json({ ok: true, data: updated });
+    }
+
+    // DELETE /api/users/:id
+    if (req.method === "DELETE" && userId) {
+      const result = await deleteUser(userId);
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      return res.status(200).json({ ok: true, data: result });
+    }
+
+    // If method not allowed
+    res.setHeader("Allow", "GET,POST,PUT,DELETE");
+    return res.status(405).json({ ok: false, error: "Method not allowed" });
   } catch (err: any) {
-    const message = err?.message || "Failed to update user";
-    const status = (err as any)?.status === 400 ? 400 : 500;
+    console.error("Clerk users error:", JSON.stringify(err, null, 2));
+    const status = err?.status === 400 ? 400 : 500;
+    const message = err?.message || "Server error";
     return res.status(status).json({ ok: false, error: message });
   }
-});
-
-// Deletes a user
-usersRouter.delete("/:id", async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const result = await deleteUser(id);
-    return res.status(200).json({ ok: true, data: result });
-  } catch (err: any) {
-    return res
-      .status(500)
-      .json({ ok: false, error: err?.message || "Failed to delete user" });
-  }
-});
-
-export default usersRouter;
+}

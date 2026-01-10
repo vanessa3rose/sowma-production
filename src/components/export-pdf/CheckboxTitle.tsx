@@ -24,7 +24,7 @@ export default function CheckboxTitle({
           />
 
           {/* checkmark if checked */}
-          <div className={`w-full h-full rounded-[4px] bg-white shadow-[inset_0_0_0_1px_#A9A9A9] flex items-center justify-center ${checked ? 'bg-sowma-blue shadow-none' : ''}`}>
+          <div className={`w-full h-full rounded-[4px] shadow-[inset_0_0_0_1px_#A9A9A9] flex items-center justify-center ${checked ? 'bg-sowma-blue shadow-none' : ''}`}>
             {checked && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"

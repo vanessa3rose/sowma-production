@@ -4,7 +4,7 @@ import {
   updateDatabaseReport,
   deleteDatabaseReport,
 } from "../database-report";
-import { PrismaClient, Count } from "../../src/generated/prisma";
+import { PrismaClient, Count } from "../../src/generated/prisma/index.js";
 const prisma = new PrismaClient();
 
 async function main() {
