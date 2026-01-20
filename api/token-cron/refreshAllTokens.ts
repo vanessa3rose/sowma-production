@@ -6,24 +6,24 @@ export type Provider =
   | "INSTAGRAM"
   | "FACEBOOK"
   | "TWITTER"
-  | "LINKEDIN"
-  | "TIKTOK";
+  // | "LINKEDIN"
+  // | "TIKTOK";
 
 export const REFRESH_STRATEGY: Record<Provider, "refresh" | "validate" | "static"> = {
   GOOGLE_ANALYTICS: "refresh",
   INSTAGRAM: "refresh",
   FACEBOOK: "validate",
   TWITTER: "refresh",
-  LINKEDIN: "refresh",
-  TIKTOK: "refresh",
+  // LINKEDIN: "refresh",
+  // TIKTOK: "refresh",
 };
 
 const REFRESH_WINDOW_MS: Record<Provider, number> = {
   GOOGLE_ANALYTICS: 5 * 60 * 1000,       // 5 min
   TWITTER: 10 * 60 * 1000,               // 10 min
-  TIKTOK: 60 * 60 * 1000,                // 1h
+  // TIKTOK: 60 * 60 * 1000,                // 1h
   INSTAGRAM: 3 * 24 * 60 * 60 * 1000,    // 3 days
-  LINKEDIN: 3 * 24 * 60 * 60 * 1000,     // 3 days
+  // LINKEDIN: 3 * 24 * 60 * 60 * 1000,     // 3 days
   FACEBOOK: 7 * 24 * 60 * 60 * 1000,     // weekly
 };
 
@@ -92,8 +92,8 @@ async function refreshDispatcher(provider: Provider, rec: AuthRow) {
     case "INSTAGRAM": return refreshInstagram(rec);
     case "FACEBOOK": return validateFacebook(rec);
     case "TWITTER": return refreshTwitter(rec);
-    case "LINKEDIN": return refreshLinkedIn(rec);
-    case "TIKTOK": return refreshTikTok(rec);
+    // case "LINKEDIN": return refreshLinkedIn(rec);
+    // case "TIKTOK": return refreshTikTok(rec);
     default: return null;
   }
 }
@@ -197,54 +197,54 @@ async function refreshTwitter(rec: AuthRow) {
   };
 }
 
-async function refreshLinkedIn(rec: AuthRow) {
-  if (!rec.refreshToken) return null;
+// async function refreshLinkedIn(rec: AuthRow) {
+//   if (!rec.refreshToken) return null;
 
-  const body = new URLSearchParams({
-    grant_type: "refresh_token",
-    refresh_token: rec.refreshToken,
-    client_id: process.env.LINKEDIN_CLIENT_ID ?? "",
-    client_secret: process.env.LINKEDIN_CLIENT_SECRET ?? "",
-  });
+//   const body = new URLSearchParams({
+//     grant_type: "refresh_token",
+//     refresh_token: rec.refreshToken,
+//     client_id: process.env.LINKEDIN_CLIENT_ID ?? "",
+//     client_secret: process.env.LINKEDIN_CLIENT_SECRET ?? "",
+//   });
 
-  const res = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
-  });
+//   const res = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/x-www-form-urlencoded" },
+//     body,
+//   });
 
-  const j = (await res.json()) as { access_token?: string; refresh_token?: string; expires_in?: number };
-  if (!res.ok) throw new Error(`LinkedIn refresh failed: ${res.status} ${JSON.stringify(j)}`);
+//   const j = (await res.json()) as { access_token?: string; refresh_token?: string; expires_in?: number };
+//   if (!res.ok) throw new Error(`LinkedIn refresh failed: ${res.status} ${JSON.stringify(j)}`);
 
-  return {
-    accessToken: j.access_token ?? rec.accessToken,
-    refreshToken: j.refresh_token ?? rec.refreshToken,
-    expiresAt: j.expires_in ? new Date(Date.now() + j.expires_in * 1000) : null,
-  };
-}
+//   return {
+//     accessToken: j.access_token ?? rec.accessToken,
+//     refreshToken: j.refresh_token ?? rec.refreshToken,
+//     expiresAt: j.expires_in ? new Date(Date.now() + j.expires_in * 1000) : null,
+//   };
+// }
 
-async function refreshTikTok(rec: AuthRow) {
-  if (!rec.refreshToken) return null;
+// async function refreshTikTok(rec: AuthRow) {
+//   if (!rec.refreshToken) return null;
 
-  const body = new URLSearchParams({
-    client_key: process.env.TIKTOK_CLIENT_KEY ?? "",
-    client_secret: process.env.TIKTOK_CLIENT_SECRET ?? "",
-    grant_type: "refresh_token",
-    refresh_token: rec.refreshToken,
-  });
+//   const body = new URLSearchParams({
+//     client_key: process.env.TIKTOK_CLIENT_KEY ?? "",
+//     client_secret: process.env.TIKTOK_CLIENT_SECRET ?? "",
+//     grant_type: "refresh_token",
+//     refresh_token: rec.refreshToken,
+//   });
 
-  const res = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
-  });
+//   const res = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/x-www-form-urlencoded" },
+//     body,
+//   });
 
-  const j = (await res.json()) as { access_token?: string; refresh_token?: string; expires_in?: number };
-  if (!res.ok) throw new Error(`TikTok refresh failed: ${res.status} ${JSON.stringify(j)}`);
+//   const j = (await res.json()) as { access_token?: string; refresh_token?: string; expires_in?: number };
+//   if (!res.ok) throw new Error(`TikTok refresh failed: ${res.status} ${JSON.stringify(j)}`);
 
-  return {
-    accessToken: j.access_token ?? rec.accessToken,
-    refreshToken: j.refresh_token ?? rec.refreshToken,
-    expiresAt: j.expires_in ? new Date(Date.now() + j.expires_in * 1000) : null,
-  };
-}
+//   return {
+//     accessToken: j.access_token ?? rec.accessToken,
+//     refreshToken: j.refresh_token ?? rec.refreshToken,
+//     expiresAt: j.expires_in ? new Date(Date.now() + j.expires_in * 1000) : null,
+  // };
+// }
