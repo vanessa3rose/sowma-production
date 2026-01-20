@@ -1,6 +1,10 @@
-import { PrismaClient, Provider } from "../src/generated/prisma";
+import { PrismaClient, Provider } from "../src/generated/prisma/index.js";
 
-const prisma = new PrismaClient();
+/**
+ * Use globalThis to reuse Prisma in serverless environments
+ */
+const prisma = (globalThis as any).prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
 
 /**
  * Define all social media providers in ONE place
@@ -40,6 +44,9 @@ const SOCIAL_MEDIA_CONFIG = [
   },
 ];
 
+/**
+ * Ensure a social media entry exists
+ */
 async function ensureSocialMediaExists(config: typeof SOCIAL_MEDIA_CONFIG[number]) {
   const existing = await prisma.socialMedia.findFirst({
     where: {
@@ -67,21 +74,20 @@ async function ensureSocialMediaExists(config: typeof SOCIAL_MEDIA_CONFIG[number
   console.log(`Created ${config.provider} entry`);
 }
 
+/**
+ * Main runner
+ */
 async function main() {
-  console.log("🔄 Syncing social media providers...\n");
+  console.log("Syncing social media providers...\n");
 
   for (const config of SOCIAL_MEDIA_CONFIG) {
     await ensureSocialMediaExists(config);
   }
 
-  console.log("\n✅ Social media setup complete");
+  console.log("\nSocial media setup complete");
 }
 
-main()
-  .catch((e) => {
-    console.error("Error during social media setup:", e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main().catch((e) => {
+  console.error("Error during social media setup:", e);
+  process.exit(1);
+});

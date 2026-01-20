@@ -1,6 +1,8 @@
-import { PrismaClient, Metric } from "../src/generated/prisma";
+import { PrismaClient, Metric } from "../src/generated/prisma/index.js";
 
-const prisma = new PrismaClient();
+/* Reuse Prisma client in serverless */
+const prisma = (globalThis as any).prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
 
 /* CREATE: create one SocialMediaMetrics record */
 export async function createSocialMediaMetric(input: {
@@ -18,11 +20,11 @@ export async function createSocialMediaMetric(input: {
 /* READ ALL: return all SocialMediaMetrics records */
 export async function getAllSocialMediaMetrics() {
   return prisma.socialMediaMetrics.findMany({
-    include: { socialMedia: true }, // optional: includes linked social media info
+    include: { socialMedia: true },
   });
 }
 
-/* READ BY SOCIAL MEDIA ID: get all metrics for a specific social media record */
+/* READ BY SOCIAL MEDIA ID */
 export async function getMetricsBySocialMediaId(socialMediaId: string) {
   return prisma.socialMediaMetrics.findMany({
     where: { socialMediaId },
@@ -30,7 +32,7 @@ export async function getMetricsBySocialMediaId(socialMediaId: string) {
   });
 }
 
-/* UPDATE: update fields on a SocialMediaMetrics record by ID */
+/* UPDATE a SocialMediaMetrics record by ID */
 export async function updateSocialMediaMetric(
   id: string,
   data: Partial<{
@@ -42,20 +44,10 @@ export async function updateSocialMediaMetric(
     breakdownValue?: string | null;
   }>,
 ) {
-  return prisma.socialMediaMetrics.update({
-    where: { id },
-    data,
-  });
+  return prisma.socialMediaMetrics.update({ where: { id }, data });
 }
 
-/* DELETE: delete a SocialMediaMetrics record by ID */
+/* DELETE a SocialMediaMetrics record by ID */
 export async function deleteSocialMediaMetric(id: string) {
-  return prisma.socialMediaMetrics.delete({
-    where: { id },
-  });
-}
-
-/* Optional helper for test scripts */
-export async function closePrisma() {
-  await prisma.$disconnect();
+  return prisma.socialMediaMetrics.delete({ where: { id } });
 }

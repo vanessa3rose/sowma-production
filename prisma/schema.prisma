@@ -16,8 +16,8 @@ model SocialMedia {
   displayName     String?
   profileUrl      String?
   email           String?
-  metrics         SocialMediaMetrics[]
   SocialMediaAuth SocialMediaAuth?
+  metrics         SocialMediaMetrics[]
 }
 
 model SocialMediaMetrics {
@@ -26,9 +26,9 @@ model SocialMediaMetrics {
   metricName     Metric
   metricValue    Int
   lastSynced     DateTime?
-  metricDate     DateTime?
   breakdownKey   String?
   breakdownValue String?
+  metricDate     DateTime?
   SocialMedia    SocialMedia @relation(fields: [socialMediaId], references: [id])
 }
 

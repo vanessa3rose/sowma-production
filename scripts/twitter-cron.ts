@@ -1,4 +1,4 @@
-import { PrismaClient, Metric } from "../src/generated/prisma";
+import { PrismaClient, Metric } from "../src/generated/prisma/index.js";
 import "dotenv/config";
 import {
   startOfDay,
@@ -6,6 +6,9 @@ import {
   metricsExistForDay,
 } from "../src/utils/dates";
 
+/* -------------------------------------------------
+   Prisma Client
+-------------------------------------------------- */
 const prisma = new PrismaClient();
 
 /**
@@ -21,9 +24,7 @@ type TwitterPublicMetrics = {
 /**
  * Fetch current snapshot of Twitter public metrics
  */
-async function fetchTwitterMetrics(
-  username: string,
-): Promise<TwitterPublicMetrics> {
+async function fetchTwitterMetrics(username: string): Promise<TwitterPublicMetrics> {
   const res = await fetch(
     `https://api.twitter.com/2/users/by/username/${username}?user.fields=public_metrics`,
     {
@@ -42,9 +43,9 @@ async function fetchTwitterMetrics(
   return json.data.public_metrics as TwitterPublicMetrics;
 }
 
-/**
- * Daily cron job entrypoint
- */
+/* -------------------------------------------------
+   Daily Twitter Sync
+-------------------------------------------------- */
 export async function runDailyTwitterSync() {
   const metricDate = startOfDay(new Date());
 
@@ -52,9 +53,7 @@ export async function runDailyTwitterSync() {
     where: { provider: "TWITTER" },
   });
 
-  if (accounts.length === 0) {
-    return;
-  }
+  if (accounts.length === 0) return;
 
   const METRIC_MAP: Partial<Record<keyof TwitterPublicMetrics, Metric>> = {
     followers_count: Metric.FOLLOWERS,
@@ -64,9 +63,7 @@ export async function runDailyTwitterSync() {
   for (const account of accounts) {
     // ---- GLOBAL IDEMPOTENCY CHECK ----
     if (await metricsExistForDay(account.id, metricDate)) {
-      console.log(
-        `[TW] ${account.username} already synced (${formatISODate(metricDate)})`,
-      );
+      console.log(`[TW] ${account.username} already synced (${formatISODate(metricDate)})`);
       continue;
     }
 
@@ -75,8 +72,7 @@ export async function runDailyTwitterSync() {
 
       const metricsToInsert = Object.entries(metrics)
         .map(([key, value]) => {
-          const metricEnum =
-            METRIC_MAP[key as keyof TwitterPublicMetrics];
+          const metricEnum = METRIC_MAP[key as keyof TwitterPublicMetrics];
           if (!metricEnum) return null;
 
           return {
@@ -84,10 +80,7 @@ export async function runDailyTwitterSync() {
             metricValue: Number(value ?? 0),
           };
         })
-        .filter(Boolean) as {
-        metricName: Metric;
-        metricValue: number;
-      }[];
+        .filter(Boolean) as { metricName: Metric; metricValue: number }[];
 
       await prisma.$transaction(
         metricsToInsert.map((m) =>
@@ -103,21 +96,12 @@ export async function runDailyTwitterSync() {
         ),
       );
     } catch (error) {
-      console.error(
-        `[TW] Sync failed for ${account.username} (${formatISODate(metricDate)})`,
-        error,
-      );
+      console.error(`[TW] Sync failed for ${account.username} (${formatISODate(metricDate)})`, error);
     }
   }
-}
 
-/**
- * Auto-run when executed by cron / scheduler
- */
-(async () => {
-  try {
-    await runDailyTwitterSync();
-  } finally {
-    await prisma.$disconnect();
-  }
-})();
+  console.log("[TW] Daily Twitter sync complete");
+
+  // Disconnect Prisma
+  await prisma.$disconnect();
+}

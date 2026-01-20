@@ -1,6 +1,8 @@
-import { PrismaClient } from "../generated/prisma";
+import { PrismaClient } from "../generated/prisma/index.js";
 
-const prisma = new PrismaClient();
+// Reuse Prisma client in serverless
+const prisma = (globalThis as any).prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
 
 export function startOfDay(date: Date): Date {
   const d = new Date(date);
@@ -26,6 +28,7 @@ export function formatDate(date: Date): string {
   return date.toISOString().split("T")[0];
 }
 
+// Check if metrics exist for a specific day
 export async function metricsExistForDay(
   socialMediaId: string,
   date: Date,

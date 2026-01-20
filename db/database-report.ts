@@ -1,8 +1,11 @@
 // CREATE for DatabaseReport
-import { PrismaClient, Count } from "../src/generated/prisma";
+import { PrismaClient, Count } from "../src/generated/prisma/index.js";
 
-const prisma = new PrismaClient();
+// Reuse Prisma client in serverless
+const prisma = (globalThis as any).prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
 
+/* CREATE a new DatabaseReport with counts */
 export async function createDatabaseReport(
   reportDate: Date,
   counts: { count: Count; value: number }[],
@@ -27,7 +30,7 @@ export async function createDatabaseReport(
   }
 }
 
-// READ for DatabaseReport function
+/* READ all DatabaseReports */
 export async function readDatabaseReport() {
   try {
     const reports = await prisma.databaseReport.findMany({
@@ -41,7 +44,7 @@ export async function readDatabaseReport() {
   }
 }
 
-//UPDATE for DatabaseReport
+/* UPDATE a DatabaseReport by ID */
 export async function updateDatabaseReport(
   id: string,
   reportDate?: Date,
@@ -73,13 +76,11 @@ export async function updateDatabaseReport(
   }
 }
 
-// DELETE for DatabaseReport
+/* DELETE a DatabaseReport by ID */
 export async function deleteDatabaseReport(id: string) {
   try {
-    await prisma.databaseReportCount.deleteMany({
-      where: { reportId: id },
-    });
-    const deletedReport = prisma.databaseReport.delete({ where: { id } });
+    await prisma.databaseReportCount.deleteMany({ where: { reportId: id } });
+    const deletedReport = await prisma.databaseReport.delete({ where: { id } });
     return deletedReport;
   } catch (error) {
     console.log("Error:", error);

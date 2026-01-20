@@ -1,4 +1,3 @@
-import fs from "fs";
 import "dotenv/config";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { GoogleAuth } from "google-auth-library";
@@ -6,16 +5,17 @@ import {
   createSocialMediaMetric,
   updateSocialMediaMetric,
   getMetricsBySocialMediaId,
-  closePrisma,
 } from "../db/social-media-metrics";
-import { PrismaClient, Provider, Metric } from "../src/generated/prisma";
+import { PrismaClient, Provider, Metric } from "../src/generated/prisma/index.js";
 import {
   startOfDay,
-  endOfDay,
   formatISODate,
   metricsExistForDay,
 } from "../src/utils/dates";
 
+/* -------------------------------------------------
+   Prisma Client
+-------------------------------------------------- */
 const prisma = new PrismaClient();
 
 /* -------------------------------------------------
@@ -57,15 +57,10 @@ function getYesterdayUTC(): Date {
   return d;
 }
 
-
 /**
  * Helper: breakdown for New vs Returning (pie chart)
  */
-async function syncNewVsReturningBreakdown(
-  metricDate: Date,
-  socialMediaId: string,
-  existingMetrics: any[],
-) {
+async function syncNewVsReturningBreakdown(metricDate: Date, socialMediaId: string, existingMetrics: any[]) {
   const dateStr = formatISODate(metricDate);
 
   const [response] = await analyticsDataClient.runReport({
@@ -76,9 +71,7 @@ async function syncNewVsReturningBreakdown(
   });
 
   if (!response.rows || response.rows.length === 0) {
-    console.error(
-      `GA newVsReturning breakdown returned no rows for ${dateStr}`,
-    );
+    console.error(`[GA] newVsReturning breakdown returned no rows for ${dateStr}`);
     return;
   }
 
@@ -116,10 +109,7 @@ async function syncNewVsReturningBreakdown(
         });
       }
     } catch (err) {
-      console.error(
-        `Failed saving TOTAL_SESSIONS (${label}) for ${dateStr}`,
-        err,
-      );
+      console.error(`[GA] Failed saving TOTAL_SESSIONS (${label}) for ${dateStr}`, err);
     }
   }
 }
@@ -127,11 +117,7 @@ async function syncNewVsReturningBreakdown(
 /**
  * Helper: breakdown for Sessions by Source (bar chart)
  */
-async function syncSessionsBySourceBreakdown(
-  metricDate: Date,
-  socialMediaId: string,
-  existingMetrics: any[],
-) {
+async function syncSessionsBySourceBreakdown(metricDate: Date, socialMediaId: string, existingMetrics: any[]) {
   const dateStr = formatISODate(metricDate);
 
   const [response] = await analyticsDataClient.runReport({
@@ -142,9 +128,7 @@ async function syncSessionsBySourceBreakdown(
   });
 
   if (!response.rows || response.rows.length === 0) {
-    console.error(
-      `GA sessionsBySource breakdown returned no rows for ${dateStr}`,
-    );
+    console.error(`[GA] sessionsBySource breakdown returned no rows for ${dateStr}`);
     return;
   }
 
@@ -182,10 +166,7 @@ async function syncSessionsBySourceBreakdown(
         });
       }
     } catch (err) {
-      console.error(
-        `Failed saving SESSIONS_BY_SOURCE (${source}) for ${dateStr}`,
-        err,
-      );
+      console.error(`[GA] Failed saving SESSIONS_BY_SOURCE (${source}) for ${dateStr}`, err);
     }
   }
 }
@@ -193,15 +174,14 @@ async function syncSessionsBySourceBreakdown(
 /* -------------------------------------------------
    Daily GA sync
 -------------------------------------------------- */
-
-async function runDailyReport() {
+export async function runDailyGoogleAnalyticsSync() {
   const metricDate = startOfDay(getYesterdayUTC());
   const dateStr = formatISODate(metricDate);
 
   try {
     const socialMediaId = await getSocialMediaIdByProvider();
     if (!socialMediaId) {
-      console.error("Google Analytics SocialMedia entry not found.");
+      console.error("[GA] SocialMedia entry not found.");
       return;
     }
 
@@ -211,9 +191,7 @@ async function runDailyReport() {
       return;
     }
 
-    const existingMetrics = await getMetricsBySocialMediaId(
-      socialMediaId,
-    );
+    const existingMetrics = await getMetricsBySocialMediaId(socialMediaId);
 
     const [response] = await analyticsDataClient.runReport({
       property: "properties/393011442",
@@ -234,7 +212,7 @@ async function runDailyReport() {
     });
 
     if (!response.rows || response.rows.length === 0) {
-      console.error(`GA returned no rows for ${dateStr}`);
+      console.error(`[GA] no rows returned for ${dateStr}`);
       return;
     }
 
@@ -255,52 +233,32 @@ async function runDailyReport() {
 
     for (const metric of metricsToSave) {
       const existing = existingMetrics.find(
-        (m) =>
+        (m: any) =>
           m.metricName === metric.metricName &&
           m.metricDate?.getTime() === metricDate.getTime() &&
           !m.breakdownKey &&
           !m.breakdownValue,
       );
 
-      if (existing) continue;
-
-      await createSocialMediaMetric({
-        socialMediaId,
-        metricName: metric.metricName,
-        metricValue: metric.metricValue,
-        metricDate,
-        lastSynced: new Date(),
-      });
+      if (!existing) {
+        await createSocialMediaMetric({
+          socialMediaId,
+          metricName: metric.metricName,
+          metricValue: metric.metricValue,
+          metricDate,
+          lastSynced: new Date(),
+        });
+      }
     }
 
-    await syncNewVsReturningBreakdown(
-      metricDate,
-      socialMediaId,
-      existingMetrics,
-    );
+    await syncNewVsReturningBreakdown(metricDate, socialMediaId, existingMetrics);
+    await syncSessionsBySourceBreakdown(metricDate, socialMediaId, existingMetrics);
 
-    await syncSessionsBySourceBreakdown(
-      metricDate,
-      socialMediaId,
-      existingMetrics,
-    );
+    console.log(`[GA] Daily Google Analytics sync complete (${dateStr})`);
   } catch (err) {
-    console.error(
-      `[google-analytics-daily-sync] Failed for ${dateStr}`,
-      err,
-    );
+    console.error(`[GA] Daily sync failed for ${dateStr}`, err);
     throw err;
+  } finally {
+    await prisma.$disconnect();
   }
 }
-
-/* -------------------------------------------------
-   Entrypoint
--------------------------------------------------- */
-
-(async () => {
-  try {
-    await runDailyReport();
-  } finally {
-    await closePrisma();
-  }
-})();

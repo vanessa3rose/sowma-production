@@ -1,4 +1,3 @@
-import fs from "fs";
 import "dotenv/config";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { GoogleAuth } from "google-auth-library";
@@ -6,70 +5,79 @@ import {
   createSocialMediaMetric,
   updateSocialMediaMetric,
   getMetricsBySocialMediaId,
-  closePrisma,
 } from "../db/social-media-metrics";
-import { PrismaClient, Provider, Metric } from "../src/generated/prisma";
+import { startOfDay, endOfDay, } from "../src/utils/dates";
+import { PrismaClient, Provider, Metric } from "../src/generated/prisma/index.js";
 
 console.log("[GA] Script loaded");
 
-const prisma = new PrismaClient();
+// -------------------------------
+// Prisma setup (serverless-friendly)
+// -------------------------------
+const prisma = (globalThis as any).prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
 
 // -------------------------------
-// Cadence configuration
+// GA client setup
 // -------------------------------
-// Change this to control cadence
-// "monthly" | "weekly" | "daily"
-const CADENCE: "monthly" | "weekly" | "daily" = "daily";
-
-// -------------------------------
-
-console.log("[GA] Script starting");
-
-// Load service account key
 if (!process.env.GOOGLE_SERVICE_ACCOUNT) {
   throw new Error("Missing GOOGLE_SERVICE_ACCOUNT environment variable");
 }
 
-// Trim whitespace and parse
 const jsonKey = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT.trim()) as Record<string, any>;
 
-console.log("[GA] Service account key loaded");
-
-// Auth
 const auth = new GoogleAuth({
   credentials: jsonKey,
   scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
 });
 
-// GA client
 const analyticsDataClient = new BetaAnalyticsDataClient({ auth });
-
 console.log("[GA] Analytics client initialized");
 
-async function getSocialMediaIdByProvider(): Promise<string | null> {
+// -------------------------------
+// Helpers
+// -------------------------------
+
+// Get socialMediaId for GA
+async function getSocialMediaId(): Promise<string | null> {
   const record = await prisma.socialMedia.findFirst({
     where: { provider: Provider.GOOGLE_ANALYTICS },
     select: { id: true },
   });
-
   if (!record) {
-    console.error("[GA] Google Analytics SocialMedia entry not found");
+    console.error("[GA] No GA SocialMedia entry found");
     return null;
   }
-
-  console.log(`[GA] Using socialMediaId=${record.id}`);
   return record.id;
 }
 
-/**
- * Run GA report and persist aggregate metrics on a fixed cadence
- */
-async function runReport(startDate: string, endDate: string) {
-  console.log(`[GA] Running report ${startDate} → ${endDate}`);
+// Check if metrics exist for a day
+async function metricsExistForDay(socialMediaId: string, date: Date) {
+  const existing = await prisma.socialMediaMetrics.findFirst({
+    where: {
+      socialMediaId,
+      metricDate: { gte: startOfDay(date), lt: endOfDay(date) },
+    },
+  });
+  return existing !== null;
+}
+
+// Earliest possible date (2 years back)
+function getEarliestPossibleDate(): Date {
+  const d = new Date();
+  d.setUTCFullYear(d.getUTCFullYear() - 2);
+  return d;
+}
+
+// -------------------------------
+// Run GA report for a single day
+// -------------------------------
+async function runReportForDay(date: Date) {
+  const isoDate = date.toISOString().slice(0, 10);
 
   const [response] = await analyticsDataClient.runReport({
     property: "properties/393011442",
-    dateRanges: [{ startDate, endDate }],
+    dateRanges: [{ startDate: isoDate, endDate: isoDate }],
     dimensions: [{ name: "date" }],
     metrics: [
       { name: "activeUsers" },
@@ -86,149 +94,91 @@ async function runReport(startDate: string, endDate: string) {
   });
 
   if (!response.rows || response.rows.length === 0) {
-    console.warn(`[GA] No rows returned for ${startDate} → ${endDate}`);
+    console.warn(`[GA] No rows returned for ${isoDate}`);
     return;
   }
 
-  console.log(`[GA] ${response.rows.length} day rows returned`);
-
-  const socialMediaId = await getSocialMediaIdByProvider();
+  const socialMediaId = await getSocialMediaId();
   if (!socialMediaId) return;
 
   const existingMetrics = await getMetricsBySocialMediaId(socialMediaId);
-  console.log(`[GA] Loaded ${existingMetrics.length} existing metrics`);
 
-  // Ensure deterministic ordering
-  const sortedRows = [...response.rows].sort((a, b) => {
-    const da = a.dimensionValues?.[0]?.value ?? "";
-    const db = b.dimensionValues?.[0]?.value ?? "";
-    return da.localeCompare(db);
-  });
+  const values = response.rows[0].metricValues ?? [];
+  const metricsToSave = [
+    { metricName: Metric.ACTIVE_USERS, metricValue: Number(values[0]?.value ?? 0) },
+    { metricName: Metric.SCREEN_PAGE_VIEWS, metricValue: Number(values[1]?.value ?? 0) },
+    { metricName: Metric.ENGAGEMENT_RATE, metricValue: Number(values[2]?.value ?? 0) * 100 },
+    { metricName: Metric.NEW_USERS, metricValue: Number(values[3]?.value ?? 0) },
+    { metricName: Metric.BOUNCE_RATE, metricValue: Number(values[4]?.value ?? 0) * 100 },
+    { metricName: Metric.AVG_SESSION_DURATION, metricValue: Number(values[5]?.value ?? 0) },
+    { metricName: Metric.TOTAL_SESSIONS, metricValue: Number(values[6]?.value ?? 0) },
+    { metricName: Metric.ENGAGED_SESSIONS, metricValue: Number(values[7]?.value ?? 0) },
+    { metricName: Metric.PAGES_PER_SESSION, metricValue: Number(values[8]?.value ?? 0) },
+    { metricName: Metric.ENGAGEMENT_TIME, metricValue: Number(values[9]?.value ?? 0) },
+  ];
 
-  const writtenKeys = new Set<string>();
-  let writtenCount = 0;
-
-  for (const row of sortedRows) {
-    const dateStr = row.dimensionValues?.[0]?.value;
-    if (!dateStr || dateStr.length !== 8) continue;
-
-    const metricDate = new Date(
-      Number(dateStr.slice(0, 4)),
-      Number(dateStr.slice(4, 6)) - 1,
-      Number(dateStr.slice(6, 8)),
+  for (const metric of metricsToSave) {
+    const existing = existingMetrics.find(
+      (m: any) =>
+        m.metricName === metric.metricName &&
+        m.metricDate?.getTime() === date.getTime() &&
+        !m.breakdownKey &&
+        !m.breakdownValue,
     );
 
-    // -------------------------------
-    // Cadence gating
-    // -------------------------------
-    let cadenceKey: string;
-
-    if (CADENCE === "monthly") {
-      // First of each month
-      if (metricDate.getDate() !== 1) continue;
-      cadenceKey = `${metricDate.getFullYear()}-${metricDate.getMonth() + 1}`;
-    } else if (CADENCE === "weekly") {
-      cadenceKey = `${metricDate.getFullYear()}-W${Math.floor(
-        metricDate.getDate() / 7,
-      )}`;
+    if (existing) {
+      await updateSocialMediaMetric(existing.id, {
+        metricName: metric.metricName,
+        metricValue: metric.metricValue,
+        metricDate: date,
+        lastSynced: new Date(),
+      });
     } else {
-      cadenceKey = metricDate.toISOString().slice(0, 10);
-    }
-
-    if (writtenKeys.has(cadenceKey)) continue;
-    writtenKeys.add(cadenceKey);
-    writtenCount++;
-    // -------------------------------
-
-    const isoDate = metricDate.toISOString().slice(0, 10);
-    console.log(`[GA] Writing metrics for ${isoDate}`);
-
-    const values = row.metricValues ?? [];
-
-    const metricsToSave = [
-      { metricName: Metric.ACTIVE_USERS, metricValue: Number(values[0]?.value ?? 0) },
-      { metricName: Metric.SCREEN_PAGE_VIEWS, metricValue: Number(values[1]?.value ?? 0) },
-      { metricName: Metric.ENGAGEMENT_RATE, metricValue: Number(values[2]?.value ?? 0) * 100 },
-      { metricName: Metric.NEW_USERS, metricValue: Number(values[3]?.value ?? 0) },
-      { metricName: Metric.BOUNCE_RATE, metricValue: Number(values[4]?.value ?? 0) * 100 },
-      { metricName: Metric.AVG_SESSION_DURATION, metricValue: Number(values[5]?.value ?? 0) },
-      { metricName: Metric.TOTAL_SESSIONS, metricValue: Number(values[6]?.value ?? 0) },
-      { metricName: Metric.ENGAGED_SESSIONS, metricValue: Number(values[7]?.value ?? 0) },
-      { metricName: Metric.PAGES_PER_SESSION, metricValue: Number(values[8]?.value ?? 0) },
-      { metricName: Metric.ENGAGEMENT_TIME, metricValue: Number(values[9]?.value ?? 0) },
-    ];
-
-    for (const metric of metricsToSave) {
-      const existing = existingMetrics.find(
-        (m) =>
-          m.metricName === metric.metricName &&
-          m.metricDate?.getTime() === metricDate.getTime() &&
-          !m.breakdownKey &&
-          !m.breakdownValue,
-      );
-
-      try {
-        if (existing) {
-          await updateSocialMediaMetric(existing.id, {
-            metricName: metric.metricName,
-            metricValue: metric.metricValue,
-            metricDate,
-            lastSynced: new Date(),
-          });
-        } else {
-          await createSocialMediaMetric({
-            socialMediaId,
-            metricName: metric.metricName,
-            metricValue: metric.metricValue,
-            metricDate,
-            lastSynced: new Date(),
-          });
-        }
-      } catch (err) {
-        console.error(
-          `[GA] Failed saving ${metric.metricName} for ${isoDate}`,
-          err,
-        );
-      }
+      await createSocialMediaMetric({
+        socialMediaId,
+        metricName: metric.metricName,
+        metricValue: metric.metricValue,
+        metricDate: date,
+        lastSynced: new Date(),
+      });
     }
   }
 
-  console.log(
-    `[GA] Completed ${CADENCE} sync: ${writtenCount} records written (${startDate} → ${endDate})`,
-  );
+  console.log(`[GA] Metrics written for ${isoDate}`);
 }
 
-async function main() {
-  try {
-    const args = process.argv.slice(2);
+// -------------------------------
+// Main backfill
+// -------------------------------
+export async function runDailyGASync() {
+  const socialMediaId = await getSocialMediaId();
+  if (!socialMediaId) return;
 
-    if (args[0] === "backfill") {
-      const start = args[1];
-      const end = args[2];
-      if (!start || !end) {
-        throw new Error(
-          "Usage: npx tsx scripts/google-analytics.ts backfill YYYY-MM-DD YYYY-MM-DD",
-        );
-      }
-      await runReport(start, end);
-    } else {
-      const today = new Date().toISOString().slice(0, 10);
-      await runReport(today, today);
+  const today = new Date();
+  const earliestPossible = getEarliestPossibleDate();
+
+  let currentDate = startOfDay(earliestPossible);
+  console.log(`[GA] Backfilling from ${currentDate.toISOString().slice(0,10)} to ${today.toISOString().slice(0,10)}`);
+
+  while (currentDate <= today) {
+    if (!(await metricsExistForDay(socialMediaId, currentDate))) {
+      await runReportForDay(currentDate);
     }
-  } catch (err) {
-    console.error("[GA] Script failed", err);
-    process.exitCode = 1;
-  } finally {
-    await closePrisma();
-    console.log("[GA] Prisma disconnected, script finished");
+
+    // move to next day
+    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
   }
+
+  console.log("[GA] GA sync complete");
 }
 
+// -------------------------------
+// Standalone run
+// -------------------------------
 (async () => {
   try {
-    await main();
+    await runDailyGASync();
   } catch (err) {
-    console.error("[GA] Unhandled error", err);
-    process.exit(1);
+    console.error("Google Analytics cron failed", err);
   }
 })();

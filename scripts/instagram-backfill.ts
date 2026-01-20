@@ -1,13 +1,17 @@
 import fetch from "node-fetch";
 import "dotenv/config";
-import { PrismaClient, Metric } from "../src/generated/prisma";
-import {
-  startOfDay,
-  formatISODate,
-} from "../src/utils/dates";
+import { PrismaClient, Metric } from "../src/generated/prisma/index.js";
+import { startOfDay, formatISODate } from "../src/utils/dates";
 
-const prisma = new PrismaClient();
+/* -------------------------------------------------
+   Prisma setup (serverless-friendly)
+-------------------------------------------------- */
+const prisma = (globalThis as any).prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
 
+/* -------------------------------------------------
+   Constants
+-------------------------------------------------- */
 const INSTAGRAM_USER_ID = process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
 const ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!;
 
@@ -24,27 +28,29 @@ type DailyMetrics = {
   daysPosted: number;
 };
 
+type IGApiResponse = {
+  data?: MediaItem[];
+  paging?: { next?: string };
+};
+
 /* -------------------------------------------------
    Fetch ALL Instagram media with pagination
 -------------------------------------------------- */
-
 async function fetchAllMedia(): Promise<MediaItem[]> {
-  let url =
-    `https://graph.facebook.com/v20.0/${INSTAGRAM_USER_ID}/media` +
-    `?fields=id,like_count,comments_count,timestamp` +
-    `&limit=50&access_token=${ACCESS_TOKEN}`;
-
+  let url: string | null = `https://graph.facebook.com/v20.0/${INSTAGRAM_USER_ID}/media` +
+                            `?fields=id,like_count,comments_count,timestamp` +
+                            `&limit=50&access_token=${ACCESS_TOKEN}`;
   const all: MediaItem[] = [];
 
   while (url) {
     const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(`Media fetch failed: ${await res.text()}`);
-    }
+    if (!res.ok) throw new Error(`Media fetch failed: ${await res.text()}`);
 
-    const json = await res.json();
+    // cast json to a typed interface
+    const json = (await res.json()) as IGApiResponse;
+
     all.push(...(json.data ?? []));
-    url = json.paging?.next ?? null;
+    url = json.paging?.next ?? null; // string | null ✅
   }
 
   return all;
@@ -53,18 +59,12 @@ async function fetchAllMedia(): Promise<MediaItem[]> {
 /* -------------------------------------------------
    Group media → daily metrics
 -------------------------------------------------- */
-
-function buildDailyMetrics(
-  media: MediaItem[],
-): Map<string, DailyMetrics> {
+function buildDailyMetrics(media: MediaItem[]): Map<string, DailyMetrics> {
   const map = new Map<string, DailyMetrics>();
 
   for (const m of media) {
     const day = formatISODate(new Date(m.timestamp));
-
-    if (!map.has(day)) {
-      map.set(day, { likes: 0, comments: 0, daysPosted: 0 });
-    }
+    if (!map.has(day)) map.set(day, { likes: 0, comments: 0, daysPosted: 0 });
 
     const entry = map.get(day)!;
     entry.likes += m.like_count ?? 0;
@@ -78,15 +78,12 @@ function buildDailyMetrics(
 /* -------------------------------------------------
    Backfill (DAY-BY-DAY ONLY)
 -------------------------------------------------- */
-
 export async function backfillInstagram() {
   const account = await prisma.socialMedia.findFirst({
     where: { provider: "INSTAGRAM" },
   });
 
-  if (!account) {
-    throw new Error("No Instagram account found");
-  }
+  if (!account) throw new Error("No Instagram account found");
 
   console.log("[IG] Fetching all media...");
   const media = await fetchAllMedia();
@@ -105,33 +102,15 @@ export async function backfillInstagram() {
         metricName: Metric.LIKES,
       },
     });
-
-    if (exists) {
-      continue;
-    }
+    if (exists) continue;
 
     const metrics = dailyMetrics.get(day)!;
 
     await prisma.socialMediaMetrics.createMany({
       data: [
-        {
-          socialMediaId: account.id,
-          metricName: Metric.LIKES,
-          metricValue: metrics.likes,
-          metricDate: date,
-        },
-        {
-          socialMediaId: account.id,
-          metricName: Metric.COMMENTS,
-          metricValue: metrics.comments,
-          metricDate: date,
-        },
-        {
-          socialMediaId: account.id,
-          metricName: Metric.DAYS_POSTED,
-          metricValue: metrics.daysPosted,
-          metricDate: date,
-        },
+        { socialMediaId: account.id, metricName: Metric.LIKES, metricValue: metrics.likes, metricDate: date },
+        { socialMediaId: account.id, metricName: Metric.COMMENTS, metricValue: metrics.comments, metricDate: date },
+        { socialMediaId: account.id, metricName: Metric.DAYS_POSTED, metricValue: metrics.daysPosted, metricDate: date },
       ],
     });
 
@@ -142,16 +121,13 @@ export async function backfillInstagram() {
 }
 
 /* -------------------------------------------------
-   Entrypoint
+   Entrypoint for standalone run
 -------------------------------------------------- */
-
 (async () => {
   try {
     await backfillInstagram();
   } catch (err) {
     console.error(err);
     process.exitCode = 1;
-  } finally {
-    await prisma.$disconnect();
   }
 })();
