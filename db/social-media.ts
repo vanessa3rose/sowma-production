@@ -1,6 +1,8 @@
-import { PrismaClient, Provider } from "../src/generated/prisma";
+import { PrismaClient, Provider } from "../src/generated/prisma/index.js";
 
-const prisma = new PrismaClient();
+/* Reuse Prisma client in serverless */
+const prisma = (globalThis as any).prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
 
 /* CREATE: create one SocialMedia record */
 export async function createSocialMedia(input: {
@@ -19,7 +21,7 @@ export async function getAllSocialMedia() {
   return prisma.socialMedia.findMany();
 }
 
-/* UPDATE: update fields on a SocialMedia record by ID */
+/* UPDATE a SocialMedia record by ID */
 export async function updateSocialMedia(
   id: string,
   data: Partial<{
@@ -31,18 +33,10 @@ export async function updateSocialMedia(
     email: string | null;
   }>,
 ) {
-  return prisma.socialMedia.update({
-    where: { id },
-    data,
-  });
+  return prisma.socialMedia.update({ where: { id }, data });
 }
 
-/* DELETE: delete a SocialMedia record by ID */
+/* DELETE a SocialMedia record by ID */
 export async function deleteSocialMedia(id: string) {
   return prisma.socialMedia.delete({ where: { id } });
-}
-
-/* Optional helper for test scripts */
-export async function closePrisma() {
-  await prisma.$disconnect();
 }

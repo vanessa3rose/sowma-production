@@ -4,9 +4,8 @@ import {
   getMetricsBySocialMediaId,
   updateSocialMediaMetric,
   deleteSocialMediaMetric,
-  closePrisma,
 } from "../social-media-metrics"; // adjust path as needed
-import { Metric } from "../../src/generated/prisma";
+import { Metric } from "../../src/generated/prisma/index.js";
 
 async function testCRUD() {
   try {
@@ -19,6 +18,7 @@ async function testCRUD() {
       socialMediaId: testSocialMediaId,
       metricName: Metric.FOLLOWERS,
       metricValue: 123,
+      metricDate: new Date(),
       lastSynced: new Date(),
     });
     console.log("Created:", created);
@@ -46,8 +46,6 @@ async function testCRUD() {
     console.log("Final:", final);
   } catch (error) {
     console.error("CRUD test error:", error);
-  } finally {
-    await closePrisma();
   }
 }
 

@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ROLE_PERMISSIONS } from "../data/rolePermissions";
-import { Switch } from "@mui/material";
 
 export default function AdminPage() {
   const [rolePerm, setRolePerm] = useState(ROLE_PERMISSIONS);
@@ -56,14 +55,14 @@ export default function AdminPage() {
       {/* HEADER */}
       <div className="flex flex-row my-6 w-full pl-12">
         <div className="w-1/3 font-poppins text-lg text-gray-500 font-light">Permissions</div>
-        <div className="w-1/3 font-poppins text-lg text-gray-500 font-thin text-center">Admin</div>
-        <div className="w-1/3 font-poppins text-lg text-gray-500 font-thin text-center">Intern</div>
+        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light text-center">Admin</div>
+        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light text-center">Intern</div>
       </div>
 
       {/* ROWS */}
       <div className="flex flex-col space-y-6 pl-12 md:space-y-4">
         {permissions.map((permission, index) => (
-          <div key={index} className="flex flex-rowborder-b-2">
+          <div key={index} className="flex flex-row border-b-2">
             {/* permission */}
             <div className="w-1/3">
               <p className="flex items-center h-full font-poppins text-lg">{permission}</p>
