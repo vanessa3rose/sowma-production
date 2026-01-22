@@ -5,7 +5,10 @@ import {
   Legend,
   PieLabelRenderProps,
   ResponsiveContainer,
+  Tooltip,
 } from "recharts";
+
+import ChartTooltip from "./ChartTooltip";
 
 const COLORS = [
   "#7987FF", // blue
@@ -44,6 +47,7 @@ const PieCharts = ({ data, dataKey, nameKey }: PieChartsProps) => {
               />
             ))}
           </Pie>
+          <Tooltip content={<ChartTooltip hideZeroValues />} />
           <Legend
             verticalAlign="bottom"
             align="center"
