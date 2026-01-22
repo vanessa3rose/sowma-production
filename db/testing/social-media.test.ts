@@ -3,9 +3,8 @@ import {
   getAllSocialMedia,
   updateSocialMedia,
   deleteSocialMedia,
-  closePrisma,
 } from "../social-media";
-import { Provider } from "../../src/generated/prisma";
+import { Provider } from "../../src/generated/prisma/index.js";
 
 async function testCRUD() {
   try {
@@ -40,8 +39,6 @@ async function testCRUD() {
     console.log("Final: ", final);
   } catch (error) {
     console.error("CRUD test error: ", error);
-  } finally {
-    await closePrisma();
   }
 }
 

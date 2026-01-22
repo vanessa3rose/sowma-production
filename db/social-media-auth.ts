@@ -1,6 +1,8 @@
-import { PrismaClient } from "../src/generated/prisma";
+import { PrismaClient } from "../src/generated/prisma/index.js";
 
-const prisma = new PrismaClient();
+/* Reuse Prisma client in serverless */
+const prisma = (globalThis as any).prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
 
 /* CREATE: create one SocialMediaAuth record */
 export async function createSocialMediaAuth(input: {
@@ -17,18 +19,18 @@ export async function createSocialMediaAuth(input: {
 export async function getSocialMediaAuthString(id: string) {
   return prisma.socialMediaAuth.findUnique({
     where: { id },
-    include: { socialMedia: true }, // optional: includes linked social media info
+    include: { socialMedia: true },
   });
 }
 
-//return all the table
+/* READ ALL: return all SocialMediaAuth records */
 export async function getSocialMediaAuth() {
   return prisma.socialMediaAuth.findMany({
-    include: { socialMedia: true }, // optional: includes linked social media info
+    include: { socialMedia: true },
   });
 }
 
-/* READ BY SOCIAL MEDIA ID: get all metrics for a specific social media record */
+/* READ BY SOCIAL MEDIA ID: get a specific auth record */
 export async function getAuthBySocialMediaId(socialMediaId: string) {
   return prisma.socialMediaAuth.findUnique({
     where: { socialMediaId },
@@ -36,7 +38,7 @@ export async function getAuthBySocialMediaId(socialMediaId: string) {
   });
 }
 
-/* UPDATE: update fields on a SocialMediaAuth record by ID */
+/* UPDATE a SocialMediaAuth record by ID */
 export async function updateSocialMediaAuth(
   id: string,
   data: Partial<{
@@ -46,20 +48,10 @@ export async function updateSocialMediaAuth(
     lastRefreshed: Date | null;
   }>,
 ) {
-  return prisma.socialMediaAuth.update({
-    where: { id },
-    data,
-  });
+  return prisma.socialMediaAuth.update({ where: { id }, data });
 }
 
-/* DELETE: delete a SocialMediaAuth record by ID */
+/* DELETE a SocialMediaAuth record by ID */
 export async function deleteSocialMediaAuth(id: string) {
-  return prisma.socialMediaAuth.delete({
-    where: { id },
-  });
-}
-
-/* Optional helper for test scripts */
-export async function closePrisma() {
-  await prisma.$disconnect();
+  return prisma.socialMediaAuth.delete({ where: { id } });
 }

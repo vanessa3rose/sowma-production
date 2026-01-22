@@ -1,12 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    port: 3000,
+    port: 3000, // frontend port
     proxy: {
-      "/api": "http://localhost:4000",
+      "/api": "http://localhost:4000", // backend port
     },
   },
   base: "/",

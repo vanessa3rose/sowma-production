@@ -1,42 +1,39 @@
-import express from "express";
-import { Metric, PrismaClient, Provider } from "../src/generated/prisma";
+import { PrismaClient, Metric, Provider } from '../src/generated/prisma/index.js';
 
-const router = express.Router();
-const prisma = new PrismaClient();
+// Reuse Prisma client in serverless
+const prisma = (globalThis as any).prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== 'production') (globalThis as any).prisma = prisma;
 
-router.get("/", async (req, res) => {
+export default async function handler(req: any, res: any) {
+  if (req.method !== 'GET') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  const { provider, metric, startDate, endDate } = req.query;
+
+  if (!provider || !metric) {
+    res.status(400).json({ error: 'Missing provider/metric' });
+    return;
+  }
+
   try {
-    const { provider, metric, startDate, endDate } = req.query;
-
-    if (!provider || !metric) {
-      return res
-        .status(400)
-        .json({ error: "Missing required parameters: provider and metric" });
-    }
-
     const metrics = await prisma.socialMediaMetrics.findMany({
       where: {
         metricName: metric as Metric,
         lastSynced: {
-          gte: startDate
-            ? new Date(startDate as string)
-            : new Date("2000-01-01"),
+          gte: startDate ? new Date(startDate as string) : new Date('2000-01-01'),
           lte: endDate ? new Date(endDate as string) : new Date(),
         },
-        socialMedia: {
-          provider: provider as Provider,
-        },
+        SocialMedia: { provider: provider as Provider },
       },
-      include: {
-        socialMedia: true,
-      },
+      include: { SocialMedia: true },
     });
 
-    return res.status(200).json(metrics);
+    res.setHeader('Access-Control-Allow-Origin', '*'); // allow frontend requests
+    res.status(200).json(metrics);
   } catch (error) {
-    console.error("Error fetching metrics:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-});
-
-export default router;
+}
