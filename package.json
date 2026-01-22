@@ -23,6 +23,7 @@
     "@prisma/client": "^6.19.1",
     "cron": "^4.3.3",
     "dotenv": "^17.2.3",
+    "fdir": "^6.5.0",
     "git-filter-repo": "^0.0.30",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.0.0",
