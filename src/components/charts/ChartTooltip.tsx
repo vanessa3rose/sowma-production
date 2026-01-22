@@ -37,6 +37,12 @@ export type ChartTooltipProps = {
   className?: string;
 };
 
+function humanizeKey(key: string) {
+  return key
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2") // camelCase → camel Case
+    .replace(/^./, (s) => s.toUpperCase()); // capitalize
+}
+
 function defaultValueFormatter(v: unknown): React.ReactNode {
   if (v === null || v === undefined) return "—";
   if (typeof v === "number" && Number.isFinite(v)) return v.toLocaleString();
@@ -105,7 +111,9 @@ export default function ChartTooltip(props: ChartTooltipProps) {
       if (meta?.hidden) return null;
 
       const rawName = normalizeName(item.name ?? item.dataKey);
-      const displayName = meta?.label ?? rawName ?? dataKey;
+      const displayName =
+        meta?.label ??
+        (rawName ? humanizeKey(rawName) : humanizeKey(dataKey));
 
       const rawValue = item.value;
       if (hideZeroValues && rawValue === 0) return null;
