@@ -14,16 +14,18 @@ export type SocialMediaMetric = {
 };
 
 export async function fetchMetrics(params: MetricsParams) {
-    const debug = import.meta.env.VITE_DEBUG_METRICS === "1";
+  const debug = import.meta.env.VITE_DEBUG_METRICS === "1";
 
-    // Normalize params to reduce "silent empty array" issues
-    const normalized: MetricsParams = {
-      ...params,
-      provider: params.provider?.toUpperCase?.() ?? params.provider,
-      metric: params.metric?.toUpperCase?.() ?? params.metric,
-      startDate: params.startDate ? String(params.startDate).slice(0, 10) : undefined,
-      endDate: params.endDate ? String(params.endDate).slice(0, 10) : undefined,
-    };
+  // Normalize params to reduce "silent empty array" issues
+  const normalized: MetricsParams = {
+    ...params,
+    provider: params.provider?.toUpperCase?.() ?? params.provider,
+    metric: params.metric?.toUpperCase?.() ?? params.metric,
+    startDate: params.startDate
+      ? String(params.startDate).slice(0, 10)
+      : undefined,
+    endDate: params.endDate ? String(params.endDate).slice(0, 10) : undefined,
+  };
 
   const searchParams = new URLSearchParams();
 
@@ -42,11 +44,22 @@ export async function fetchMetrics(params: MetricsParams) {
 
   if (!response.ok) {
     const body = await response.text().catch(() => "");
-    if (debug) console.error("[fetchMetrics] error", response.status, response.statusText, body);
+    if (debug)
+      console.error(
+        "[fetchMetrics] error",
+        response.status,
+        response.statusText,
+        body,
+      );
     throw new Error(`Failed to fetch metrics: ${response.statusText}`);
   }
 
   const data = (await response.json()) as SocialMediaMetric[];
-  if (debug) console.log("[fetchMetrics] rows", { provider: normalized.provider, metric: normalized.metric, count: data.length });
+  if (debug)
+    console.log("[fetchMetrics] rows", {
+      provider: normalized.provider,
+      metric: normalized.metric,
+      count: data.length,
+    });
   return data;
 }
