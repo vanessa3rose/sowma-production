@@ -42,9 +42,8 @@ export function GlobalPageExportProvider({
         });
       } else {
         // ⭐ NEW: independent social export path
-        const bundle: SocialExportBundle = await fetchSocialExportBundle(
-          platform
-        );
+        const bundle: SocialExportBundle =
+          await fetchSocialExportBundle(platform);
 
         selections.push({
           type: "social",

@@ -114,11 +114,15 @@ export async function runDailyFacebookSync() {
   for (const account of accounts) {
     // Skip if metrics already exist for this day
     if (await metricsExistForDay(account.id, metricDate)) {
-      console.log(`[FB] ${account.username} already synced (${formatISODate(metricDate)})`);
+      console.log(
+        `[FB] ${account.username} already synced (${formatISODate(metricDate)})`,
+      );
       continue;
     }
 
-    console.log(`[FB] Syncing ${account.username} (${formatISODate(metricDate)})`);
+    console.log(
+      `[FB] Syncing ${account.username} (${formatISODate(metricDate)})`,
+    );
 
     try {
       // Fetch all posts for the day
@@ -127,7 +131,7 @@ export async function runDailyFacebookSync() {
       // Aggregate comments, shares, and daysPosted
       const dailyComments = posts.reduce(
         (s, p) => s + (p.comments?.summary?.total_count ?? 0),
-        0
+        0,
       );
       const dailyShares = posts.reduce((s, p) => s + (p.shares?.count ?? 0), 0);
       const daysPosted = posts.length > 0 ? 1 : 0;
@@ -156,13 +160,13 @@ export async function runDailyFacebookSync() {
               metricDate,
               lastSynced: new Date(),
             },
-          })
-        )
+          }),
+        ),
       );
     } catch (err) {
       console.error(
         `[FB] Sync failed for ${account.username} (${formatISODate(metricDate)})`,
-        err
+        err,
       );
     }
   }

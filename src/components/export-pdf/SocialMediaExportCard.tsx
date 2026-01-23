@@ -16,14 +16,15 @@ function formatDelta(delta: number): { text: string; color: string } {
 }
 
 export default function SocialMediaExportCard({ data }: Props) {
-  const hasImpressions = data.impressionsOverTime.length > 0 && data.impressions > 0;
-  const hasPieData = data.engagementBreakdown.some(d => d.value > 0);
+  const hasImpressions =
+    data.impressionsOverTime.length > 0 && data.impressions > 0;
+  const hasPieData = data.engagementBreakdown.some((d) => d.value > 0);
 
   const followersDelta = formatDelta(data.followersDelta);
   const impressionsDelta = formatDelta(data.impressionsDelta);
   const postsDelta = formatDelta(data.postsDelta);
   const engagementsDelta = formatDelta(data.engagementsDelta);
-  
+
   return (
     <div
       style={{
@@ -105,7 +106,9 @@ export default function SocialMediaExportCard({ data }: Props) {
             className="font-semibold"
             style={{ fontSize: "20px", marginBottom: "14px" }}
           >
-            {data.platform === "twitter" ? "Account Metrics" : "Engagement Breakdown"}
+            {data.platform === "twitter"
+              ? "Account Metrics"
+              : "Engagement Breakdown"}
           </div>
 
           <div style={{ width: "100%", height: "290px" }}>
@@ -124,10 +127,7 @@ export default function SocialMediaExportCard({ data }: Props) {
         </SoftCard>
 
         {/* IMPRESSIONS OR ENGAGEMENTS TREND */}
-        <SoftCard
-          className="flex flex-col flex-1"
-          style={{ height: "360px" }}
-        >
+        <SoftCard className="flex flex-col flex-1" style={{ height: "360px" }}>
           <div
             className="font-semibold"
             style={{ fontSize: "20px", marginBottom: "14px" }}
@@ -136,9 +136,16 @@ export default function SocialMediaExportCard({ data }: Props) {
           </div>
 
           <div style={{ width: "100%", height: "310px" }}>
-            {(hasImpressions ? data.impressionsOverTime : data.engagementsOverTime).length > 0 ? (
+            {(hasImpressions
+              ? data.impressionsOverTime
+              : data.engagementsOverTime
+            ).length > 0 ? (
               <LineCharts
-                data={hasImpressions ? data.impressionsOverTime : data.engagementsOverTime}
+                data={
+                  hasImpressions
+                    ? data.impressionsOverTime
+                    : data.engagementsOverTime
+                }
                 xAxisKey="date"
                 dataKeys={["value"]}
                 showArea
@@ -155,15 +162,14 @@ export default function SocialMediaExportCard({ data }: Props) {
       {/* ======= BOTTOM ROW (Posts + Followers) ======= */}
       <div className="flex gap-6" style={{ height: "360px" }}>
         {/* POSTS */}
-        <SoftCard
-          className="flex flex-col flex-1"
-          style={{ height: "360px" }}
-        >
+        <SoftCard className="flex flex-col flex-1" style={{ height: "360px" }}>
           <div
             className="font-semibold"
             style={{ fontSize: "20px", marginBottom: "14px" }}
           >
-            {data.platform === "twitter" ? "Tweets Over Time" : "Posts Over Time"}
+            {data.platform === "twitter"
+              ? "Tweets Over Time"
+              : "Posts Over Time"}
           </div>
 
           <div style={{ width: "100%", height: "310px" }}>
@@ -183,10 +189,7 @@ export default function SocialMediaExportCard({ data }: Props) {
         </SoftCard>
 
         {/* FOLLOWERS */}
-        <SoftCard
-          className="flex flex-col flex-1"
-          style={{ height: "360px" }}
-        >
+        <SoftCard className="flex flex-col flex-1" style={{ height: "360px" }}>
           <div
             className="font-semibold"
             style={{ fontSize: "20px", marginBottom: "14px" }}

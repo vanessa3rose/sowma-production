@@ -7,9 +7,9 @@ export type MetricsParams = {
 
 export type SocialMediaMetric = {
   id: string;
-  metricName: string; 
-  metricValue: number; 
-  lastSynced?: string; 
+  metricName: string;
+  metricValue: number;
+  lastSynced?: string;
   metricDate?: string;
 };
 

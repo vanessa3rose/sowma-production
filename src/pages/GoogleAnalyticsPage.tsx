@@ -1,4 +1,4 @@
-//drop down menu for hoże page 
+//drop down menu for hoże page
 
 import { useEffect, useState } from "react";
 
@@ -68,7 +68,9 @@ export default function GoogleAnalyticsPage() {
       );
   }
 
-  function toLinePoints(raw: SocialMediaMetric[]): { date: string; value: number }[] {
+  function toLinePoints(
+    raw: SocialMediaMetric[],
+  ): { date: string; value: number }[] {
     return sortByDate(raw).map((m) => {
       const timestamp = (m.metricDate ?? m.lastSynced)!;
       return {
@@ -222,10 +224,7 @@ export default function GoogleAnalyticsPage() {
     newUsers: 0,
   };
 
-  const returningUsers = Math.max(
-    dMetrics.activeUsers - dMetrics.newUsers,
-    0,
-  );
+  const returningUsers = Math.max(dMetrics.activeUsers - dMetrics.newUsers, 0);
   const returningVsNew = [
     { label: "New Users", value: dMetrics.newUsers },
     { label: "Returning Users", value: returningUsers },
@@ -275,9 +274,7 @@ export default function GoogleAnalyticsPage() {
             className="w-full h-full"
             metricValue={dMetrics.activeUsers}
             metricLabel="users"
-            metricChange={formatPercentChange(
-              metricSummaries.activeUsers,
-            )}
+            metricChange={formatPercentChange(metricSummaries.activeUsers)}
           />
           <SmallCard
             title="Page Views"
@@ -285,9 +282,7 @@ export default function GoogleAnalyticsPage() {
             className="w-full h-full"
             metricValue={dMetrics.screenPageViews}
             metricLabel="views"
-            metricChange={formatPercentChange(
-              metricSummaries.screenPageViews,
-            )}
+            metricChange={formatPercentChange(metricSummaries.screenPageViews)}
           />
           <SmallCard
             title="Active 7-Day Users"
@@ -295,9 +290,7 @@ export default function GoogleAnalyticsPage() {
             className="w-full h-full"
             metricValue={dMetrics.active7DayUsers}
             metricLabel="users (7D)"
-            metricChange={formatPercentChange(
-              metricSummaries.active7DayUsers,
-            )}
+            metricChange={formatPercentChange(metricSummaries.active7DayUsers)}
           />
           <SmallCard
             title="Engagement Rate"
@@ -315,9 +308,7 @@ export default function GoogleAnalyticsPage() {
             className="w-full h-full"
             metricValue={dMetrics.newUsers}
             metricLabel="new"
-            metricChange={formatPercentChange(
-              metricSummaries.newUsers,
-            )}
+            metricChange={formatPercentChange(metricSummaries.newUsers)}
           />
         </div>
 
@@ -331,9 +322,7 @@ export default function GoogleAnalyticsPage() {
                 subtitle="Last 30 days"
                 metricValue={dMetrics.activeUsers}
                 metricLabel="total"
-                metricChange={formatPercentChange(
-                  metricSummaries.activeUsers,
-                )}
+                metricChange={formatPercentChange(metricSummaries.activeUsers)}
                 chart={
                   <div className="w-full h-64">
                     <LineCharts

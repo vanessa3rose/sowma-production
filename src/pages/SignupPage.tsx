@@ -19,9 +19,9 @@ export default function SignupPage() {
       >
         {/* Header */}
         <div className="w-full mx-auto gap-10 flex flex-col items-center justify-center">
-            <div className="w-full flex flex-col items-center">
+          <div className="w-full flex flex-col items-center">
             <h1
-                className="
+              className="
                 text-center
                 font-poppins
                 text-xl sm:text-2xl lg:text-5xl 
@@ -30,25 +30,25 @@ export default function SignupPage() {
                 text-black
                 "
             >
-                Sign up for the
-                <br />
-                <span className="font-bold text-[#4781C2] whitespace-normal">
+              Sign up for the
+              <br />
+              <span className="font-bold text-[#4781C2] whitespace-normal">
                 SOWMA Analytics Dashboard
-                </span>
+              </span>
             </h1>
-            </div>
+          </div>
 
-            {/* SignUp Form */}
-            <div className="">
-              <SignUp
-                appearance={{
-                  elements: {
-                    rootBox: "max-w-full",
-                    card: "w-full p-8 rounded-xl shadow-md border border-gray-200",
-                  },
-                }}
-              />
-            </div>
+          {/* SignUp Form */}
+          <div className="">
+            <SignUp
+              appearance={{
+                elements: {
+                  rootBox: "max-w-full",
+                  card: "w-full p-8 rounded-xl shadow-md border border-gray-200",
+                },
+              }}
+            />
+          </div>
         </div>
       </div>
 
