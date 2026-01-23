@@ -112,8 +112,7 @@ export default function ChartTooltip(props: ChartTooltipProps) {
 
       const rawName = normalizeName(item.name ?? item.dataKey);
       const displayName =
-        meta?.label ??
-        (rawName ? humanizeKey(rawName) : humanizeKey(dataKey));
+        meta?.label ?? (rawName ? humanizeKey(rawName) : humanizeKey(dataKey));
 
       const rawValue = item.value;
       if (hideZeroValues && rawValue === 0) return null;

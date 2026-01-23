@@ -39,21 +39,30 @@ type Point = { date: string; value: number };
 export function mapSocialToExportData(
   platform: string,
   chartDataMap: Record<string, Point[]>,
-  metricSummaries: Record<string, { current: number | null; prev: number | null }>
+  metricSummaries: Record<
+    string,
+    { current: number | null; prev: number | null }
+  >,
 ): SocialExportBundle {
   const map = PLATFORM_MAP[platform as keyof typeof PLATFORM_MAP];
   if (!map) throw new Error(`Unsupported platform: ${platform}`);
 
   const followersSeries = chartDataMap[map.followersId] ?? [];
-  const impressionsSeries = map.impressionsId ? (chartDataMap[map.impressionsId] ?? []) : [];
+  const impressionsSeries = map.impressionsId
+    ? (chartDataMap[map.impressionsId] ?? [])
+    : [];
   const postsSeries = chartDataMap[map.postsId] ?? [];
 
   const followersSummary = metricSummaries[map.followersId];
-  const impressionsSummary = map.impressionsId ? metricSummaries[map.impressionsId] : null;
+  const impressionsSummary = map.impressionsId
+    ? metricSummaries[map.impressionsId]
+    : null;
   const postsSummary = metricSummaries[map.postsId];
 
   const likesSummary = map.likesId ? metricSummaries[map.likesId] : null;
-  const commentsSummary = map.commentsId ? metricSummaries[map.commentsId] : null;
+  const commentsSummary = map.commentsId
+    ? metricSummaries[map.commentsId]
+    : null;
   const sharesSummary = map.sharesId ? metricSummaries[map.sharesId] : null;
 
   const engagementsCurrent =
@@ -66,19 +75,21 @@ export function mapSocialToExportData(
     (commentsSummary?.prev ?? 0) +
     (sharesSummary?.prev ?? 0);
 
-  const engagementBreakdown = platform === "twitter" 
-    ? [
-        { label: "Following", value: likesSummary?.current ?? 0 },
-        { label: "Listed", value: commentsSummary?.current ?? 0 },
-        { label: "Other", value: 0 },
-      ]
-    : [
-        { label: "Likes", value: likesSummary?.current ?? 0 },
-        { label: "Comments", value: commentsSummary?.current ?? 0 },
-        { label: "Shares", value: sharesSummary?.current ?? 0 },
-      ];
+  const engagementBreakdown =
+    platform === "twitter"
+      ? [
+          { label: "Following", value: likesSummary?.current ?? 0 },
+          { label: "Listed", value: commentsSummary?.current ?? 0 },
+          { label: "Other", value: 0 },
+        ]
+      : [
+          { label: "Likes", value: likesSummary?.current ?? 0 },
+          { label: "Comments", value: commentsSummary?.current ?? 0 },
+          { label: "Shares", value: sharesSummary?.current ?? 0 },
+        ];
 
-  const normalizedSummaries: Record<string, { current: number; prev: number }> = {};
+  const normalizedSummaries: Record<string, { current: number; prev: number }> =
+    {};
   Object.entries(metricSummaries).forEach(([key, s]) => {
     normalizedSummaries[key] = {
       current: s.current ?? 0,
@@ -124,19 +135,19 @@ export function mapSocialToExportData(
     followers: followersSummary?.current ?? 0,
     followersDelta: computeDelta(
       followersSummary?.current ?? null,
-      followersSummary?.prev ?? null
+      followersSummary?.prev ?? null,
     ),
 
     impressions: impressionsSummary?.current ?? 0,
     impressionsDelta: computeDelta(
       impressionsSummary?.current ?? null,
-      impressionsSummary?.prev ?? null
+      impressionsSummary?.prev ?? null,
     ),
 
     posts: postsSummary?.current ?? 0,
     postsDelta: computeDelta(
       postsSummary?.current ?? null,
-      postsSummary?.prev ?? null
+      postsSummary?.prev ?? null,
     ),
 
     engagements: engagementsCurrent,
@@ -152,6 +163,6 @@ export function mapSocialToExportData(
     chartDataMap,
     metricSummaries: normalizedSummaries,
   };
-  
+
   return bundle;
 }

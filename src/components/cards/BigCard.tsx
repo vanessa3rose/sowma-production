@@ -4,7 +4,7 @@ type DisplayMode = "both" | "chart-only";
 
 interface BigCardProps {
   title: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   chart: React.ReactNode;
   metricValue?: number;
   metricLabel?: string;
@@ -69,24 +69,6 @@ const BigCard: React.FC<BigCardProps> = ({
               >
                 {subtitle}
               </span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  color: "#000000",
-                }}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                />
-              </svg>
             </div>
           )}
 

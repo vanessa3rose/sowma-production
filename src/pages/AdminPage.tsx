@@ -54,9 +54,15 @@ export default function AdminPage() {
 
       {/* HEADER */}
       <div className="flex flex-row my-6 w-full pl-12">
-        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light">Permissions</div>
-        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light text-center">Admin</div>
-        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light text-center">Intern</div>
+        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light">
+          Permissions
+        </div>
+        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light text-center">
+          Admin
+        </div>
+        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light text-center">
+          Intern
+        </div>
       </div>
 
       {/* ROWS */}
@@ -65,12 +71,17 @@ export default function AdminPage() {
           <div key={index} className="flex flex-row border-b-2">
             {/* permission */}
             <div className="w-1/3">
-              <p className="flex items-center h-full font-poppins text-lg">{permission}</p>
+              <p className="flex items-center h-full font-poppins text-lg">
+                {permission}
+              </p>
             </div>
 
             {/* toggles - admin & intern */}
             {roles.map((role) => (
-              <div key={role} className="w-1/3 flex justify-center items-center">
+              <div
+                key={role}
+                className="w-1/3 flex justify-center items-center"
+              >
                 <div className="relative block w-11 h-6">
                   <input
                     id={`switch-${role}-${permission}`}

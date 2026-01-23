@@ -1,8 +1,7 @@
 import logo from "../assets/logo.png";
 import { useClerk } from "@clerk/clerk-react";
 
-
-const LeftSidebar = ({ mobile = false, open = false, onClose = () => {}  }) => {
+const LeftSidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
   const sidebarClasses = mobile
     ? `fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50
        transform transition-transform duration-300 p-4 border-r border-gray-600 pl-12
@@ -20,14 +19,10 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {}  }) => {
     <>
       {/* Overlay for mobile */}
       {mobile && open && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40"
-          onClick={onClose}
-        />
+        <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
       )}
 
       <div className={sidebarClasses}>
-
         {/* Logo */}
         <img
           src={logo}
@@ -105,7 +100,9 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {}  }) => {
         </nav>
 
         {/* Sign Out */}
-        <div className={`absolute bottom-0 pb-8 justify-center flex ${mobile ? "pl-6" : "w-full"}`}>
+        <div
+          className={`absolute bottom-0 pb-8 justify-center flex ${mobile ? "pl-6" : "w-full"}`}
+        >
           <button
             onClick={handleSignOut}
             className="flex items-center gap-3 text-red-600 font-medium hover:text-red-800 cursor-pointer"
@@ -128,7 +125,6 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {}  }) => {
             <span className="md:hidden lg:block text-[18px]">Sign Out</span>
           </button>
         </div>
-
       </div>
     </>
   );

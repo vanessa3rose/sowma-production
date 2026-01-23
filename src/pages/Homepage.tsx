@@ -198,21 +198,20 @@ export default function Homepage() {
     loadWebsiteSessions();
   }, []);
 
-    const socialLinks = [
-        { name: "google", icon: google },      // exception
-        { name: "instagram", icon: instagram },
-        { name: "facebook", icon: facebook },
-        { name: "tiktok", icon: tiktok },      // exception
-        { name: "linkedin", icon: linkedin },  // exception
-        { name: "twitter", icon: twitter },
-    ];
+  const socialLinks = [
+    { name: "google", icon: google }, // exception
+    { name: "instagram", icon: instagram },
+    { name: "facebook", icon: facebook },
+    { name: "tiktok", icon: tiktok }, // exception
+    { name: "linkedin", icon: linkedin }, // exception
+    { name: "twitter", icon: twitter },
+  ];
 
-
-    const exceptionRoutes: Record<string, string> = {
-        google: "/google-analytics",
-        linkedin: "/error",
-        tiktok: "/error",
-    };
+  const exceptionRoutes: Record<string, string> = {
+    google: "/google-analytics",
+    linkedin: "/error",
+    tiktok: "/error",
+  };
 
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
@@ -223,17 +222,18 @@ export default function Homepage() {
 
           <div className="flex flex-row gap-2">
             {socialLinks.map((social, idx) => {
-                const href = exceptionRoutes[social.name] || `/social/${social.name}`; // fallback to default
+              const href =
+                exceptionRoutes[social.name] || `/social/${social.name}`; // fallback to default
 
-                return (
+              return (
                 <a href={href} key={idx}>
-                    <img
+                  <img
                     src={social.icon}
                     alt={social.name}
                     className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border border-solid"
-                    />
+                  />
                 </a>
-                );
+              );
             })}
 
             <a href="/Newsletter">
@@ -277,21 +277,21 @@ export default function Homepage() {
               <option value="TWITTER">Twitter</option>
             </select>
           }
-
           chart={
             impressionsData.length > 0 ? (
-            <div className="w-full h-64">
-              <LineCharts
-                data={impressionsData}
-                xAxisKey="date"
-                dataKeys={["impressions"]}
-                showArea
-              />
-            </div>
+              <div className="w-full h-64">
+                <LineCharts
+                  data={impressionsData}
+                  xAxisKey="date"
+                  dataKeys={["impressions"]}
+                  showArea
+                />
+              </div>
             ) : (
-            <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
-              No impressions data available.
-            </div>)
+              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+                No impressions data available.
+              </div>
+            )
           }
           displayMode="both"
           className="flex-1 w-full h-full"
@@ -314,16 +314,15 @@ export default function Homepage() {
             </select>
           }
           chart={
-            daysPostedData.length > 0 ?(
-            <div className="w-full h-64">
-              <LineCharts
-                data={daysPostedData}
-                xAxisKey="date"
-                dataKeys={["posts"]}
-              />
-            </div>
-            ) :
-            (
+            daysPostedData.length > 0 ? (
+              <div className="w-full h-64">
+                <LineCharts
+                  data={daysPostedData}
+                  xAxisKey="date"
+                  dataKeys={["posts"]}
+                />
+              </div>
+            ) : (
               <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
                 No days posted data available.
               </div>
@@ -338,19 +337,18 @@ export default function Homepage() {
           subtitle=""
           chart={
             websiteSessionsData.length > 0 ? (
-            <div className="w-full h-64">
-              <LineCharts
-                data={websiteSessionsData}
-                xAxisKey="date"
-                dataKeys={["sessions"]}
-                showArea
-              />
-            </div>
-            ):
-            (
-            <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
-              No website sessions data available.
-            </div>
+              <div className="w-full h-64">
+                <LineCharts
+                  data={websiteSessionsData}
+                  xAxisKey="date"
+                  dataKeys={["sessions"]}
+                  showArea
+                />
+              </div>
+            ) : (
+              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+                No website sessions data available.
+              </div>
             )
           }
           displayMode="both"
@@ -377,17 +375,18 @@ export default function Homepage() {
           }
           chart={
             followerCountData.length > 0 ? (
-            <div className="w-full h-64">
-              <LineCharts
-                data={followerCountData}
-                xAxisKey="date"
-                dataKeys={["followers"]}
-              />
-            </div>
-            ) :
-            (<div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
-              No follower count data available.
-            </div>)
+              <div className="w-full h-64">
+                <LineCharts
+                  data={followerCountData}
+                  xAxisKey="date"
+                  dataKeys={["followers"]}
+                />
+              </div>
+            ) : (
+              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+                No follower count data available.
+              </div>
+            )
           }
           displayMode="both"
           className="flex-1 w-full h-full"
@@ -397,9 +396,9 @@ export default function Homepage() {
           title="How did you hear about us?"
           subtitle=""
           chart={
-          <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+            <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
               No data available.
-          </div>
+            </div>
           }
           displayMode="both"
           className="flex-1 w-full h-full"

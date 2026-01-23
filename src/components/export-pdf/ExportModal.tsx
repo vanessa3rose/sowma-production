@@ -146,7 +146,7 @@ export default function ExportModal({
             ))}
           </div>
         ) : (
-          <LoadingAnimation/>
+          <LoadingAnimation />
         )}
 
         {/* Modal footer buttons */}

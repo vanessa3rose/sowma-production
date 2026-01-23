@@ -22,12 +22,14 @@ async function runRefreshTest() {
         : "same";
 
     console.log(
-      `${provider.padEnd(15)} :: token ${changedToken}, lastRefreshed ${refreshed}`
+      `${provider.padEnd(15)} :: token ${changedToken}, lastRefreshed ${refreshed}`,
     );
   }
 
   // testing Twitter API with refreshed token
-  const twitterRec = after.find((r: any) => r.socialMedia.provider === "TWITTER");
+  const twitterRec = after.find(
+    (r: any) => r.socialMedia.provider === "TWITTER",
+  );
   if (twitterRec) {
     const res = await fetch("https://api.twitter.com/2/users/me", {
       headers: { Authorization: `Bearer ${twitterRec.accessToken}` },
