@@ -4,7 +4,7 @@ import {
   startOfDay,
   formatISODate,
   metricsExistForDay,
-} from "../src/utils/dates";
+} from "../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client

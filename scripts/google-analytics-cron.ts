@@ -5,13 +5,13 @@ import {
   createSocialMediaMetric,
   updateSocialMediaMetric,
   getMetricsBySocialMediaId,
-} from "../db/social-media-metrics";
+} from "../db/social-media-metrics.js";
 import { PrismaClient, Provider, Metric } from "../src/generated/prisma/index.js";
 import {
   startOfDay,
   formatISODate,
   metricsExistForDay,
-} from "../src/utils/dates";
+} from "../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client
@@ -22,13 +22,24 @@ const prisma = new PrismaClient();
    GA client setup
 -------------------------------------------------- */
 
-// Load service account key
-if (!process.env.GOOGLE_SERVICE_ACCOUNT) {
-  throw new Error("Missing GOOGLE_SERVICE_ACCOUNT environment variable");
-}
 
-// Trim whitespace and parse
-const jsonKey = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT.trim()) as Record<string, any>;
+const jsonKey = {
+  type: process.env.GA_TYPE,
+  project_id: process.env.GA_PROJECT_ID,
+  private_key_id: process.env.GA_PRIVATE_KEY_ID,
+  private_key: process.env.GA_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+  client_email: process.env.GA_CLIENT_EMAIL,
+  client_id: process.env.GA_CLIENT_ID,
+  auth_uri: process.env.GA_AUTH_URI,
+  token_uri: process.env.GA_TOKEN_URI,
+  auth_provider_x509_cert_url: process.env.GA_AUTH_PROVIDER_X509_CERT_URL,
+  client_x509_cert_url: process.env.GA_CLIENT_X509_CERT_URL,
+  universe_domain: process.env.GA_UNIVERSE_DOMAIN,
+};
+
+if (!jsonKey.private_key || !jsonKey.client_email) {
+  throw new Error("Missing Google Analytics service account credentials");
+}
 
 // Create a GoogleAuth instance using the credentials
 const auth = new GoogleAuth({

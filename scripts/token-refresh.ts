@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { getSocialMediaAuth, updateSocialMediaAuth } from "../../db/social-media-auth";
+import { getSocialMediaAuth, updateSocialMediaAuth } from "../db/social-media-auth.ts";
 
 export type Provider =
   | "GOOGLE_ANALYTICS"

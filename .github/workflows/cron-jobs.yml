@@ -1,0 +1,38 @@
+name: Run Cron Jobs
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # token refresh
+    - cron: '0 2 * * *'   # social media sync
+  workflow_dispatch:
+
+jobs:
+  run-crons:
+    runs-on: ubuntu-latest
+    env:
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      BASE_URL: ${{ secrets.BASE_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Call token cron
+        run: |
+          echo "Running token refresh..."
+          RESPONSE=$(curl -s -H "Authorization: Bearer $CRON_SECRET" "$BASE_URL/api/cron/token")
+          echo "Response: $RESPONSE"
+
+      - name: Call social media cron
+        run: |
+          echo "Running social media sync..."
+          RESPONSE=$(curl -s -H "Authorization: Bearer $CRON_SECRET" "$BASE_URL/api/cron/social-media")
+          echo "Response: $RESPONSE"
