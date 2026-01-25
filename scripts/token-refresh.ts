@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import {
   getSocialMediaAuth,
   updateSocialMediaAuth,
-} from "../../db/social-media-auth";
+} from "../db/social-media-auth.ts";
 
 export type Provider =
   | "GOOGLE_ANALYTICS"

@@ -1,5 +1,3 @@
-// src/components/export-pdf/GlobalPageExportProvider.tsx
-
 import React, { createContext, useContext } from "react";
 import {
   ExportCardSelection,

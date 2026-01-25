@@ -2,8 +2,8 @@ name: Run Cron Jobs
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # token refresh
-    - cron: '0 2 * * *'   # social media sync
+    - cron: "0 0 * * *" # token refresh
+    - cron: "0 2 * * *" # social media sync
   workflow_dispatch:
 
 jobs:

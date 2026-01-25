@@ -6,7 +6,11 @@ import {
   updateSocialMediaMetric,
   getMetricsBySocialMediaId,
 } from "../db/social-media-metrics.js";
-import { PrismaClient, Provider, Metric } from "../src/generated/prisma/index.js";
+import {
+  PrismaClient,
+  Provider,
+  Metric,
+} from "../src/generated/prisma/index.js";
 import {
   startOfDay,
   formatISODate,
@@ -21,7 +25,6 @@ const prisma = new PrismaClient();
 /* -------------------------------------------------
    GA client setup
 -------------------------------------------------- */
-
 
 const jsonKey = {
   type: process.env.GA_TYPE,
