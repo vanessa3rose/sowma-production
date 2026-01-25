@@ -148,17 +148,15 @@ function toClerkUpdatePayload(body: UpdateUserInput) {
   if (body.email !== undefined) payload.emailAddress = [body.email];
   if (body.password !== undefined) payload.password = body.password;
 
+  // updates role and waitlisted using payload info 
   if (body.role !== undefined || body.isWaitlisted !== undefined) {
     payload.publicMetadata = {
       ...(payload.publicMetadata ?? {}),
     };
-    if (body.role !== undefined) {
-      payload.publicMetadata.role = body.role;
-    }
-    if (body.isWaitlisted !== undefined) {
-      payload.publicMetadata.isWaitlisted = body.isWaitlisted;
-    }
   }
+
+  if (body.role !== undefined) payload.publicMetadata.role = body.role;
+  if (body.isWaitlisted !== undefined) payload.publicMetadata.isWaitlisted = body.isWaitlisted;
 
   return payload;
 }

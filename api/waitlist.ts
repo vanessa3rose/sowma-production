@@ -1,5 +1,3 @@
-// waitlist.route.js or in your routes file
-
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
@@ -8,7 +6,6 @@ export async function createWaitlistUser(req, res) {
   try {
     const { email } = req.body;
 
-    // Validate email is provided
     if (!email) {
       return res.status(400).json({
         error: "Email is required",
