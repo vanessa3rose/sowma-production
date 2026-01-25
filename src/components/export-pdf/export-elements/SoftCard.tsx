@@ -16,8 +16,7 @@ export default function SoftCard({
         backgroundColor: "#ffffff",
         borderRadius: "18px",
         padding: "20px",
-        boxShadow:
-          "0 22px 44px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.06)",
+        boxShadow: "0 22px 44px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.06)",
         border: "1px solid rgba(148,163,184,0.18)",
         ...style,
       }}

@@ -34,7 +34,13 @@ export default function KPI({
 
       {/* Delta Row */}
       <div className="flex items-center gap-1">
-        <span style={{ color: deltaColor || "#22C55E", fontSize: "15px", fontWeight: 500 }}>
+        <span
+          style={{
+            color: deltaColor || "#22C55E",
+            fontSize: "15px",
+            fontWeight: 500,
+          }}
+        >
           {delta}
         </span>
 

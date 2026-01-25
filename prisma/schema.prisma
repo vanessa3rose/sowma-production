@@ -26,9 +26,9 @@ model SocialMediaMetrics {
   metricName     Metric
   metricValue    Int
   lastSynced     DateTime?
-  metricDate     DateTime?
   breakdownKey   String?
   breakdownValue String?
+  metricDate     DateTime?
   SocialMedia    SocialMedia @relation(fields: [socialMediaId], references: [id])
 }
 
@@ -59,13 +59,13 @@ model DatabaseReportCount {
 }
 
 model User {
-  email     String @id @default(cuid())
-  firstName String
-  lastName  String
-  username  String @unique
-  password  String
-  phone     String
-  role      Role
+  email        String  @id
+  firstName    String
+  lastName     String
+  username     String  @unique
+  password     String
+  phone        String
+  role         Role
   isWaitlisted Boolean @default(false)
 }
 
@@ -73,7 +73,6 @@ enum Role {
   ADMIN
   USER
   VIEWER
-  WAITLISTED
 }
 
 enum Provider {
