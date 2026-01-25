@@ -43,11 +43,11 @@ jobs:
       - name: Call token cron
         run: |
           echo "Running token refresh..."
-          RESPONSE=$(curl -v -H "Authorization: Bearer $CRON_SECRET" "$BASE_URL/api/cron/token")
+          RESPONSE=$(curl -L -v -H "Authorization: Bearer $CRON_SECRET" "$BASE_URL/api/cron/token")
           echo "Response: $RESPONSE"
 
       - name: Call social media cron
         run: |
           echo "Running social media sync..."
-          RESPONSE=$(curl -v -H "Authorization: Bearer $CRON_SECRET" "$BASE_URL/api/cron/social-media")
+          RESPONSE=$(curl -L -v -H "Authorization: Bearer $CRON_SECRET" "$BASE_URL/api/cron/social-media")
           echo "Response: $RESPONSE"
