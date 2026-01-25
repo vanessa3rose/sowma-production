@@ -153,6 +153,12 @@ function toClerkUpdatePayload(body: UpdateUserInput) {
     payload.publicMetadata = {
       ...(payload.publicMetadata ?? {}),
     };
+    if (body.role !== undefined) {
+      payload.publicMetadata.role = body.role;
+    }
+    if (body.isWaitlisted !== undefined) {
+      payload.publicMetadata.isWaitlisted = body.isWaitlisted;
+    }
   }
 
   if (body.role !== undefined) payload.publicMetadata.role = body.role;
