@@ -13,17 +13,33 @@ export async function GET(req: Request) {
 
   const results: Record<string, string> = {};
 
-  try { await runDailyFacebookSync(); results.facebook = "ok"; } 
-  catch (err: any) { results.facebook = `error: ${err?.message}`; }
+  try {
+    await runDailyFacebookSync();
+    results.facebook = "ok";
+  } catch (err: any) {
+    results.facebook = `error: ${err?.message}`;
+  }
 
-  try { await runDailyGoogleAnalyticsSync(); results.googleAnalytics = "ok"; } 
-  catch (err: any) { results.googleAnalytics = `error: ${err?.message}`; }
+  try {
+    await runDailyGoogleAnalyticsSync();
+    results.googleAnalytics = "ok";
+  } catch (err: any) {
+    results.googleAnalytics = `error: ${err?.message}`;
+  }
 
-  try { await runDailyInstagramSync(); results.instagram = "ok"; } 
-  catch (err: any) { results.instagram = `error: ${err?.message}`; }
+  try {
+    await runDailyInstagramSync();
+    results.instagram = "ok";
+  } catch (err: any) {
+    results.instagram = `error: ${err?.message}`;
+  }
 
-  try { await runDailyTwitterSync(); results.twitter = "ok"; } 
-  catch (err: any) { results.twitter = `error: ${err?.message}`; }
+  try {
+    await runDailyTwitterSync();
+    results.twitter = "ok";
+  } catch (err: any) {
+    results.twitter = `error: ${err?.message}`;
+  }
 
   return new Response(JSON.stringify(results), { status: 200 });
 }

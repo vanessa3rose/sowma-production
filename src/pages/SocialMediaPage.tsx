@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useRoute } from "wouter";
-import { LineChart as SparkLineChart, Line, ResponsiveContainer } from "recharts";
+import {
+  LineChart as SparkLineChart,
+  Line,
+  ResponsiveContainer,
+} from "recharts";
 
 import DateRangeButton from "../components/date-range/DateRangeButton";
 import ExportButton from "../components/export-pdf/ExportButton";
@@ -34,32 +38,107 @@ type MetricSummary = {
 
 const CHART_CONFIGS: Record<string, ChartConfig[]> = {
   instagram: [
-    { id: "impressions",       title: "Impressions",      type: "line", metric: "VIEWS" },
-    { id: "followers_count",   title: "Followers",        type: "line", metric: "FOLLOWERS" },
-    { id: "total_likes",       title: "Total Likes",      type: "line", metric: "LIKES" },
-    { id: "total_comments",    title: "Total Comments",   type: "line", metric: "COMMENTS" },
-    { id: "media_count",       title: "Media Reactions",  type: "line", metric: "POSTS" },
+    { id: "impressions", title: "Impressions", type: "line", metric: "VIEWS" },
+    {
+      id: "followers_count",
+      title: "Followers",
+      type: "line",
+      metric: "FOLLOWERS",
+    },
+    { id: "total_likes", title: "Total Likes", type: "line", metric: "LIKES" },
+    {
+      id: "total_comments",
+      title: "Total Comments",
+      type: "line",
+      metric: "COMMENTS",
+    },
+    {
+      id: "media_count",
+      title: "Media Reactions",
+      type: "line",
+      metric: "POSTS",
+    },
   ],
   twitter: [
-    { id: "followers_count",   title: "Followers",        type: "line", metric: "FOLLOWERS" },
-    { id: "following_count",   title: "Following",        type: "line", metric: "LIKES" },
-    { id: "tweet_count",       title: "Tweet Count",      type: "line", metric: "POSTS" },
-    { id: "listed_count",      title: "Listed Count",     type: "line", metric: "SHARES" },
+    {
+      id: "followers_count",
+      title: "Followers",
+      type: "line",
+      metric: "FOLLOWERS",
+    },
+    {
+      id: "following_count",
+      title: "Following",
+      type: "line",
+      metric: "LIKES",
+    },
+    { id: "tweet_count", title: "Tweet Count", type: "line", metric: "POSTS" },
+    {
+      id: "listed_count",
+      title: "Listed Count",
+      type: "line",
+      metric: "SHARES",
+    },
   ],
   facebook: [
-    { id: "page_follows",                            title: "Page Follows",         type: "line", metric: "FOLLOWERS" },
-    { id: "page_actions_post_reactions_like_total",  title: "Total reactions/likes", type: "line", metric: "LIKES" },
-    { id: "page_media_view",                         title: "Page Views",           type: "line", metric: "VIEWS" },
-    { id: "total_comments",                          title: "Total Comments",       type: "line", metric: "COMMENTS" },
-    { id: "total_posts",                             title: "Total Posts",          type: "line", metric: "POSTS" },
-    { id: "total_shares",                            title: "Total Shares",         type: "line", metric: "SHARES" },
+    {
+      id: "page_follows",
+      title: "Page Follows",
+      type: "line",
+      metric: "FOLLOWERS",
+    },
+    {
+      id: "page_actions_post_reactions_like_total",
+      title: "Total reactions/likes",
+      type: "line",
+      metric: "LIKES",
+    },
+    {
+      id: "page_media_view",
+      title: "Page Views",
+      type: "line",
+      metric: "VIEWS",
+    },
+    {
+      id: "total_comments",
+      title: "Total Comments",
+      type: "line",
+      metric: "COMMENTS",
+    },
+    { id: "total_posts", title: "Total Posts", type: "line", metric: "POSTS" },
+    {
+      id: "total_shares",
+      title: "Total Shares",
+      type: "line",
+      metric: "SHARES",
+    },
   ],
   google: [
-    { id: "activeUsers",     title: "Active Users",         type: "line", metric: "ACTIVE_USERS" },
-    { id: "screenPageViews", title: "Page Views",           type: "line", metric: "SCREEN_PAGE_VIEWS" },
-    { id: "active7DayUsers", title: "Active 7 Day Users",   type: "line", metric: "ACTIVE_7_DAY_USERS" },
-    { id: "engagementRate",  title: "Engagement Rate",      type: "line", metric: "ENGAGEMENT_RATE" },
-    { id: "newUsers",        title: "New Users",            type: "line", metric: "NEW_USERS" },
+    {
+      id: "activeUsers",
+      title: "Active Users",
+      type: "line",
+      metric: "ACTIVE_USERS",
+    },
+    {
+      id: "screenPageViews",
+      title: "Page Views",
+      type: "line",
+      metric: "SCREEN_PAGE_VIEWS",
+    },
+    {
+      id: "active7DayUsers",
+      title: "Active 7 Day Users",
+      type: "line",
+      metric: "ACTIVE_7_DAY_USERS",
+    },
+    {
+      id: "engagementRate",
+      title: "Engagement Rate",
+      type: "line",
+      metric: "ENGAGEMENT_RATE",
+    },
+    { id: "newUsers", title: "New Users", type: "line", metric: "NEW_USERS" },
   ],
 };
 
@@ -82,7 +161,7 @@ function providerFromPlatform(platform: Platform): string {
 
 export default function SocialMediaPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
-  
+
   const [_, params] = useRoute("/social/:platform");
   const platform = (params?.platform as Platform) || null;
 
@@ -130,7 +209,12 @@ export default function SocialMediaPage() {
   }
 
   function formatPercentChange(summary?: MetricSummary): string {
-    if (!summary || summary.current == null || summary.prev == null || summary.prev == 0) {
+    if (
+      !summary ||
+      summary.current == null ||
+      summary.prev == null ||
+      summary.prev == 0
+    ) {
       return "+ 0%";
     }
     const pct = ((summary.current - summary.prev) / summary.prev) * 100;
@@ -185,23 +269,29 @@ export default function SocialMediaPage() {
     return CHART_CONFIGS[platform].find((c) => c.metric === metric);
   }
 
-  const followersCfg =
-    platform && findConfigForMetric(platform, "FOLLOWERS");
-  const commentsCfg =
-    platform && findConfigForMetric(platform, "COMMENTS");
-  const likesCfg =
-    platform && findConfigForMetric(platform, "LIKES");
-  const sharesCfg =
-    platform && findConfigForMetric(platform, "SHARES");
-  const commentsSeries =
-    commentsCfg ? chartDataMap[commentsCfg.id] ?? [] : [];
-  const likesSeries = likesCfg ? chartDataMap[likesCfg.id] ?? [] : [];
-  const sharesSeries = sharesCfg ? chartDataMap[sharesCfg.id] ?? [] : [];
+  const followersCfg = platform && findConfigForMetric(platform, "FOLLOWERS");
+  const commentsCfg = platform && findConfigForMetric(platform, "COMMENTS");
+  const likesCfg = platform && findConfigForMetric(platform, "LIKES");
+  const sharesCfg = platform && findConfigForMetric(platform, "SHARES");
+  const commentsSeries = commentsCfg
+    ? (chartDataMap[commentsCfg.id] ?? [])
+    : [];
+  const likesSeries = likesCfg ? (chartDataMap[likesCfg.id] ?? []) : [];
+  const sharesSeries = sharesCfg ? (chartDataMap[sharesCfg.id] ?? []) : [];
 
   const MiniSparkline = ({ data }: { data: LinePoint[] }) => (
     <ResponsiveContainer width="100%" height="100%">
-      <SparkLineChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-        <Line type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={2} dot={false} />
+      <SparkLineChart
+        data={data}
+        margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+      >
+        <Line
+          type="monotone"
+          dataKey="value"
+          stroke="#3B82F6"
+          strokeWidth={2}
+          dot={false}
+        />
       </SparkLineChart>
     </ResponsiveContainer>
   );
@@ -250,7 +340,7 @@ export default function SocialMediaPage() {
             className="w-full"
             metricValue={
               followersCfg
-                ? metricSummaries[followersCfg.id]?.current ?? 0
+                ? (metricSummaries[followersCfg.id]?.current ?? 0)
                 : 0
             }
             metricLabel="followers"
@@ -265,9 +355,7 @@ export default function SocialMediaPage() {
             displayMode="both"
             className="w-full"
             metricValue={
-              commentsCfg
-                ? metricSummaries[commentsCfg.id]?.current ?? 0
-                : 0
+              commentsCfg ? (metricSummaries[commentsCfg.id]?.current ?? 0) : 0
             }
             metricLabel="comments"
             metricChange={
@@ -275,14 +363,16 @@ export default function SocialMediaPage() {
                 ? formatPercentChange(metricSummaries[commentsCfg.id])
                 : "+ 0%"
             }
-            chart={commentsCfg ? <MiniSparkline data={commentsSeries} /> : undefined}
+            chart={
+              commentsCfg ? <MiniSparkline data={commentsSeries} /> : undefined
+            }
           />
           <SmallCard
             title="Likes"
             displayMode="both"
             className="w-full"
             metricValue={
-              likesCfg ? metricSummaries[likesCfg.id]?.current ?? 0 : 0
+              likesCfg ? (metricSummaries[likesCfg.id]?.current ?? 0) : 0
             }
             metricLabel="likes"
             metricChange={
@@ -296,9 +386,8 @@ export default function SocialMediaPage() {
             title="Shared"
             displayMode="both"
             className="w-full"
-            
             metricValue={
-              sharesCfg ? metricSummaries[sharesCfg.id]?.current ?? 0 : 0
+              sharesCfg ? (metricSummaries[sharesCfg.id]?.current ?? 0) : 0
             }
             metricLabel="shares"
             metricChange={
@@ -306,7 +395,9 @@ export default function SocialMediaPage() {
                 ? formatPercentChange(metricSummaries[sharesCfg.id])
                 : "+ 0%"
             }
-            chart={sharesCfg ? <MiniSparkline data={sharesSeries} /> : undefined}
+            chart={
+              sharesCfg ? <MiniSparkline data={sharesSeries} /> : undefined
+            }
           />
         </div>
 
@@ -320,27 +411,24 @@ export default function SocialMediaPage() {
                 displayMode="both"
                 className="w-full h-full"
                 chart={
-                  (chartDataMap[chart.id] ?? []).length > 0 ?(
-                  <div className="w-full h-64">
-                    {chart.type === "line" ? (
-                      <LineCharts
-                        data={chartDataMap[chart.id] ?? []}
-                        xAxisKey="date"
-                        dataKeys={["value"]}
-                        showArea={true}
-                      />
-                    ) : (
-                      <PieCharts
-                        data={[]}
-                        dataKey="value"
-                        nameKey="label"
-                      />
-                    )}
-                  </div>
-                  ) :
-                  (<div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
-                    No data currently available.
-                  </div>)
+                  (chartDataMap[chart.id] ?? []).length > 0 ? (
+                    <div className="w-full h-64">
+                      {chart.type === "line" ? (
+                        <LineCharts
+                          data={chartDataMap[chart.id] ?? []}
+                          xAxisKey="date"
+                          dataKeys={["value"]}
+                          showArea={true}
+                        />
+                      ) : (
+                        <PieCharts data={[]} dataKey="value" nameKey="label" />
+                      )}
+                    </div>
+                  ) : (
+                    <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+                      No data currently available.
+                    </div>
+                  )
                 }
               />
             ))}

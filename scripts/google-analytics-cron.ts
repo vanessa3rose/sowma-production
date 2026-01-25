@@ -6,7 +6,11 @@ import {
   updateSocialMediaMetric,
   getMetricsBySocialMediaId,
 } from "../db/social-media-metrics.js";
-import { PrismaClient, Provider, Metric } from "../src/generated/prisma/index.js";
+import {
+  PrismaClient,
+  Provider,
+  Metric,
+} from "../src/generated/prisma/index.js";
 import {
   startOfDay,
   formatISODate,
@@ -21,7 +25,6 @@ const prisma = new PrismaClient();
 /* -------------------------------------------------
    GA client setup
 -------------------------------------------------- */
-
 
 const jsonKey = {
   type: process.env.GA_TYPE,
@@ -71,7 +74,11 @@ function getYesterdayUTC(): Date {
 /**
  * Helper: breakdown for New vs Returning (pie chart)
  */
-async function syncNewVsReturningBreakdown(metricDate: Date, socialMediaId: string, existingMetrics: any[]) {
+async function syncNewVsReturningBreakdown(
+  metricDate: Date,
+  socialMediaId: string,
+  existingMetrics: any[],
+) {
   const dateStr = formatISODate(metricDate);
 
   const [response] = await analyticsDataClient.runReport({
@@ -82,7 +89,9 @@ async function syncNewVsReturningBreakdown(metricDate: Date, socialMediaId: stri
   });
 
   if (!response.rows || response.rows.length === 0) {
-    console.error(`[GA] newVsReturning breakdown returned no rows for ${dateStr}`);
+    console.error(
+      `[GA] newVsReturning breakdown returned no rows for ${dateStr}`,
+    );
     return;
   }
 
@@ -120,7 +129,10 @@ async function syncNewVsReturningBreakdown(metricDate: Date, socialMediaId: stri
         });
       }
     } catch (err) {
-      console.error(`[GA] Failed saving TOTAL_SESSIONS (${label}) for ${dateStr}`, err);
+      console.error(
+        `[GA] Failed saving TOTAL_SESSIONS (${label}) for ${dateStr}`,
+        err,
+      );
     }
   }
 }
@@ -128,7 +140,11 @@ async function syncNewVsReturningBreakdown(metricDate: Date, socialMediaId: stri
 /**
  * Helper: breakdown for Sessions by Source (bar chart)
  */
-async function syncSessionsBySourceBreakdown(metricDate: Date, socialMediaId: string, existingMetrics: any[]) {
+async function syncSessionsBySourceBreakdown(
+  metricDate: Date,
+  socialMediaId: string,
+  existingMetrics: any[],
+) {
   const dateStr = formatISODate(metricDate);
 
   const [response] = await analyticsDataClient.runReport({
@@ -139,7 +155,9 @@ async function syncSessionsBySourceBreakdown(metricDate: Date, socialMediaId: st
   });
 
   if (!response.rows || response.rows.length === 0) {
-    console.error(`[GA] sessionsBySource breakdown returned no rows for ${dateStr}`);
+    console.error(
+      `[GA] sessionsBySource breakdown returned no rows for ${dateStr}`,
+    );
     return;
   }
 
@@ -177,7 +195,10 @@ async function syncSessionsBySourceBreakdown(metricDate: Date, socialMediaId: st
         });
       }
     } catch (err) {
-      console.error(`[GA] Failed saving SESSIONS_BY_SOURCE (${source}) for ${dateStr}`, err);
+      console.error(
+        `[GA] Failed saving SESSIONS_BY_SOURCE (${source}) for ${dateStr}`,
+        err,
+      );
     }
   }
 }
@@ -230,16 +251,46 @@ export async function runDailyGoogleAnalyticsSync() {
     const values = response.rows[0].metricValues ?? [];
 
     const metricsToSave = [
-      { metricName: Metric.ACTIVE_USERS, metricValue: Number(values[0]?.value ?? 0) },
-      { metricName: Metric.SCREEN_PAGE_VIEWS, metricValue: Number(values[1]?.value ?? 0) },
-      { metricName: Metric.ENGAGEMENT_RATE, metricValue: Number(values[2]?.value ?? 0) * 100 },
-      { metricName: Metric.NEW_USERS, metricValue: Number(values[3]?.value ?? 0) },
-      { metricName: Metric.BOUNCE_RATE, metricValue: Number(values[4]?.value ?? 0) * 100 },
-      { metricName: Metric.AVG_SESSION_DURATION, metricValue: Number(values[5]?.value ?? 0) },
-      { metricName: Metric.TOTAL_SESSIONS, metricValue: Number(values[6]?.value ?? 0) },
-      { metricName: Metric.ENGAGED_SESSIONS, metricValue: Number(values[7]?.value ?? 0) },
-      { metricName: Metric.PAGES_PER_SESSION, metricValue: Number(values[8]?.value ?? 0) },
-      { metricName: Metric.ENGAGEMENT_TIME, metricValue: Number(values[9]?.value ?? 0) },
+      {
+        metricName: Metric.ACTIVE_USERS,
+        metricValue: Number(values[0]?.value ?? 0),
+      },
+      {
+        metricName: Metric.SCREEN_PAGE_VIEWS,
+        metricValue: Number(values[1]?.value ?? 0),
+      },
+      {
+        metricName: Metric.ENGAGEMENT_RATE,
+        metricValue: Number(values[2]?.value ?? 0) * 100,
+      },
+      {
+        metricName: Metric.NEW_USERS,
+        metricValue: Number(values[3]?.value ?? 0),
+      },
+      {
+        metricName: Metric.BOUNCE_RATE,
+        metricValue: Number(values[4]?.value ?? 0) * 100,
+      },
+      {
+        metricName: Metric.AVG_SESSION_DURATION,
+        metricValue: Number(values[5]?.value ?? 0),
+      },
+      {
+        metricName: Metric.TOTAL_SESSIONS,
+        metricValue: Number(values[6]?.value ?? 0),
+      },
+      {
+        metricName: Metric.ENGAGED_SESSIONS,
+        metricValue: Number(values[7]?.value ?? 0),
+      },
+      {
+        metricName: Metric.PAGES_PER_SESSION,
+        metricValue: Number(values[8]?.value ?? 0),
+      },
+      {
+        metricName: Metric.ENGAGEMENT_TIME,
+        metricValue: Number(values[9]?.value ?? 0),
+      },
     ];
 
     for (const metric of metricsToSave) {
@@ -262,8 +313,16 @@ export async function runDailyGoogleAnalyticsSync() {
       }
     }
 
-    await syncNewVsReturningBreakdown(metricDate, socialMediaId, existingMetrics);
-    await syncSessionsBySourceBreakdown(metricDate, socialMediaId, existingMetrics);
+    await syncNewVsReturningBreakdown(
+      metricDate,
+      socialMediaId,
+      existingMetrics,
+    );
+    await syncSessionsBySourceBreakdown(
+      metricDate,
+      socialMediaId,
+      existingMetrics,
+    );
 
     console.log(`[GA] Daily Google Analytics sync complete (${dateStr})`);
   } catch (err) {

@@ -38,7 +38,7 @@ export default function ExportButton({ onExport }: ExportButtonProps) {
         <ExportModal
           isOpen={isModalOpen}
           setIsOpen={setIsModalOpen}
-          onExport={onExport}     // ✔ just pass through
+          onExport={onExport} // ✔ just pass through
         />
       )}
     </>

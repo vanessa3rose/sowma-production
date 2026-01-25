@@ -19,61 +19,59 @@ import { GlobalPageExportProvider } from "./components/export-pdf/GlobalPageExpo
 const App = () => {
   const [location] = useLocation();
 
-  const currentPath = location.toLowerCase(); 
+  const currentPath = location.toLowerCase();
   const hideLayoutRoutes = ["/signup", "/login"];
   const hideLayout = hideLayoutRoutes.includes(currentPath);
 
   const [isMobile, setisMobile] = useState(false);
 
-
   return (
     // ⭐ Correct opening tag
     <GlobalPageExportProvider>
-    
-    <div className={`${!hideLayout && "flex min-h-screen bg-white"}`}>
-    {!hideLayout && (
-      <>
-        {/* Desktop sidebar */}
-        <div className="hidden md:block">
-          <LeftSidebar />
-        </div>
+      <div className={`${!hideLayout && "flex min-h-screen bg-white"}`}>
+        {!hideLayout && (
+          <>
+            {/* Desktop sidebar */}
+            <div className="hidden md:block">
+              <LeftSidebar />
+            </div>
 
-        {/* Mobile sidebar/making it visible only on small screens*/}
-        <div className="md:hidden">
-          <LeftSidebar
-            mobile
-            open={isMobile}
-            onClose={() => setisMobile(false)}
-          />
-        </div>
+            {/* Mobile sidebar/making it visible only on small screens*/}
+            <div className="md:hidden">
+              <LeftSidebar
+                mobile
+                open={isMobile}
+                onClose={() => setisMobile(false)}
+              />
+            </div>
 
-        {/* Button to collapse the page */}
-        <button
-          className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-200 rounded-lg shadow"
-          onClick={() => setisMobile(!isMobile)}
+            {/* Button to collapse the page */}
+            <button
+              className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-200 rounded-lg shadow"
+              onClick={() => setisMobile(!isMobile)}
+            >
+              ☰
+            </button>
+          </>
+        )}
+
+        {/* Content on page */}
+        <div
+          className={`flex-grow flex flex-col pt-0 px-6 bg-white ${
+            !hideLayout ? "md:ml-[20%]" : ""
+          }`}
         >
-          ☰
-        </button>
-      </>
-    )}
-
-    {/* Content on page */}
-    <div
-      className={`flex-grow flex flex-col pt-0 px-6 bg-white ${
-        !hideLayout ? "md:ml-[20%]" : ""
-      }`}
-    >
-        <Switch>
-          <Route path="/" component={Homepage} />
-          <Route path="/social-media" component={SocialMediaPage} />
-          <Route path="/social/:platform" component={SocialMediaPage} />
-          <Route path="/signup" component={SignupPage} />
-          <Route path="/login" component={LoginPage} />
-          <Route path="/google-analytics" component={GoogleAnalyticsPage} />
-          <Route path="/admin" component={AdminPage} />
-          <Route path="/glossary" component={GlossaryPage} />
-          <Route path="/error" component={ErrorPage} />
-          <Route path="/newsletter" component={Newsletter} />
+          <Switch>
+            <Route path="/" component={Homepage} />
+            <Route path="/social-media" component={SocialMediaPage} />
+            <Route path="/social/:platform" component={SocialMediaPage} />
+            <Route path="/signup" component={SignupPage} />
+            <Route path="/login" component={LoginPage} />
+            <Route path="/google-analytics" component={GoogleAnalyticsPage} />
+            <Route path="/admin" component={AdminPage} />
+            <Route path="/glossary" component={GlossaryPage} />
+            <Route path="/error" component={ErrorPage} />
+            <Route path="/newsletter" component={Newsletter} />
 
             <Route>
               <p className="p-4 text-black">404: Page Not Found</p>
@@ -92,7 +90,6 @@ const App = () => {
         }}
       />
     </GlobalPageExportProvider>
-    
   );
 };
 

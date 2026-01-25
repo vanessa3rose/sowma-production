@@ -11,6 +11,9 @@ export async function GET(req: Request) {
     return new Response(JSON.stringify({ status: "ok" }), { status: 200 });
   } catch (err: any) {
     console.error("Token cron failed:", err);
-    return new Response(JSON.stringify({ status: "error", message: err?.message }), { status: 500 });
+    return new Response(
+      JSON.stringify({ status: "error", message: err?.message }),
+      { status: 500 },
+    );
   }
 }

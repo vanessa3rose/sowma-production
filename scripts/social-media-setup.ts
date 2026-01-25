@@ -47,7 +47,9 @@ const SOCIAL_MEDIA_CONFIG = [
 /**
  * Ensure a social media entry exists
  */
-async function ensureSocialMediaExists(config: typeof SOCIAL_MEDIA_CONFIG[number]) {
+async function ensureSocialMediaExists(
+  config: (typeof SOCIAL_MEDIA_CONFIG)[number],
+) {
   const existing = await prisma.socialMedia.findFirst({
     where: {
       provider: config.provider,
