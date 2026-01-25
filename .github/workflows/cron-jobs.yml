@@ -12,6 +12,21 @@ jobs:
     env:
       CRON_SECRET: ${{ secrets.CRON_SECRET }}
       BASE_URL: ${{ secrets.BASE_URL }}
+      FACEBOOK_PAGE_TOKEN: ${{ secrets.FACEBOOK_PAGE_TOKEN }}
+      FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
+      INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+      INSTAGRAM_BUSINESS_PAGE_ID: ${{ secrets.INSTAGRAM_BUSINESS_PAGE_ID }}
+      TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
+      GA_TYPE: ${{ secrets.GA_TYPE }}
+      GA_PROJECT_ID: ${{ secrets.GA_PROJECT_ID }}
+      GA_PRIVATE_KEY: ${{ secrets.GA_PRIVATE_KEY }}
+      GA_CLIENT_EMAIL: ${{ secrets.GA_CLIENT_EMAIL }}
+      GA_CLIENT_ID: ${{ secrets.GA_CLIENT_ID }}
+      GA_AUTH_URI: ${{ secrets.GA_AUTH_URI }}
+      GA_TOKEN_URI: ${{ secrets.GA_TOKEN_URI }}
+      GA_AUTH_PROVIDER_X509_CERT_URL: ${{ secrets.GA_AUTH_PROVIDER_X509_CERT_URL }}
+      GA_CLIENT_X509_CERT_URL: ${{ secrets.GA_CLIENT_X509_CERT_URL }}
+      GA_UNIVERSE_DOMAIN: ${{ secrets.GA_UNIVERSE_DOMAIN }}
 
     steps:
       - name: Checkout repository
