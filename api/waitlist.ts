@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // POST /api/waitlist
-export async function createWaitlistUser(req, res) {
+export async function createWaitlistUser(req: any, res: any) {
   try {
     const { email } = req.body;
 
