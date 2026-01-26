@@ -1,8 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../src/generated/prisma/index.js";
 const prisma = new PrismaClient();
 
 // POST /api/waitlist
-export async function createWaitlistUser(req: any, res: any) {
+export default async function handler(req: any, res: any) {
   try {
     const { email } = req.body;
 
@@ -13,7 +13,7 @@ export async function createWaitlistUser(req: any, res: any) {
     }
 
     // Validate email format
-    const emailRegex = /n^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         error: "Invalid email format",
@@ -35,7 +35,7 @@ export async function createWaitlistUser(req: any, res: any) {
     const newUser = await prisma.user.create({
       data: {
         email: email,
-        role: "WAITLISTED",
+        role: "VIEWER",
         isWaitlisted: true,
         firstName: "",
         lastName: "",
