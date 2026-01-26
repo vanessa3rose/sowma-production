@@ -23,5 +23,15 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/token-cron",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/social-media-cron",
+      "schedule": "0 2 * * *"
+    }
   ]
 }
