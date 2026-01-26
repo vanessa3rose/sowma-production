@@ -23,6 +23,7 @@ const exceptionRoutes: Record<string, string> = {
   google: "/google-analytics",
   linkedin: "/error",
   tiktok: "/error",
+  newsletter: "/newsletter",
 };
 
 const LeftSidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
