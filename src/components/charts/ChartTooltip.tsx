@@ -1,4 +1,3 @@
-// src/components/charts/ChartTooltip.tsx
 import React from "react";
 
 type SeriesMeta = {

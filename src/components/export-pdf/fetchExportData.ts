@@ -1,5 +1,3 @@
-// src/components/export-pdf/fetchExportData.ts
-
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 import { CHART_CONFIGS, Platform } from "../../config/chartConfigs";
 import {

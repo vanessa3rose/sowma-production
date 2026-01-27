@@ -1,5 +1,3 @@
-// src/components/export-pdf/fetchSocialExportBundle.ts
-
 import type { SocialExportBundle } from "../../types/exportTypes";
 import { CHART_CONFIGS, Platform } from "../../config/chartConfigs";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";

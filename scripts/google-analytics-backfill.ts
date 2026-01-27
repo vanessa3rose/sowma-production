@@ -5,8 +5,8 @@ import {
   createSocialMediaMetric,
   updateSocialMediaMetric,
   getMetricsBySocialMediaId,
-} from "../db/social-media-metrics";
-import { startOfDay, endOfDay } from "../src/utils/dates";
+} from "../db/social-media-metrics.js";
+import { startOfDay, endOfDay } from "../src/utils/dates.js";
 import {
   PrismaClient,
   Provider,

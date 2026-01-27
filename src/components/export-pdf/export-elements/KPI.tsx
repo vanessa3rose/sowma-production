@@ -1,5 +1,3 @@
-// src/components/export-pdf/export-elements/KPI.tsx
-
 export default function KPI({
   title,
   value,

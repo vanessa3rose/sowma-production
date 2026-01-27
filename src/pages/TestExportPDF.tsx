@@ -1,4 +1,3 @@
-// pages/Homepage.tsx
 import { usePDFExporter } from "../hooks/usePDFExporter";
 import ExportableChartWrapper from "../components/export-pdf/ExportableChartWrapper";
 import BigCard from "../components/cards/BigCard";

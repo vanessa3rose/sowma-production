@@ -1,4 +1,3 @@
-// src/components/charts/DateDropdown.tsx
 import { useMemo, useState } from "react";
 
 export type DateRangeId = "7d" | "30d" | "1y" | "all";

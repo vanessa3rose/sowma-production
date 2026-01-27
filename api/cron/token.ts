@@ -1,4 +1,4 @@
-import refreshAllTokens from "../../scripts/token-refresh.ts";
+import refreshAllTokens from "../../scripts/token-refresh.js";
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get("Authorization");

@@ -1,5 +1,3 @@
-// src/config/chartConfigs.ts
-
 export type ChartType = "line" | "pie";
 
 export interface ChartConfig {

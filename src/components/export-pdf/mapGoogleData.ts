@@ -1,5 +1,3 @@
-// src/components/export-pdf/mapGoogleData.ts
-
 import { GoogleAnalyticsExportBundle } from "../../types/exportTypes";
 
 /**

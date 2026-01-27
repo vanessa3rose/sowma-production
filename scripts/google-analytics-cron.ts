@@ -5,7 +5,7 @@ import {
   createSocialMediaMetric,
   updateSocialMediaMetric,
   getMetricsBySocialMediaId,
-} from "../db/social-media-metrics";
+} from "../db/social-media-metrics.js";
 import {
   PrismaClient,
   Provider,

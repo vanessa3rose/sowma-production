@@ -1,9 +1,3 @@
-/*
-
-Glossary.tsx
-
-*/
-
 export default function GlossaryPage() {
   const items = [
     {

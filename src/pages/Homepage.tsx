@@ -1,4 +1,3 @@
-// pages/Homepage.tsx
 import { useEffect, useState } from "react";
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
 import ExportButton from "../components/export-pdf/ExportButton";

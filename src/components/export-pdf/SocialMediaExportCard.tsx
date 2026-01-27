@@ -1,4 +1,3 @@
-// src/components/export-pdf/SocialMediaExportCard.tsx
 import { SocialExportBundle } from "../../types/exportTypes";
 import LineCharts from "../charts/LineCharts";
 import PieCharts from "../charts/PieCharts";

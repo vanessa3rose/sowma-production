@@ -1,5 +1,3 @@
-// src/components/export-pdf/ExportButton.tsx
-
 import { useState } from "react";
 import ExportModal from "./ExportModal";
 import type { Platform } from "../../config/chartConfigs";

@@ -1,5 +1,3 @@
-// src/components/export-pdf/SoftCard.tsx
-
 export default function SoftCard({
   children,
   className = "",

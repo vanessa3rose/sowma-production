@@ -1,4 +1,3 @@
-// src/components/export-pdf/mapSocialData.ts
 import type { SocialExportBundle } from "../../types/exportTypes";
 
 function computeDelta(curr: number | null, prev: number | null): number {

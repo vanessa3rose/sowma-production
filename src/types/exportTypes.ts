@@ -1,7 +1,3 @@
-// src/types/exportTypes.ts
-
-// ---------- Google Analytics ----------
-
 export interface GoogleAnalyticsExportBundle {
   metrics: {
     activeUsers: number;

@@ -1,7 +1,7 @@
-import { runDailyFacebookSync } from "../../scripts/facebook-cron.ts";
-import { runDailyGoogleAnalyticsSync } from "../../scripts/google-analytics-cron.ts";
-import { runDailyInstagramSync } from "../../scripts/instagram-cron.ts";
-import { runDailyTwitterSync } from "../../scripts/twitter-cron.ts";
+import { runDailyFacebookSync } from "../../scripts/facebook-cron.js";
+import { runDailyGoogleAnalyticsSync } from "../../scripts/google-analytics-cron.js";
+import { runDailyInstagramSync } from "../../scripts/instagram-cron.js";
+import { runDailyTwitterSync } from "../../scripts/twitter-cron.js";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 

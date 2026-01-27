@@ -1,4 +1,3 @@
-// src/hooks/usePDFExporter.ts
 import ReactDOM from "react-dom/client";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
