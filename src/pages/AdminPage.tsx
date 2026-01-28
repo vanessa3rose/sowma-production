@@ -1,28 +1,18 @@
 import { useState } from "react";
-import { ROLE_PERMISSIONS } from "../data/rolePermissions";
+import APIData from "../components/admin-tabs/API_Data";
+import UsersRoles from "../components/admin-tabs/Users_Roles";
+import Waitlist from "../components/admin-tabs/Waitlist";
+
+const tabs = ["Users and Roles", "API and Data", "Waitlist"] as const;
+type Tab = (typeof tabs)[number];
 
 export default function AdminPage() {
-  const [rolePerm, setRolePerm] = useState(ROLE_PERMISSIONS);
+  const [selectedTab, setSelectedTab] = useState<Tab>("Users and Roles");
 
-  const permissions = [
-    "Browse All Pages",
-    "Change Data Range",
-    "Export Charts",
-    "Choose Metrics On Page",
-    "Tag Events/One-Off Events",
-    "Invite/Remove Viewers",
-  ] as const;
-
-  const roles = ["Admin", "Intern"] as const;
-
-  const handleToggle = (role: "Admin" | "Intern", perm: string) => {
-    setRolePerm((prev) => ({
-      ...prev,
-      [role]: {
-        ...prev[role],
-        [perm]: !prev[role][perm],
-      },
-    }));
+  const tabContent: Record<Tab, JSX.Element> = {
+    "Users and Roles": <UsersRoles />,
+    "API and Data": <APIData />,
+    Waitlist: <Waitlist />,
   };
 
   return (
@@ -53,54 +43,30 @@ export default function AdminPage() {
       </div>
 
       {/* HEADER */}
-      <div className="flex flex-row my-6 w-full pl-12">
-        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light">
-          Permissions
+      <div className="pl-12 my-6">
+        <div className="flex items-center gap-10">
+          {tabs.map((tab) => {
+            const isSelected = tab === selectedTab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setSelectedTab(tab)}
+                className={`font-poppins font-bold text-2xl leading-[48px] transition-colors px-5 py-1 rounded-full ${
+                  isSelected
+                    ? "bg-[#4e8bcc] text-white"
+                    : "text-gray-500 hover:text-gray-600"
+                }`}
+              >
+                {tab}
+              </button>
+            );
+          })}
         </div>
-        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light text-center">
-          Admin
-        </div>
-        <div className="w-1/3 font-poppins text-lg text-gray-500 font-light text-center">
-          Intern
-        </div>
+        <div className="mt-2 h-[2px] bg-[#4e8bcc]" />
       </div>
 
       {/* ROWS */}
-      <div className="flex flex-col space-y-6 pl-12 md:space-y-4">
-        {permissions.map((permission, index) => (
-          <div key={index} className="flex flex-row border-b-2">
-            {/* permission */}
-            <div className="w-1/3">
-              <p className="flex items-center h-full font-poppins text-lg">
-                {permission}
-              </p>
-            </div>
-
-            {/* toggles - admin & intern */}
-            {roles.map((role) => (
-              <div
-                key={role}
-                className="w-1/3 flex justify-center items-center"
-              >
-                <div className="relative block w-11 h-6">
-                  <input
-                    id={`switch-${role}-${permission}`}
-                    type="checkbox"
-                    checked={rolePerm[role][permission]}
-                    onChange={() => handleToggle(role, permission)}
-                    className="peer appearance-none w-11 h-6 rounded-full cursor-pointer transition-colors duration-300 bg-[#D9D9D9] checked:bg-sowma-blue"
-                  />
-
-                  <label
-                    htmlFor={`switch-${role}-${permission}`}
-                    className="absolute top-0.5 left-[2px] w-5 h-5 bg-white rounded-full border shadow-sm cursor-pointer transition-transform duration-300 border-slate-300 peer-checked:translate-x-6 peer-checked:left-[-2px] peer-checked:border-sowma-blue "
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
+      <div className="pl-12">{tabContent[selectedTab]}</div>
     </div>
   );
 }
