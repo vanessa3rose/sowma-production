@@ -1,5 +1,3 @@
-// src/components/export-pdf/fetchSocialExportBundle.ts
-
 import type { SocialExportBundle } from "../../types/exportTypes";
 import { CHART_CONFIGS, Platform } from "../../config/chartConfigs";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
@@ -21,19 +19,24 @@ function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     .slice()
     .sort((a, b) =>
       (a.metricDate ?? a.lastSynced)!.localeCompare(
-        (b.metricDate ?? b.lastSynced)!
-      )
+        (b.metricDate ?? b.lastSynced)!,
+      ),
     );
 }
 
-function toLinePoints(raw: SocialMediaMetric[]): { date: string; value: number }[] {
+function toLinePoints(
+  raw: SocialMediaMetric[],
+): { date: string; value: number }[] {
   return sortByDate(raw).map((m) => ({
     date: (m.metricDate ?? m.lastSynced)!.slice(0, 10),
     value: m.metricValue,
   }));
 }
 
-function summarizeSeries(points: { value: number }[]): { current: number | null; prev: number | null } {
+function summarizeSeries(points: { value: number }[]): {
+  current: number | null;
+  prev: number | null;
+} {
   if (points.length === 0) return { current: 0, prev: 0 };
   if (points.length === 1) return { current: points[0].value, prev: 0 };
   return {
@@ -43,10 +46,12 @@ function summarizeSeries(points: { value: number }[]): { current: number | null;
 }
 
 export async function fetchSocialExportBundle(
-  platform: Platform
+  platform: Platform,
 ): Promise<SocialExportBundle> {
   if (platform === "google") {
-    throw new Error("fetchSocialExportBundle should not be called with 'google'");
+    throw new Error(
+      "fetchSocialExportBundle should not be called with 'google'",
+    );
   }
 
   const configs = CHART_CONFIGS[platform];
@@ -66,12 +71,15 @@ export async function fetchSocialExportBundle(
         metric: cfg.metric,
         startDate: DEFAULT_START_DATE,
         endDate: DEFAULT_END_DATE,
-      }).then((rows) => ({ cfg, rows }))
-    )
+      }).then((rows) => ({ cfg, rows })),
+    ),
   );
 
   const chartDataMap: Record<string, { date: string; value: number }[]> = {};
-  const metricSummaries: Record<string, { current: number | null; prev: number | null }> = {};
+  const metricSummaries: Record<
+    string,
+    { current: number | null; prev: number | null }
+  > = {};
 
   for (const { cfg, rows } of results) {
     const pts = toLinePoints(rows);

@@ -5,9 +5,13 @@ import {
   createSocialMediaMetric,
   updateSocialMediaMetric,
   getMetricsBySocialMediaId,
-} from "../db/social-media-metrics";
-import { startOfDay, endOfDay, } from "../src/utils/dates";
-import { PrismaClient, Provider, Metric } from "../src/generated/prisma/index.js";
+} from "../db/social-media-metrics.js";
+import { startOfDay, endOfDay } from "../src/utils/dates.js";
+import {
+  PrismaClient,
+  Provider,
+  Metric,
+} from "../src/generated/prisma/index.js";
 
 console.log("[GA] Script loaded");
 
@@ -20,11 +24,24 @@ if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
 // -------------------------------
 // GA client setup
 // -------------------------------
-if (!process.env.GOOGLE_SERVICE_ACCOUNT) {
-  throw new Error("Missing GOOGLE_SERVICE_ACCOUNT environment variable");
-}
 
-const jsonKey = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT.trim()) as Record<string, any>;
+const jsonKey = {
+  type: process.env.GA_TYPE,
+  project_id: process.env.GA_PROJECT_ID,
+  private_key_id: process.env.GA_PRIVATE_KEY_ID,
+  private_key: process.env.GA_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+  client_email: process.env.GA_CLIENT_EMAIL,
+  client_id: process.env.GA_CLIENT_ID,
+  auth_uri: process.env.GA_AUTH_URI,
+  token_uri: process.env.GA_TOKEN_URI,
+  auth_provider_x509_cert_url: process.env.GA_AUTH_PROVIDER_X509_CERT_URL,
+  client_x509_cert_url: process.env.GA_CLIENT_X509_CERT_URL,
+  universe_domain: process.env.GA_UNIVERSE_DOMAIN,
+};
+
+if (!jsonKey.private_key || !jsonKey.client_email) {
+  throw new Error("Missing Google Analytics service account credentials");
+}
 
 const auth = new GoogleAuth({
   credentials: jsonKey,
@@ -105,16 +122,46 @@ async function runReportForDay(date: Date) {
 
   const values = response.rows[0].metricValues ?? [];
   const metricsToSave = [
-    { metricName: Metric.ACTIVE_USERS, metricValue: Number(values[0]?.value ?? 0) },
-    { metricName: Metric.SCREEN_PAGE_VIEWS, metricValue: Number(values[1]?.value ?? 0) },
-    { metricName: Metric.ENGAGEMENT_RATE, metricValue: Number(values[2]?.value ?? 0) * 100 },
-    { metricName: Metric.NEW_USERS, metricValue: Number(values[3]?.value ?? 0) },
-    { metricName: Metric.BOUNCE_RATE, metricValue: Number(values[4]?.value ?? 0) * 100 },
-    { metricName: Metric.AVG_SESSION_DURATION, metricValue: Number(values[5]?.value ?? 0) },
-    { metricName: Metric.TOTAL_SESSIONS, metricValue: Number(values[6]?.value ?? 0) },
-    { metricName: Metric.ENGAGED_SESSIONS, metricValue: Number(values[7]?.value ?? 0) },
-    { metricName: Metric.PAGES_PER_SESSION, metricValue: Number(values[8]?.value ?? 0) },
-    { metricName: Metric.ENGAGEMENT_TIME, metricValue: Number(values[9]?.value ?? 0) },
+    {
+      metricName: Metric.ACTIVE_USERS,
+      metricValue: Number(values[0]?.value ?? 0),
+    },
+    {
+      metricName: Metric.SCREEN_PAGE_VIEWS,
+      metricValue: Number(values[1]?.value ?? 0),
+    },
+    {
+      metricName: Metric.ENGAGEMENT_RATE,
+      metricValue: Number(values[2]?.value ?? 0) * 100,
+    },
+    {
+      metricName: Metric.NEW_USERS,
+      metricValue: Number(values[3]?.value ?? 0),
+    },
+    {
+      metricName: Metric.BOUNCE_RATE,
+      metricValue: Number(values[4]?.value ?? 0) * 100,
+    },
+    {
+      metricName: Metric.AVG_SESSION_DURATION,
+      metricValue: Number(values[5]?.value ?? 0),
+    },
+    {
+      metricName: Metric.TOTAL_SESSIONS,
+      metricValue: Number(values[6]?.value ?? 0),
+    },
+    {
+      metricName: Metric.ENGAGED_SESSIONS,
+      metricValue: Number(values[7]?.value ?? 0),
+    },
+    {
+      metricName: Metric.PAGES_PER_SESSION,
+      metricValue: Number(values[8]?.value ?? 0),
+    },
+    {
+      metricName: Metric.ENGAGEMENT_TIME,
+      metricValue: Number(values[9]?.value ?? 0),
+    },
   ];
 
   for (const metric of metricsToSave) {
@@ -158,7 +205,9 @@ export async function runDailyGASync() {
   const earliestPossible = getEarliestPossibleDate();
 
   let currentDate = startOfDay(earliestPossible);
-  console.log(`[GA] Backfilling from ${currentDate.toISOString().slice(0,10)} to ${today.toISOString().slice(0,10)}`);
+  console.log(
+    `[GA] Backfilling from ${currentDate.toISOString().slice(0, 10)} to ${today.toISOString().slice(0, 10)}`,
+  );
 
   while (currentDate <= today) {
     if (!(await metricsExistForDay(socialMediaId, currentDate))) {

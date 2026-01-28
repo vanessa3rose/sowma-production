@@ -9,7 +9,10 @@ interface Props {
   data: GoogleAnalyticsExportBundle;
 }
 
-function formatPercentChange(current: number | null, prev: number | null): { text: string; color: string } {
+function formatPercentChange(
+  current: number | null,
+  prev: number | null,
+): { text: string; color: string } {
   if (current == null || prev == null || prev === 0) {
     return { text: "+ 0%", color: "#22C55E" };
   }
@@ -20,7 +23,10 @@ function formatPercentChange(current: number | null, prev: number | null): { tex
   return { text: `${sign}${pct.toFixed(1)}%${arrow}`, color };
 }
 
-function formatEngagementChange(current: number | null, prev: number | null): { text: string; color: string } {
+function formatEngagementChange(
+  current: number | null,
+  prev: number | null,
+): { text: string; color: string } {
   if (current == null || prev == null) {
     return { text: "+ 0.0pp", color: "#22C55E" };
   }
@@ -35,19 +41,19 @@ export default function GoogleExportCard({ data }: Props) {
 
   const activeUsersDelta = formatPercentChange(
     summaries.activeUsers.current,
-    summaries.activeUsers.prev
+    summaries.activeUsers.prev,
   );
   const pageViewsDelta = formatPercentChange(
     summaries.screenPageViews.current,
-    summaries.screenPageViews.prev
+    summaries.screenPageViews.prev,
   );
   const active7DayDelta = formatPercentChange(
     summaries.active7DayUsers.current,
-    summaries.active7DayUsers.prev
+    summaries.active7DayUsers.prev,
   );
   const engagementDelta = formatEngagementChange(
     summaries.engagementRate.current,
-    summaries.engagementRate.prev
+    summaries.engagementRate.prev,
   );
 
   return (

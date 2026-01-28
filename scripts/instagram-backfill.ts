@@ -37,9 +37,10 @@ type IGApiResponse = {
    Fetch ALL Instagram media with pagination
 -------------------------------------------------- */
 async function fetchAllMedia(): Promise<MediaItem[]> {
-  let url: string | null = `https://graph.facebook.com/v20.0/${INSTAGRAM_USER_ID}/media` +
-                            `?fields=id,like_count,comments_count,timestamp` +
-                            `&limit=50&access_token=${ACCESS_TOKEN}`;
+  let url: string | null =
+    `https://graph.facebook.com/v20.0/${INSTAGRAM_USER_ID}/media` +
+    `?fields=id,like_count,comments_count,timestamp` +
+    `&limit=50&access_token=${ACCESS_TOKEN}`;
   const all: MediaItem[] = [];
 
   while (url) {
@@ -108,9 +109,24 @@ export async function backfillInstagram() {
 
     await prisma.socialMediaMetrics.createMany({
       data: [
-        { socialMediaId: account.id, metricName: Metric.LIKES, metricValue: metrics.likes, metricDate: date },
-        { socialMediaId: account.id, metricName: Metric.COMMENTS, metricValue: metrics.comments, metricDate: date },
-        { socialMediaId: account.id, metricName: Metric.DAYS_POSTED, metricValue: metrics.daysPosted, metricDate: date },
+        {
+          socialMediaId: account.id,
+          metricName: Metric.LIKES,
+          metricValue: metrics.likes,
+          metricDate: date,
+        },
+        {
+          socialMediaId: account.id,
+          metricName: Metric.COMMENTS,
+          metricValue: metrics.comments,
+          metricDate: date,
+        },
+        {
+          socialMediaId: account.id,
+          metricName: Metric.DAYS_POSTED,
+          metricValue: metrics.daysPosted,
+          metricDate: date,
+        },
       ],
     });
 

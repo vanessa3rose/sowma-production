@@ -1,9 +1,8 @@
-import { runDailyFacebookSync } from "../../scripts/facebook-cron";
-import { runDailyGoogleAnalyticsSync } from "../../scripts/google-analytics-cron";
-import { runDailyInstagramSync } from "../../scripts/instagram-cron";
-import { runDailyTwitterSync } from "../../scripts/twitter-cron";
+import { runDailyFacebookSync } from "../../scripts/facebook-cron.js";
+import { runDailyGoogleAnalyticsSync } from "../../scripts/google-analytics-cron.js";
+import { runDailyInstagramSync } from "../../scripts/instagram-cron.js";
+import { runDailyTwitterSync } from "../../scripts/twitter-cron.js";
 
-// secures the route with a CRON_SECRET
 const CRON_SECRET = process.env.CRON_SECRET;
 
 export async function GET(req: Request) {
@@ -18,32 +17,28 @@ export async function GET(req: Request) {
     await runDailyFacebookSync();
     results.facebook = "ok";
   } catch (err: any) {
-    console.error("Facebook cron failed:", err);
-    results.facebook = `error: ${err?.message || err}`;
+    results.facebook = `error: ${err?.message}`;
   }
 
   try {
     await runDailyGoogleAnalyticsSync();
     results.googleAnalytics = "ok";
   } catch (err: any) {
-    console.error("Google Analytics cron failed:", err);
-    results.googleAnalytics = `error: ${err?.message || err}`;
+    results.googleAnalytics = `error: ${err?.message}`;
   }
 
   try {
     await runDailyInstagramSync();
     results.instagram = "ok";
   } catch (err: any) {
-    console.error("Instagram cron failed:", err);
-    results.instagram = `error: ${err?.message || err}`;
+    results.instagram = `error: ${err?.message}`;
   }
 
   try {
     await runDailyTwitterSync();
     results.twitter = "ok";
   } catch (err: any) {
-    console.error("Twitter cron failed:", err);
-    results.twitter = `error: ${err?.message || err}`;
+    results.twitter = `error: ${err?.message}`;
   }
 
   return new Response(JSON.stringify(results), { status: 200 });

@@ -59,18 +59,20 @@ model DatabaseReportCount {
 }
 
 model User {
-  email     String @id @default(cuid())
-  firstName String
-  lastName  String
-  username  String @unique
-  password  String
-  phone     String
-  role      Role
+  email        String  @id
+  firstName    String
+  lastName     String
+  username     String  @unique
+  password     String
+  phone        String
+  role         Role
+  isWaitlisted Boolean @default(false)
 }
 
 enum Role {
   ADMIN
-  INTERN
+  USER
+  VIEWER
 }
 
 enum Provider {

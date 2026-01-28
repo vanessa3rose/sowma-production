@@ -1,4 +1,3 @@
-// src/hooks/usePDFExporter.ts
 import ReactDOM from "react-dom/client";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -9,7 +8,7 @@ import type { ExportCardSelection } from "../types/exportTypes";
 
 async function waitForFullRender(container: HTMLElement) {
   await new Promise((r) => setTimeout(r, 800));
-  
+
   const images = container.querySelectorAll("img");
   if (images.length > 0) {
     await Promise.all(
@@ -21,17 +20,17 @@ async function waitForFullRender(container: HTMLElement) {
               img.onload = () => resolve(true);
               img.onerror = () => resolve(true);
             }
-          })
-      )
+          }),
+      ),
     );
   }
 
   let attempts = 0;
   const maxAttempts = 30;
-  
+
   while (attempts < maxAttempts) {
     const svgs = container.querySelectorAll("svg");
-    
+
     if (svgs.length === 0) {
       await new Promise((r) => setTimeout(r, 200));
       attempts++;
@@ -54,7 +53,7 @@ async function waitForFullRender(container: HTMLElement) {
 
 export async function exportCardsToPDF(
   selections: ExportCardSelection[],
-  filename = "metrics.pdf"
+  filename = "metrics.pdf",
 ) {
   const container = document.getElementById("pdf-export-container");
   if (!container) throw new Error("Missing #pdf-export-container");
@@ -70,7 +69,7 @@ export async function exportCardsToPDF(
   container.style.zIndex = "-1";
   container.style.background = "white";
   container.style.overflow = "hidden";
-  
+
   const root = ReactDOM.createRoot(container);
 
   root.render(
@@ -80,9 +79,9 @@ export async function exportCardsToPDF(
           <GoogleExportCard key={i} data={s.data} />
         ) : (
           <SocialMediaExportCard key={i} data={s.data} />
-        )
+        ),
       )}
-    </div>
+    </div>,
   );
 
   await waitForFullRender(container);
@@ -118,7 +117,7 @@ export async function exportCardsToPDF(
       windowWidth: 1000,
       windowHeight: el.scrollHeight,
     });
-    
+
     const img = canvas.toDataURL("image/png");
 
     const cw = canvas.width;
@@ -144,7 +143,7 @@ export async function exportCardsToPDF(
   }
 
   pdf.save(filename);
-  
+
   root.unmount();
   container.innerHTML = "";
   container.style.display = "none";

@@ -1,8 +1,32 @@
-import logo from "../assets/logo.png";
 import { useClerk } from "@clerk/clerk-react";
 
+import logo from "../assets/logo.png";
+import facebook from "../assets/facebook.jpg";
+import google from "../assets/google.jpg";
+import instagram from "../assets/instagram.jpg";
+import linkedin from "../assets/linkedin.jpg";
+import twitter from "../assets/twitter.jpg";
+import tiktok from "../assets/tiktok.jpg";
+import newsletter from "../assets/newsletter.jpg";
 
-const LeftSidebar = ({ mobile = false, open = false, onClose = () => {}  }) => {
+const socialLinks = [
+  { slug: "google", label: "Google", icon: google }, // exception
+  { slug: "instagram", label: "Instagram", icon: instagram },
+  { slug: "facebook", label: "Facebook", icon: facebook },
+  { slug: "tiktok", label: "TikTok", icon: tiktok }, // exception
+  { slug: "linkedin", label: "LinkedIn", icon: linkedin }, // exception
+  { slug: "twitter", label: "Twitter/X", icon: twitter },
+  { slug: "newsletter", label: "Newsletter", icon: newsletter },
+];
+
+const exceptionRoutes: Record<string, string> = {
+  google: "/google-analytics",
+  linkedin: "/error",
+  tiktok: "/error",
+  newsletter: "/newsletter",
+};
+
+const LeftSidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
   const sidebarClasses = mobile
     ? `fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50
        transform transition-transform duration-300 p-4 border-r border-gray-600 pl-12
@@ -20,14 +44,10 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {}  }) => {
     <>
       {/* Overlay for mobile */}
       {mobile && open && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40"
-          onClick={onClose}
-        />
+        <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
       )}
 
       <div className={sidebarClasses}>
-
         {/* Logo */}
         <img
           src={logo}
@@ -59,28 +79,6 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {}  }) => {
             </div>
           </a>
 
-          <a href="/admin">
-            <div className="bg-light-gray flex flex-row items-center gap-x-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
-                />
-              </svg>
-              <p className="md:hidden lg:block font-poppins text-[20px] font-medium">
-                Admin
-              </p>
-            </div>
-          </a>
-
           <a href="/glossary">
             <div className="bg-light-gray flex flex-row items-center gap-x-4">
               <svg
@@ -102,36 +100,51 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {}  }) => {
               </p>
             </div>
           </a>
-        </nav>
 
-        {/* Sign Out */}
-        <div className={`absolute bottom-0 pb-8 justify-center flex ${mobile ? "pl-6" : "w-full"}`}>
-          <button
-            onClick={handleSignOut}
-            className="flex items-center gap-3 text-red-600 font-medium hover:text-red-800 cursor-pointer"
+          {/* Socials */}
+          <div className="flex flex-col space-y-3 w-full">
+            <h1 className="font-poppins font-medium text-[20px] text-[#626262]">
+              PLATFORMS
+            </h1>
+            {socialLinks.map((social, idx) => {
+              const href =
+                exceptionRoutes[social.slug] || `/social/${social.slug}`; // fallback to default
+
+              return (
+                <a href={href} key={idx} className="flex items-center gap-4">
+                  <img
+                    src={social.icon}
+                    alt={social.label}
+                    className="w-10 h-10 hover:opacity-80 transition rounded-[10px] border border-solid"
+                  />
+                  <p className="md:hidden lg:block font-poppins font-medium text-[20px]">
+                    {social.label}
+                  </p>
+                </a>
+              );
+            })}
+          </div>
+
+          {/* Sign Out */}
+          <div
+            className={`absolute bottom-0 pb-8 justify-center flex ${mobile ? "pl-6" : "w-full"}`}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-6"
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-3 text-[#626262] font-medium hover:text-red-800 cursor-pointer"
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H3"
               />
-            </svg>
 
-            <span className="md:hidden lg:block text-[18px]">Sign Out</span>
-          </button>
-        </div>
-
+              <span className="md:hidden lg:block text-[18px]">Sign Out</span>
+            </button>
+          </div>
+        </nav>
       </div>
     </>
   );
 };
-
 export default LeftSidebar;

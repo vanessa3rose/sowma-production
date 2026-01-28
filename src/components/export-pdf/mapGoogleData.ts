@@ -1,5 +1,3 @@
-// src/components/export-pdf/mapGoogleData.ts
-
 import { GoogleAnalyticsExportBundle } from "../../types/exportTypes";
 
 /**
@@ -9,7 +7,7 @@ import { GoogleAnalyticsExportBundle } from "../../types/exportTypes";
  * It expects ONE argument and returns ONE value.
  */
 export function mapGoogleToExportData(
-  bundle: GoogleAnalyticsExportBundle
+  bundle: GoogleAnalyticsExportBundle,
 ): GoogleAnalyticsExportBundle {
   return bundle;
 }

@@ -1,4 +1,4 @@
-//drop down menu for hoże page 
+//drop down menu for hoże page
 
 import { useEffect, useState } from "react";
 
@@ -10,6 +10,7 @@ import LineCharts from "../components/charts/LineCharts";
 import PieCharts from "../components/charts/PieCharts";
 // Buttons
 import DateRangeButton from "../components/date-range/DateRangeButton";
+import DateDropdown, { DateRangeId } from "../components/charts/DateDropdown";
 import ExportButton from "../components/export-pdf/ExportButton";
 
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
@@ -47,15 +48,59 @@ export default function GoogleAnalyticsPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
 
   const [metrics, setMetrics] = useState<GAMetrics | null>(null);
+
+  // Filtered (displayed) series
   const [usersOverTime, setUsersOverTime] = useState<TimePoint[]>([]);
   const [pageviewsOverTime, setPageviewsOverTime] = useState<TimePoint[]>([]);
+
+  // Full (unfiltered) series — used ONLY for dropdown bounds/options
+  const [usersOverTimeAll, setUsersOverTimeAll] = useState<TimePoint[]>([]);
+  const [pageviewsOverTimeAll, setPageviewsOverTimeAll] = useState<TimePoint[]>(
+    [],
+  );
+
   const [metricSummaries, setMetricSummaries] = useState<
     Partial<Record<MetricKey, MetricSummary>>
   >({});
 
+  // Localized (per-chart) date ranges
+  const [activeUsersRange, setActiveUsersRange] = useState<DateRangeId>("30d");
+  const [pageviewsRange, setPageviewsRange] = useState<DateRangeId>("30d");
+  const [active7Range, setActive7Range] = useState<DateRangeId>("30d");
+
   const provider = "GOOGLE_ANALYTICS";
   const defaultStartDate = "2024-01-01";
   const defaultEndDate = "3000-01-01";
+
+  function getBounds(pts: { date: string; value: number }[]) {
+    if (!pts.length)
+      return { min: null as Date | null, max: null as Date | null };
+    const dates = pts
+      .map((p) => p.date)
+      .slice()
+      .sort(); // YYYY-MM-DD sorts correctly
+    return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
+  }
+
+  function filterByRange(
+    pts: { date: string; value: number }[],
+    range: DateRangeId,
+  ) {
+    if (!pts.length) return pts;
+    if (range === "all") return pts;
+
+    const end = new Date(pts[pts.length - 1].date);
+    const start = new Date(end);
+
+    if (range === "7d") start.setDate(start.getDate() - 6);
+    if (range === "30d") start.setDate(start.getDate() - 29);
+    if (range === "1y") start.setFullYear(start.getFullYear() - 1);
+
+    const startStr = start.toISOString().slice(0, 10);
+    const endStr = end.toISOString().slice(0, 10);
+
+    return pts.filter((p) => p.date >= startStr && p.date <= endStr);
+  }
 
   function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     return raw
@@ -68,7 +113,9 @@ export default function GoogleAnalyticsPage() {
       );
   }
 
-  function toLinePoints(raw: SocialMediaMetric[]): { date: string; value: number }[] {
+  function toLinePoints(
+    raw: SocialMediaMetric[],
+  ): { date: string; value: number }[] {
     return sortByDate(raw).map((m) => {
       const timestamp = (m.metricDate ?? m.lastSynced)!;
       return {
@@ -168,15 +215,33 @@ export default function GoogleAnalyticsPage() {
           }),
         ]);
 
-        const activeSeries = toLinePoints(activeUsersRaw);
-        const pageviewsSeries = toLinePoints(pageviewsRaw);
-        const active7Series = toLinePoints(active7Raw);
+        // FULL series (unfiltered)
+        const activeSeriesAll = toLinePoints(activeUsersRaw);
+        const pageviewsSeriesAll = toLinePoints(pageviewsRaw);
+        const active7SeriesAll = toLinePoints(active7Raw);
+
+        // Filtered series (display)
+        const activeSeriesFiltered = filterByRange(
+          activeSeriesAll,
+          activeUsersRange,
+        );
+        const pageviewsSeriesFiltered = filterByRange(
+          pageviewsSeriesAll,
+          pageviewsRange,
+        );
+        const active7SeriesFiltered = filterByRange(
+          active7SeriesAll,
+          active7Range,
+        );
+
+        // Summaries should match what the chart is showing
+        const activeSummary = summarizeSeries(activeSeriesFiltered);
+        const pageviewsSummary = summarizeSeries(pageviewsSeriesFiltered);
+        const active7Summary = summarizeSeries(active7SeriesFiltered);
+
+        // (keeping these as-is; if you later want dropdowns for them too, do the same pattern)
         const engagementSeries = toLinePoints(engagementRaw);
         const newUsersSeries = toLinePoints(newUsersRaw);
-
-        const activeSummary = summarizeSeries(activeSeries);
-        const pageviewsSummary = summarizeSeries(pageviewsSeries);
-        const active7Summary = summarizeSeries(active7Series);
         const engagementSummary = summarizeSeries(engagementSeries);
         const newUsersSummary = summarizeSeries(newUsersSeries);
 
@@ -199,9 +264,23 @@ export default function GoogleAnalyticsPage() {
           newUsers: newUsersSummary.current ?? 0,
         });
 
-        setUsersOverTime(mergeUsersAnd7Day(activeSeries, active7Series));
+        // FULL merged series for dropdown bounds
+        setUsersOverTimeAll(
+          mergeUsersAnd7Day(activeSeriesAll, active7SeriesAll),
+        );
+        setPageviewsOverTimeAll(
+          pageviewsSeriesAll.map((p) => ({
+            date: p.date,
+            screenPageViews: p.value,
+          })),
+        );
+
+        // FILTERED merged series for chart display
+        setUsersOverTime(
+          mergeUsersAnd7Day(activeSeriesFiltered, active7SeriesFiltered),
+        );
         setPageviewsOverTime(
-          pageviewsSeries.map((p) => ({
+          pageviewsSeriesFiltered.map((p) => ({
             date: p.date,
             screenPageViews: p.value,
           })),
@@ -212,7 +291,7 @@ export default function GoogleAnalyticsPage() {
     }
 
     loadGA();
-  }, []);
+  }, [activeUsersRange, pageviewsRange, active7Range]);
 
   const dMetrics: GAMetrics = metrics ?? {
     activeUsers: 0,
@@ -222,14 +301,31 @@ export default function GoogleAnalyticsPage() {
     newUsers: 0,
   };
 
-  const returningUsers = Math.max(
-    dMetrics.activeUsers - dMetrics.newUsers,
-    0,
-  );
+  const returningUsers = Math.max(dMetrics.activeUsers - dMetrics.newUsers, 0);
   const returningVsNew = [
     { label: "New Users", value: dMetrics.newUsers },
     { label: "Returning Users", value: returningUsers },
   ];
+
+  // ✅ Bounds for dropdowns come from FULL (unfiltered) data
+  const activeUsersBounds = getBounds(
+    usersOverTimeAll.map((p) => ({
+      date: p.date,
+      value: p.activeUsers ?? 0,
+    })),
+  );
+  const pageviewsBounds = getBounds(
+    pageviewsOverTimeAll.map((p) => ({
+      date: p.date,
+      value: p.screenPageViews ?? 0,
+    })),
+  );
+  const active7Bounds = getBounds(
+    usersOverTimeAll.map((p) => ({
+      date: p.date,
+      value: p.active7DayUsers ?? 0,
+    })),
+  );
 
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
@@ -275,9 +371,7 @@ export default function GoogleAnalyticsPage() {
             className="w-full h-full"
             metricValue={dMetrics.activeUsers}
             metricLabel="users"
-            metricChange={formatPercentChange(
-              metricSummaries.activeUsers,
-            )}
+            metricChange={formatPercentChange(metricSummaries.activeUsers)}
           />
           <SmallCard
             title="Page Views"
@@ -285,9 +379,7 @@ export default function GoogleAnalyticsPage() {
             className="w-full h-full"
             metricValue={dMetrics.screenPageViews}
             metricLabel="views"
-            metricChange={formatPercentChange(
-              metricSummaries.screenPageViews,
-            )}
+            metricChange={formatPercentChange(metricSummaries.screenPageViews)}
           />
           <SmallCard
             title="Active 7-Day Users"
@@ -295,9 +387,7 @@ export default function GoogleAnalyticsPage() {
             className="w-full h-full"
             metricValue={dMetrics.active7DayUsers}
             metricLabel="users (7D)"
-            metricChange={formatPercentChange(
-              metricSummaries.active7DayUsers,
-            )}
+            metricChange={formatPercentChange(metricSummaries.active7DayUsers)}
           />
           <SmallCard
             title="Engagement Rate"
@@ -315,9 +405,7 @@ export default function GoogleAnalyticsPage() {
             className="w-full h-full"
             metricValue={dMetrics.newUsers}
             metricLabel="new"
-            metricChange={formatPercentChange(
-              metricSummaries.newUsers,
-            )}
+            metricChange={formatPercentChange(metricSummaries.newUsers)}
           />
         </div>
 
@@ -328,12 +416,17 @@ export default function GoogleAnalyticsPage() {
             <div className="lg:w-2/3">
               <BigCard
                 title="Active Users"
-                subtitle="Last 30 days"
+                subtitle={
+                  <DateDropdown
+                    value={activeUsersRange}
+                    onChange={setActiveUsersRange}
+                    minDate={activeUsersBounds.min}
+                    maxDate={activeUsersBounds.max}
+                  />
+                }
                 metricValue={dMetrics.activeUsers}
                 metricLabel="total"
-                metricChange={formatPercentChange(
-                  metricSummaries.activeUsers,
-                )}
+                metricChange={formatPercentChange(metricSummaries.activeUsers)}
                 chart={
                   <div className="w-full h-64">
                     <LineCharts
@@ -371,7 +464,14 @@ export default function GoogleAnalyticsPage() {
             <div className="lg:w-1/2">
               <BigCard
                 title="Pageviews"
-                subtitle="Last 30 days"
+                subtitle={
+                  <DateDropdown
+                    value={pageviewsRange}
+                    onChange={setPageviewsRange}
+                    minDate={pageviewsBounds.min}
+                    maxDate={pageviewsBounds.max}
+                  />
+                }
                 metricValue={dMetrics.screenPageViews}
                 metricLabel="total"
                 metricChange={formatPercentChange(
@@ -393,6 +493,14 @@ export default function GoogleAnalyticsPage() {
             <div className="lg:w-1/2">
               <BigCard
                 title="Active 7-Day Users (trend)"
+                subtitle={
+                  <DateDropdown
+                    value={active7Range}
+                    onChange={setActive7Range}
+                    minDate={active7Bounds.min}
+                    maxDate={active7Bounds.max}
+                  />
+                }
                 chart={
                   <div className="w-full h-64">
                     <LineCharts

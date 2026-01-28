@@ -1,9 +1,8 @@
-// db/testing/test-all-crons.ts
-import refreshAllTokens from "../../api/token-cron/refreshAllTokens";
-import { runDailyInstagramSync } from "../../scripts/instagram-cron";
-import { runDailyFacebookSync } from "../../scripts/facebook-cron";
-import { runDailyTwitterSync } from "../../scripts/twitter-cron";
-import { runDailyGoogleAnalyticsSync } from "../../scripts/google-analytics-cron";
+import refreshAllTokens from "../../scripts/token-refresh.js";
+import { runDailyInstagramSync } from "../../scripts/instagram-cron.js";
+import { runDailyFacebookSync } from "../../scripts/facebook-cron.js";
+import { runDailyTwitterSync } from "../../scripts/twitter-cron.js";
+import { runDailyGoogleAnalyticsSync } from "../../scripts/google-analytics-cron.js";
 
 async function runAllCrons() {
   console.log("=== Starting Token Refresh ===");

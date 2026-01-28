@@ -4,7 +4,7 @@ import {
   getMetricsBySocialMediaId,
   updateSocialMediaMetric,
   deleteSocialMediaMetric,
-} from "../social-media-metrics"; // adjust path as needed
+} from "../social-media-metrics.js";
 import { Metric } from "../../src/generated/prisma/index.js";
 
 async function testCRUD() {
