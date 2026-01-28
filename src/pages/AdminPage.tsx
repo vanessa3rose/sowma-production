@@ -1,6 +1,6 @@
 import { useState } from "react";
-import APIData from "../components/admin-tabs/API_Data";
-import UsersRoles from "../components/admin-tabs/Users_Roles";
+import APIData from "../components/admin-tabs/APIData";
+import UsersRoles from "../components/admin-tabs/UsersRoles";
 import Waitlist from "../components/admin-tabs/Waitlist";
 
 const tabs = ["Users and Roles", "API and Data", "Waitlist"] as const;
