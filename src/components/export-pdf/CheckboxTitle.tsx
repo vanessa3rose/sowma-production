@@ -13,7 +13,6 @@ export default function CheckboxTitle({
     <div className="opacity-100 flex flex-row items-center justify-start bg-white">
       <div className="flex items-center space-x-4">
         <div className="relative w-[28px] h-[28px]">
-
           {/* checkbox */}
           <input
             type="checkbox"
@@ -24,7 +23,9 @@ export default function CheckboxTitle({
           />
 
           {/* checkmark if checked */}
-          <div className={`w-full h-full rounded-[4px] shadow-[inset_0_0_0_1px_#A9A9A9] flex items-center justify-center ${checked ? 'bg-sowma-blue shadow-none' : ''}`}>
+          <div
+            className={`w-full h-full rounded-[4px] shadow-[inset_0_0_0_1px_#A9A9A9] flex items-center justify-center ${checked ? "bg-sowma-blue shadow-none" : ""}`}
+          >
             {checked && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +35,11 @@ export default function CheckboxTitle({
                 stroke="white"
                 className="w-6 h-6"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m4.5 12.75 6 6 9-13.5"
+                />
               </svg>
             )}
           </div>

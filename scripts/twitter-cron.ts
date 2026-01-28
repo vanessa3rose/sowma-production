@@ -4,7 +4,7 @@ import {
   startOfDay,
   formatISODate,
   metricsExistForDay,
-} from "../src/utils/dates";
+} from "../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client
@@ -24,7 +24,9 @@ type TwitterPublicMetrics = {
 /**
  * Fetch current snapshot of Twitter public metrics
  */
-async function fetchTwitterMetrics(username: string): Promise<TwitterPublicMetrics> {
+async function fetchTwitterMetrics(
+  username: string,
+): Promise<TwitterPublicMetrics> {
   const res = await fetch(
     `https://api.twitter.com/2/users/by/username/${username}?user.fields=public_metrics`,
     {
@@ -63,7 +65,9 @@ export async function runDailyTwitterSync() {
   for (const account of accounts) {
     // ---- GLOBAL IDEMPOTENCY CHECK ----
     if (await metricsExistForDay(account.id, metricDate)) {
-      console.log(`[TW] ${account.username} already synced (${formatISODate(metricDate)})`);
+      console.log(
+        `[TW] ${account.username} already synced (${formatISODate(metricDate)})`,
+      );
       continue;
     }
 
@@ -96,7 +100,10 @@ export async function runDailyTwitterSync() {
         ),
       );
     } catch (error) {
-      console.error(`[TW] Sync failed for ${account.username} (${formatISODate(metricDate)})`, error);
+      console.error(
+        `[TW] Sync failed for ${account.username} (${formatISODate(metricDate)})`,
+        error,
+      );
     }
   }
 

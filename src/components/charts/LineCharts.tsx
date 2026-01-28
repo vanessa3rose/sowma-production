@@ -8,7 +8,10 @@ import {
   CartesianGrid,
   Legend,
   ResponsiveContainer,
+  Tooltip,
 } from "recharts";
+
+import ChartTooltip from "./ChartTooltip";
 
 const COLORS = ["#7987FF", "#F765A3", "#FFA9D0", "#A155B9"];
 
@@ -57,6 +60,7 @@ const LineCharts = ({ data, xAxisKey, dataKeys, showArea }: LineChartProps) => {
             tick={{ fontFamily: "Poppins, sans-serif" }}
           />
           <YAxis tick={{ fontFamily: "Poppins, sans-serif" }} />
+          <Tooltip content={<ChartTooltip />} />
           <Legend wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 
           {dataKeys.map((key, index) => (
@@ -82,6 +86,7 @@ const LineCharts = ({ data, xAxisKey, dataKeys, showArea }: LineChartProps) => {
             tick={{ fontFamily: "Poppins, sans-serif" }}
           />
           <YAxis tick={{ fontFamily: "Poppins, sans-serif" }} />
+          <Tooltip content={<ChartTooltip />} />
           <Legend wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 
           {dataKeys.map((key, index) => (

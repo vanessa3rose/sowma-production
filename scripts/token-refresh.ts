@@ -1,15 +1,21 @@
 import fetch from "node-fetch";
-import { getSocialMediaAuth, updateSocialMediaAuth } from "../../db/social-media-auth";
+import {
+  getSocialMediaAuth,
+  updateSocialMediaAuth,
+} from "../db/social-media-auth";
 
 export type Provider =
   | "GOOGLE_ANALYTICS"
   | "INSTAGRAM"
   | "FACEBOOK"
-  | "TWITTER"
-  // | "LINKEDIN"
-  // | "TIKTOK";
+  | "TWITTER";
+// | "LINKEDIN"
+// | "TIKTOK";
 
-export const REFRESH_STRATEGY: Record<Provider, "refresh" | "validate" | "static"> = {
+export const REFRESH_STRATEGY: Record<
+  Provider,
+  "refresh" | "validate" | "static"
+> = {
   GOOGLE_ANALYTICS: "refresh",
   INSTAGRAM: "refresh",
   FACEBOOK: "validate",
@@ -19,12 +25,12 @@ export const REFRESH_STRATEGY: Record<Provider, "refresh" | "validate" | "static
 };
 
 const REFRESH_WINDOW_MS: Record<Provider, number> = {
-  GOOGLE_ANALYTICS: 5 * 60 * 1000,       // 5 min
-  TWITTER: 10 * 60 * 1000,               // 10 min
+  GOOGLE_ANALYTICS: 5 * 60 * 1000, // 5 min
+  TWITTER: 10 * 60 * 1000, // 10 min
   // TIKTOK: 60 * 60 * 1000,                // 1h
-  INSTAGRAM: 3 * 24 * 60 * 60 * 1000,    // 3 days
+  INSTAGRAM: 3 * 24 * 60 * 60 * 1000, // 3 days
   // LINKEDIN: 3 * 24 * 60 * 60 * 1000,     // 3 days
-  FACEBOOK: 7 * 24 * 60 * 60 * 1000,     // weekly
+  FACEBOOK: 7 * 24 * 60 * 60 * 1000, // weekly
 };
 
 type AuthRow = {
@@ -52,7 +58,8 @@ export default async function refreshAllTokens(): Promise<AuthRow[]> {
 
     let shouldAct = false;
     if (strategy === "refresh") {
-      shouldAct = (hasExpiry && expiringSoon) || (!hasExpiry && !rec.lastRefreshed);
+      shouldAct =
+        (hasExpiry && expiringSoon) || (!hasExpiry && !rec.lastRefreshed);
     } else if (strategy === "validate") {
       const last = rec.lastRefreshed?.getTime() ?? 0;
       shouldAct = now - last >= refreshWindow;
@@ -63,7 +70,9 @@ export default async function refreshAllTokens(): Promise<AuthRow[]> {
     try {
       const updated = await refreshDispatcher(provider, rec);
       if (!updated) {
-        console.error(`[token] ${provider} ${rec.socialMediaId} :: no-change/needs-manual-auth`);
+        console.error(
+          `[token] ${provider} ${rec.socialMediaId} :: no-change/needs-manual-auth`,
+        );
         continue;
       }
 
@@ -74,9 +83,13 @@ export default async function refreshAllTokens(): Promise<AuthRow[]> {
         lastRefreshed: new Date(),
       });
 
-      console.log(`[token] ${provider} ${rec.socialMediaId.slice(0, 6)}… :: updated (expiresAt=${updated.expiresAt?.toISOString() ?? "n/a"})`);
+      console.log(
+        `[token] ${provider} ${rec.socialMediaId.slice(0, 6)}… :: updated (expiresAt=${updated.expiresAt?.toISOString() ?? "n/a"})`,
+      );
     } catch (err: any) {
-      console.error(`[token] ${provider} ${rec.socialMediaId.slice(0, 6)}… :: ERROR ${err?.message ?? err}`);
+      console.error(
+        `[token] ${provider} ${rec.socialMediaId.slice(0, 6)}… :: ERROR ${err?.message ?? err}`,
+      );
     }
   }
 
@@ -88,13 +101,18 @@ export default async function refreshAllTokens(): Promise<AuthRow[]> {
 -------------------------------------------------- */
 async function refreshDispatcher(provider: Provider, rec: AuthRow) {
   switch (provider) {
-    case "GOOGLE_ANALYTICS": return refreshGoogleAnalytics(rec);
-    case "INSTAGRAM": return refreshInstagram(rec);
-    case "FACEBOOK": return validateFacebook(rec);
-    case "TWITTER": return refreshTwitter(rec);
+    case "GOOGLE_ANALYTICS":
+      return refreshGoogleAnalytics(rec);
+    case "INSTAGRAM":
+      return refreshInstagram(rec);
+    case "FACEBOOK":
+      return validateFacebook(rec);
+    case "TWITTER":
+      return refreshTwitter(rec);
     // case "LINKEDIN": return refreshLinkedIn(rec);
     // case "TIKTOK": return refreshTikTok(rec);
-    default: return null;
+    default:
+      return null;
   }
 }
 
@@ -109,8 +127,14 @@ async function refreshInstagram(rec: AuthRow) {
   url.searchParams.set("access_token", rec.accessToken);
 
   const res = await fetch(url.toString());
-  const j = (await res.json()) as { access_token?: string; expires_in?: number };
-  if (!res.ok) throw new Error(`Instagram refresh failed: ${res.status} ${JSON.stringify(j)}`);
+  const j = (await res.json()) as {
+    access_token?: string;
+    expires_in?: number;
+  };
+  if (!res.ok)
+    throw new Error(
+      `Instagram refresh failed: ${res.status} ${JSON.stringify(j)}`,
+    );
 
   return {
     accessToken: j.access_token ?? rec.accessToken,
@@ -135,8 +159,13 @@ async function refreshGoogleAnalytics(rec: AuthRow) {
     body,
   });
 
-  const j = (await res.json()) as { access_token?: string; refresh_token?: string; expires_in?: number };
-  if (!res.ok) throw new Error(`GA refresh failed: ${res.status} ${JSON.stringify(j)}`);
+  const j = (await res.json()) as {
+    access_token?: string;
+    refresh_token?: string;
+    expires_in?: number;
+  };
+  if (!res.ok)
+    throw new Error(`GA refresh failed: ${res.status} ${JSON.stringify(j)}`);
 
   return {
     accessToken: j.access_token ?? rec.accessToken,
@@ -155,8 +184,13 @@ async function validateFacebook(rec: AuthRow) {
   url.searchParams.set("access_token", `${appId}|${appSecret}`);
 
   const res = await fetch(url.toString());
-  const j = (await res.json()) as { data?: { is_valid?: boolean; expires_at?: number } };
-  if (!res.ok) throw new Error(`Facebook debug failed: ${res.status} ${JSON.stringify(j)}`);
+  const j = (await res.json()) as {
+    data?: { is_valid?: boolean; expires_at?: number };
+  };
+  if (!res.ok)
+    throw new Error(
+      `Facebook debug failed: ${res.status} ${JSON.stringify(j)}`,
+    );
 
   const isValid = j.data?.is_valid === true;
   const expSec = j.data?.expires_at;
@@ -187,8 +221,15 @@ async function refreshTwitter(rec: AuthRow) {
     body,
   });
 
-  const j = (await res.json()) as { access_token?: string; refresh_token?: string; expires_in?: number };
-  if (!res.ok) throw new Error(`Twitter refresh failed: ${res.status} ${JSON.stringify(j)}`);
+  const j = (await res.json()) as {
+    access_token?: string;
+    refresh_token?: string;
+    expires_in?: number;
+  };
+  if (!res.ok)
+    throw new Error(
+      `Twitter refresh failed: ${res.status} ${JSON.stringify(j)}`,
+    );
 
   return {
     accessToken: j.access_token ?? rec.accessToken,
@@ -246,5 +287,5 @@ async function refreshTwitter(rec: AuthRow) {
 //     accessToken: j.access_token ?? rec.accessToken,
 //     refreshToken: j.refresh_token ?? rec.refreshToken,
 //     expiresAt: j.expires_in ? new Date(Date.now() + j.expires_in * 1000) : null,
-  // };
+// };
 // }

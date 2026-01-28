@@ -1,17 +1,17 @@
-// src/types/exportTypes.ts
-
-// ---------- Google Analytics ----------
-
 export interface GoogleAnalyticsExportBundle {
   metrics: {
     activeUsers: number;
     screenPageViews: number;
     active7DayUsers: number;
-    engagementRate: number;   // 0–1 normalized
+    engagementRate: number; // 0–1 normalized
     newUsers: number;
   };
 
-  usersOverTime: { date: string; activeUsers?: number; active7DayUsers?: number }[];
+  usersOverTime: {
+    date: string;
+    activeUsers?: number;
+    active7DayUsers?: number;
+  }[];
   pageviewsOverTime: { date: string; screenPageViews: number }[];
 
   returningVsNew: { label: string; value: number }[];

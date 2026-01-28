@@ -1,5 +1,3 @@
-// src/components/export-pdf/fetchExportData.ts
-
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 import { CHART_CONFIGS, Platform } from "../../config/chartConfigs";
 import {
@@ -15,8 +13,8 @@ function sortByDate(raw: SocialMediaMetric[]) {
     .slice()
     .sort((a, b) =>
       (a.metricDate ?? a.lastSynced)!.localeCompare(
-        (b.metricDate ?? b.lastSynced)!
-      )
+        (b.metricDate ?? b.lastSynced)!,
+      ),
     );
 }
 
@@ -63,29 +61,29 @@ export async function fetchGoogleExportBundle(): Promise<GoogleAnalyticsExportBu
   const startDate = "2024-01-01";
   const endDate = "3000-01-01";
 
-  const [
-    activeUsersRaw,
-    pvRaw,
-    active7Raw,
-    engagementRaw,
-    newUsersRaw,
-  ] = await Promise.all([
-    fetchMetrics({ provider, metric: "ACTIVE_USERS", startDate, endDate }),
-    fetchMetrics({ provider, metric: "SCREEN_PAGE_VIEWS", startDate, endDate }),
-    fetchMetrics({
-      provider,
-      metric: "ACTIVE_7_DAY_USERS",
-      startDate,
-      endDate,
-    }),
-    fetchMetrics({
-      provider,
-      metric: "ENGAGEMENT_RATE",
-      startDate,
-      endDate,
-    }),
-    fetchMetrics({ provider, metric: "NEW_USERS", startDate, endDate }),
-  ]);
+  const [activeUsersRaw, pvRaw, active7Raw, engagementRaw, newUsersRaw] =
+    await Promise.all([
+      fetchMetrics({ provider, metric: "ACTIVE_USERS", startDate, endDate }),
+      fetchMetrics({
+        provider,
+        metric: "SCREEN_PAGE_VIEWS",
+        startDate,
+        endDate,
+      }),
+      fetchMetrics({
+        provider,
+        metric: "ACTIVE_7_DAY_USERS",
+        startDate,
+        endDate,
+      }),
+      fetchMetrics({
+        provider,
+        metric: "ENGAGEMENT_RATE",
+        startDate,
+        endDate,
+      }),
+      fetchMetrics({ provider, metric: "NEW_USERS", startDate, endDate }),
+    ]);
 
   const active = toLinePoints(activeUsersRaw);
   const pageviews = toLinePoints(pvRaw);
@@ -102,8 +100,10 @@ export async function fetchGoogleExportBundle(): Promise<GoogleAnalyticsExportBu
   };
 
   const mergedUsers = (() => {
-    const map: Record<string, { date: string; activeUsers?: number; active7DayUsers?: number }> =
-      {};
+    const map: Record<
+      string,
+      { date: string; activeUsers?: number; active7DayUsers?: number }
+    > = {};
 
     active.forEach((p) => {
       if (!map[p.date]) map[p.date] = { date: p.date };
@@ -144,7 +144,7 @@ export async function fetchGoogleExportBundle(): Promise<GoogleAnalyticsExportBu
         label: "Returning Users",
         value: Math.max(
           summaries.activeUsers.current - summaries.newUsers.current,
-          0
+          0,
         ),
       },
     ],
@@ -156,7 +156,7 @@ export async function fetchGoogleExportBundle(): Promise<GoogleAnalyticsExportBu
 // ========== FETCH SOCIAL PLATFORM EXPORT DATA ==========
 
 export async function fetchSocialExportBundle(
-  platform: Platform
+  platform: Platform,
 ): Promise<SocialExportBundle> {
   const provider = providerFromPlatform(platform);
   const startDate = "2024-01-01";
@@ -174,8 +174,8 @@ export async function fetchSocialExportBundle(
       }).then((rows) => ({
         cfg,
         series: toLinePoints(rows),
-      }))
-    )
+      })),
+    ),
   );
 
   // bucket data
@@ -196,19 +196,23 @@ export async function fetchSocialExportBundle(
     platform,
 
     followers: metricSummaries["followers_count"]?.current ?? 0,
-    followersDelta: metricSummaries["followers_count"]?.current -
+    followersDelta:
+      metricSummaries["followers_count"]?.current -
       (metricSummaries["followers_count"]?.prev ?? 0),
 
     impressions: metricSummaries["impressions"]?.current ?? 0,
-    impressionsDelta: metricSummaries["impressions"]?.current -
+    impressionsDelta:
+      metricSummaries["impressions"]?.current -
       (metricSummaries["impressions"]?.prev ?? 0),
 
     posts: metricSummaries["media_count"]?.current ?? 0,
-    postsDelta: metricSummaries["media_count"]?.current -
+    postsDelta:
+      metricSummaries["media_count"]?.current -
       (metricSummaries["media_count"]?.prev ?? 0),
 
     engagements: metricSummaries["total_likes"]?.current ?? 0,
-    engagementsDelta: metricSummaries["total_likes"]?.current -
+    engagementsDelta:
+      metricSummaries["total_likes"]?.current -
       (metricSummaries["total_likes"]?.prev ?? 0),
 
     followersOverTime: followersSeries,
@@ -218,7 +222,10 @@ export async function fetchSocialExportBundle(
 
     engagementBreakdown: [
       { label: "Likes", value: metricSummaries["total_likes"]?.current ?? 0 },
-      { label: "Comments", value: metricSummaries["total_comments"]?.current ?? 0 },
+      {
+        label: "Comments",
+        value: metricSummaries["total_comments"]?.current ?? 0,
+      },
       { label: "Shares", value: metricSummaries["total_shares"]?.current ?? 0 },
     ],
 

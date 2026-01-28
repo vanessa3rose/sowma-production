@@ -7,7 +7,7 @@ import {
   toUnixTimestamp,
   formatISODate,
   metricsExistForDay,
-} from "../src/utils/dates";
+} from "../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client
@@ -46,9 +46,10 @@ type AccountTotals = {
    API helpers
 -------------------------------------------------- */
 async function fetchAccountTotals(): Promise<AccountTotals> {
-  const url = `https://graph.facebook.com/v20.0/${IG_USER_ID}` +
-              `?fields=followers_count,media_count` +
-              `&access_token=${ACCESS_TOKEN}`;
+  const url =
+    `https://graph.facebook.com/v20.0/${IG_USER_ID}` +
+    `?fields=followers_count,media_count` +
+    `&access_token=${ACCESS_TOKEN}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text());
@@ -59,17 +60,20 @@ async function fetchDailyInsights(date: Date): Promise<DailyInsights> {
   const since = toUnixTimestamp(startOfDay(date));
   const until = toUnixTimestamp(endOfDay(date));
 
-  const url = `https://graph.facebook.com/v20.0/${IG_USER_ID}/insights` +
-              `?metric=views,reach,total_interactions` +
-              `&period=day` +
-              `&metric_type=total_value` +
-              `&since=${since}&until=${until}` +
-              `&access_token=${ACCESS_TOKEN}`;
+  const url =
+    `https://graph.facebook.com/v20.0/${IG_USER_ID}/insights` +
+    `?metric=views,reach,total_interactions` +
+    `&period=day` +
+    `&metric_type=total_value` +
+    `&since=${since}&until=${until}` +
+    `&access_token=${ACCESS_TOKEN}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text());
 
-  const json = await res.json() as { data?: Array<{ name: string, values?: Array<{ value?: number }> }> };
+  const json = (await res.json()) as {
+    data?: Array<{ name: string; values?: Array<{ value?: number }> }>;
+  };
   const out: Record<string, number> = {};
 
   for (const row of json.data ?? []) {
@@ -80,15 +84,16 @@ async function fetchDailyInsights(date: Date): Promise<DailyInsights> {
 }
 
 async function fetchMediaForDay(date: Date): Promise<MediaItem[]> {
-  const url = `https://graph.facebook.com/v20.0/${IG_USER_ID}/media` +
-              `?fields=id,like_count,comments_count,timestamp` +
-              `&limit=${MEDIA_LIMIT}` +
-              `&access_token=${ACCESS_TOKEN}`;
+  const url =
+    `https://graph.facebook.com/v20.0/${IG_USER_ID}/media` +
+    `?fields=id,like_count,comments_count,timestamp` +
+    `&limit=${MEDIA_LIMIT}` +
+    `&access_token=${ACCESS_TOKEN}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text());
 
-  const json = await res.json() as { data?: MediaItem[] };
+  const json = (await res.json()) as { data?: MediaItem[] };
   return (json.data ?? []).filter((m) => {
     const t = new Date(m.timestamp).getTime();
     return t >= startOfDay(date).getTime() && t <= endOfDay(date).getTime();
@@ -108,17 +113,24 @@ export async function runDailyInstagramSync() {
 
   for (const account of accounts) {
     if (await metricsExistForDay(account.id, metricDate)) {
-      console.log(`[IG] ${account.username} already synced (${formatISODate(metricDate)})`);
+      console.log(
+        `[IG] ${account.username} already synced (${formatISODate(metricDate)})`,
+      );
       continue;
     }
 
-    console.log(`[IG] Syncing ${account.username} (${formatISODate(metricDate)})`);
+    console.log(
+      `[IG] Syncing ${account.username} (${formatISODate(metricDate)})`,
+    );
 
     try {
       const media = await fetchMediaForDay(metricDate);
 
       const dailyLikes = media.reduce((sum, m) => sum + (m.like_count ?? 0), 0);
-      const dailyComments = media.reduce((sum, m) => sum + (m.comments_count ?? 0), 0);
+      const dailyComments = media.reduce(
+        (sum, m) => sum + (m.comments_count ?? 0),
+        0,
+      );
       const daysPosted = media.length > 0 ? 1 : 0;
 
       const insights = await fetchDailyInsights(metricDate);
@@ -130,8 +142,14 @@ export async function runDailyInstagramSync() {
         { metricName: Metric.DAYS_POSTED, metricValue: daysPosted },
         { metricName: Metric.VIEWS, metricValue: insights.views ?? 0 },
         { metricName: Metric.REACH, metricValue: insights.reach ?? 0 },
-        { metricName: Metric.TOTAL_INTERACTIONS, metricValue: insights.total_interactions ?? 0 },
-        { metricName: Metric.FOLLOWERS, metricValue: totals.followers_count ?? 0 },
+        {
+          metricName: Metric.TOTAL_INTERACTIONS,
+          metricValue: insights.total_interactions ?? 0,
+        },
+        {
+          metricName: Metric.FOLLOWERS,
+          metricValue: totals.followers_count ?? 0,
+        },
         { metricName: Metric.POSTS, metricValue: totals.media_count ?? 0 },
       ];
 
@@ -149,7 +167,10 @@ export async function runDailyInstagramSync() {
         ),
       );
     } catch (err) {
-      console.error(`[IG] Sync failed for ${account.username} (${formatISODate(metricDate)})`, err);
+      console.error(
+        `[IG] Sync failed for ${account.username} (${formatISODate(metricDate)})`,
+        err,
+      );
     }
   }
 

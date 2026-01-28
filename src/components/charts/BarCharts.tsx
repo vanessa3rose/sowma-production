@@ -5,7 +5,10 @@ import {
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
+  Tooltip,
 } from "recharts";
+
+import ChartTooltip from "./ChartTooltip";
 
 type BarGraphsProps = {
   data: any[]; // define as array of integers
@@ -26,6 +29,7 @@ const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
           tick={{ fontFamily: "Poppins, sans-serif" }}
         />
         <YAxis />
+        <Tooltip content={<ChartTooltip />} />
         {dataKeys.map((key) => (
           <Bar key={key} dataKey={key} fill="#7987FF" />
         ))}
