@@ -35,7 +35,7 @@ export default function Homepage() {
   const [followersProvider, setFollowersProvider] =
     useState<SocialProvider>("FACEBOOK");
 
-  // ✅ Per-card date ranges
+  // Per-card date ranges
   const [impressionsRange, setImpressionsRange] = useState<DateRangeId>("30d");
   const [daysPostedRange, setDaysPostedRange] = useState<DateRangeId>("30d");
   const [sessionsRange, setSessionsRange] = useState<DateRangeId>("30d");
@@ -197,7 +197,7 @@ export default function Homepage() {
     loadWebsiteSessions();
   }, []);
 
-  // ✅ Compute bounds from full (unfiltered) series
+  // Compute bounds from full (unfiltered) series
   const impressionsBounds = useMemo(
     () => getBounds(impressionsData.map((p) => p.date)),
     [impressionsData],
@@ -215,7 +215,7 @@ export default function Homepage() {
     [followerCountData],
   );
 
-  // ✅ Filtered (displayed) series
+  // Filtered (displayed) series
   const impressionsFiltered = useMemo(
     () => filterByRange(impressionsData, impressionsRange),
     [impressionsData, impressionsRange],
