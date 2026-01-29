@@ -160,22 +160,25 @@ export default function InstagramPage() {
   }, []);
 
   const computed = useMemo(() => {
-    return METRICS.reduce((acc, cfg) => {
-      const full = rawSeries[cfg.id] ?? [];
-      const filtered = filterByRange(full, ranges[cfg.id] ?? "30d");
-      const summary = summarizeSeries(filtered);
-      const bounds = getBounds(full);
-      acc[cfg.id] = { full, filtered, summary, bounds };
-      return acc;
-    }, {} as Record<
-      string,
-      {
-        full: LinePoint[];
-        filtered: LinePoint[];
-        summary: MetricSummary;
-        bounds: { min: Date | null; max: Date | null };
-      }
-    >);
+    return METRICS.reduce(
+      (acc, cfg) => {
+        const full = rawSeries[cfg.id] ?? [];
+        const filtered = filterByRange(full, ranges[cfg.id] ?? "30d");
+        const summary = summarizeSeries(filtered);
+        const bounds = getBounds(full);
+        acc[cfg.id] = { full, filtered, summary, bounds };
+        return acc;
+      },
+      {} as Record<
+        string,
+        {
+          full: LinePoint[];
+          filtered: LinePoint[];
+          summary: MetricSummary;
+          bounds: { min: Date | null; max: Date | null };
+        }
+      >,
+    );
   }, [rawSeries, ranges]);
 
   // Pie data (top-right card) — uses current (filtered) values
@@ -253,7 +256,11 @@ export default function InstagramPage() {
               title="Engagement Mix"
               chart={
                 <div className="w-full h-64">
-                  <PieCharts data={engagementMix} dataKey="value" nameKey="label" />
+                  <PieCharts
+                    data={engagementMix}
+                    dataKey="value"
+                    nameKey="label"
+                  />
                 </div>
               }
               displayMode="both"
