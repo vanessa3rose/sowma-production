@@ -6,9 +6,9 @@ import SmallCard from "../components/cards/SmallCard";
 
 // Charts
 import LineCharts from "../components/charts/LineCharts";
+import PieCharts from "../components/charts/PieCharts";
 
 // Buttons
-import DateRangeButton from "../components/date-range/DateRangeButton";
 import DateDropdown, { DateRangeId } from "../components/charts/DateDropdown";
 import ExportButton from "../components/export-pdf/ExportButton";
 
@@ -27,8 +27,8 @@ type MetricSummary = {
 type MetricConfig = {
   id: string;
   title: string;
-  metric: string; // SocialMediaMetric enum string used by fetchMetrics
-  metricLabel?: string; // optional label for top cards
+  metric: string;
+  metricLabel?: string;
 };
 
 const PROVIDER = "INSTAGRAM";
@@ -39,11 +39,16 @@ const METRICS: MetricConfig[] = [
   { id: "impressions", title: "Impressions", metric: "VIEWS", metricLabel: "" },
   { id: "followers", title: "Followers", metric: "FOLLOWERS", metricLabel: "" },
   { id: "likes", title: "Total Likes", metric: "LIKES", metricLabel: "" },
-  { id: "comments", title: "Total Comments", metric: "COMMENTS", metricLabel: "" },
+  {
+    id: "comments",
+    title: "Total Comments",
+    metric: "COMMENTS",
+    metricLabel: "",
+  },
   { id: "posts", title: "Posts", metric: "POSTS", metricLabel: "" },
 ];
 
-/* ---------- helpers (copied from GA patterns) ---------- */
+/* ---------- helpers ---------- */
 
 function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
   return raw
@@ -99,7 +104,7 @@ function filterByRange(pts: LinePoint[], range: DateRangeId) {
   if (!pts.length) return pts;
   if (range === "all") return pts;
 
-  // ✅ Calendar-based ranges: anchor to TODAY (like GA)
+  // ✅ Calendar-based ranges anchored to TODAY
   const end = new Date();
   end.setHours(0, 0, 0, 0);
 
@@ -162,8 +167,27 @@ export default function InstagramPage() {
       const bounds = getBounds(full);
       acc[cfg.id] = { full, filtered, summary, bounds };
       return acc;
-    }, {} as Record<string, { full: LinePoint[]; filtered: LinePoint[]; summary: MetricSummary; bounds: { min: Date | null; max: Date | null } }>);
+    }, {} as Record<
+      string,
+      {
+        full: LinePoint[];
+        filtered: LinePoint[];
+        summary: MetricSummary;
+        bounds: { min: Date | null; max: Date | null };
+      }
+    >);
   }, [rawSeries, ranges]);
+
+  // Pie data (top-right card) — uses current (filtered) values
+  const likesNow = computed["likes"]?.summary.current ?? 0;
+  const commentsNow = computed["comments"]?.summary.current ?? 0;
+  const postsNow = computed["posts"]?.summary.current ?? 0;
+
+  const engagementMix = [
+    { label: "Likes", value: likesNow },
+    { label: "Comments", value: commentsNow },
+    { label: "Posts", value: postsNow },
+  ];
 
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
@@ -195,32 +219,50 @@ export default function InstagramPage() {
         </div>
 
         <div className="flex space-x-2 mt-2 lg:mt-0">
-          <DateRangeButton />
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
 
       {/* Content */}
       <div className="flex flex-col gap-4 px-4 lg:h-full">
-        {/* Top Row Small Cards */}
-        <div className="w-full flex flex-col lg:flex-row gap-4">
-          {METRICS.map((cfg) => {
-            const s = computed[cfg.id]?.summary;
-            return (
-              <SmallCard
-                key={cfg.id}
-                title={cfg.title}
-                displayMode="metric-only"
-                className="w-full h-full"
-                metricValue={s?.current ?? 0}
-                metricLabel={cfg.metricLabel ?? ""}
-                metricChange={formatPercentChange(s)}
-              />
-            );
-          })}
+        {/* Top band: 2x2 small cards (left) + pie card (right) */}
+        <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Upper-left: 2x2 grid */}
+          <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {["impressions", "followers", "likes", "comments"].map((id) => {
+              const cfg = METRICS.find((m) => m.id === id)!;
+              const s = computed[id]?.summary;
+
+              return (
+                <SmallCard
+                  key={id}
+                  title={cfg.title}
+                  displayMode="metric-only"
+                  className="w-full h-full"
+                  metricValue={s?.current ?? 0}
+                  metricLabel={cfg.metricLabel ?? ""}
+                  metricChange={formatPercentChange(s)}
+                />
+              );
+            })}
+          </div>
+
+          {/* Upper-right: pie */}
+          <div className="lg:col-span-1">
+            <BigCard
+              title="Engagement Mix"
+              chart={
+                <div className="w-full h-64">
+                  <PieCharts data={engagementMix} dataKey="value" nameKey="label" />
+                </div>
+              }
+              displayMode="both"
+              className="w-full h-full"
+            />
+          </div>
         </div>
 
-        {/* Big Cards grid (Figma/GA-like) */}
+        {/* Main charts below */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 lg:h-full">
           {METRICS.map((cfg) => {
             const item = computed[cfg.id];
@@ -229,41 +271,42 @@ export default function InstagramPage() {
             const summary = item?.summary ?? { current: 0, prev: null };
 
             return (
-              <BigCard
-                key={cfg.id}
-                title={cfg.title}
-                subtitle={
-                  <DateDropdown
-                    value={ranges[cfg.id] ?? "30d"}
-                    onChange={(r) =>
-                      setRanges((prev) => ({ ...prev, [cfg.id]: r }))
-                    }
-                    minDate={bounds.min}
-                    maxDate={bounds.max}
-                  />
-                }
-                metricValue={summary.current ?? 0}
-                metricLabel="total"
-                metricChange={formatPercentChange(summary)}
-                chart={
-                  filtered.length ? (
-                    <div className="w-full h-64">
-                      <LineCharts
-                        data={filtered}
-                        xAxisKey="date"
-                        dataKeys={["value"]}
-                        showArea
-                      />
-                    </div>
-                  ) : (
-                    <div className="h-64 flex items-center justify-center text-gray-500">
-                      No data available
-                    </div>
-                  )
-                }
-                displayMode="both"
-                className="w-full h-full"
-              />
+              <div key={cfg.id}>
+                <BigCard
+                  title={cfg.title}
+                  subtitle={
+                    <DateDropdown
+                      value={ranges[cfg.id] ?? "30d"}
+                      onChange={(r) =>
+                        setRanges((prev) => ({ ...prev, [cfg.id]: r }))
+                      }
+                      minDate={bounds.min}
+                      maxDate={bounds.max}
+                    />
+                  }
+                  metricValue={summary.current ?? 0}
+                  metricLabel="total"
+                  metricChange={formatPercentChange(summary)}
+                  chart={
+                    filtered.length ? (
+                      <div className="w-full h-64">
+                        <LineCharts
+                          data={filtered}
+                          xAxisKey="date"
+                          dataKeys={["value"]}
+                          showArea
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-64 flex items-center justify-center text-gray-500">
+                        No data available
+                      </div>
+                    )
+                  }
+                  displayMode="both"
+                  className="w-full h-full"
+                />
+              </div>
             );
           })}
         </div>
