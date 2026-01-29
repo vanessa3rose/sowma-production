@@ -7,6 +7,7 @@ import SocialMediaPage from "./pages/SocialMediaPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
+import InstagramPage from "./pages/InstagramPage";
 import AdminPage from "./pages/AdminPage";
 import GlossaryPage from "./pages/Glossary";
 import { useState } from "react";
@@ -64,6 +65,7 @@ const App = () => {
           <Switch>
             <Route path="/" component={Homepage} />
             <Route path="/social-media" component={SocialMediaPage} />
+            <Route path="/social/instagram" component={InstagramPage} />
             <Route path="/social/:platform" component={SocialMediaPage} />
             <Route path="/signup" component={SignupPage} />
             <Route path="/login" component={LoginPage} />
