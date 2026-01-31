@@ -1,5 +1,5 @@
 import SignupPicture from "../assets/Signup-picture.png";
-import { SignUp } from "@clerk/clerk-react";
+import WaitlistForm from "../components/WaitlistForm";
 
 export default function SignupPage() {
   return (
@@ -38,19 +38,9 @@ export default function SignupPage() {
             </h1>
           </div>
 
-          {/* SignUp Form */}
-          <div className="">
-            <SignUp
-              appearance={{
-                elements: {
-                  rootBox: "max-w-full",
-                  card: "w-full p-8 rounded-xl shadow-md border border-gray-200",
-                },
-              }}
-            />
+          <WaitlistForm />
           </div>
-        </div>
-      </div>
+          </div>
 
       {/* RIGHT SIDE */}
       <div className="w-full lg:w-1/2 h-full hidden lg:block">
