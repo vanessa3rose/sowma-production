@@ -144,26 +144,11 @@ async function refreshInstagram(rec: AuthRow) {
 }
 
 async function refreshGoogleAnalytics(rec: AuthRow) {
-  if (!rec.refreshToken) {
-    console.warn(
-      `[token] GOOGLE_ANALYTICS ${rec.socialMediaId.slice(0, 6)}… :: missing refresh token`,
-    );
-    return null;
-  }
-
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-
-  if (!clientId || !clientSecret) {
-    console.warn(
-      `[token] GOOGLE_ANALYTICS ${rec.socialMediaId.slice(0, 6)}… :: missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET`,
-    );
-    return null;
-  }
+  if (!rec.refreshToken) return null;
 
   const body = new URLSearchParams({
-    client_id: clientId,
-    client_secret: clientSecret,
+    client_id: process.env.GOOGLE_CLIENT_ID ?? "",
+    client_secret: process.env.GOOGLE_CLIENT_SECRET ?? "",
     grant_type: "refresh_token",
     refresh_token: rec.refreshToken,
   });
@@ -179,19 +164,13 @@ async function refreshGoogleAnalytics(rec: AuthRow) {
     refresh_token?: string;
     expires_in?: number;
   };
-
-  if (!res.ok) {
-    throw new Error(
-      `GA refresh failed: ${res.status} ${JSON.stringify(j)}`,
-    );
-  }
+  if (!res.ok)
+    throw new Error(`GA refresh failed: ${res.status} ${JSON.stringify(j)}`);
 
   return {
     accessToken: j.access_token ?? rec.accessToken,
     refreshToken: j.refresh_token ?? rec.refreshToken,
-    expiresAt: j.expires_in
-      ? new Date(Date.now() + j.expires_in * 1000)
-      : rec.expiresAt,
+    expiresAt: j.expires_in ? new Date(Date.now() + j.expires_in * 1000) : null,
   };
 }
 
@@ -257,18 +236,6 @@ async function refreshTwitter(rec: AuthRow) {
     refreshToken: j.refresh_token ?? rec.refreshToken,
     expiresAt: j.expires_in ? new Date(Date.now() + j.expires_in * 1000) : null,
   };
-}
-
-if (process.argv[1]?.includes("token-refresh")) {
-  refreshAllTokens()
-    .then(() => {
-      console.log("[token] refresh run complete");
-      process.exit(0);
-    })
-    .catch((err) => {
-      console.error("[token] refresh run failed", err);
-      process.exit(1);
-    });
 }
 
 // async function refreshLinkedIn(rec: AuthRow) {
