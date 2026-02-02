@@ -6,7 +6,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import DateRangeButton from "../components/date-range/DateRangeButton";
 import DateDropdown, { DateRangeId } from "../components/charts/DateDropdown";
 import ExportButton from "../components/export-pdf/ExportButton";
 import BigCard from "../components/cards/BigCard";
@@ -225,7 +224,6 @@ export default function SocialMediaPage() {
           {platform?.charAt(0).toUpperCase() + platform?.slice(1)}
         </h1>
         <div className="flex gap-2">
-          <DateRangeButton />
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
