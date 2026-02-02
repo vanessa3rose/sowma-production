@@ -91,7 +91,7 @@ export default function Homepage() {
     });
   }
 
-  // ✅ Bounds + filtering helpers (TODAY-anchored)
+  // Bounds + filtering helpers (TODAY-anchored)
   function getBounds(dates: string[]) {
     if (!dates.length)
       return { min: null as Date | null, max: null as Date | null };
@@ -263,7 +263,7 @@ export default function Homepage() {
       </div>
 
       {/* Main charts row */}
-      <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
+      <div className="flex flex-col flex-wrap gap-4 w-full lg:flex-row">
         <BigCard
           title="Impressions"
           subtitle=""
@@ -298,7 +298,7 @@ export default function Homepage() {
             )
           }
           displayMode="both"
-          className="flex-1 w-full h-full"
+          className="flex-1 w-full"
         />
 
         <BigCard
@@ -334,7 +334,7 @@ export default function Homepage() {
             )
           }
           displayMode="both"
-          className="flex-1 w-full h-full"
+          className="flex-1 w-full"
         />
 
         <BigCard
@@ -367,7 +367,7 @@ export default function Homepage() {
             )
           }
           displayMode="both"
-          className="flex-1 w-full h-full"
+          className="flex-1 w-full"
         />
       </div>
 
@@ -405,7 +405,7 @@ export default function Homepage() {
             )
           }
           displayMode="both"
-          className="flex-1 w-full h-full"
+          className="flex-1 w-full"
         />
 
         <BigCard
@@ -417,7 +417,7 @@ export default function Homepage() {
             </div>
           }
           displayMode="both"
-          className="flex-1 w-full h-full"
+          className="flex-1 w-full"
         />
       </div>
     </div>
