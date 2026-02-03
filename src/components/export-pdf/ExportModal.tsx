@@ -12,7 +12,10 @@ interface ModalProps {
    * Called when the user clicks "Download PDF" with the platforms
    * they have selected.
    */
-  onExport: (platforms: Platform[], range: DateRangeId) => Promise<void> | void;
+  onExport: (
+    platforms: Platform[],
+    range: DateRangeId,
+  ) => Promise<void> | void;
 }
 
 // Label for the "select everything" option at the top of the list.
@@ -82,6 +85,10 @@ export default function ExportModal({
   };
 
   const [isLoading, setIsLoading] = useState(false);
+  const handleCancel = () => {
+    setIsLoading(false);
+    setIsOpen(false);
+  };
 
   /**
    * When the user clicks "Download PDF":
@@ -112,7 +119,7 @@ export default function ExportModal({
   return (
     <Dialog
       open={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={handleCancel}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
     >
       <DialogPanel className="w-[404px] h-[454px] bg-white rounded-xl shadow-lg flex flex-col p-6">
@@ -155,7 +162,7 @@ export default function ExportModal({
         <div className="mt-auto flex justify-end gap-2 pt-4">
           <button
             type="button"
-            onClick={() => setIsOpen(false)}
+            onClick={handleCancel}
             className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 text-sm font-medium"
           >
             Cancel
