@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+// pages/Homepage.tsx
+=======
+>>>>>>> 78166509fae2c72cdb48530bea1901c9689b2d52
 import { usePDFExporter } from "../hooks/usePDFExporter";
 import ExportableChartWrapper from "../components/export-pdf/ExportableChartWrapper";
 import BigCard from "../components/cards/BigCard";
