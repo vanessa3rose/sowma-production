@@ -42,6 +42,14 @@ const SOCIAL_MEDIA_CONFIG = [
     profileUrl: "https://analytics.google.com/",
     email: null,
   },
+  {
+    provider: Provider.CONSTANT_CONTACT,
+    userId: "123",
+    username: "schoolonwheels",
+    displayName: "School on Wheels Constant Contact",
+    profileUrl: "https://www.constantcontact.com/",
+    email: null,
+  }
 ];
 
 /**
