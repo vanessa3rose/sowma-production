@@ -39,7 +39,7 @@ export default async function handler(req: any, res: any) {
         isWaitlisted: true,
         firstName: "",
         lastName: "",
-        username: "",
+        username: email.split("@")[0] + "_" + Date.now(),
         password: "",
         phone: "",
       },
