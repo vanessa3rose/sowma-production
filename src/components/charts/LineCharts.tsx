@@ -28,7 +28,7 @@ const LineCharts = ({ data, xAxisKey, dataKeys, showArea }: LineChartProps) => {
       {showArea ? (
         <AreaChart
           data={data}
-          margin={{ top: 20, right: 50, left: 20, bottom: 20 }}
+          margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
         >
           <defs>
             {dataKeys.map((key, index) => (
@@ -61,7 +61,7 @@ const LineCharts = ({ data, xAxisKey, dataKeys, showArea }: LineChartProps) => {
           />
           <YAxis tick={{ fontFamily: "Poppins, sans-serif" }} />
           <Tooltip content={<ChartTooltip />} />
-          <Legend wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
+          <Legend verticalAlign="bottom" align="center" height={24} wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 
           {dataKeys.map((key, index) => (
             <Area
@@ -78,7 +78,7 @@ const LineCharts = ({ data, xAxisKey, dataKeys, showArea }: LineChartProps) => {
       ) : (
         <LineChart
           data={data}
-          margin={{ top: 20, right: 50, left: 20, bottom: 20 }}
+          margin={{ top: 20, right: 50, left: 20, bottom: 48 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
@@ -87,7 +87,7 @@ const LineCharts = ({ data, xAxisKey, dataKeys, showArea }: LineChartProps) => {
           />
           <YAxis tick={{ fontFamily: "Poppins, sans-serif" }} />
           <Tooltip content={<ChartTooltip />} />
-          <Legend wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
+          <Legend verticalAlign="bottom" align="center" height={24} wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 
           {dataKeys.map((key, index) => (
             <Line

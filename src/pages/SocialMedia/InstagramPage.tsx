@@ -1,19 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 
 // Cards
-import BigCard from "../components/cards/BigCard";
-import SmallCard from "../components/cards/SmallCard";
+import BigCard from "../../components/cards/BigCard";
+import SmallCard from "../../components/cards/SmallCard";
 
 // Charts
-import LineCharts from "../components/charts/LineCharts";
-import PieCharts from "../components/charts/PieCharts";
+import LineCharts from "../../components/charts/LineCharts";
+import PieCharts from "../../components/charts/PieCharts";
 
 // Buttons
-import DateDropdown, { DateRangeId } from "../components/charts/DateDropdown";
-import ExportButton from "../components/export-pdf/ExportButton";
+import DateDropdown, { DateRangeId } from "../../components/charts/DateDropdown";
+import ExportButton from "../../components/export-pdf/ExportButton";
 
-import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
-import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExportProvider";
+import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 
 /* ---------- types ---------- */
 
@@ -39,12 +39,7 @@ const METRICS: MetricConfig[] = [
   { id: "impressions", title: "Impressions", metric: "VIEWS", metricLabel: "" },
   { id: "followers", title: "Followers", metric: "FOLLOWERS", metricLabel: "" },
   { id: "likes", title: "Total Likes", metric: "LIKES", metricLabel: "" },
-  {
-    id: "comments",
-    title: "Total Comments",
-    metric: "COMMENTS",
-    metricLabel: "",
-  },
+  { id: "comments", title: "Total Comments", metric: "COMMENTS", metricLabel: "" },
   { id: "posts", title: "Posts", metric: "POSTS", metricLabel: "" },
 ];
 
@@ -56,8 +51,8 @@ function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     .slice()
     .sort((a, b) =>
       (a.metricDate ?? a.lastSynced)!.localeCompare(
-        (b.metricDate ?? b.lastSynced)!,
-      ),
+        (b.metricDate ?? b.lastSynced)!
+      )
     );
 }
 
@@ -93,10 +88,7 @@ function formatPercentChange(summary?: MetricSummary | null) {
 function getBounds(pts: LinePoint[]) {
   if (!pts.length)
     return { min: null as Date | null, max: null as Date | null };
-  const dates = pts
-    .map((p) => p.date)
-    .slice()
-    .sort(); // YYYY-MM-DD sorts correctly
+  const dates = pts.map((p) => p.date).slice().sort();
   return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
 }
 
@@ -104,10 +96,8 @@ function filterByRange(pts: LinePoint[], range: DateRangeId) {
   if (!pts.length) return pts;
   if (range === "all") return pts;
 
-  // ✅ Calendar-based ranges anchored to TODAY
   const end = new Date();
   end.setHours(0, 0, 0, 0);
-
   const start = new Date(end);
 
   if (range === "7d") start.setDate(start.getDate() - 6);
@@ -142,8 +132,8 @@ export default function InstagramPage() {
               metric: cfg.metric,
               startDate: DEFAULT_START_DATE,
               endDate: DEFAULT_END_DATE,
-            }).then((rows) => ({ cfg, rows })),
-          ),
+            }).then((rows) => ({ cfg, rows }))
+          )
         );
 
         const nextRaw: Record<string, LinePoint[]> = {};
@@ -160,28 +150,25 @@ export default function InstagramPage() {
   }, []);
 
   const computed = useMemo(() => {
-    return METRICS.reduce(
-      (acc, cfg) => {
-        const full = rawSeries[cfg.id] ?? [];
-        const filtered = filterByRange(full, ranges[cfg.id] ?? "30d");
-        const summary = summarizeSeries(filtered);
-        const bounds = getBounds(full);
-        acc[cfg.id] = { full, filtered, summary, bounds };
-        return acc;
-      },
-      {} as Record<
-        string,
-        {
-          full: LinePoint[];
-          filtered: LinePoint[];
-          summary: MetricSummary;
-          bounds: { min: Date | null; max: Date | null };
-        }
-      >,
-    );
+    return METRICS.reduce((acc, cfg) => {
+      const full = rawSeries[cfg.id] ?? [];
+      const filtered = filterByRange(full, ranges[cfg.id] ?? "30d");
+      const summary = summarizeSeries(filtered);
+      const bounds = getBounds(full);
+      acc[cfg.id] = { full, filtered, summary, bounds };
+      return acc;
+    }, {} as Record<
+      string,
+      {
+        full: LinePoint[];
+        filtered: LinePoint[];
+        summary: MetricSummary;
+        bounds: { min: Date | null; max: Date | null };
+      }
+    >);
   }, [rawSeries, ranges]);
 
-  // Pie data (top-right card) — uses current (filtered) values
+  // Pie data
   const likesNow = computed["likes"]?.summary.current ?? 0;
   const commentsNow = computed["comments"]?.summary.current ?? 0;
   const postsNow = computed["posts"]?.summary.current ?? 0;
@@ -191,10 +178,9 @@ export default function InstagramPage() {
     { label: "Comments", value: commentsNow },
     { label: "Posts", value: postsNow },
   ];
-
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
-      {/* Header (GA style) */}
+      {/* Header */}
       <div className="w-full flex flex-col lg:flex-row justify-between items-center px-4 py-2">
         <div className="flex items-center space-x-2">
           <button
@@ -220,22 +206,21 @@ export default function InstagramPage() {
             Instagram
           </h1>
         </div>
-
+  
         <div className="flex space-x-2 mt-2 lg:mt-0">
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
-
+  
       {/* Content */}
       <div className="flex flex-col gap-4 px-4 lg:h-full">
-        {/* Top band: 2x2 small cards (left) + pie card (right) */}
+        {/* Top band: 2x2 small cards + pie chart */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Upper-left: 2x2 grid */}
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {["impressions", "followers", "likes", "comments"].map((id) => {
+            {["impressions", "followers", "posts", "comments"].map((id) => {
               const cfg = METRICS.find((m) => m.id === id)!;
               const s = computed[id]?.summary;
-
+  
               return (
                 <SmallCard
                   key={id}
@@ -249,8 +234,8 @@ export default function InstagramPage() {
               );
             })}
           </div>
-
-          {/* Upper-right: pie */}
+  
+          {/* Pie chart */}
           <div className="lg:col-span-1">
             <BigCard
               title="Engagement Mix"
@@ -268,15 +253,15 @@ export default function InstagramPage() {
             />
           </div>
         </div>
-
-        {/* Main charts below */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 lg:h-full">
-          {METRICS.map((cfg) => {
+    
+        {/* Only Posts BigCard */}
+        <div className="w-full grid grid-cols-1  gap-4 lg:h-full">
+          {METRICS.filter((cfg) => cfg.id === "likes").map((cfg) => {
             const item = computed[cfg.id];
             const filtered = item?.filtered ?? [];
             const bounds = item?.bounds ?? { min: null, max: null };
             const summary = item?.summary ?? { current: 0, prev: null };
-
+  
             return (
               <div key={cfg.id}>
                 <BigCard
@@ -320,4 +305,5 @@ export default function InstagramPage() {
       </div>
     </div>
   );
-}
+  }
+  
