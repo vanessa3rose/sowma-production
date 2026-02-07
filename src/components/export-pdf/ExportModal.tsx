@@ -1,7 +1,7 @@
 import { useState } from "react";
 import CheckboxTitle from "./CheckboxTitle";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import DateRangeButton from "../date-range/DateRangeButton";
+import DateDropdown, { DateRangeId } from "../charts/DateDropdown";
 import { Platform, PLATFORM_LABELS } from "../../config/chartConfigs";
 import LoadingAnimation from "../LoadingAnimation";
 
@@ -12,7 +12,10 @@ interface ModalProps {
    * Called when the user clicks "Download PDF" with the platforms
    * they have selected.
    */
-  onExport: (platforms: Platform[]) => Promise<void> | void;
+  onExport: (
+    platforms: Platform[],
+    range: DateRangeId,
+  ) => Promise<void> | void;
 }
 
 // Label for the "select everything" option at the top of the list.
@@ -46,6 +49,7 @@ export default function ExportModal({
     });
     return base;
   });
+  const [range, setRange] = useState<DateRangeId>("30d");
 
   /**
    * Handle checkbox changes for either:
@@ -81,6 +85,10 @@ export default function ExportModal({
   };
 
   const [isLoading, setIsLoading] = useState(false);
+  const handleCancel = () => {
+    setIsLoading(false);
+    setIsOpen(false);
+  };
 
   /**
    * When the user clicks "Download PDF":
@@ -99,10 +107,11 @@ export default function ExportModal({
 
     if (selectedPlatforms.length === 0) {
       // Nothing selected: you could show a message here if desired.
+      setIsLoading(false);
       return;
     }
 
-    await onExport(selectedPlatforms);
+    await onExport(selectedPlatforms, range);
     setIsLoading(false);
     setIsOpen(false);
   };
@@ -110,14 +119,14 @@ export default function ExportModal({
   return (
     <Dialog
       open={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={handleCancel}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
     >
       <DialogPanel className="w-[404px] h-[454px] bg-white rounded-xl shadow-lg flex flex-col p-6">
         <DialogTitle className="relative text-xl font-semibold mb-4">
           Select for Export
           <div className="absolute top-[-10px] left-[175px] w-[184px] h-[46px] right-0 opacity-100 rounded-[9px] bg-white border-[#A1A1A1] border-[0.9px]">
-            <DateRangeButton />
+            <DateDropdown value={range} onChange={setRange} className="p-1" />
           </div>
         </DialogTitle>
 
@@ -153,7 +162,7 @@ export default function ExportModal({
         <div className="mt-auto flex justify-end gap-2 pt-4">
           <button
             type="button"
-            onClick={() => setIsOpen(false)}
+            onClick={handleCancel}
             className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 text-sm font-medium"
           >
             Cancel
