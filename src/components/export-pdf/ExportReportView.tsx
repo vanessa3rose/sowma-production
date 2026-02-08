@@ -109,7 +109,6 @@ function ChartBlock({
             xAxisKey="date"
             dataKeys={dataKeys}
             showArea
-            showLegend={false}
           />
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-gray-500">
