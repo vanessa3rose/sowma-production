@@ -1,7 +1,3 @@
-// scripts/constant_contact_backfill.ts
-// Usage:
-//   npx tsx scripts/constant-contact-backfill.ts 2025-01-01 2025-01-31
-
 import { fileURLToPath } from "node:url";
 import {
   PrismaClient,
@@ -211,7 +207,10 @@ function aggregateCampaigns(campaigns: CampaignSummary[]) {
 /* -------------------------------------------------
    Backfill logic
 -------------------------------------------------- */
-async function backfillConstantContact(rangeStart: Date, rangeEnd: Date) {
+async function backfillConstantContact() {
+  const rangeEnd = startOfDay(new Date(Date.now() - 24 * 60 * 60 * 1000)); // yesterday
+  const rangeStart = startOfDay(new Date(Date.now() - 5 * 365 * 24 * 60 * 60 * 1000)); // 5 years
+
   console.log(
     `[CC] Starting backfill: ${formatISODate(rangeStart)} → ${formatISODate(rangeEnd)}`,
   );
@@ -298,42 +297,9 @@ async function backfillConstantContact(rangeStart: Date, rangeEnd: Date) {
   console.log("\n[CC] Backfill complete");
 }
 
-/* -------------------------------------------------
-   CLI entrypoint
--------------------------------------------------- */
-function parseArgs(): { startDate: Date; endDate: Date } {
-  const args = process.argv.slice(2);
-
-  if (args.length < 2) {
-    console.error(
-      "Usage: npx tsx scripts/constant_contact_backfill.ts <start-date> <end-date>",
-    );
-    console.error(
-      "Example: npx tsx scripts/constant_contact_backfill.ts 2025-01-01 2025-01-31",
-    );
-    process.exit(1);
-  }
-
-  const startDate = new Date(args[0]);
-  const endDate = new Date(args[1]);
-
-  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-    console.error("Error: Invalid date format. Use YYYY-MM-DD");
-    process.exit(1);
-  }
-
-  if (startDate > endDate) {
-    console.error("Error: Start date must be before end date");
-    process.exit(1);
-  }
-
-  return { startDate: startOfDay(startDate), endDate: startOfDay(endDate) };
-}
-
 async function main() {
   try {
-    const { startDate, endDate } = parseArgs();
-    await backfillConstantContact(startDate, endDate);
+    await backfillConstantContact();
   } catch (err) {
     console.error("[CC] Backfill failed:", err);
     process.exitCode = 1;
