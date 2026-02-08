@@ -3,10 +3,18 @@
 //   npx tsx scripts/constant-contact-backfill.ts 2025-01-01 2025-01-31
 
 import { fileURLToPath } from "node:url";
-import { PrismaClient, Metric, Provider } from "../src/generated/prisma/index.js";
+import {
+  PrismaClient,
+  Metric,
+  Provider,
+} from "../src/generated/prisma/index.js";
 import fetch from "node-fetch";
 import "dotenv/config";
-import { startOfDay, formatISODate, metricsExistForDay } from "../src/utils/dates";
+import {
+  startOfDay,
+  formatISODate,
+  metricsExistForDay,
+} from "../src/utils/dates";
 
 /* -------------------------------------------------
    Prisma Client
@@ -75,13 +83,17 @@ async function refreshAccessToken(auth: {
   id: string;
 }): Promise<string> {
   if (!auth.refreshToken) {
-    throw new Error(`[CC] Missing refresh token for auth ${auth.id} (required for backfill).`);
+    throw new Error(
+      `[CC] Missing refresh token for auth ${auth.id} (required for backfill).`,
+    );
   }
 
   const clientId = process.env.CONSTANT_CONTACT_CLIENT_ID ?? "";
   const clientSecret = process.env.CONSTANT_CONTACT_CLIENT_SECRET ?? "";
   if (!clientId || !clientSecret) {
-    throw new Error("[CC] Missing CONSTANT_CONTACT_CLIENT_ID / CONSTANT_CONTACT_CLIENT_SECRET in .env");
+    throw new Error(
+      "[CC] Missing CONSTANT_CONTACT_CLIENT_ID / CONSTANT_CONTACT_CLIENT_SECRET in .env",
+    );
   }
 
   const body = new URLSearchParams({
@@ -89,14 +101,17 @@ async function refreshAccessToken(auth: {
     refresh_token: auth.refreshToken,
   });
 
-  const res = await fetch("https://authz.constantcontact.com/oauth2/default/v1/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
+  const res = await fetch(
+    "https://authz.constantcontact.com/oauth2/default/v1/token",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
+      },
+      body,
     },
-    body,
-  });
+  );
 
   const j = (await res.json()) as {
     access_token?: string;
@@ -105,7 +120,9 @@ async function refreshAccessToken(auth: {
   };
 
   if (!res.ok) {
-    throw new Error(`[CC] Token refresh failed: ${res.status} ${JSON.stringify(j)}`);
+    throw new Error(
+      `[CC] Token refresh failed: ${res.status} ${JSON.stringify(j)}`,
+    );
   }
 
   await prisma.socialMediaAuth.update({
@@ -113,7 +130,9 @@ async function refreshAccessToken(auth: {
     data: {
       accessToken: j.access_token ?? auth.accessToken,
       refreshToken: j.refresh_token ?? auth.refreshToken,
-      expiresAt: j.expires_in ? new Date(Date.now() + j.expires_in * 1000) : undefined,
+      expiresAt: j.expires_in
+        ? new Date(Date.now() + j.expires_in * 1000)
+        : undefined,
     },
   });
 
@@ -133,7 +152,10 @@ function isSameDay(dateStr: string, target: Date): boolean {
   );
 }
 
-async function fetchCampaignsSentOn(accessToken: string, targetDate: Date): Promise<CampaignSummary[]> {
+async function fetchCampaignsSentOn(
+  accessToken: string,
+  targetDate: Date,
+): Promise<CampaignSummary[]> {
   const results: CampaignSummary[] = [];
   let url: string | null =
     "https://api.cc.email/v3/reports/summary_reports/email_campaign_summaries?limit=50";
@@ -164,7 +186,9 @@ async function fetchCampaignsSentOn(accessToken: string, targetDate: Date): Prom
       break;
     }
 
-    url = data._links?.next?.href ? `https://api.cc.email${data._links.next.href}` : null;
+    url = data._links?.next?.href
+      ? `https://api.cc.email${data._links.next.href}`
+      : null;
   }
 
   return results;
@@ -174,7 +198,8 @@ function aggregateCampaigns(campaigns: CampaignSummary[]) {
   return campaigns.reduce(
     (acc, c) => ({
       sends: acc.sends + c.unique_counts.sends,
-      delivered: acc.delivered + (c.unique_counts.sends - c.unique_counts.bounces),
+      delivered:
+        acc.delivered + (c.unique_counts.sends - c.unique_counts.bounces),
       opens: acc.opens + c.unique_counts.opens,
       clicks: acc.clicks + c.unique_counts.clicks,
       unsubscribes: acc.unsubscribes + c.unique_counts.optouts,
@@ -187,7 +212,9 @@ function aggregateCampaigns(campaigns: CampaignSummary[]) {
    Backfill logic
 -------------------------------------------------- */
 async function backfillConstantContact(rangeStart: Date, rangeEnd: Date) {
-  console.log(`[CC] Starting backfill: ${formatISODate(rangeStart)} → ${formatISODate(rangeEnd)}`);
+  console.log(
+    `[CC] Starting backfill: ${formatISODate(rangeStart)} → ${formatISODate(rangeEnd)}`,
+  );
 
   const account = await getConstantContactAccountOrThrow();
 
@@ -196,7 +223,9 @@ async function backfillConstantContact(rangeStart: Date, rangeEnd: Date) {
     throw new Error(`[CC] Missing SocialMediaAuth row for ${account.username}`);
   }
   if (!auth.refreshToken) {
-    throw new Error(`[CC] ${account.username}: missing refresh token (required for backfill)`);
+    throw new Error(
+      `[CC] ${account.username}: missing refresh token (required for backfill)`,
+    );
   }
 
   console.log(`\n[CC] Backfilling: ${account.username}`);
@@ -231,7 +260,10 @@ async function backfillConstantContact(rangeStart: Date, rangeEnd: Date) {
         { metricName: Metric.EMAILS_DELIVERED, metricValue: totals.delivered },
         { metricName: Metric.EMAIL_OPENED, metricValue: totals.opens },
         { metricName: Metric.EMAILS_CLICKED, metricValue: totals.clicks },
-        { metricName: Metric.EMAILS_UNSUBSCRIBED, metricValue: totals.unsubscribes },
+        {
+          metricName: Metric.EMAILS_UNSUBSCRIBED,
+          metricValue: totals.unsubscribes,
+        },
       ] as const;
 
       await prisma.$transaction(
@@ -273,8 +305,12 @@ function parseArgs(): { startDate: Date; endDate: Date } {
   const args = process.argv.slice(2);
 
   if (args.length < 2) {
-    console.error("Usage: npx tsx scripts/constant_contact_backfill.ts <start-date> <end-date>");
-    console.error("Example: npx tsx scripts/constant_contact_backfill.ts 2025-01-01 2025-01-31");
+    console.error(
+      "Usage: npx tsx scripts/constant_contact_backfill.ts <start-date> <end-date>",
+    );
+    console.error(
+      "Example: npx tsx scripts/constant_contact_backfill.ts 2025-01-01 2025-01-31",
+    );
     process.exit(1);
   }
 

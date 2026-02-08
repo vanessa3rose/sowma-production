@@ -12,19 +12,30 @@ async function refreshAccessToken(refreshToken: string) {
 
   const clientId = process.env.CONSTANT_CONTACT_CLIENT_ID ?? "";
   const clientSecret = process.env.CONSTANT_CONTACT_CLIENT_SECRET ?? "";
-  if (!clientId || !clientSecret) throw new Error("Missing CC client id/secret");
+  if (!clientId || !clientSecret)
+    throw new Error("Missing CC client id/secret");
 
-  const res = await fetch("https://authz.constantcontact.com/oauth2/default/v1/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
+  const res = await fetch(
+    "https://authz.constantcontact.com/oauth2/default/v1/token",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
+      },
+      body,
     },
-    body,
-  });
+  );
 
-  const j = (await res.json()) as { access_token?: string; refresh_token?: string; expires_in?: number };
-  if (!res.ok) throw new Error(`CC token refresh failed: ${res.status} ${JSON.stringify(j)}`);
+  const j = (await res.json()) as {
+    access_token?: string;
+    refresh_token?: string;
+    expires_in?: number;
+  };
+  if (!res.ok)
+    throw new Error(
+      `CC token refresh failed: ${res.status} ${JSON.stringify(j)}`,
+    );
 
   return {
     accessToken: j.access_token!,
@@ -35,7 +46,8 @@ async function refreshAccessToken(refreshToken: string) {
 
 async function main() {
   const refreshToken = process.env.CONSTANT_CONTACT_REFRESH_TOKEN;
-  if (!refreshToken) throw new Error("Missing CONSTANT_CONTACT_REFRESH_TOKEN in .env");
+  if (!refreshToken)
+    throw new Error("Missing CONSTANT_CONTACT_REFRESH_TOKEN in .env");
 
   // Find the SINGLE Constant Contact SocialMedia row
   const sm = await prisma.socialMedia.findFirst({

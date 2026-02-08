@@ -1,6 +1,8 @@
-// scripts/constant-contact-cron.ts
-
-import { PrismaClient, Metric, Provider } from "../src/generated/prisma/index.js";
+import {
+  PrismaClient,
+  Metric,
+  Provider,
+} from "../src/generated/prisma/index.js";
 import fetch from "node-fetch";
 import "dotenv/config";
 import { startOfDay, endOfDay, formatISODate } from "../src/utils/dates";
@@ -101,7 +103,10 @@ async function fetchAllSummariesForDay(accessToken: string, metricDate: Date) {
     const page = await fetchSummariesPage(accessToken, next);
 
     for (const row of page.bulk_email_campaign_summaries ?? []) {
-      if (row.last_sent_date && isWithinUtcDay(row.last_sent_date, metricDate)) {
+      if (
+        row.last_sent_date &&
+        isWithinUtcDay(row.last_sent_date, metricDate)
+      ) {
         out.push(row);
       }
     }
@@ -121,7 +126,9 @@ export async function runDailyConstantContactSync() {
   try {
     // T-1 (yesterday UTC)
     const metricDate = startOfDay(new Date(Date.now() - 24 * 60 * 60 * 1000));
-    console.log(`[CC] Starting daily sync for ${formatISODate(metricDate)} (T-1 UTC)`);
+    console.log(
+      `[CC] Starting daily sync for ${formatISODate(metricDate)} (T-1 UTC)`,
+    );
 
     const account = await getConstantContactAccountOrThrow();
 
@@ -132,7 +139,9 @@ export async function runDailyConstantContactSync() {
       );
     }
 
-    console.log(`[CC] Syncing ${account.username} (${formatISODate(metricDate)})`);
+    console.log(
+      `[CC] Syncing ${account.username} (${formatISODate(metricDate)})`,
+    );
 
     const summaries = await fetchAllSummariesForDay(accessToken, metricDate);
 
@@ -158,7 +167,10 @@ export async function runDailyConstantContactSync() {
       { metricName: Metric.EMAILS_DELIVERED, metricValue: emailsDelivered },
       { metricName: Metric.EMAIL_OPENED, metricValue: emailOpened },
       { metricName: Metric.EMAILS_CLICKED, metricValue: emailsClicked },
-      { metricName: Metric.EMAILS_UNSUBSCRIBED, metricValue: emailsUnsubscribed },
+      {
+        metricName: Metric.EMAILS_UNSUBSCRIBED,
+        metricValue: emailsUnsubscribed,
+      },
     ] as const;
 
     // Idempotent: replace metrics for that day
@@ -195,9 +207,4 @@ export async function runDailyConstantContactSync() {
   }
 }
 
-if (process.env.RUN_CRON === "1") {
-  runDailyConstantContactSync().catch((e) => {
-    console.error(e);
-    process.exit(1);
-  });
-}
+runDailyConstantContactSync().catch(console.error);
