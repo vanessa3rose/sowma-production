@@ -4,10 +4,7 @@ import type { Platform } from "../../config/chartConfigs";
 import type { DateRangeId } from "../charts/DateDropdown";
 
 interface ExportButtonProps {
-  onExport: (
-    platforms: Platform[],
-    range: DateRangeId,
-  ) => Promise<void> | void;
+  onExport: (platforms: Platform[], range: DateRangeId) => Promise<void> | void;
 }
 
 export default function ExportButton({ onExport }: ExportButtonProps) {

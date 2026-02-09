@@ -12,10 +12,7 @@ interface ModalProps {
    * Called when the user clicks "Download PDF" with the platforms
    * they have selected.
    */
-  onExport: (
-    platforms: Platform[],
-    range: DateRangeId,
-  ) => Promise<void> | void;
+  onExport: (platforms: Platform[], range: DateRangeId) => Promise<void> | void;
 }
 
 // Label for the "select everything" option at the top of the list.
