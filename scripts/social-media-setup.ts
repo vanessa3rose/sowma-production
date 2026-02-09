@@ -49,7 +49,7 @@ const SOCIAL_MEDIA_CONFIG = [
     displayName: "School on Wheels Constant Contact",
     profileUrl: "https://www.constantcontact.com/",
     email: null,
-  }
+  },
 ];
 
 /**

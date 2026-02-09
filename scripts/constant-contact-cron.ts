@@ -1,4 +1,8 @@
-import { PrismaClient, Metric, Provider } from "../src/generated/prisma/index.js";
+import {
+  PrismaClient,
+  Metric,
+  Provider,
+} from "../src/generated/prisma/index.js";
 import fetch from "node-fetch";
 import "dotenv/config";
 import { startOfDay, endOfDay, formatISODate } from "../src/utils/dates";
@@ -25,7 +29,6 @@ type CampaignSummary = {
     opens?: number;
     clicks?: number;
     optouts?: number; // unsubscribes
-
   };
 };
 
@@ -75,7 +78,10 @@ async function fetchAllSummariesForDay(accessToken: string, metricDate: Date) {
     const page = await fetchSummariesPage(accessToken, next);
 
     for (const row of page.bulk_email_campaign_summaries ?? []) {
-      if (row.last_sent_date && isWithinUtcDay(row.last_sent_date, metricDate)) {
+      if (
+        row.last_sent_date &&
+        isWithinUtcDay(row.last_sent_date, metricDate)
+      ) {
         out.push(row);
       }
     }
@@ -94,7 +100,9 @@ async function fetchAllSummariesForDay(accessToken: string, metricDate: Date) {
 export async function runDailyConstantContactSync() {
   // T-1 (yesterday UTC)
   const metricDate = startOfDay(new Date(Date.now() - 24 * 60 * 60 * 1000));
-  console.log(`[CC] Starting daily sync for ${formatISODate(metricDate)} (T-1 UTC)`);
+  console.log(
+    `[CC] Starting daily sync for ${formatISODate(metricDate)} (T-1 UTC)`,
+  );
 
   const accounts = await prisma.socialMedia.findMany({
     where: { provider: Provider.CONSTANT_CONTACT },
@@ -105,11 +113,15 @@ export async function runDailyConstantContactSync() {
     const accessToken = account.SocialMediaAuth?.accessToken;
 
     if (!accessToken) {
-      console.warn(`[CC] ${account.username}: missing access token (need initial OAuth)`);
+      console.warn(
+        `[CC] ${account.username}: missing access token (need initial OAuth)`,
+      );
       continue;
     }
 
-    console.log(`[CC] Syncing ${account.username} (${formatISODate(metricDate)})`);
+    console.log(
+      `[CC] Syncing ${account.username} (${formatISODate(metricDate)})`,
+    );
 
     try {
       const summaries = await fetchAllSummariesForDay(accessToken, metricDate);
@@ -138,7 +150,10 @@ export async function runDailyConstantContactSync() {
         { metricName: Metric.EMAILS_DELIVERED, metricValue: emailsDelivered },
         { metricName: Metric.EMAIL_OPENED, metricValue: emailOpened },
         { metricName: Metric.EMAILS_CLICKED, metricValue: emailsClicked },
-        { metricName: Metric.EMAILS_UNSUBSCRIBED, metricValue: emailsUnsubscribed },
+        {
+          metricName: Metric.EMAILS_UNSUBSCRIBED,
+          metricValue: emailsUnsubscribed,
+        },
       ];
 
       // Idempotency (stronger than metricsExistForDay):
@@ -179,11 +194,13 @@ export async function runDailyConstantContactSync() {
         `[CC] ${account.username} OK: campaigns=${summaries.length} sent=${emailsSent} opened=${emailOpened} clicked=${emailsClicked} unsub=${emailsUnsubscribed}`,
       );
     } catch (err) {
-      console.error(`[CC] Sync failed for ${account.username} (${formatISODate(metricDate)})`, err);
+      console.error(
+        `[CC] Sync failed for ${account.username} (${formatISODate(metricDate)})`,
+        err,
+      );
     }
   }
 
   console.log("[CC] Daily Constant Contact sync complete");
   await prisma.$disconnect();
 }
-

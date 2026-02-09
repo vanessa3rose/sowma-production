@@ -29,10 +29,7 @@ export function GlobalPageExportProvider({
 }) {
   const { exportCardsToPDF } = usePDFExporter();
 
-  async function exportByPlatforms(
-    platforms: Platform[],
-    range: DateRangeId,
-  ) {
+  async function exportByPlatforms(platforms: Platform[], range: DateRangeId) {
     const selections: ExportCardSelection[] = [];
 
     for (const platform of platforms) {
@@ -47,8 +44,10 @@ export function GlobalPageExportProvider({
         });
       } else {
         // ⭐ NEW: independent social export path
-        const bundle: SocialExportBundle =
-          await fetchSocialExportBundle(platform, range);
+        const bundle: SocialExportBundle = await fetchSocialExportBundle(
+          platform,
+          range,
+        );
 
         selections.push({
           type: "social",

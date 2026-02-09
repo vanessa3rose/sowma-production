@@ -26,7 +26,11 @@ const GOOGLE_METRICS: ExportMetricDefinition[] = [
   { id: "ENGAGEMENT_RATE", label: "Engagement Rate", format: "percent" },
   { id: "NEW_USERS", label: "New Users" },
   { id: "BOUNCE_RATE", label: "Bounce Rate", format: "percent" },
-  { id: "AVG_SESSION_DURATION", label: "Avg Session Duration", format: "seconds" },
+  {
+    id: "AVG_SESSION_DURATION",
+    label: "Avg Session Duration",
+    format: "seconds",
+  },
   { id: "TOTAL_SESSIONS", label: "Total Sessions" },
   { id: "ENGAGED_SESSIONS", label: "Engaged Sessions" },
   { id: "PAGES_PER_SESSION", label: "Pages Per Session", format: "decimal" },

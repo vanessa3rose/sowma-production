@@ -156,7 +156,10 @@ function buildChartPages<T>(
     (includeHeader ? REPORT_HEADER_HEIGHT_PX : 0);
 
   for (let i = 0; i < charts.length; i += CHARTS_PER_ROW) {
-    if (used + CHART_ROW_HEIGHT_PX > PAGE_MAX_HEIGHT_PX && current.charts.length > 0) {
+    if (
+      used + CHART_ROW_HEIGHT_PX > PAGE_MAX_HEIGHT_PX &&
+      current.charts.length > 0
+    ) {
       pages.push(current);
       current = { charts: [], includeMetrics: false };
       used = PLATFORM_HEADER_HEIGHT_PX;
@@ -199,11 +202,7 @@ export default function ExportReportView({
           };
         });
 
-        const chartChunks = buildChartPages(
-          config.charts,
-          true,
-          index === 0,
-        );
+        const chartChunks = buildChartPages(config.charts, true, index === 0);
 
         return (
           <div key={`${selection.type}-${index}`}>

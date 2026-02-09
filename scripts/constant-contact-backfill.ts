@@ -1,10 +1,12 @@
-
 // Usage:
 //   npx tsx scripts/constant_contact_backfill.ts 2025-01-01 2025-01-31
 
-
 import { fileURLToPath } from "node:url";
-import { PrismaClient, Metric, Provider } from "../src/generated/prisma/index.js";
+import {
+  PrismaClient,
+  Metric,
+  Provider,
+} from "../src/generated/prisma/index.js";
 import fetch from "node-fetch";
 import "dotenv/config";
 import {
@@ -63,7 +65,9 @@ async function refreshAccessToken(auth: {
   id: string;
 }): Promise<string> {
   if (!auth.refreshToken) {
-    console.warn(`[CC] No refresh token for auth ${auth.id}, using existing access token`);
+    console.warn(
+      `[CC] No refresh token for auth ${auth.id}, using existing access token`,
+    );
     return auth.accessToken;
   }
 
@@ -79,11 +83,11 @@ async function refreshAccessToken(auth: {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         Authorization: `Basic ${Buffer.from(
-          `${process.env.CONSTANT_CONTACT_CLIENT_ID}:${process.env.CONSTANT_CONTACT_CLIENT_SECRET}`
+          `${process.env.CONSTANT_CONTACT_CLIENT_ID}:${process.env.CONSTANT_CONTACT_CLIENT_SECRET}`,
         ).toString("base64")}`,
       },
       body,
-    }
+    },
   );
 
   const j = (await res.json()) as {
@@ -94,7 +98,7 @@ async function refreshAccessToken(auth: {
 
   if (!res.ok) {
     throw new Error(
-      `[CC] Token refresh failed: ${res.status} ${JSON.stringify(j)}`
+      `[CC] Token refresh failed: ${res.status} ${JSON.stringify(j)}`,
     );
   }
 
@@ -128,7 +132,7 @@ function isSameDay(dateStr: string, target: Date): boolean {
 
 async function fetchCampaignsSentOn(
   accessToken: string,
-  targetDate: Date
+  targetDate: Date,
 ): Promise<CampaignSummary[]> {
   const results: CampaignSummary[] = [];
   let url: string | null =
@@ -173,25 +177,21 @@ function aggregateCampaigns(campaigns: CampaignSummary[]) {
     (acc, c) => ({
       sends: acc.sends + c.unique_counts.sends,
       delivered:
-        acc.delivered +
-        (c.unique_counts.sends - c.unique_counts.bounces),
+        acc.delivered + (c.unique_counts.sends - c.unique_counts.bounces),
       opens: acc.opens + c.unique_counts.opens,
       clicks: acc.clicks + c.unique_counts.clicks,
       unsubscribes: acc.unsubscribes + c.unique_counts.optouts,
     }),
-    { sends: 0, delivered: 0, opens: 0, clicks: 0, unsubscribes: 0 }
+    { sends: 0, delivered: 0, opens: 0, clicks: 0, unsubscribes: 0 },
   );
 }
 
 /* -------------------------------------------------
    Backfill logic
 -------------------------------------------------- */
-async function backfillConstantContact(
-  rangeStart: Date,
-  rangeEnd: Date
-) {
+async function backfillConstantContact(rangeStart: Date, rangeEnd: Date) {
   console.log(
-    `[CC] Starting backfill: ${formatISODate(rangeStart)} → ${formatISODate(rangeEnd)}`
+    `[CC] Starting backfill: ${formatISODate(rangeStart)} → ${formatISODate(rangeEnd)}`,
   );
 
   const accounts = await prisma.socialMedia.findMany({
@@ -208,7 +208,7 @@ async function backfillConstantContact(
     const auth = account.SocialMediaAuth;
     if (!auth || !auth.refreshToken) {
       console.warn(
-        `[CC] ${account.username}: missing auth/refresh token, skipping`
+        `[CC] ${account.username}: missing auth/refresh token, skipping`,
       );
       continue;
     }
@@ -250,10 +250,16 @@ async function backfillConstantContact(
 
         const metricsToInsert = [
           { metricName: Metric.EMAILS_SENT, metricValue: totals.sends },
-          { metricName: Metric.EMAILS_DELIVERED, metricValue: totals.delivered },
+          {
+            metricName: Metric.EMAILS_DELIVERED,
+            metricValue: totals.delivered,
+          },
           { metricName: Metric.EMAIL_OPENED, metricValue: totals.opens },
           { metricName: Metric.EMAILS_CLICKED, metricValue: totals.clicks },
-          { metricName: Metric.EMAILS_UNSUBSCRIBED, metricValue: totals.unsubscribes },
+          {
+            metricName: Metric.EMAILS_UNSUBSCRIBED,
+            metricValue: totals.unsubscribes,
+          },
         ];
 
         // Insert all metrics in a single transaction
@@ -267,12 +273,12 @@ async function backfillConstantContact(
                 metricDate,
                 lastSynced: new Date(),
               },
-            })
-          )
+            }),
+          ),
         );
 
         console.log(
-          `  ${dateStr} — ${campaigns.length} campaign(s): sent=${totals.sends} opened=${totals.opens} clicked=${totals.clicks} unsub=${totals.unsubscribes}`
+          `  ${dateStr} — ${campaigns.length} campaign(s): sent=${totals.sends} opened=${totals.opens} clicked=${totals.clicks} unsub=${totals.unsubscribes}`,
         );
       } catch (err: any) {
         // If we get a 401, try refreshing the token once
@@ -283,7 +289,9 @@ async function backfillConstantContact(
             // Don't increment — retry this day
             continue;
           } catch (refreshErr) {
-            console.error(`[CC] Token re-refresh failed, stopping backfill for ${account.username}`);
+            console.error(
+              `[CC] Token re-refresh failed, stopping backfill for ${account.username}`,
+            );
             break;
           }
         }
@@ -307,8 +315,12 @@ function parseArgs(): { startDate: Date; endDate: Date } {
   const args = process.argv.slice(2);
 
   if (args.length < 2) {
-    console.error("Usage: npx tsx scripts/constant_contact_backfill.ts <start-date> <end-date>");
-    console.error("Example: npx tsx scripts/constant_contact_backfill.ts 2025-01-01 2025-01-31");
+    console.error(
+      "Usage: npx tsx scripts/constant_contact_backfill.ts <start-date> <end-date>",
+    );
+    console.error(
+      "Example: npx tsx scripts/constant_contact_backfill.ts 2025-01-01 2025-01-31",
+    );
     process.exit(1);
   }
 
