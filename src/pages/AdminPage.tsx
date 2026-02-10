@@ -51,7 +51,7 @@ export default function AdminPage() {
               <button
                 key={tab}
                 onClick={() => setSelectedTab(tab)}
-                className={`font-poppins font-bold text-2xl leading-[48px] transition-colors px-5 py-1 rounded-full ${
+                className={`font-poppins font-bold text-2xl leading-7 transition-colors px-5 py-1 rounded-full ${
                   isSelected
                     ? "bg-[#4e8bcc] text-white"
                     : "text-gray-500 hover:text-gray-600"
