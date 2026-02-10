@@ -6,6 +6,7 @@ import {
 import fetch from "node-fetch";
 import "dotenv/config";
 import { startOfDay, endOfDay, formatISODate } from "../src/utils/dates";
+import { ensureConstantContactAccessToken } from "./token-refresh";
 
 /* -------------------------------------------------
    Prisma Client
@@ -131,13 +132,12 @@ export async function runDailyConstantContactSync() {
     );
 
     const account = await getConstantContactAccountOrThrow();
-
-    const accessToken = account.SocialMediaAuth?.accessToken;
-    if (!accessToken) {
-      throw new Error(
-        `[CC] Missing access token for ${account.username}. Initial OAuth not completed / SocialMediaAuth row missing.`,
-      );
-    }
+    const { accessToken } = await ensureConstantContactAccessToken({
+      socialMediaId: account.id,
+      auth: account.SocialMediaAuth,
+      fallbackRefreshToken:
+        process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
+    });
 
     console.log(
       `[CC] Syncing ${account.username} (${formatISODate(metricDate)})`,

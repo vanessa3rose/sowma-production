@@ -11,6 +11,7 @@ import {
   formatISODate,
   metricsExistForDay,
 } from "../src/utils/dates";
+import { ensureConstantContactAccessToken } from "./token-refresh";
 
 /* -------------------------------------------------
    Prisma Client
@@ -73,68 +74,7 @@ async function getConstantContactAccountOrThrow() {
 /* -------------------------------------------------
    Token refresh (reuses existing CC OAuth logic)
 -------------------------------------------------- */
-async function refreshAccessToken(auth: {
-  accessToken: string;
-  refreshToken: string | null;
-  id: string;
-}): Promise<string> {
-  if (!auth.refreshToken) {
-    throw new Error(
-      `[CC] Missing refresh token for auth ${auth.id} (required for backfill).`,
-    );
-  }
-
-  const clientId = process.env.CONSTANT_CONTACT_CLIENT_ID ?? "";
-  const clientSecret = process.env.CONSTANT_CONTACT_CLIENT_SECRET ?? "";
-  if (!clientId || !clientSecret) {
-    throw new Error(
-      "[CC] Missing CONSTANT_CONTACT_CLIENT_ID / CONSTANT_CONTACT_CLIENT_SECRET in .env",
-    );
-  }
-
-  const body = new URLSearchParams({
-    grant_type: "refresh_token",
-    refresh_token: auth.refreshToken,
-  });
-
-  const res = await fetch(
-    "https://authz.constantcontact.com/oauth2/default/v1/token",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
-      },
-      body,
-    },
-  );
-
-  const j = (await res.json()) as {
-    access_token?: string;
-    refresh_token?: string;
-    expires_in?: number;
-  };
-
-  if (!res.ok) {
-    throw new Error(
-      `[CC] Token refresh failed: ${res.status} ${JSON.stringify(j)}`,
-    );
-  }
-
-  await prisma.socialMediaAuth.update({
-    where: { id: auth.id },
-    data: {
-      accessToken: j.access_token ?? auth.accessToken,
-      refreshToken: j.refresh_token ?? auth.refreshToken,
-      expiresAt: j.expires_in
-        ? new Date(Date.now() + j.expires_in * 1000)
-        : undefined,
-    },
-  });
-
-  console.log("[CC] Access token refreshed");
-  return j.access_token ?? auth.accessToken;
-}
+// Token refresh is centralized in scripts/token-refresh.ts
 
 /* -------------------------------------------------
    API helpers
@@ -176,7 +116,7 @@ async function fetchCampaignsSentOn(
       }
     }
 
-    // Results are sorted desc by last_sent_date — stop if we've gone past target
+    // Results are sorted desc by last_sent_date -- stop if we've gone past target
     const last = data.bulk_email_campaign_summaries.at(-1);
     if (last && new Date(last.last_sent_date) < startOfDay(targetDate)) {
       break;
@@ -212,25 +152,30 @@ async function backfillConstantContact() {
   const rangeStart = startOfDay(new Date(Date.now() - 5 * 365 * 24 * 60 * 60 * 1000)); // 5 years
 
   console.log(
-    `[CC] Starting backfill: ${formatISODate(rangeStart)} → ${formatISODate(rangeEnd)}`,
+    `[CC] Starting backfill: ${formatISODate(rangeStart)} -> ${formatISODate(rangeEnd)}`,
   );
 
   const account = await getConstantContactAccountOrThrow();
 
-  const auth = account.SocialMediaAuth;
-  if (!auth) {
-    throw new Error(`[CC] Missing SocialMediaAuth row for ${account.username}`);
-  }
-  if (!auth.refreshToken) {
-    throw new Error(
-      `[CC] ${account.username}: missing refresh token (required for backfill)`,
-    );
-  }
-
   console.log(`\n[CC] Backfilling: ${account.username}`);
 
   // Refresh token once at the start (good for ~24h)
-  let accessToken = await refreshAccessToken(auth);
+  let authId = account.SocialMediaAuth?.id ?? null;
+  let accessToken = account.SocialMediaAuth?.accessToken ?? null;
+  let refreshToken = account.SocialMediaAuth?.refreshToken ?? null;
+  let expiresAt = account.SocialMediaAuth?.expiresAt ?? null;
+
+  const refreshed = await ensureConstantContactAccessToken({
+    socialMediaId: account.id,
+    auth: account.SocialMediaAuth,
+    fallbackRefreshToken:
+      process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
+    forceRefresh: true,
+  });
+  authId = refreshed.authId;
+  accessToken = refreshed.accessToken;
+  refreshToken = refreshed.refreshToken;
+  expiresAt = refreshed.expiresAt;
 
   const current = new Date(rangeStart);
   while (current <= rangeEnd) {
@@ -238,7 +183,7 @@ async function backfillConstantContact() {
     const dateStr = formatISODate(metricDate);
 
     if (await metricsExistForDay(account.id, metricDate)) {
-      console.log(`  ${dateStr} — already exists, skipping`);
+      console.log(`  ${dateStr} -- already exists, skipping`);
       current.setUTCDate(current.getUTCDate() + 1);
       continue;
     }
@@ -247,7 +192,7 @@ async function backfillConstantContact() {
       const campaigns = await fetchCampaignsSentOn(accessToken, metricDate);
 
       if (campaigns.length === 0) {
-        console.log(`  ${dateStr} — no campaigns sent`);
+        console.log(`  ${dateStr} -- no campaigns sent`);
         current.setUTCDate(current.getUTCDate() + 1);
         continue;
       }
@@ -280,15 +225,31 @@ async function backfillConstantContact() {
       );
 
       console.log(
-        `  ${dateStr} — ${campaigns.length} campaign(s): sent=${totals.sends} opened=${totals.opens} clicked=${totals.clicks} unsub=${totals.unsubscribes}`,
+        `  ${dateStr} -- ${campaigns.length} campaign(s): sent=${totals.sends} opened=${totals.opens} clicked=${totals.clicks} unsub=${totals.unsubscribes}`,
       );
     } catch (err: any) {
       if (err?.message?.includes("401")) {
-        console.warn(`  ${dateStr} — 401, refreshing token and retrying…`);
-        accessToken = await refreshAccessToken(auth);
+        console.warn(`  ${dateStr} -- 401, refreshing token and retrying...`);
+        const retry = await ensureConstantContactAccessToken({
+          socialMediaId: account.id,
+          auth: {
+            id: authId ?? undefined,
+            accessToken,
+            refreshToken,
+            expiresAt,
+            lastRefreshed: new Date(),
+          },
+          fallbackRefreshToken:
+            process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
+          forceRefresh: true,
+        });
+        authId = retry.authId;
+        accessToken = retry.accessToken;
+        refreshToken = retry.refreshToken;
+        expiresAt = retry.expiresAt;
         continue; // retry same day
       }
-      console.error(`  ${dateStr} — failed:`, err);
+      console.error(`  ${dateStr} -- failed:`, err);
     }
 
     current.setUTCDate(current.getUTCDate() + 1);
