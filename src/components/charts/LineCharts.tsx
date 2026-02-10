@@ -6,7 +6,6 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Legend,
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
@@ -20,9 +19,39 @@ type LineChartProps = {
   xAxisKey: string;
   dataKeys: string[];
   showArea?: boolean;
+  autoAdjustYAxis?: boolean;
 };
 
-const LineCharts = ({ data, xAxisKey, dataKeys, showArea }: LineChartProps) => {
+const LineCharts = ({
+  data,
+  xAxisKey,
+  dataKeys,
+  showArea,
+  autoAdjustYAxis = true,
+}: LineChartProps) => {
+  const values: number[] = [];
+  if (autoAdjustYAxis) {
+    data.forEach((row) => {
+      dataKeys.forEach((key) => {
+        const v = Number(row?.[key]);
+        if (Number.isFinite(v)) values.push(v);
+      });
+    });
+  }
+
+  let yDomain: [number, number] | undefined;
+  if (autoAdjustYAxis && values.length > 0) {
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const span = max - min;
+    const spanRatio = max !== 0 ? span / Math.abs(max) : 0;
+    const farFromZero = min > 0 && min / Math.max(1, max) > 0.5;
+    if (spanRatio < 0.2 && farFromZero) {
+      const pad = span > 0 ? span * 0.1 : Math.max(1, Math.abs(max) * 0.1);
+      yDomain = [Math.floor(min - pad), Math.ceil(max + pad)];
+    }
+  }
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       {showArea ? (
@@ -58,10 +87,14 @@ const LineCharts = ({ data, xAxisKey, dataKeys, showArea }: LineChartProps) => {
           <XAxis
             dataKey={xAxisKey}
             tick={{ fontFamily: "Poppins, sans-serif" }}
+            interval="preserveStartEnd"
+            minTickGap={28}
           />
-          <YAxis tick={{ fontFamily: "Poppins, sans-serif" }} />
+          <YAxis
+            tick={{ fontFamily: "Poppins, sans-serif" }}
+            domain={yDomain}
+          />
           <Tooltip content={<ChartTooltip />} />
-          <Legend wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 
           {dataKeys.map((key, index) => (
             <Area
@@ -84,10 +117,14 @@ const LineCharts = ({ data, xAxisKey, dataKeys, showArea }: LineChartProps) => {
           <XAxis
             dataKey={xAxisKey}
             tick={{ fontFamily: "Poppins, sans-serif" }}
+            interval="preserveStartEnd"
+            minTickGap={28}
           />
-          <YAxis tick={{ fontFamily: "Poppins, sans-serif" }} />
+          <YAxis
+            tick={{ fontFamily: "Poppins, sans-serif" }}
+            domain={yDomain}
+          />
           <Tooltip content={<ChartTooltip />} />
-          <Legend wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 
           {dataKeys.map((key, index) => (
             <Line
