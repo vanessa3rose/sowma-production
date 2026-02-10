@@ -289,6 +289,7 @@ export default function Homepage() {
                   xAxisKey="date"
                   dataKeys={["impressions"]}
                   showArea
+                  autoAdjustYAxis
                 />
               </div>
             ) : (
@@ -325,6 +326,7 @@ export default function Homepage() {
                   data={daysPostedFiltered}
                   xAxisKey="date"
                   dataKeys={["posts"]}
+                  autoAdjustYAxis
                 />
               </div>
             ) : (
@@ -358,6 +360,7 @@ export default function Homepage() {
                   xAxisKey="date"
                   dataKeys={["sessions"]}
                   showArea
+                  autoAdjustYAxis
                 />
               </div>
             ) : (
@@ -396,6 +399,7 @@ export default function Homepage() {
                   data={followersFiltered}
                   xAxisKey="date"
                   dataKeys={["followers"]}
+                  autoAdjustYAxis
                 />
               </div>
             ) : (

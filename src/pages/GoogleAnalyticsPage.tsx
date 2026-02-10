@@ -9,7 +9,6 @@ import SmallCard from "../components/cards/SmallCard";
 import LineCharts from "../components/charts/LineCharts";
 import PieCharts from "../components/charts/PieCharts";
 // Buttons
-import DateRangeButton from "../components/date-range/DateRangeButton";
 import DateDropdown, { DateRangeId } from "../components/charts/DateDropdown";
 import ExportButton from "../components/export-pdf/ExportButton";
 
@@ -356,7 +355,6 @@ export default function GoogleAnalyticsPage() {
           </h1>
         </div>
         <div className="flex space-x-2 mt-2 lg:mt-0">
-          <DateRangeButton />
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>

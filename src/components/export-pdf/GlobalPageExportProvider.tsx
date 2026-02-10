@@ -4,6 +4,7 @@ import {
   SocialExportBundle,
   GoogleAnalyticsExportBundle,
 } from "../../types/exportTypes";
+import type { DateRangeId } from "../charts/DateDropdown";
 
 import { fetchGoogleExportBundle } from "./fetchExportData";
 // ⭐ NEW: social export is now fetched independently
@@ -13,7 +14,10 @@ import { Platform } from "../../config/chartConfigs";
 import { usePDFExporter } from "../../hooks/usePDFExporter";
 
 interface ExportContextValue {
-  exportByPlatforms: (platforms: Platform[]) => Promise<void>;
+  exportByPlatforms: (
+    platforms: Platform[],
+    range: DateRangeId,
+  ) => Promise<void>;
 }
 
 const ExportContext = createContext<ExportContextValue | null>(null);
@@ -25,14 +29,14 @@ export function GlobalPageExportProvider({
 }) {
   const { exportCardsToPDF } = usePDFExporter();
 
-  async function exportByPlatforms(platforms: Platform[]) {
+  async function exportByPlatforms(platforms: Platform[], range: DateRangeId) {
     const selections: ExportCardSelection[] = [];
 
     for (const platform of platforms) {
       if (platform === "google") {
         // ✅ leave GA path exactly as-is
         const bundle: GoogleAnalyticsExportBundle =
-          await fetchGoogleExportBundle();
+          await fetchGoogleExportBundle(range);
 
         selections.push({
           type: "google",
@@ -40,8 +44,10 @@ export function GlobalPageExportProvider({
         });
       } else {
         // ⭐ NEW: independent social export path
-        const bundle: SocialExportBundle =
-          await fetchSocialExportBundle(platform);
+        const bundle: SocialExportBundle = await fetchSocialExportBundle(
+          platform,
+          range,
+        );
 
         selections.push({
           type: "social",
@@ -51,7 +57,7 @@ export function GlobalPageExportProvider({
       }
     }
 
-    await exportCardsToPDF(selections);
+    await exportCardsToPDF(selections, range, "metrics.pdf");
   }
 
   return (
