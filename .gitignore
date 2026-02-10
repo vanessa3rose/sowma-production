@@ -31,9 +31,8 @@ coverage
 **/generated
 
 
-/prisma
+
 package.json
 service-account.json
 package-lock.json
-prisma/schema.prisma
 .env*.local
