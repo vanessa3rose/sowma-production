@@ -210,20 +210,35 @@ export default function GoogleAnalyticsPage() {
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
-      <div className="w-full flex flex-col lg:flex-row justify-between items-center px-4 py-2">
-        <div className="flex items-center space-x-2">
-          <button onClick={() => (window.location.href = "/")} className="w-[40px] h-[40px]">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-7">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/>
+      <div className="w-full flex items-center justify-between px-4 py-2">
+        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
+          <button
+            onClick={() => (window.location.href = "/")}
+            className="w-[40px] h-[40px]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="size-7"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
             </svg>
           </button>
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">Google</h1>
-        </div>
-        <div className="flex space-x-2 mt-2 lg:mt-0">
-          <ExportButton onExport={exportByPlatforms} />
-        </div>
-      </div>
 
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
+            Google Analytics
+          </h1>
+        </div>
+
+        <ExportButton onExport={exportByPlatforms} />
+      </div>
       <div className="flex flex-col gap-4 px-4 lg:h-full">
         {/* Top Row BigCards */}
         <div className="w-full flex flex-col lg:flex-row gap-4">
@@ -259,7 +274,7 @@ export default function GoogleAnalyticsPage() {
               subtitle={<DateDropdown value={engagementRange} onChange={setEngagementRange} minDate={engagementBounds.min} maxDate={engagementBounds.max} />}
               metricValue={Number((dMetrics.engagementRate * 100).toFixed(1))}
               metricLabel="% engaged"
-              metricChange={formatEngagementChange(metricSummaries.engagementRate)}
+              metricChange={formatPercentChange(metricSummaries.engagementRate)}
               chart={<LineCharts data={engagementOverTime} xAxisKey="date" dataKeys={["engagementRate"]} showArea />}
               displayMode="both"
               className="h-[360px]"

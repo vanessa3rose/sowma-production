@@ -161,18 +161,37 @@ export default function TwitterPage() {
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
       <div className="w-full flex flex-col lg:flex-row justify-between items-center px-4 py-2">
-        <div className="flex items-center space-x-2">
-          <button onClick={() => (window.location.href = "/")} className="w-[40px] h-[40px]">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-7">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/>
-            </svg>
-          </button>
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">Twitter</h1>
+          <div className="flex items-center space-x-2 mr-2 lg:mr-0">
+            <button
+              onClick={() => (window.location.href = "/")}
+              className="w-[40px] h-[40px]"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="size-7"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5 8.25 12l7.5-7.5"
+                />
+              </svg>
+            </button>
+
+            <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
+              Twitter
+            </h1>
+          </div>
+
+          {/* Add top margin only on mobile */}
+          <div className="mt-2 lg:mt-0">
+            <ExportButton onExport={exportByPlatforms} />
+          </div>
         </div>
-        <div className="flex space-x-2 mt-2 lg:mt-0">
-          <ExportButton onExport={exportByPlatforms} />
-        </div>
-      </div>
 
       <div className="flex flex-col gap-4 px-4 lg:h-full">
         <div className="w-full flex flex-col lg:flex-row gap-4">
@@ -214,15 +233,39 @@ export default function TwitterPage() {
               className="h-[360px]"
             />
 
-            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-[172px]">
-              <SmallCard
+            <div className="flex flex-col gap-4 w-full lg:w-full">
+              {/* <SmallCard
                 title="Followers"
                 displayMode="metric-only"
                 className="w-full h-full"
                 metricValue={dMetrics.followers}
                 metricLabel="followers"
                 metricChange={formatPercentChange(metricSummaries.followers)}
-              />
+              /> */}
+              <BigCard
+                  title="Followers"
+                  subtitle={
+                    <DateDropdown
+                      value={followersRange}
+                      onChange={setFollowersRange}
+                      minDate={followersBounds.min}
+                      maxDate={followersBounds.max}
+                    />
+                  }
+                  metricValue={dMetrics.followers}
+                  metricLabel="followers"
+                  metricChange={formatPercentChange(metricSummaries.followers)}
+                  chart={
+                    <LineCharts
+                      data={followersOverTime}
+                      xAxisKey="date"
+                      dataKeys={["followers"]}
+                      showArea
+                    />
+                  }
+                  displayMode="both"
+                  className="h-[360px]"
+                />
             </div>
           </div>
         </div>

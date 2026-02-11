@@ -95,7 +95,6 @@ const LineCharts = ({
             domain={yDomain}
           />
           <Tooltip content={<ChartTooltip />} />
-          <Legend verticalAlign="bottom" align="center" height={24} wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
 
           {dataKeys.map((key, index) => (
             <Area
@@ -126,8 +125,6 @@ const LineCharts = ({
             domain={yDomain}
           />
           <Tooltip content={<ChartTooltip />} />
-          <Legend verticalAlign="bottom" align="center" height={24} wrapperStyle={{ fontFamily: "Poppins, sans-serif" }} />
-
           {dataKeys.map((key, index) => (
             <Line
               key={key}
