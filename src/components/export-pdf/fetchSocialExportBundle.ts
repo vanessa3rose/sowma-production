@@ -1,25 +1,23 @@
 import type { SocialExportBundle } from "../../types/exportTypes";
-import { CHART_CONFIGS, Platform } from "../../config/chartConfigs";
+import { type Platform } from "../../config/chartConfigs";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
-import { mapSocialToExportData } from "./mapSocialData";
+import { computeRangeDates, type DateRangeId } from "../charts/DateDropdown";
+import { EXPORT_PLATFORM_CONFIGS } from "./exportMetricsConfig";
 
-const DEFAULT_START_DATE = "2024-01-01";
-const DEFAULT_END_DATE = "3000-01-01";
+type SocialPlatform = Exclude<Platform, "google">;
 
-const PROVIDER_MAP: Record<Platform, string> = {
+const PROVIDER_MAP: Record<SocialPlatform, string> = {
   instagram: "INSTAGRAM",
   twitter: "TWITTER",
   facebook: "FACEBOOK",
-  google: "GOOGLE_ANALYTICS",
 };
 
 function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
   return raw
-    .filter((m) => m.metricDate || m.lastSynced)
     .slice()
     .sort((a, b) =>
-      (a.metricDate ?? a.lastSynced)!.localeCompare(
-        (b.metricDate ?? b.lastSynced)!,
+      (a.metricDate ?? a.lastSynced ?? new Date().toISOString()).localeCompare(
+        b.metricDate ?? b.lastSynced ?? new Date().toISOString(),
       ),
     );
 }
@@ -28,7 +26,10 @@ function toLinePoints(
   raw: SocialMediaMetric[],
 ): { date: string; value: number }[] {
   return sortByDate(raw).map((m) => ({
-    date: (m.metricDate ?? m.lastSynced)!.slice(0, 10),
+    date: (m.metricDate ?? m.lastSynced ?? new Date().toISOString()).slice(
+      0,
+      10,
+    ),
     value: m.metricValue,
   }));
 }
@@ -47,6 +48,7 @@ function summarizeSeries(points: { value: number }[]): {
 
 export async function fetchSocialExportBundle(
   platform: Platform,
+  range: DateRangeId,
 ): Promise<SocialExportBundle> {
   if (platform === "google") {
     throw new Error(
@@ -54,24 +56,28 @@ export async function fetchSocialExportBundle(
     );
   }
 
-  const configs = CHART_CONFIGS[platform];
-  if (!configs) {
-    throw new Error(`No CHART_CONFIGS entry for platform: ${platform}`);
-  }
-
   const provider = PROVIDER_MAP[platform];
   if (!provider) {
     throw new Error(`No provider mapping for platform: ${platform}`);
   }
 
+  const config = EXPORT_PLATFORM_CONFIGS[platform];
+  if (!config) {
+    throw new Error(`No export config for platform: ${platform}`);
+  }
+
+  const maxDate = new Date();
+  maxDate.setHours(0, 0, 0, 0);
+  const { startDate, endDate } = computeRangeDates(range, maxDate);
+
   const results = await Promise.all(
-    configs.map((cfg) =>
+    config.metrics.map((metric) =>
       fetchMetrics({
         provider,
-        metric: cfg.metric,
-        startDate: DEFAULT_START_DATE,
-        endDate: DEFAULT_END_DATE,
-      }).then((rows) => ({ cfg, rows })),
+        metric: metric.id,
+        startDate,
+        endDate,
+      }).then((rows) => ({ metricId: metric.id, rows })),
     ),
   );
 
@@ -81,12 +87,20 @@ export async function fetchSocialExportBundle(
     { current: number | null; prev: number | null }
   > = {};
 
-  for (const { cfg, rows } of results) {
+  for (const { metricId, rows } of results) {
     const pts = toLinePoints(rows);
-    chartDataMap[cfg.id] = pts;
-    metricSummaries[cfg.id] = summarizeSeries(pts);
+    chartDataMap[metricId] = pts;
+    metricSummaries[metricId] = summarizeSeries(pts);
   }
 
-  const bundle = mapSocialToExportData(platform, chartDataMap, metricSummaries);
-  return bundle;
+  return {
+    platform,
+    chartDataMap,
+    metricSummaries: Object.fromEntries(
+      Object.entries(metricSummaries).map(([key, value]) => [
+        key,
+        { current: value.current ?? 0, prev: value.prev ?? 0 },
+      ]),
+    ),
+  };
 }
