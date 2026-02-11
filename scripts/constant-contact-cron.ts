@@ -6,6 +6,7 @@ import {
 import fetch from "node-fetch";
 import "dotenv/config";
 import { startOfDay, endOfDay, formatISODate } from "../src/utils/dates";
+import { ensureConstantContactAccessToken } from "./token-refresh";
 
 /* -------------------------------------------------
    Prisma Client
@@ -42,13 +43,38 @@ type CampaignSummariesResponse = {
 /* -------------------------------------------------
    Helpers
 -------------------------------------------------- */
+async function getConstantContactAccountOrThrow() {
+  const count = await prisma.socialMedia.count({
+    where: { provider: Provider.CONSTANT_CONTACT },
+  });
+
+  if (count !== 1) {
+    throw new Error(
+      `[CC] Expected exactly 1 Constant Contact account, found ${count}. ` +
+        `Run scripts/social-media-setup.ts and ensure only one Provider.CONSTANT_CONTACT row exists.`,
+    );
+  }
+
+  const account = await prisma.socialMedia.findFirst({
+    where: { provider: Provider.CONSTANT_CONTACT },
+    include: { SocialMediaAuth: true },
+  });
+
+  if (!account) {
+    throw new Error(
+      "[CC] No Constant Contact account found in SocialMedia. Run scripts/social-media-setup.ts.",
+    );
+  }
+
+  return account;
+}
+
 function isWithinUtcDay(iso: string, day: Date) {
   const t = new Date(iso).getTime();
   return t >= startOfDay(day).getTime() && t <= endOfDay(day).getTime();
 }
 
 async function fetchSummariesPage(accessToken: string, nextHref?: string) {
-  // next.href from CC is usually a relative link; normalize it
   const url = nextHref
     ? nextHref.startsWith("http")
       ? nextHref
@@ -98,109 +124,87 @@ async function fetchAllSummariesForDay(accessToken: string, metricDate: Date) {
    Daily Constant Contact Sync
 -------------------------------------------------- */
 export async function runDailyConstantContactSync() {
-  // T-1 (yesterday UTC)
-  const metricDate = startOfDay(new Date(Date.now() - 24 * 60 * 60 * 1000));
-  console.log(
-    `[CC] Starting daily sync for ${formatISODate(metricDate)} (T-1 UTC)`,
-  );
+  try {
+    // T-1 (yesterday UTC)
+    const metricDate = startOfDay(new Date(Date.now() - 24 * 60 * 60 * 1000));
+    console.log(
+      `[CC] Starting daily sync for ${formatISODate(metricDate)} (T-1 UTC)`,
+    );
 
-  const accounts = await prisma.socialMedia.findMany({
-    where: { provider: Provider.CONSTANT_CONTACT },
-    include: { SocialMediaAuth: true },
-  });
-
-  for (const account of accounts) {
-    const accessToken = account.SocialMediaAuth?.accessToken;
-
-    if (!accessToken) {
-      console.warn(
-        `[CC] ${account.username}: missing access token (need initial OAuth)`,
-      );
-      continue;
-    }
+    const account = await getConstantContactAccountOrThrow();
+    const { accessToken } = await ensureConstantContactAccessToken({
+      socialMediaId: account.id,
+      auth: account.SocialMediaAuth,
+      fallbackRefreshToken:
+        process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
+    });
 
     console.log(
       `[CC] Syncing ${account.username} (${formatISODate(metricDate)})`,
     );
 
-    try {
-      const summaries = await fetchAllSummariesForDay(accessToken, metricDate);
+    const summaries = await fetchAllSummariesForDay(accessToken, metricDate);
 
-      // Aggregate across all campaigns sent that day
-      let emailsSent = 0;
-      let emailOpened = 0; // matches your Metric enum: EMAIL_OPENED
-      let emailsClicked = 0;
-      let emailsUnsubscribed = 0;
+    // Aggregate across all campaigns sent that day
+    let emailsSent = 0;
+    let emailOpened = 0; // matches your Metric enum: EMAIL_OPENED
+    let emailsClicked = 0;
+    let emailsUnsubscribed = 0;
 
-      for (const s of summaries) {
-        const u = s.unique_counts ?? {};
-        emailsSent += u.sends ?? 0;
-        emailOpened += u.opens ?? 0;
-        emailsClicked += u.clicks ?? 0;
-        emailsUnsubscribed += u.optouts ?? 0;
-      }
+    for (const s of summaries) {
+      const u = s.unique_counts ?? {};
+      emailsSent += u.sends ?? 0;
+      emailOpened += u.opens ?? 0;
+      emailsClicked += u.clicks ?? 0;
+      emailsUnsubscribed += u.optouts ?? 0;
+    }
 
-      // Delivered is not guaranteed as a field in this summary response.
-      // If you want to store it anyway, use the simplest definition:
-      // delivered = sends (since bounces not available in your Metric enum anyway)
-      const emailsDelivered = emailsSent;
+    // Delivered not guaranteed here; use simplest definition
+    const emailsDelivered = emailsSent;
 
-      const metricsToInsert = [
-        { metricName: Metric.EMAILS_SENT, metricValue: emailsSent },
-        { metricName: Metric.EMAILS_DELIVERED, metricValue: emailsDelivered },
-        { metricName: Metric.EMAIL_OPENED, metricValue: emailOpened },
-        { metricName: Metric.EMAILS_CLICKED, metricValue: emailsClicked },
-        {
-          metricName: Metric.EMAILS_UNSUBSCRIBED,
-          metricValue: emailsUnsubscribed,
+    const metricsToInsert = [
+      { metricName: Metric.EMAILS_SENT, metricValue: emailsSent },
+      { metricName: Metric.EMAILS_DELIVERED, metricValue: emailsDelivered },
+      { metricName: Metric.EMAIL_OPENED, metricValue: emailOpened },
+      { metricName: Metric.EMAILS_CLICKED, metricValue: emailsClicked },
+      {
+        metricName: Metric.EMAILS_UNSUBSCRIBED,
+        metricValue: emailsUnsubscribed,
+      },
+    ] as const;
+
+    // Idempotent: replace metrics for that day
+    await prisma.$transaction(async (tx) => {
+      await tx.socialMediaMetrics.deleteMany({
+        where: {
+          socialMediaId: account.id,
+          metricDate,
+          metricName: { in: metricsToInsert.map((m) => m.metricName) },
         },
-      ];
-
-      // Idempotency (stronger than metricsExistForDay):
-      // delete rows for that day/provider/account, then insert fresh
-      await prisma.$transaction(async (tx) => {
-        await tx.socialMediaMetrics.deleteMany({
-          where: {
-            socialMediaId: account.id,
-            metricDate,
-            metricName: {
-              in: [
-                Metric.EMAILS_SENT,
-                Metric.EMAILS_DELIVERED,
-                Metric.EMAIL_OPENED,
-                Metric.EMAILS_CLICKED,
-                Metric.EMAILS_UNSUBSCRIBED,
-              ],
-            },
-          },
-        });
-
-        await Promise.all(
-          metricsToInsert.map((m) =>
-            tx.socialMediaMetrics.create({
-              data: {
-                socialMediaId: account.id,
-                metricName: m.metricName,
-                metricValue: m.metricValue,
-                metricDate,
-                lastSynced: new Date(),
-              },
-            }),
-          ),
-        );
       });
 
-      console.log(
-        `[CC] ${account.username} OK: campaigns=${summaries.length} sent=${emailsSent} opened=${emailOpened} clicked=${emailsClicked} unsub=${emailsUnsubscribed}`,
+      await Promise.all(
+        metricsToInsert.map((m) =>
+          tx.socialMediaMetrics.create({
+            data: {
+              socialMediaId: account.id,
+              metricName: m.metricName,
+              metricValue: m.metricValue,
+              metricDate,
+              lastSynced: new Date(),
+            },
+          }),
+        ),
       );
-    } catch (err) {
-      console.error(
-        `[CC] Sync failed for ${account.username} (${formatISODate(metricDate)})`,
-        err,
-      );
-    }
-  }
+    });
 
-  console.log("[CC] Daily Constant Contact sync complete");
-  await prisma.$disconnect();
+    console.log(
+      `[CC] OK: campaigns=${summaries.length} sent=${emailsSent} opened=${emailOpened} clicked=${emailsClicked} unsub=${emailsUnsubscribed}`,
+    );
+    console.log("[CC] Daily Constant Contact sync complete");
+  } finally {
+    await prisma.$disconnect();
+  }
 }
+
+runDailyConstantContactSync().catch(console.error);
