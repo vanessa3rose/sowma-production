@@ -7,7 +7,8 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import GoogleAnalyticsPage from "./pages/SocialMedia/GoogleAnalyticsPage";
 import TwitterPage from "./pages/SocialMedia/TwitterPage";
-import SocialMediaPage from "./pages/SocialMediaPage";
+import FacebookPage from "./pages/SocialMedia/FacebookPage";
+
 import InstagramPage from "./pages/SocialMedia/InstagramPage";
 import AdminPage from "./pages/AdminPage";
 import GlossaryPage from "./pages/Glossary";
@@ -65,7 +66,7 @@ const App = () => {
         >
           <Switch>
             <Route path="/" component={Homepage} />
-            <Route path="/social/facebook" component={ErrorPage} />
+            <Route path="/social/facebook" component={FacebookPage} />
             <Route path="/social/twitter" component={TwitterPage} />
             <Route path="/social/instagram" component={InstagramPage} />
             <Route path="/signup" component={SignupPage} />
