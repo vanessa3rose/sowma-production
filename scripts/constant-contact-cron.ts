@@ -135,8 +135,7 @@ export async function runDailyConstantContactSync() {
     const { accessToken } = await ensureConstantContactAccessToken({
       socialMediaId: account.id,
       auth: account.SocialMediaAuth,
-      fallbackRefreshToken:
-        process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
+      fallbackRefreshToken: process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
     });
 
     console.log(
