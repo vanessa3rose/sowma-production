@@ -72,7 +72,8 @@ const App = () => {
             <Route path="/google-analytics" component={GoogleAnalyticsPage} />
             <Route path="/admin" component={AdminPage} />
             <Route path="/glossary" component={GlossaryPage} />
-            <Route path="/error" component={ErrorPage} />
+            <Route path="/error/tiktok" component={ErrorPage} />
+            <Route path="/error/linkedin" component={ErrorPage} />
             <Route path="/newsletter" component={Newsletter} />
 
             <Route>
