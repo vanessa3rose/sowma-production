@@ -52,23 +52,58 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to join waitlist");
+        let errorMessage = "";
+
+        // Provide user-friendly messages based on status code
+        switch (response.status) {
+          case 400:
+            errorMessage = "Invalid email format";
+            break;
+
+          case 409:
+            errorMessage = "You're already on the waitlist!";
+            break;
+
+          case 429:
+            errorMessage = "Too many requests";
+            break;
+
+          case 500:
+          case 502:
+          case 503:
+            errorMessage = "Server temporarily unavailable";
+            break;
+
+          default:
+            errorMessage = "Unable to join waitlist";
+        }
+
+        setStatus({
+          type: "error",
+          message: errorMessage,
+        });
+        return;
       }
 
+      // Success
       setStatus({
         type: "success",
-        message: "You've been added to the waitlist!",
+        message: "You're on the list!",
       });
       setEmail("");
     } catch (error) {
-      setStatus({
-        type: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Something went wrong. Please try again.",
-      });
+      // Network errors
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        setStatus({
+          type: "error",
+          message: "Connection failed",
+        });
+      } else {
+        setStatus({
+          type: "error",
+          message: "Something went wrong",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
