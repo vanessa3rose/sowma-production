@@ -87,8 +87,9 @@ const hideLayout =
               path="/social/instagram"
               component={() => <ProtectedRoute component={InstagramPage} />}
             />
+
             <Route
-              path="/social/google-analytics"
+              path="/google-analytics"
               component={() => <ProtectedRoute component={GoogleAnalyticsPage} />}
             />
 

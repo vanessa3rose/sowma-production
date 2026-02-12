@@ -8,7 +8,9 @@ type ProtectedRouteProps = {
   component: React.ComponentType<any>;
 };
 
-export const ProtectedRoute = ({ component: Component }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({
+  component: Component,
+}: ProtectedRouteProps) => {
   const { isLoaded, isSignedIn } = useUser();
   const [, setLocation] = useLocation();
 
