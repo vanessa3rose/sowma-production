@@ -1,6 +1,6 @@
 import { Route, Switch, useLocation } from "wouter";
 import { useState } from "react";
-import { useUser } from "@clerk/clerk-react"; // ✅ add
+import { useUser } from "@clerk/clerk-react";
 
 import LeftSidebar from "./components/LeftSidebar";
 
