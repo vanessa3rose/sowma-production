@@ -24,12 +24,9 @@ export default function ExportButton({ onExport }: ExportButtonProps) {
     async function fetchRoleByEmail(email: string) {
       setRoleLoading(true);
       try {
-        const resp = await fetch(
-          `/api/users?email=${encodeURIComponent(email)}`,
-        );
+        const resp = await fetch(`/api/users?email=${encodeURIComponent(email)}`);
         const json = await resp.json();
-        const fetchedRole =
-          (json?.data?.[0]?.role as Role | undefined) ?? "VIEWER";
+        const fetchedRole = (json?.data?.[0]?.role as Role | undefined) ?? "VIEWER";
         if (!cancelled) setRole(fetchedRole);
       } catch {
         // Fail closed: if anything goes wrong, hide Export (treat as VIEWER)
