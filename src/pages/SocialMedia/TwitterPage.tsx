@@ -133,7 +133,7 @@ export default function TwitterPage() {
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
-      <div className="w-full flex flex-col lg:flex-row justify-between px-4 py-2">
+      <div className="w-full flex items-center justify-between px-4 py-2">
           <div className="flex items-center space-x-2 mr-2 lg:mr-0">
             <button
               onClick={() => (window.location.href = "/")}

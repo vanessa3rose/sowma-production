@@ -229,12 +229,34 @@ export default function FacebookPage() {
 
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 py-2">
-      <div className="w-full flex flex-col lg:flex-row justify-between items-center">
-        <h1 className="font-poppins font-semibold text-3xl lg:text-4xl text-[#4A8CDE]">
-          Facebook
-        </h1>
-        <div className="flex space-x-2 mt-2 lg:mt-0">
-          <button className="rounded-full border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold">
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => (window.location.href = "/")}
+            className="w-[40px] h-[40px] flex items-center justify-center"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-7 h-7"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
+            </svg>
+          </button>
+
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl text-[#4A8CDE]">
+            Facebook
+          </h1>
+        </div>
+        <div className="flex flex-row justify-center items-center mt-2 lg:flex-row lg:mt-0 lg:space-x-2 space-x-4">
+          <button className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold">
             Go to Account
           </button>
           <ExportButton onExport={exportByPlatforms} />
