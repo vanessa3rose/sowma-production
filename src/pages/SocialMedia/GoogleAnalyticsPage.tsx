@@ -200,7 +200,7 @@ export default function GoogleAnalyticsPage() {
   const dMetrics: GAMetrics = metrics ?? { activeUsers: 0, screenPageViews: 0, active7DayUsers: 0, engagementRate: 0, newUsers: 0 };
   const returningUsers = Math.max(dMetrics.activeUsers - dMetrics.newUsers, 0);
   const returningVsNew = [{ label: "New Users", value: dMetrics.newUsers }, { label: "Returning Users", value: returningUsers }];
-
+  
   const activeUsersBounds = getBounds(usersOverTimeAll.map((p) => ({ date: p.date, value: p.activeUsers ?? 0 })));
   const pageviewsBounds = getBounds(pageviewsOverTimeAll.map((p) => ({ date: p.date, value: p.screenPageViews ?? 0 })));
   const active7Bounds = getBounds(usersOverTimeAll.map((p) => ({ date: p.date, value: p.active7DayUsers ?? 0 })));
@@ -232,82 +232,64 @@ export default function GoogleAnalyticsPage() {
             </svg>
           </button>
 
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-wrap">
             Google Analytics
           </h1>
         </div>
 
         <ExportButton onExport={exportByPlatforms} />
       </div>
-      <div className="flex flex-col gap-4 px-4 lg:h-full">
-        {/* Top Row BigCards */}
-        <div className="w-full flex flex-col lg:flex-row gap-4">
-          {/* Left Column */}
-          <div className="flex flex-col gap-4 w-full lg:w-1/2">
-            <BigCard
-              title="Active Users"
-              subtitle={<DateDropdown value={activeUsersRange} onChange={setActiveUsersRange} minDate={activeUsersBounds.min} maxDate={activeUsersBounds.max} />}
-              metricValue={dMetrics.activeUsers}
-              metricLabel="total"
-              metricChange={formatPercentChange(metricSummaries.activeUsers)}
-              chart={<LineCharts data={usersOverTime} xAxisKey="date" dataKeys={["activeUsers"]} showArea />}
-              displayMode="both"
-              className="h-[360px]"
-            />
+      <div className="flex lg:flex-row flex-col gap-4 px-4 lg:h-full">
+        {/* Left Column */}
+        <div className="flex flex-col gap-4 lg:w-3/5 w-full">
+          <BigCard
+            title="Active Users"
+            subtitle={<DateDropdown value={activeUsersRange} onChange={setActiveUsersRange} minDate={activeUsersBounds.min} maxDate={activeUsersBounds.max} />}
+            metricValue={dMetrics.activeUsers}
+            metricLabel="total"
+            metricChange={formatPercentChange(metricSummaries.activeUsers)}
+            chart={<LineCharts data={usersOverTime} xAxisKey="date" dataKeys={["activeUsers"]} showArea />}
+            displayMode="both"
+            className="h-[360px]"
+          />
 
-            <BigCard
-              title="New Users"
-              subtitle={<DateDropdown value={newUsersRange} onChange={setNewUsersRange} minDate={newUsersBounds.min} maxDate={newUsersBounds.max} />}
-              metricValue={dMetrics.newUsers}
-              metricLabel="new"
-              metricChange={formatPercentChange(metricSummaries.newUsers)}
-              chart={<LineCharts data={newUsersOverTime} xAxisKey="date" dataKeys={["newUsers"]} showArea />}
-              displayMode="both"
-              className="h-[360px]"
-            />
-          </div>
+          <BigCard
+            title="Engagement Rate"
+            subtitle={<DateDropdown value={engagementRange} onChange={setEngagementRange} minDate={engagementBounds.min} maxDate={engagementBounds.max} />}
+            metricValue={Number((dMetrics.engagementRate * 100).toFixed(1))}
+            metricLabel="% engaged"
+            metricChange={formatPercentChange(metricSummaries.engagementRate)}
+            chart={<LineCharts data={engagementOverTime} xAxisKey="date" dataKeys={["engagementRate"]} showArea />}
+            displayMode="both"
+            className="h-[360px]"
+          />
+        </div>
 
-          {/* Right Column */}
-          <div className="flex flex-col gap-4 w-full lg:w-1/2">
-            <BigCard
-              title="Engagement Rate"
-              subtitle={<DateDropdown value={engagementRange} onChange={setEngagementRange} minDate={engagementBounds.min} maxDate={engagementBounds.max} />}
-              metricValue={Number((dMetrics.engagementRate * 100).toFixed(1))}
-              metricLabel="% engaged"
-              metricChange={formatPercentChange(metricSummaries.engagementRate)}
-              chart={<LineCharts data={engagementOverTime} xAxisKey="date" dataKeys={["engagementRate"]} showArea />}
-              displayMode="both"
-              className="h-[360px]"
-            />
+        {/* Right Column */}
+        <div className="flex flex-col gap-4 lg:w-2/5 w-full">
+          <BigCard
+            title="New vs Returning Users"
+            chart={<PieCharts data={returningVsNew} dataKey="value" nameKey="label" />}
+            displayMode="both"
+            className="w-full h-full"
+          />
 
-            {/* Small Cards */}
-            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-[172px]">
-              <SmallCard
-                title="Page Views"
-                displayMode="metric-only"
-                className="w-full h-full"
-                metricValue={dMetrics.screenPageViews}
-                metricLabel="views"
-                metricChange={formatPercentChange(metricSummaries.screenPageViews)}
-              />
-              <SmallCard
-                title="Active 7-Day Users"
-                displayMode="metric-only"
-                className="w-full h-full"
-                metricValue={dMetrics.active7DayUsers}
-                metricLabel="users (7D)"
-                metricChange={formatPercentChange(metricSummaries.active7DayUsers)}
-              />
-              <SmallCard
-                title="Returning Users"
-                displayMode="metric-only"
-                className="w-full h-full"
-                metricValue={returningUsers}
-                metricLabel="returning"
-                metricChange={formatPercentChange(null)}
-              />
-            </div>
-          </div>
+          <SmallCard
+            title="Page Views"
+            displayMode="metric-only"
+            className="w-full h-full"
+            metricValue={dMetrics.screenPageViews}
+            metricLabel="views"
+            metricChange={formatPercentChange(metricSummaries.screenPageViews)}
+          />
+          <SmallCard
+            title="Active 7-Day Users"
+            displayMode="metric-only"
+            className="w-full h-full"
+            metricValue={dMetrics.active7DayUsers}
+            metricLabel="users (7D)"
+            metricChange={formatPercentChange(metricSummaries.active7DayUsers)}
+          />
         </div>
       </div>
     </div>
