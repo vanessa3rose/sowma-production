@@ -46,7 +46,6 @@ export default function UsersRoles() {
           </div>
         ))}
       </div>
-
     </div>
   );
 }

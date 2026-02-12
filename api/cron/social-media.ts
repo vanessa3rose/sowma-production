@@ -2,6 +2,7 @@ import { runDailyFacebookSync } from "../../scripts/facebook-cron.js";
 import { runDailyGoogleAnalyticsSync } from "../../scripts/google-analytics-cron.js";
 import { runDailyInstagramSync } from "../../scripts/instagram-cron.js";
 import { runDailyTwitterSync } from "../../scripts/twitter-cron.js";
+import { runDailyConstantContactSync } from "../../scripts/constant-contact-cron.js";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -39,6 +40,13 @@ export async function GET(req: Request) {
     results.twitter = "ok";
   } catch (err: any) {
     results.twitter = `error: ${err?.message}`;
+  }
+
+  try {
+    await runDailyConstantContactSync();
+    results.constantContact = "ok";
+  } catch (err: any) {
+    results.constantContact = `error: ${err?.message}`;
   }
 
   return new Response(JSON.stringify(results), { status: 200 });

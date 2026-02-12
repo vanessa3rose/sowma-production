@@ -1,10 +1,8 @@
 import ReactDOM from "react-dom/client";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-import GoogleExportCard from "../components/export-pdf/GoogleExportCard";
-import SocialMediaExportCard from "../components/export-pdf/SocialMediaExportCard";
-
 import type { ExportCardSelection } from "../types/exportTypes";
+import type { DateRangeId } from "../components/charts/DateDropdown";
+import ExportReportView from "../components/export-pdf/ExportReportView";
+import { exportPDF } from "../utils/exportPDF";
 
 async function waitForFullRender(container: HTMLElement) {
   await new Promise((r) => setTimeout(r, 800));
@@ -53,10 +51,19 @@ async function waitForFullRender(container: HTMLElement) {
 
 export async function exportCardsToPDF(
   selections: ExportCardSelection[],
+  range: DateRangeId,
   filename = "metrics.pdf",
 ) {
-  const container = document.getElementById("pdf-export-container");
-  if (!container) throw new Error("Missing #pdf-export-container");
+  const containerId = "export-root";
+  let container = document.getElementById(containerId);
+  let created = false;
+
+  if (!container) {
+    container = document.createElement("div");
+    container.id = containerId;
+    document.body.appendChild(container);
+    created = true;
+  }
 
   container.innerHTML = "";
   container.style.display = "block";
@@ -71,83 +78,19 @@ export async function exportCardsToPDF(
   container.style.overflow = "hidden";
 
   const root = ReactDOM.createRoot(container);
-
-  root.render(
-    <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-      {selections.map((s, i) =>
-        s.type === "google" ? (
-          <GoogleExportCard key={i} data={s.data} />
-        ) : (
-          <SocialMediaExportCard key={i} data={s.data} />
-        ),
-      )}
-    </div>,
-  );
+  root.render(<ExportReportView selections={selections} range={range} />);
 
   await waitForFullRender(container);
-
-  const pages = [...container.querySelectorAll(".font-sans")] as HTMLElement[];
-
-  if (pages.length === 0) {
-    root.unmount();
-    container.innerHTML = "";
-    container.style.display = "none";
-    return;
-  }
-
-  const pdf = new jsPDF("p", "pt", "letter");
-  const pageW = pdf.internal.pageSize.getWidth();
-  const pageH = pdf.internal.pageSize.getHeight();
-  const margin = 24;
-
-  let first = true;
-
-  for (let i = 0; i < pages.length; i++) {
-    const el = pages[i];
-
-    if (!first) pdf.addPage();
-    first = false;
-
-    const canvas = await html2canvas(el, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      allowTaint: false,
-      backgroundColor: "#ffffff",
-      windowWidth: 1000,
-      windowHeight: el.scrollHeight,
-    });
-
-    const img = canvas.toDataURL("image/png");
-
-    const cw = canvas.width;
-    const ch = canvas.height;
-    const ratio = cw / ch;
-
-    let w = cw;
-    let h = ch;
-
-    const maxW = pageW - margin * 2;
-    const maxH = pageH - margin * 2;
-
-    if (w > maxW) {
-      w = maxW;
-      h = w / ratio;
-    }
-    if (h > maxH) {
-      h = maxH;
-      w = h * ratio;
-    }
-
-    pdf.addImage(img, "PNG", margin, margin, w, h);
-  }
-
-  pdf.save(filename);
+  await exportPDF(containerId, filename, { scale: 1.25 });
 
   root.unmount();
-  container.innerHTML = "";
-  container.style.display = "none";
-  container.style.visibility = "hidden";
+  if (created) {
+    container.remove();
+  } else {
+    container.innerHTML = "";
+    container.style.display = "none";
+    container.style.visibility = "hidden";
+  }
 }
 
 export function usePDFExporter() {
