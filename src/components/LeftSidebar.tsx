@@ -60,9 +60,12 @@ const LeftSidebar = ({
 
     async function fetchRoleByEmail(email: string) {
       try {
-        const resp = await fetch(`/api/users?email=${encodeURIComponent(email)}`);
+        const resp = await fetch(
+          `/api/users?email=${encodeURIComponent(email)}`,
+        );
         const json = await resp.json();
-        const fetchedRole = (json?.data?.[0]?.role as Role | undefined) ?? "VIEWER";
+        const fetchedRole =
+          (json?.data?.[0]?.role as Role | undefined) ?? "VIEWER";
         if (!cancelled) setRole(fetchedRole);
       } catch {
         if (!cancelled) setRole("VIEWER");
