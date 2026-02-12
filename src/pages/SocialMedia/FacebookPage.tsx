@@ -3,12 +3,20 @@ import { useEffect, useMemo, useState } from "react";
 import BigCard from "../../components/cards/BigCard";
 import SmallCard from "../../components/cards/SmallCard";
 import LineCharts from "../../components/charts/LineCharts";
-import DateDropdown, { DateRangeId } from "../../components/charts/DateDropdown";
+import DateDropdown, {
+  DateRangeId,
+} from "../../components/charts/DateDropdown";
 import ExportButton from "../../components/export-pdf/ExportButton";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 
-type MetricKey = "followers" | "likes" | "views" | "comments" | "posts" | "shares";
+type MetricKey =
+  | "followers"
+  | "likes"
+  | "views"
+  | "comments"
+  | "posts"
+  | "shares";
 
 type LinePoint = {
   date: string;
@@ -32,7 +40,12 @@ const DEFAULT_START_DATE = "2024-01-01";
 const DEFAULT_END_DATE = "3000-01-01";
 
 const METRICS: MetricConfig[] = [
-  { id: "followers", metric: "FOLLOWERS", title: "Followers", label: "followers" },
+  {
+    id: "followers",
+    metric: "FOLLOWERS",
+    title: "Followers",
+    label: "followers",
+  },
   { id: "likes", metric: "LIKES", title: "Reactions / Likes", label: "likes" },
   { id: "views", metric: "VIEWS", title: "Views", label: "views" },
   { id: "comments", metric: "COMMENTS", title: "Comments", label: "comments" },
@@ -63,7 +76,9 @@ function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     .filter((m) => m.metricDate || m.lastSynced)
     .slice()
     .sort((a, b) =>
-      (a.metricDate ?? a.lastSynced)!.localeCompare((b.metricDate ?? b.lastSynced)!),
+      (a.metricDate ?? a.lastSynced)!.localeCompare(
+        (b.metricDate ?? b.lastSynced)!,
+      ),
     );
 }
 
@@ -77,11 +92,19 @@ function toLinePoints(raw: SocialMediaMetric[]): LinePoint[] {
 function summarizeSeries(points: LinePoint[]): MetricSummary {
   if (!points.length) return { current: null, prev: null };
   if (points.length === 1) return { current: points[0].value, prev: null };
-  return { current: points[points.length - 1].value, prev: points[points.length - 2].value };
+  return {
+    current: points[points.length - 1].value,
+    prev: points[points.length - 2].value,
+  };
 }
 
 function formatPercentChange(summary?: MetricSummary | null): string {
-  if (!summary || summary.current == null || summary.prev == null || summary.prev === 0) {
+  if (
+    !summary ||
+    summary.current == null ||
+    summary.prev == null ||
+    summary.prev === 0
+  ) {
     return "+ 0%";
   }
   const pct = ((summary.current - summary.prev) / summary.prev) * 100;
@@ -89,8 +112,12 @@ function formatPercentChange(summary?: MetricSummary | null): string {
 }
 
 function getBounds(pts: LinePoint[]) {
-  if (!pts.length) return { min: null as Date | null, max: null as Date | null };
-  const dates = pts.map((p) => p.date).slice().sort();
+  if (!pts.length)
+    return { min: null as Date | null, max: null as Date | null };
+  const dates = pts
+    .map((p) => p.date)
+    .slice()
+    .sort();
   return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
 }
 
@@ -120,7 +147,9 @@ function buildHeatmapRows(points: LinePoint[], cells = 55) {
   const activity = buildPostingActivity(points);
   if (!activity.size) return [];
 
-  const sortedDates = Array.from(activity.keys()).sort((a, b) => a.localeCompare(b));
+  const sortedDates = Array.from(activity.keys()).sort((a, b) =>
+    a.localeCompare(b),
+  );
   const end = new Date(sortedDates[sortedDates.length - 1]);
   const values: number[] = [];
 
@@ -143,7 +172,8 @@ function buildHeatmapRows(points: LinePoint[], cells = 55) {
   });
 
   const rows: number[][] = [];
-  for (let i = 0; i < levels.length; i += 11) rows.push(levels.slice(i, i + 11));
+  for (let i = 0; i < levels.length; i += 11)
+    rows.push(levels.slice(i, i + 11));
   return rows;
 }
 
@@ -165,8 +195,10 @@ function heatColor(level: number) {
 
 export default function FacebookPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
-  const [rawSeries, setRawSeries] = useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
-  const [ranges, setRanges] = useState<Record<MetricKey, DateRangeId>>(INITIAL_RANGES);
+  const [rawSeries, setRawSeries] =
+    useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
+  const [ranges, setRanges] =
+    useState<Record<MetricKey, DateRangeId>>(INITIAL_RANGES);
 
   useEffect(() => {
     async function loadFacebook() {
@@ -220,7 +252,11 @@ export default function FacebookPage() {
   const topSmallCards = [
     { title: "Shares", key: "shares" as MetricKey, label: "from last year" },
     { title: "Reactions", key: "likes" as MetricKey, label: "from last year" },
-    { title: "Comments", key: "comments" as MetricKey, label: "from last year" },
+    {
+      title: "Comments",
+      key: "comments" as MetricKey,
+      label: "from last year",
+    },
     { title: "Likes", key: "likes" as MetricKey, label: "from last year" },
   ];
 
@@ -288,7 +324,9 @@ export default function FacebookPage() {
             subtitle={
               <DateDropdown
                 value={ranges.followers}
-                onChange={(r) => setRanges((prev) => ({ ...prev, followers: r }))}
+                onChange={(r) =>
+                  setRanges((prev) => ({ ...prev, followers: r }))
+                }
                 minDate={computed.followers?.bounds.min}
                 maxDate={computed.followers?.bounds.max}
               />
@@ -386,7 +424,9 @@ export default function FacebookPage() {
                     className="rounded-lg border border-[#E5E5E5] p-3 font-poppins"
                   >
                     <p className="font-semibold text-sm">{post.date}</p>
-                    <p className="text-sm text-gray-600">{post.value} new post(s)</p>
+                    <p className="text-sm text-gray-600">
+                      {post.value} new post(s)
+                    </p>
                   </div>
                 ))}
               </div>

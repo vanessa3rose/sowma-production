@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import BigCard from "../../components/cards/BigCard";
 import LineCharts from "../../components/charts/LineCharts";
-import DateDropdown, { DateRangeId } from "../../components/charts/DateDropdown";
+import DateDropdown, {
+  DateRangeId,
+} from "../../components/charts/DateDropdown";
 import ExportButton from "../../components/export-pdf/ExportButton";
 import { fetchMetrics, SocialMediaMetric } from "../..//utils/fetchMetrics";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
@@ -30,10 +32,14 @@ export default function TwitterPage() {
   const [followersOverTime, setFollowersOverTime] = useState<TimePoint[]>([]);
   const [tweetsOverTime, setTweetsOverTime] = useState<TimePoint[]>([]);
 
-  const [followersOverTimeAll, setFollowersOverTimeAll] = useState<TimePoint[]>([]);
+  const [followersOverTimeAll, setFollowersOverTimeAll] = useState<TimePoint[]>(
+    [],
+  );
   const [tweetsOverTimeAll, setTweetsOverTimeAll] = useState<TimePoint[]>([]);
 
-  const [metricSummaries, setMetricSummaries] = useState<Partial<Record<keyof TwitterMetrics, MetricSummary>>>({});
+  const [metricSummaries, setMetricSummaries] = useState<
+    Partial<Record<keyof TwitterMetrics, MetricSummary>>
+  >({});
 
   const [followersRange, setFollowersRange] = useState<DateRangeId>("30d");
   const [tweetsRange, setTweetsRange] = useState<DateRangeId>("30d");
@@ -48,21 +54,36 @@ export default function TwitterPage() {
       .filter((m) => m.metricDate || m.lastSynced)
       .slice()
       .sort((a, b) =>
-        (a.metricDate ?? a.lastSynced)!.localeCompare((b.metricDate ?? b.lastSynced)!)
+        (a.metricDate ?? a.lastSynced)!.localeCompare(
+          (b.metricDate ?? b.lastSynced)!,
+        ),
       );
   }
 
-  function toLinePoints(raw: SocialMediaMetric[]): { date: string; value: number }[] {
-    return sortByDate(raw).map((m) => ({ date: (m.metricDate ?? m.lastSynced)!.slice(0, 10), value: m.metricValue }));
+  function toLinePoints(
+    raw: SocialMediaMetric[],
+  ): { date: string; value: number }[] {
+    return sortByDate(raw).map((m) => ({
+      date: (m.metricDate ?? m.lastSynced)!.slice(0, 10),
+      value: m.metricValue,
+    }));
   }
 
-  function summarizeSeries(pts: { date: string; value: number }[]): MetricSummary {
+  function summarizeSeries(
+    pts: { date: string; value: number }[],
+  ): MetricSummary {
     if (!pts.length) return { current: null, prev: null };
     if (pts.length === 1) return { current: pts[0].value, prev: null };
-    return { current: pts[pts.length - 1].value, prev: pts[pts.length - 2].value };
+    return {
+      current: pts[pts.length - 1].value,
+      prev: pts[pts.length - 2].value,
+    };
   }
 
-  function filterByRange(pts: { date: string; value: number }[], range: DateRangeId) {
+  function filterByRange(
+    pts: { date: string; value: number }[],
+    range: DateRangeId,
+  ) {
     if (!pts.length || range === "all") return pts;
     const end = new Date(pts[pts.length - 1].date);
     const start = new Date(end);
@@ -75,13 +96,18 @@ export default function TwitterPage() {
   }
 
   function getBounds(pts: { date: string; value: number }[]) {
-    if (!pts.length) return { min: null as Date | null, max: null as Date | null };
-    const dates = pts.map((p) => p.date).slice().sort();
+    if (!pts.length)
+      return { min: null as Date | null, max: null as Date | null };
+    const dates = pts
+      .map((p) => p.date)
+      .slice()
+      .sort();
     return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
   }
 
   function formatPercentChange(summary?: MetricSummary | null): string {
-    if (!summary || summary.current == null || summary.prev == null) return "+ 0%";
+    if (!summary || summary.current == null || summary.prev == null)
+      return "+ 0%";
     if (summary.prev === 0) return "+ 0%";
     const pct = ((summary.current - summary.prev) / summary.prev) * 100;
     return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}% vs. prev.`;
@@ -92,8 +118,18 @@ export default function TwitterPage() {
     async function loadTwitter() {
       try {
         const [followersRaw, tweetsRaw] = await Promise.all([
-          fetchMetrics({ provider, metric: "FOLLOWERS", startDate: defaultStartDate, endDate: defaultEndDate }),
-          fetchMetrics({ provider, metric: "POSTS", startDate: defaultStartDate, endDate: defaultEndDate }),
+          fetchMetrics({
+            provider,
+            metric: "FOLLOWERS",
+            startDate: defaultStartDate,
+            endDate: defaultEndDate,
+          }),
+          fetchMetrics({
+            provider,
+            metric: "POSTS",
+            startDate: defaultStartDate,
+            endDate: defaultEndDate,
+          }),
         ]);
 
         const followersAll = toLinePoints(followersRaw);
@@ -115,8 +151,12 @@ export default function TwitterPage() {
         setFollowersOverTimeAll(followersAll);
         setTweetsOverTimeAll(tweetsAll);
 
-        setFollowersOverTime(followersFiltered.map((p) => ({ date: p.date, followers: p.value })));
-        setTweetsOverTime(tweetsFiltered.map((p) => ({ date: p.date, tweets: p.value })));
+        setFollowersOverTime(
+          followersFiltered.map((p) => ({ date: p.date, followers: p.value })),
+        );
+        setTweetsOverTime(
+          tweetsFiltered.map((p) => ({ date: p.date, tweets: p.value })),
+        );
       } catch (err) {
         console.error("Error loading Twitter metrics:", err);
       }
@@ -126,87 +166,107 @@ export default function TwitterPage() {
 
   const dMetrics: TwitterMetrics = metrics ?? { followers: 0, tweets: 0 };
 
-  const followersBounds = getBounds(followersOverTimeAll.map((p) => ({ date: p.date, value: p.followers ?? 0 })));
-  const tweetsBounds = getBounds(tweetsOverTimeAll.map((p) => ({ date: p.date, value: p.tweets ?? 0 })));
+  const followersBounds = getBounds(
+    followersOverTimeAll.map((p) => ({
+      date: p.date,
+      value: p.followers ?? 0,
+    })),
+  );
+  const tweetsBounds = getBounds(
+    tweetsOverTimeAll.map((p) => ({ date: p.date, value: p.tweets ?? 0 })),
+  );
 
   // ---------- Render ----------
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
       <div className="w-full flex items-center justify-between px-4 py-2">
-          <div className="flex items-center space-x-2 mr-2 lg:mr-0">
-            <button
-              onClick={() => (window.location.href = "/")}
-              className="w-[40px] h-[40px]"
+        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
+          <button
+            onClick={() => (window.location.href = "/")}
+            className="w-[40px] h-[40px]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="size-7"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="size-7"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5 8.25 12l7.5-7.5"
-                />
-              </svg>
-            </button>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
+            </svg>
+          </button>
 
-            <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
-              Twitter
-            </h1>
-          </div>
-
-          {/* Add top margin only on mobile */}
-          <div className="mt-2 lg:mt-0">
-            <ExportButton onExport={exportByPlatforms} />
-          </div>
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
+            Twitter
+          </h1>
         </div>
+
+        {/* Add top margin only on mobile */}
+        <div className="mt-2 lg:mt-0">
+          <ExportButton onExport={exportByPlatforms} />
+        </div>
+      </div>
 
       <div className="flex flex-col gap-4 px-4 lg:h-full">
         <div className="w-full flex flex-col lg:flex-row gap-4">
-
           {/* Right Column */}
           <div className="flex flex-col gap-4 w-full">
             <BigCard
               title="Tweets"
-              subtitle={<DateDropdown value={tweetsRange} onChange={setTweetsRange} minDate={tweetsBounds.min} maxDate={tweetsBounds.max} />}
+              subtitle={
+                <DateDropdown
+                  value={tweetsRange}
+                  onChange={setTweetsRange}
+                  minDate={tweetsBounds.min}
+                  maxDate={tweetsBounds.max}
+                />
+              }
               metricValue={dMetrics.tweets}
               metricLabel="total"
               metricChange={formatPercentChange(metricSummaries.tweets)}
-              chart={<LineCharts data={tweetsOverTime} xAxisKey="date" dataKeys={["tweets"]} showArea />}
+              chart={
+                <LineCharts
+                  data={tweetsOverTime}
+                  xAxisKey="date"
+                  dataKeys={["tweets"]}
+                  showArea
+                />
+              }
               displayMode="both"
               className="h-[360px]"
             />
 
             <div className="flex flex-col gap-4 w-full">
               <BigCard
-                  title="Followers"
-                  subtitle={
-                    <DateDropdown
-                      value={followersRange}
-                      onChange={setFollowersRange}
-                      minDate={followersBounds.min}
-                      maxDate={followersBounds.max}
-                    />
-                  }
-                  metricValue={dMetrics.followers}
-                  metricLabel="followers"
-                  metricChange={formatPercentChange(metricSummaries.followers)}
-                  chart={
-                    <LineCharts
-                      data={followersOverTime}
-                      xAxisKey="date"
-                      dataKeys={["followers"]}
-                      showArea
-                    />
-                  }
-                  displayMode="both"
-                  className="h-[360px]"
-                />
+                title="Followers"
+                subtitle={
+                  <DateDropdown
+                    value={followersRange}
+                    onChange={setFollowersRange}
+                    minDate={followersBounds.min}
+                    maxDate={followersBounds.max}
+                  />
+                }
+                metricValue={dMetrics.followers}
+                metricLabel="followers"
+                metricChange={formatPercentChange(metricSummaries.followers)}
+                chart={
+                  <LineCharts
+                    data={followersOverTime}
+                    xAxisKey="date"
+                    dataKeys={["followers"]}
+                    showArea
+                  />
+                }
+                displayMode="both"
+                className="h-[360px]"
+              />
             </div>
           </div>
         </div>

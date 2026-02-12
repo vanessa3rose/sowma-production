@@ -66,7 +66,10 @@ const App = () => {
             <Route path="/social/twitter" component={TwitterPage} />
             <Route path="/social/instagram" component={InstagramPage} />
             <Route path="/login" component={LoginPage} />
-            <Route path="/social/google-analytics" component={GoogleAnalyticsPage} />
+            <Route
+              path="/social/google-analytics"
+              component={GoogleAnalyticsPage}
+            />
             <Route path="/admin" component={AdminPage} />
             <Route path="/glossary" component={GlossaryPage} />
             <Route path="/error/tiktok" component={ErrorPage} />
