@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import BigCard from "../../components/cards/BigCard";
-import SmallCard from "../../components/cards/SmallCard";
 import LineCharts from "../../components/charts/LineCharts";
 import DateDropdown, { DateRangeId } from "../../components/charts/DateDropdown";
 import ExportButton from "../../components/export-pdf/ExportButton";
@@ -9,17 +8,13 @@ import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExp
 
 type TwitterMetrics = {
   followers: number;
-  likes: number;
   tweets: number;
-  shares: number;
 };
 
 type TimePoint = {
   date: string;
   followers?: number;
-  likes?: number;
   tweets?: number;
-  shares?: number;
 };
 
 type MetricSummary = {
@@ -33,20 +28,14 @@ export default function TwitterPage() {
   const [metrics, setMetrics] = useState<TwitterMetrics | null>(null);
 
   const [followersOverTime, setFollowersOverTime] = useState<TimePoint[]>([]);
-  const [likesOverTime, setLikesOverTime] = useState<TimePoint[]>([]);
-  const [sharesOverTime, setSharesOverTime] = useState<TimePoint[]>([]);
   const [tweetsOverTime, setTweetsOverTime] = useState<TimePoint[]>([]);
 
   const [followersOverTimeAll, setFollowersOverTimeAll] = useState<TimePoint[]>([]);
-  const [likesOverTimeAll, setLikesOverTimeAll] = useState<TimePoint[]>([]);
-  const [sharesOverTimeAll, setSharesOverTimeAll] = useState<TimePoint[]>([]);
   const [tweetsOverTimeAll, setTweetsOverTimeAll] = useState<TimePoint[]>([]);
 
   const [metricSummaries, setMetricSummaries] = useState<Partial<Record<keyof TwitterMetrics, MetricSummary>>>({});
 
   const [followersRange, setFollowersRange] = useState<DateRangeId>("30d");
-  const [likesRange, setLikesRange] = useState<DateRangeId>("30d");
-  const [sharesRange, setSharesRange] = useState<DateRangeId>("30d");
   const [tweetsRange, setTweetsRange] = useState<DateRangeId>("30d");
 
   const provider = "TWITTER";
@@ -102,65 +91,49 @@ export default function TwitterPage() {
   useEffect(() => {
     async function loadTwitter() {
       try {
-        const [followersRaw, likesRaw, tweetsRaw, sharesRaw] = await Promise.all([
+        const [followersRaw, tweetsRaw] = await Promise.all([
           fetchMetrics({ provider, metric: "FOLLOWERS", startDate: defaultStartDate, endDate: defaultEndDate }),
-          fetchMetrics({ provider, metric: "LIKES", startDate: defaultStartDate, endDate: defaultEndDate }),
           fetchMetrics({ provider, metric: "POSTS", startDate: defaultStartDate, endDate: defaultEndDate }),
-          fetchMetrics({ provider, metric: "SHARES", startDate: defaultStartDate, endDate: defaultEndDate }),
         ]);
 
         const followersAll = toLinePoints(followersRaw);
-        const likesAll = toLinePoints(likesRaw);
         const tweetsAll = toLinePoints(tweetsRaw);
-        const sharesAll = toLinePoints(sharesRaw);
 
         const followersFiltered = filterByRange(followersAll, followersRange);
-        const likesFiltered = filterByRange(likesAll, likesRange);
-        const sharesFiltered = filterByRange(sharesAll, sharesRange);
         const tweetsFiltered = filterByRange(tweetsAll, tweetsRange);
 
         setMetricSummaries({
           followers: summarizeSeries(followersFiltered),
-          likes: summarizeSeries(likesFiltered),
-          shares: summarizeSeries(sharesFiltered),
           tweets: summarizeSeries(tweetsFiltered),
         });
 
         setMetrics({
           followers: summarizeSeries(followersFiltered).current ?? 0,
-          likes: summarizeSeries(likesFiltered).current ?? 0,
-          shares: summarizeSeries(sharesFiltered).current ?? 0,
           tweets: summarizeSeries(tweetsFiltered).current ?? 0,
         });
 
         setFollowersOverTimeAll(followersAll);
-        setLikesOverTimeAll(likesAll);
-        setSharesOverTimeAll(sharesAll);
         setTweetsOverTimeAll(tweetsAll);
 
         setFollowersOverTime(followersFiltered.map((p) => ({ date: p.date, followers: p.value })));
-        setLikesOverTime(likesFiltered.map((p) => ({ date: p.date, likes: p.value })));
-        setSharesOverTime(sharesFiltered.map((p) => ({ date: p.date, shares: p.value })));
         setTweetsOverTime(tweetsFiltered.map((p) => ({ date: p.date, tweets: p.value })));
       } catch (err) {
         console.error("Error loading Twitter metrics:", err);
       }
     }
     loadTwitter();
-  }, [followersRange, likesRange, sharesRange, tweetsRange]);
+  }, [followersRange, tweetsRange]);
 
-  const dMetrics: TwitterMetrics = metrics ?? { followers: 0, likes: 0, shares: 0, tweets: 0 };
+  const dMetrics: TwitterMetrics = metrics ?? { followers: 0, tweets: 0 };
 
   const followersBounds = getBounds(followersOverTimeAll.map((p) => ({ date: p.date, value: p.followers ?? 0 })));
-  const likesBounds = getBounds(likesOverTimeAll.map((p) => ({ date: p.date, value: p.likes ?? 0 })));
-  const sharesBounds = getBounds(sharesOverTimeAll.map((p) => ({ date: p.date, value: p.shares ?? 0 })));
   const tweetsBounds = getBounds(tweetsOverTimeAll.map((p) => ({ date: p.date, value: p.tweets ?? 0 })));
 
   // ---------- Render ----------
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
-      <div className="w-full flex flex-col lg:flex-row justify-between items-center px-4 py-2">
+      <div className="w-full flex flex-col lg:flex-row justify-between px-4 py-2">
           <div className="flex items-center space-x-2 mr-2 lg:mr-0">
             <button
               onClick={() => (window.location.href = "/")}
@@ -195,33 +168,9 @@ export default function TwitterPage() {
 
       <div className="flex flex-col gap-4 px-4 lg:h-full">
         <div className="w-full flex flex-col lg:flex-row gap-4">
-          {/* Left Column */}
-          <div className="flex flex-col gap-4 w-full lg:w-1/2">
-            <BigCard
-              title="Likes"
-              subtitle={<DateDropdown value={likesRange} onChange={setLikesRange} minDate={likesBounds.min} maxDate={likesBounds.max} />}
-              metricValue={dMetrics.likes}
-              metricLabel="total"
-              metricChange={formatPercentChange(metricSummaries.likes)}
-              chart={<LineCharts data={likesOverTime} xAxisKey="date" dataKeys={["likes"]} showArea />}
-              displayMode="both"
-              className="h-[360px]"
-            />
-
-            <BigCard
-              title="Shares"
-              subtitle={<DateDropdown value={sharesRange} onChange={setSharesRange} minDate={sharesBounds.min} maxDate={sharesBounds.max} />}
-              metricValue={dMetrics.shares}
-              metricLabel="total"
-              metricChange={formatPercentChange(metricSummaries.shares)}
-              chart={<LineCharts data={sharesOverTime} xAxisKey="date" dataKeys={["shares"]} showArea />}
-              displayMode="both"
-              className="h-[360px]"
-            />
-          </div>
 
           {/* Right Column */}
-          <div className="flex flex-col gap-4 w-full lg:w-1/2">
+          <div className="flex flex-col gap-4 w-full">
             <BigCard
               title="Tweets"
               subtitle={<DateDropdown value={tweetsRange} onChange={setTweetsRange} minDate={tweetsBounds.min} maxDate={tweetsBounds.max} />}
@@ -233,15 +182,7 @@ export default function TwitterPage() {
               className="h-[360px]"
             />
 
-            <div className="flex flex-col gap-4 w-full lg:w-full">
-              {/* <SmallCard
-                title="Followers"
-                displayMode="metric-only"
-                className="w-full h-full"
-                metricValue={dMetrics.followers}
-                metricLabel="followers"
-                metricChange={formatPercentChange(metricSummaries.followers)}
-              /> */}
+            <div className="flex flex-col gap-4 w-full">
               <BigCard
                   title="Followers"
                   subtitle={
