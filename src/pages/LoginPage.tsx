@@ -133,9 +133,9 @@ export default function LoginPage() {
           </div>
 
           {/* Content Container */}
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md justify-center items-center">
             {/* Tab Navigation */}
-            <div className="flex gap-2 mb-8">
+            <div className="flex gap-2 mb-8 w-full justify-center items-center">
               <button
                 type="button"
                 onClick={() => handleTabChange("waitlist")}
@@ -161,7 +161,7 @@ export default function LoginPage() {
             </div>
 
             {/* Tab Content - Fixed height container for alignment */}
-            <div className="min-h-[500px]">
+            <div className="min-h-[500px] w-full">
               {activeTab === "waitlist" ? (
                 /* WAITLIST FORM */
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -222,11 +222,11 @@ export default function LoginPage() {
                 </form>
               ) : (
                 /* CLERK SIGN IN */
-                <div className="">
+                <div className="flex w-full justify-center items-center">
                   <SignIn
                     appearance={{
                       elements: {
-                        rootBox: "max-w-full",
+                        rootBox: "max-w-full justify-center items-center",
                         card: "w-full p-8 rounded-2xl shadow-md border border-gray-200",
                         formButtonPrimary: "hover:bg-sowma-blue text-white",
                       },
