@@ -14,9 +14,6 @@ export default function Waitlist() {
         <div className="w-1/2">Email:</div>
         <div className="w-1/6">Role:</div>
         <div className="w-1/3"></div>
-    </div>
-
-      <div className="space-y-4">
         {mockUsers.map(
           (user: {
             id: Key | null | undefined;
@@ -39,7 +36,10 @@ export default function Waitlist() {
               | null
               | undefined;
           }) => (
-            <div key={user.id} className="flex w-full mb-3 text-xs md:text-lg items-start text-left">
+            <div
+              key={user.id}
+              className="flex w-full mb-3 text-xs md:text-lg items-start text-left"
+            >
               <div className="w-1/2">{user.email}</div>
               <div className="w-1/6">{user.role}</div>
 

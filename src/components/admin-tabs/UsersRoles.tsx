@@ -37,7 +37,9 @@ export default function UsersRoles() {
                 aria-label={`Remove ${user.name}`}
                 className="px-5 py-2 min-w-[90px] h-12 flex items-center justify-center rounded-full border-2 border-[#FF1313] text-[#FF1313] text-2xl leading-none"
                 onClick={() =>
-                  console.log(`Remove button clicked for ${user.name} (${user.email})`)
+                  console.log(
+                    `Remove button clicked for ${user.name} (${user.email})`,
+                  )
                 }
               >
                 ×
@@ -46,7 +48,6 @@ export default function UsersRoles() {
           </div>
         ))}
       </div>
-
     </div>
   );
 }

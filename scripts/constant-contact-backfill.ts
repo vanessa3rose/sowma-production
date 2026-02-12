@@ -1,6 +1,3 @@
-// Usage:
-//   npx tsx scripts/constant_contact_backfill.ts 2025-01-01 2025-01-31
-
 import { fileURLToPath } from "node:url";
 import {
   PrismaClient,
@@ -11,10 +8,10 @@ import fetch from "node-fetch";
 import "dotenv/config";
 import {
   startOfDay,
-  endOfDay,
   formatISODate,
   metricsExistForDay,
 } from "../src/utils/dates";
+import { ensureConstantContactAccessToken } from "./token-refresh";
 
 /* -------------------------------------------------
    Prisma Client
@@ -46,80 +43,41 @@ type SummaryResponse = {
 };
 
 /* -------------------------------------------------
-   CC email metrics we track (must match cron)
+   Helpers
 -------------------------------------------------- */
-const CC_METRICS = [
-  Metric.EMAILS_SENT,
-  Metric.EMAILS_DELIVERED,
-  Metric.EMAIL_OPENED,
-  Metric.EMAILS_CLICKED,
-  Metric.EMAILS_UNSUBSCRIBED,
-] as const;
+async function getConstantContactAccountOrThrow() {
+  const count = await prisma.socialMedia.count({
+    where: { provider: Provider.CONSTANT_CONTACT },
+  });
+
+  if (count !== 1) {
+    throw new Error(
+      `[CC] Expected exactly 1 Constant Contact account, found ${count}. ` +
+        `Run scripts/social-media-setup.ts and ensure only one Provider.CONSTANT_CONTACT row exists.`,
+    );
+  }
+
+  const account = await prisma.socialMedia.findFirst({
+    where: { provider: Provider.CONSTANT_CONTACT },
+    include: { SocialMediaAuth: true },
+  });
+
+  if (!account) {
+    throw new Error(
+      "[CC] No Constant Contact account found in SocialMedia. Run scripts/social-media-setup.ts.",
+    );
+  }
+
+  return account;
+}
 
 /* -------------------------------------------------
    Token refresh (reuses existing CC OAuth logic)
 -------------------------------------------------- */
-async function refreshAccessToken(auth: {
-  accessToken: string;
-  refreshToken: string | null;
-  id: string;
-}): Promise<string> {
-  if (!auth.refreshToken) {
-    console.warn(
-      `[CC] No refresh token for auth ${auth.id}, using existing access token`,
-    );
-    return auth.accessToken;
-  }
-
-  const body = new URLSearchParams({
-    grant_type: "refresh_token",
-    refresh_token: auth.refreshToken,
-  });
-
-  const res = await fetch(
-    "https://authz.constantcontact.com/oauth2/default/v1/token",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${Buffer.from(
-          `${process.env.CONSTANT_CONTACT_CLIENT_ID}:${process.env.CONSTANT_CONTACT_CLIENT_SECRET}`,
-        ).toString("base64")}`,
-      },
-      body,
-    },
-  );
-
-  const j = (await res.json()) as {
-    access_token?: string;
-    refresh_token?: string;
-    expires_in?: number;
-  };
-
-  if (!res.ok) {
-    throw new Error(
-      `[CC] Token refresh failed: ${res.status} ${JSON.stringify(j)}`,
-    );
-  }
-
-  // Persist the new tokens back to the database
-  await prisma.socialMediaAuth.update({
-    where: { id: auth.id },
-    data: {
-      accessToken: j.access_token ?? auth.accessToken,
-      refreshToken: j.refresh_token ?? auth.refreshToken,
-      expiresAt: j.expires_in
-        ? new Date(Date.now() + j.expires_in * 1000)
-        : undefined,
-    },
-  });
-
-  console.log(`[CC] Access token refreshed`);
-  return j.access_token ?? auth.accessToken;
-}
+// Token refresh is centralized in scripts/token-refresh.ts
 
 /* -------------------------------------------------
-   API helpers (same logic as cron)
+   API helpers
 -------------------------------------------------- */
 function isSameDay(dateStr: string, target: Date): boolean {
   const d = new Date(dateStr);
@@ -189,161 +147,121 @@ function aggregateCampaigns(campaigns: CampaignSummary[]) {
 /* -------------------------------------------------
    Backfill logic
 -------------------------------------------------- */
-async function backfillConstantContact(rangeStart: Date, rangeEnd: Date) {
+async function backfillConstantContact() {
+  const rangeEnd = startOfDay(new Date(Date.now() - 24 * 60 * 60 * 1000)); // yesterday
+  const rangeStart = startOfDay(
+    new Date(Date.now() - 5 * 365 * 24 * 60 * 60 * 1000),
+  ); // 5 years
+
   console.log(
-    `[CC] Starting backfill: ${formatISODate(rangeStart)} → ${formatISODate(rangeEnd)}`,
+    `[CC] Starting backfill: ${formatISODate(rangeStart)} -> ${formatISODate(rangeEnd)}`,
   );
 
-  const accounts = await prisma.socialMedia.findMany({
-    where: { provider: Provider.CONSTANT_CONTACT },
-    include: { SocialMediaAuth: true },
+  const account = await getConstantContactAccountOrThrow();
+
+  console.log(`\n[CC] Backfilling: ${account.username}`);
+
+  // Refresh token once at the start (good for ~24h)
+  let authId = account.SocialMediaAuth?.id ?? null;
+  let accessToken = account.SocialMediaAuth?.accessToken ?? null;
+  let refreshToken = account.SocialMediaAuth?.refreshToken ?? null;
+  let expiresAt = account.SocialMediaAuth?.expiresAt ?? null;
+
+  const refreshed = await ensureConstantContactAccessToken({
+    socialMediaId: account.id,
+    auth: account.SocialMediaAuth,
+    fallbackRefreshToken: process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
+    forceRefresh: true,
   });
+  authId = refreshed.authId;
+  accessToken = refreshed.accessToken;
+  refreshToken = refreshed.refreshToken;
+  expiresAt = refreshed.expiresAt;
 
-  if (accounts.length === 0) {
-    console.log("[CC] No Constant Contact accounts found.");
-    return;
-  }
+  const current = new Date(rangeStart);
+  while (current <= rangeEnd) {
+    const metricDate = startOfDay(current);
+    const dateStr = formatISODate(metricDate);
 
-  for (const account of accounts) {
-    const auth = account.SocialMediaAuth;
-    if (!auth || !auth.refreshToken) {
-      console.warn(
-        `[CC] ${account.username}: missing auth/refresh token, skipping`,
-      );
+    if (await metricsExistForDay(account.id, metricDate)) {
+      console.log(`  ${dateStr} -- already exists, skipping`);
+      current.setUTCDate(current.getUTCDate() + 1);
       continue;
     }
 
-    console.log(`\n[CC] Backfilling: ${account.username}`);
-
-    // Refresh token once at the start (good for 24h)
-    let accessToken: string;
     try {
-      accessToken = await refreshAccessToken(auth);
-    } catch (err) {
-      console.error(`[CC] Token refresh failed for ${account.username}:`, err);
-      continue;
-    }
+      const campaigns = await fetchCampaignsSentOn(accessToken, metricDate);
 
-    // Walk forward through the date range day by day
-    const current = new Date(rangeStart);
-    while (current <= rangeEnd) {
-      const metricDate = startOfDay(current);
-      const dateStr = formatISODate(metricDate);
-
-      // Skip if data already exists (idempotent, don't overwrite)
-      if (await metricsExistForDay(account.id, metricDate)) {
-        console.log(`  ${dateStr} — already exists, skipping`);
+      if (campaigns.length === 0) {
+        console.log(`  ${dateStr} -- no campaigns sent`);
         current.setUTCDate(current.getUTCDate() + 1);
         continue;
       }
 
-      try {
-        const campaigns = await fetchCampaignsSentOn(accessToken, metricDate);
+      const totals = aggregateCampaigns(campaigns);
 
-        if (campaigns.length === 0) {
-          console.log(`  ${dateStr} — no campaigns sent`);
-          current.setUTCDate(current.getUTCDate() + 1);
-          continue;
-        }
+      const metricsToInsert = [
+        { metricName: Metric.EMAILS_SENT, metricValue: totals.sends },
+        { metricName: Metric.EMAILS_DELIVERED, metricValue: totals.delivered },
+        { metricName: Metric.EMAIL_OPENED, metricValue: totals.opens },
+        { metricName: Metric.EMAILS_CLICKED, metricValue: totals.clicks },
+        {
+          metricName: Metric.EMAILS_UNSUBSCRIBED,
+          metricValue: totals.unsubscribes,
+        },
+      ] as const;
 
-        const totals = aggregateCampaigns(campaigns);
+      await prisma.$transaction(
+        metricsToInsert.map((m) =>
+          prisma.socialMediaMetrics.create({
+            data: {
+              socialMediaId: account.id,
+              metricName: m.metricName,
+              metricValue: m.metricValue,
+              metricDate,
+              lastSynced: new Date(),
+            },
+          }),
+        ),
+      );
 
-        const metricsToInsert = [
-          { metricName: Metric.EMAILS_SENT, metricValue: totals.sends },
-          {
-            metricName: Metric.EMAILS_DELIVERED,
-            metricValue: totals.delivered,
+      console.log(
+        `  ${dateStr} -- ${campaigns.length} campaign(s): sent=${totals.sends} opened=${totals.opens} clicked=${totals.clicks} unsub=${totals.unsubscribes}`,
+      );
+    } catch (err: any) {
+      if (err?.message?.includes("401")) {
+        console.warn(`  ${dateStr} -- 401, refreshing token and retrying...`);
+        const retry = await ensureConstantContactAccessToken({
+          socialMediaId: account.id,
+          auth: {
+            id: authId ?? undefined,
+            accessToken,
+            refreshToken,
+            expiresAt,
+            lastRefreshed: new Date(),
           },
-          { metricName: Metric.EMAIL_OPENED, metricValue: totals.opens },
-          { metricName: Metric.EMAILS_CLICKED, metricValue: totals.clicks },
-          {
-            metricName: Metric.EMAILS_UNSUBSCRIBED,
-            metricValue: totals.unsubscribes,
-          },
-        ];
-
-        // Insert all metrics in a single transaction
-        await prisma.$transaction(
-          metricsToInsert.map((m) =>
-            prisma.socialMediaMetrics.create({
-              data: {
-                socialMediaId: account.id,
-                metricName: m.metricName,
-                metricValue: m.metricValue,
-                metricDate,
-                lastSynced: new Date(),
-              },
-            }),
-          ),
-        );
-
-        console.log(
-          `  ${dateStr} — ${campaigns.length} campaign(s): sent=${totals.sends} opened=${totals.opens} clicked=${totals.clicks} unsub=${totals.unsubscribes}`,
-        );
-      } catch (err: any) {
-        // If we get a 401, try refreshing the token once
-        if (err?.message?.includes("401")) {
-          console.warn(`  ${dateStr} — 401, refreshing token and retrying…`);
-          try {
-            accessToken = await refreshAccessToken(auth);
-            // Don't increment — retry this day
-            continue;
-          } catch (refreshErr) {
-            console.error(
-              `[CC] Token re-refresh failed, stopping backfill for ${account.username}`,
-            );
-            break;
-          }
-        }
-
-        console.error(`  ${dateStr} — failed:`, err);
+          fallbackRefreshToken:
+            process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
+          forceRefresh: true,
+        });
+        authId = retry.authId;
+        accessToken = retry.accessToken;
+        refreshToken = retry.refreshToken;
+        expiresAt = retry.expiresAt;
+        continue; // retry same day
       }
-
-      current.setUTCDate(current.getUTCDate() + 1);
+      console.error(`  ${dateStr} -- failed:`, err);
     }
 
-    console.log(`[CC] Completed backfill for ${account.username}`);
+    current.setUTCDate(current.getUTCDate() + 1);
   }
 
   console.log("\n[CC] Backfill complete");
 }
 
-/* -------------------------------------------------
-   CLI entrypoint
--------------------------------------------------- */
-function parseArgs(): { startDate: Date; endDate: Date } {
-  const args = process.argv.slice(2);
-
-  if (args.length < 2) {
-    console.error(
-      "Usage: npx tsx scripts/constant_contact_backfill.ts <start-date> <end-date>",
-    );
-    console.error(
-      "Example: npx tsx scripts/constant_contact_backfill.ts 2025-01-01 2025-01-31",
-    );
-    process.exit(1);
-  }
-
-  const startDate = new Date(args[0]);
-  const endDate = new Date(args[1]);
-
-  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-    console.error("Error: Invalid date format. Use YYYY-MM-DD");
-    process.exit(1);
-  }
-
-  if (startDate > endDate) {
-    console.error("Error: Start date must be before end date");
-    process.exit(1);
-  }
-
-  return { startDate: startOfDay(startDate), endDate: startOfDay(endDate) };
-}
-
 async function main() {
   try {
-    const { startDate, endDate } = parseArgs();
-    await backfillConstantContact(startDate, endDate);
+    await backfillConstantContact();
   } catch (err) {
     console.error("[CC] Backfill failed:", err);
     process.exitCode = 1;

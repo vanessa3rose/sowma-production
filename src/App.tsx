@@ -4,11 +4,9 @@ import LeftSidebar from "./components/LeftSidebar";
 
 import Homepage from "./pages/Homepage";
 import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
 import GoogleAnalyticsPage from "./pages/SocialMedia/GoogleAnalyticsPage";
 import TwitterPage from "./pages/SocialMedia/TwitterPage";
 import FacebookPage from "./pages/SocialMedia/FacebookPage";
-
 import InstagramPage from "./pages/SocialMedia/InstagramPage";
 import AdminPage from "./pages/AdminPage";
 import GlossaryPage from "./pages/Glossary";
@@ -16,20 +14,18 @@ import { useState } from "react";
 import ErrorPage from "./pages/ErrorPage";
 import Newsletter from "./pages/Newsletter";
 
-// ⭐ Correct import
 import { GlobalPageExportProvider } from "./components/export-pdf/GlobalPageExportProvider";
 
 const App = () => {
   const [location] = useLocation();
 
   const currentPath = location.toLowerCase();
-  const hideLayoutRoutes = ["/signup", "/login"];
+  const hideLayoutRoutes = ["/login"];
   const hideLayout = hideLayoutRoutes.includes(currentPath);
 
   const [isMobile, setisMobile] = useState(false);
 
   return (
-    // ⭐ Correct opening tag
     <GlobalPageExportProvider>
       <div className={`${!hideLayout && "flex min-h-screen bg-white"}`}>
         {!hideLayout && (
@@ -69,12 +65,12 @@ const App = () => {
             <Route path="/social/facebook" component={FacebookPage} />
             <Route path="/social/twitter" component={TwitterPage} />
             <Route path="/social/instagram" component={InstagramPage} />
-            <Route path="/signup" component={SignupPage} />
             <Route path="/login" component={LoginPage} />
             <Route path="/social/google-analytics" component={GoogleAnalyticsPage} />
             <Route path="/admin" component={AdminPage} />
             <Route path="/glossary" component={GlossaryPage} />
-            <Route path="/error" component={ErrorPage} />
+            <Route path="/error/tiktok" component={ErrorPage} />
+            <Route path="/error/linkedin" component={ErrorPage} />
             <Route path="/newsletter" component={Newsletter} />
             <Route>
               <p className="p-4 text-black">404: Page Not Found</p>
