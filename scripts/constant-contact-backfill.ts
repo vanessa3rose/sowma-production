@@ -149,7 +149,9 @@ function aggregateCampaigns(campaigns: CampaignSummary[]) {
 -------------------------------------------------- */
 async function backfillConstantContact() {
   const rangeEnd = startOfDay(new Date(Date.now() - 24 * 60 * 60 * 1000)); // yesterday
-  const rangeStart = startOfDay(new Date(Date.now() - 5 * 365 * 24 * 60 * 60 * 1000)); // 5 years
+  const rangeStart = startOfDay(
+    new Date(Date.now() - 5 * 365 * 24 * 60 * 60 * 1000),
+  ); // 5 years
 
   console.log(
     `[CC] Starting backfill: ${formatISODate(rangeStart)} -> ${formatISODate(rangeEnd)}`,
@@ -168,8 +170,7 @@ async function backfillConstantContact() {
   const refreshed = await ensureConstantContactAccessToken({
     socialMediaId: account.id,
     auth: account.SocialMediaAuth,
-    fallbackRefreshToken:
-      process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
+    fallbackRefreshToken: process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
     forceRefresh: true,
   });
   authId = refreshed.authId;

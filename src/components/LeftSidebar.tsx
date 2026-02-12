@@ -28,7 +28,6 @@ const exceptionRoutes: Record<string, string> = {
   newsletter: "/newsletter",
 };
 
-
 const LeftSidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
   const [collapsed, setCollapsed] = useState(false);
   const { signOut } = useClerk();
@@ -59,7 +58,9 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
 
       <div className={sidebarClasses}>
         {/* HEADER: Removed min-height and fixed spacer to remove the "white box" effect */}
-        <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} p-4 w-full`}>
+        <div
+          className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} p-4 w-full`}
+        >
           {!collapsed ? (
             <img
               src={logo}
@@ -67,14 +68,16 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
               className="w-4/5 h-auto object-contain transition-all"
             />
           ) : null}
-          
+
           {!mobile && (
             <button
               onClick={() => setCollapsed(!collapsed)}
               className="w-6 h-6 border-2 border-[#A1A1A1] flex items-center justify-center 
                          text-[#A1A1A1] hover:bg-gray-100 transition rounded-sm bg-white shrink-0"
             >
-              <span className={`transform transition-transform ${collapsed ? "rotate-180" : ""}`}>
+              <span
+                className={`transform transition-transform ${collapsed ? "rotate-180" : ""}`}
+              >
                 &lt;
               </span>
             </button>
@@ -91,19 +94,34 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
           <Link href="/" className="w-full">
             <div
               className={`flex flex-row items-center transition-all
-                ${collapsed 
-                  ? "w-12 h-12 justify-center rounded-xl mx-auto" 
-                  : "w-full gap-x-4 p-2 rounded-xl"}
+                ${
+                  collapsed
+                    ? "w-12 h-12 justify-center rounded-xl mx-auto"
+                    : "w-full gap-x-4 p-2 rounded-xl"
+                }
                 ${isDashboardActive ? "bg-[#4781C2] text-white shadow-md" : "hover:bg-gray-100 text-[#000000]"}
               `}
             >
               <div className="w-8 h-8 flex items-center justify-center shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                  />
                 </svg>
               </div>
               {!collapsed && (
-                <p className="font-poppins text-[18px] font-medium whitespace-nowrap">Dashboard</p>
+                <p className="font-poppins text-[18px] font-medium whitespace-nowrap">
+                  Dashboard
+                </p>
               )}
             </div>
           </Link>
@@ -112,19 +130,34 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
           <Link href="/glossary" className="w-full">
             <div
               className={`flex flex-row items-center transition-all
-                ${collapsed 
-                  ? "w-12 h-12 justify-center rounded-xl mx-auto" 
-                  : "w-full gap-x-4 p-2 rounded-xl"}
+                ${
+                  collapsed
+                    ? "w-12 h-12 justify-center rounded-xl mx-auto"
+                    : "w-full gap-x-4 p-2 rounded-xl"
+                }
                 ${isGlossaryActive ? "bg-[#4781C2] text-white shadow-md" : "hover:bg-gray-100 text-[#000000]"}
               `}
             >
               <div className="w-8 h-8 flex items-center justify-center shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
+                  />
                 </svg>
               </div>
               {!collapsed && (
-                <p className="font-poppins text-[18px] font-medium whitespace-nowrap">Glossary</p>
+                <p className="font-poppins text-[18px] font-medium whitespace-nowrap">
+                  Glossary
+                </p>
               )}
             </div>
           </Link>
@@ -132,12 +165,17 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
           {/* PLATFORMS */}
           <div className="flex flex-col space-y-1 w-full pt-2">
             {!collapsed && (
-              <h1 className="font-poppins font-medium text-[14px] text-[#A1A1A1] tracking-widest px-3 pb-1 uppercase">Platforms</h1>
+              <h1 className="font-poppins font-medium text-[14px] text-[#A1A1A1] tracking-widest px-3 pb-1 uppercase">
+                Platforms
+              </h1>
             )}
-            {collapsed && <div className="w-8 border-t border-gray-100 my-2 mx-auto" />}
+            {collapsed && (
+              <div className="w-8 border-t border-gray-100 my-2 mx-auto" />
+            )}
 
             {socialLinks.map((social, idx) => {
-              const href = exceptionRoutes[social.slug] || `/social/${social.slug}`;
+              const href =
+                exceptionRoutes[social.slug] || `/social/${social.slug}`;
               const isActive = location === href;
 
               return (
@@ -149,10 +187,16 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
                     `}
                   >
                     <div className="w-8 h-8 flex items-center justify-center shrink-0">
-                      <img src={social.icon} alt={social.label} className="w-full h-full object-contain rounded-[8px] bg-white p-1" />
+                      <img
+                        src={social.icon}
+                        alt={social.label}
+                        className="w-full h-full object-contain rounded-[8px] bg-white p-1"
+                      />
                     </div>
                     {!collapsed && (
-                      <p className="font-poppins font-medium text-[16px] whitespace-nowrap">{social.label}</p>
+                      <p className="font-poppins font-medium text-[16px] whitespace-nowrap">
+                        {social.label}
+                      </p>
                     )}
                     {isActive && (
                       <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-[#4781C2] rounded-r-full" />
@@ -172,11 +216,26 @@ const LeftSidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
                 text-[#626262] hover:text-red-700 hover:bg-gray-50`}
             >
               <div className="w-8 h-8 flex items-center justify-center shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H3" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H3"
+                  />
                 </svg>
               </div>
-              {!collapsed && <span className="text-[16px] font-medium whitespace-nowrap">Sign Out</span>}
+              {!collapsed && (
+                <span className="text-[16px] font-medium whitespace-nowrap">
+                  Sign Out
+                </span>
+              )}
             </button>
           </div>
         </nav>

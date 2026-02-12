@@ -324,7 +324,12 @@ export async function ensureConstantContactAccessToken(params: {
         "[token] Constant Contact auth missing; cannot proceed without refresh.",
       );
     }
-    return { accessToken, refreshToken: auth?.refreshToken ?? null, expiresAt, authId };
+    return {
+      accessToken,
+      refreshToken: auth?.refreshToken ?? null,
+      expiresAt,
+      authId,
+    };
   }
 
   const refreshToken = auth?.refreshToken ?? fallbackRefreshToken ?? null;
@@ -345,7 +350,9 @@ export async function ensureConstantContactAccessToken(params: {
   });
 
   if (!updated?.accessToken) {
-    throw new Error("[token] Constant Contact refresh returned no access token.");
+    throw new Error(
+      "[token] Constant Contact refresh returned no access token.",
+    );
   }
 
   if (authId) {
