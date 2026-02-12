@@ -13,22 +13,28 @@ type AdminRouteProps = {
 export const AdminRoute = ({ component: Component }: AdminRouteProps) => {
   const { user, isLoaded, isSignedIn } = useUser();
   const [, setLocation] = useLocation();
+
   const [role, setRole] = useState<Role | null>(null);
   const [roleLoading, setRoleLoading] = useState(false);
 
+  // 1) Handle auth + fetch role from backend
   useEffect(() => {
     let cancelled = false;
 
     async function fetchRoleByEmail(email: string) {
       setRoleLoading(true);
       try {
-        const resp = await fetch(`/api/users?email=${encodeURIComponent(email)}`);
+        const resp = await fetch(
+          `/api/users?email=${encodeURIComponent(email)}`,
+        );
         const json = await resp.json();
 
-        const fetchedRole = (json?.data?.[0]?.role as Role | undefined) ?? "VIEWER";
+        const fetchedRole =
+          (json?.data?.[0]?.role as Role | undefined) ?? "VIEWER";
+
         if (!cancelled) setRole(fetchedRole);
-      } catch (e) {
-        // fail closed: treat as non-admin
+      } catch {
+        // Fail closed: treat as non-admin
         if (!cancelled) setRole("VIEWER");
       } finally {
         if (!cancelled) setRoleLoading(false);
@@ -37,14 +43,17 @@ export const AdminRoute = ({ component: Component }: AdminRouteProps) => {
 
     if (!isLoaded) return;
 
+    // If loaded but not signed in, go to login
     if (!isSignedIn) {
       setRole(null);
       setLocation("/login");
       return;
     }
 
+    // Signed in: fetch role based on email
     const email = user?.primaryEmailAddress?.emailAddress;
     if (!email) {
+      // Per your assumption this shouldn't happen, but fail closed anyway
       setRole("VIEWER");
       return;
     }
@@ -56,20 +65,23 @@ export const AdminRoute = ({ component: Component }: AdminRouteProps) => {
     };
   }, [user, isLoaded, isSignedIn, setLocation]);
 
-  // loading: clerk OR role fetch
-  if (!isLoaded || roleLoading || role === null) return <LoadingAnimation />;
-
-  if (!isSignedIn) return <LoadingAnimation />;
-
+  // 2) If signed in but not admin, redirect to rejection page
   useEffect(() => {
     if (!isLoaded || roleLoading || role === null) return;
     if (!isSignedIn) return;
+
     if (role !== "ADMIN") {
-        setLocation("/homepage", {
-        state: { adminDenied: true, message: "You do not have admin access.", expiresMs: 8000 },
-        });
+      setLocation("/admin-rejection");
     }
-    }, [isLoaded, roleLoading, role, isSignedIn, setLocation]);
+  }, [isLoaded, roleLoading, role, isSignedIn, setLocation]);
+
+  // 3) Render gating states
+  if (!isLoaded || roleLoading || role === null) return <LoadingAnimation />;
+
+  // We redirect in the effect, but keep a safe fallback render
+  if (!isSignedIn) return <LoadingAnimation />;
+
+  if (role !== "ADMIN") return <LoadingAnimation />;
 
   return <Component />;
 };

@@ -11,13 +11,13 @@ import TwitterPage from "./pages/SocialMedia/TwitterPage";
 import FacebookPage from "./pages/SocialMedia/FacebookPage";
 import InstagramPage from "./pages/SocialMedia/InstagramPage";
 import AdminPage from "./pages/AdminPage";
-import AdminRejection from "./pages/AdminRejection";
 import GlossaryPage from "./pages/Glossary";
 import ErrorPage from "./pages/ErrorPage";
 import Newsletter from "./pages/Newsletter";
 
 import { ProtectedRoute } from "./components/routes/ProtectedRoute";
 import { AdminRoute } from "./components/routes/AdminRoute";
+import AdminRejection from "./pages/AdminRejection";
 
 // ⭐ Correct import
 import { GlobalPageExportProvider } from "./components/export-pdf/GlobalPageExportProvider";
@@ -104,6 +104,12 @@ const hideLayout =
               path="/error/linkedin"
               component={() => <ProtectedRoute component={ErrorPage} />}
             />
+            <Route
+              path="/admin-rejection"
+              component={() => <ProtectedRoute component={AdminRejection} />}
+            />
+
+            <Route path="/login" component={LoginPage} />
             <Route
               path="/newsletter"
               component={() => <ProtectedRoute component={Newsletter} />}
