@@ -181,8 +181,8 @@ export default function InstagramPage() {
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
-      <div className="w-full flex flex-col lg:flex-row justify-between items-center px-4 py-2">
-        <div className="flex items-center space-x-2">
+      <div className="w-full flex items-center px-4 py-2">
+        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
           <button
             onClick={() => (window.location.href = "/")}
             className="w-[40px] h-[40px]"
@@ -202,15 +202,17 @@ export default function InstagramPage() {
               />
             </svg>
           </button>
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
+
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
             Instagram
           </h1>
         </div>
-  
-        <div className="flex space-x-2 mt-2 lg:mt-0">
+
+        <div className="ml-auto">
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
+
   
       {/* Content */}
       <div className="flex flex-col gap-4 px-4 lg:h-full">

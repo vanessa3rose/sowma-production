@@ -7,6 +7,7 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import GoogleAnalyticsPage from "./pages/SocialMedia/GoogleAnalyticsPage";
 import TwitterPage from "./pages/SocialMedia/TwitterPage";
+import FacebookPage from "./pages/SocialMedia/FacebookPage";
 
 import InstagramPage from "./pages/SocialMedia/InstagramPage";
 import AdminPage from "./pages/AdminPage";
@@ -65,7 +66,7 @@ const App = () => {
         >
           <Switch>
             <Route path="/" component={Homepage} />
-            <Route path="/social/facebook" component={ErrorPage} />
+            <Route path="/social/facebook" component={FacebookPage} />
             <Route path="/social/twitter" component={TwitterPage} />
             <Route path="/social/instagram" component={InstagramPage} />
             <Route path="/signup" component={SignupPage} />
@@ -75,7 +76,6 @@ const App = () => {
             <Route path="/glossary" component={GlossaryPage} />
             <Route path="/error" component={ErrorPage} />
             <Route path="/newsletter" component={Newsletter} />
-
             <Route>
               <p className="p-4 text-black">404: Page Not Found</p>
             </Route>
