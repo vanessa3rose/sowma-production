@@ -1,4 +1,5 @@
 import { PrismaClient, Metric } from "../../src/generated/prisma/index.js";
+import { getAuthBySocialMediaId } from "../../db/social-media-auth";
 import fetch from "node-fetch";
 import "dotenv/config";
 import {
@@ -18,7 +19,6 @@ const prisma = new PrismaClient();
    Config
 -------------------------------------------------- */
 const IG_USER_ID = process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
-const ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!; // IG token often same as FB
 const MEDIA_LIMIT = 50;
 
 /* -------------------------------------------------
@@ -45,18 +45,21 @@ type AccountTotals = {
 /* -------------------------------------------------
    API helpers
 -------------------------------------------------- */
-async function fetchAccountTotals(): Promise<AccountTotals> {
+async function fetchAccountTotals(accessToken: string): Promise<AccountTotals> {
   const url =
     `https://graph.facebook.com/v20.0/${IG_USER_ID}` +
     `?fields=followers_count,media_count` +
-    `&access_token=${ACCESS_TOKEN}`;
+    `&access_token=${accessToken}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text());
   return (await res.json()) as AccountTotals;
 }
 
-async function fetchDailyInsights(date: Date): Promise<DailyInsights> {
+async function fetchDailyInsights(
+  date: Date,
+  accessToken: string,
+): Promise<DailyInsights> {
   const since = toUnixTimestamp(startOfDay(date));
   const until = toUnixTimestamp(endOfDay(date));
 
@@ -66,7 +69,7 @@ async function fetchDailyInsights(date: Date): Promise<DailyInsights> {
     `&period=day` +
     `&metric_type=total_value` +
     `&since=${since}&until=${until}` +
-    `&access_token=${ACCESS_TOKEN}`;
+    `&access_token=${accessToken}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text());
@@ -83,12 +86,15 @@ async function fetchDailyInsights(date: Date): Promise<DailyInsights> {
   return out;
 }
 
-async function fetchMediaForDay(date: Date): Promise<MediaItem[]> {
+async function fetchMediaForDay(
+  date: Date,
+  accessToken: string,
+): Promise<MediaItem[]> {
   const url =
     `https://graph.facebook.com/v20.0/${IG_USER_ID}/media` +
     `?fields=id,like_count,comments_count,timestamp` +
     `&limit=${MEDIA_LIMIT}` +
-    `&access_token=${ACCESS_TOKEN}`;
+    `&access_token=${accessToken}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text());
@@ -112,6 +118,23 @@ export async function runDailyInstagramSync() {
   });
 
   for (const account of accounts) {
+    // gets FACEBOOK_PAGE_TOKEN
+    const fbAccount = await prisma.socialMedia.findFirst({
+      where: { provider: "FACEBOOK" },
+    });
+    const fbAuth = fbAccount
+      ? await getAuthBySocialMediaId(fbAccount.id)
+      : null;
+
+    if (!fbAuth || !fbAuth.accessToken) {
+      console.error(
+        `[IG] No access token found in DB for account ${account.username}`,
+      );
+      continue;
+    }
+
+    const ACCESS_TOKEN = fbAuth.accessToken;
+
     if (await metricsExistForDay(account.id, metricDate)) {
       console.log(
         `[IG] ${account.username} already synced (${formatISODate(metricDate)})`,
@@ -124,7 +147,7 @@ export async function runDailyInstagramSync() {
     );
 
     try {
-      const media = await fetchMediaForDay(metricDate);
+      const media = await fetchMediaForDay(metricDate, ACCESS_TOKEN);
 
       const dailyLikes = media.reduce((sum, m) => sum + (m.like_count ?? 0), 0);
       const dailyComments = media.reduce(
@@ -133,8 +156,8 @@ export async function runDailyInstagramSync() {
       );
       const daysPosted = media.length > 0 ? 1 : 0;
 
-      const insights = await fetchDailyInsights(metricDate);
-      const totals = await fetchAccountTotals();
+      const insights = await fetchDailyInsights(metricDate, ACCESS_TOKEN);
+      const totals = await fetchAccountTotals(ACCESS_TOKEN);
 
       const metricsToInsert = [
         { metricName: Metric.LIKES, metricValue: dailyLikes },
@@ -178,4 +201,20 @@ export async function runDailyInstagramSync() {
 
   // Disconnect Prisma
   await prisma.$disconnect();
+}
+
+/* -------------------------------------------------
+   CLI entrypoint
+-------------------------------------------------- */
+if (import.meta.url === `file://${process.argv[1]}`) {
+  (async () => {
+    try {
+      await runDailyInstagramSync();
+    } catch (err) {
+      console.error("[IG] Cron job failed", err);
+      process.exit(1);
+    } finally {
+      await prisma.$disconnect();
+    }
+  })();
 }

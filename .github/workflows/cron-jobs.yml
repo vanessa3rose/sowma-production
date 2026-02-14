@@ -12,10 +12,9 @@ jobs:
     env:
       CRON_SECRET: ${{ secrets.CRON_SECRET }}
       BASE_URL: ${{ secrets.BASE_URL }}
-      FACEBOOK_PAGE_TOKEN: ${{ secrets.FACEBOOK_PAGE_TOKEN }}
       FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
-      INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
       INSTAGRAM_BUSINESS_PAGE_ID: ${{ secrets.INSTAGRAM_BUSINESS_PAGE_ID }}
+
       TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
       GA_TYPE: ${{ secrets.GA_TYPE }}
       GA_PROJECT_ID: ${{ secrets.GA_PROJECT_ID }}

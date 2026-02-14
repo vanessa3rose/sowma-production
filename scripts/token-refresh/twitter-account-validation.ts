@@ -1,7 +1,10 @@
 // scripts/twitter-token-validate-db.ts
 import "dotenv/config";
 import fetch from "node-fetch";
-import { getSocialMediaAuth, updateSocialMediaAuth } from "../../db/social-media-auth";
+import {
+  getSocialMediaAuth,
+  updateSocialMediaAuth,
+} from "../../db/social-media-auth";
 
 type Provider = "GOOGLE_ANALYTICS" | "INSTAGRAM" | "FACEBOOK" | "TWITTER";
 
@@ -36,7 +39,10 @@ async function validateBearerToken(token: string, username: string) {
   if (!res.ok) throw new Error(`Twitter API error ${res.status}: ${text}`);
 
   const json = JSON.parse(text);
-  return { id: json?.data?.id as string | undefined, username: json?.data?.username as string | undefined };
+  return {
+    id: json?.data?.id as string | undefined,
+    username: json?.data?.username as string | undefined,
+  };
 }
 
 export default async function validateTwitterTokenDb(): Promise<number> {
@@ -58,7 +64,9 @@ export default async function validateTwitterTokenDb(): Promise<number> {
     if (!shouldValidate(rec, nowMs)) continue;
 
     if (!rec.accessToken) {
-      console.warn(`[token][TW] ${shortId}… :: missing bearer token (needs manual set)`);
+      console.warn(
+        `[token][TW] ${shortId}… :: missing bearer token (needs manual set)`,
+      );
       continue;
     }
 
@@ -72,7 +80,9 @@ export default async function validateTwitterTokenDb(): Promise<number> {
         `[token][TW] ${shortId}… :: OK (validated via ${info.username ?? username}${info.id ? `, id=${info.id}` : ""})`,
       );
     } catch (err: any) {
-      console.error(`[token][TW] ${shortId}… :: FAIL ${err?.message ?? String(err)}`);
+      console.error(
+        `[token][TW] ${shortId}… :: FAIL ${err?.message ?? String(err)}`,
+      );
 
       // Optional: still update lastRefreshed to avoid spamming failures every run
       await updateSocialMediaAuth(rec.id, { lastRefreshed: new Date() });

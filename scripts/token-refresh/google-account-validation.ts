@@ -120,10 +120,11 @@ async function validateGoogleAnalyticsServiceAccount() {
     const msg = err?.message ?? String(err);
     console.error(`[GA][validate] FAIL: ${msg}`);
 
-    const hint = formatAuthHint(typeof status === "number" ? status : undefined, msg);
-    console.error(
-      `[GA][validate] hint: ${hint} (status=${status ?? "n/a"})`,
+    const hint = formatAuthHint(
+      typeof status === "number" ? status : undefined,
+      msg,
     );
+    console.error(`[GA][validate] hint: ${hint} (status=${status ?? "n/a"})`);
 
     process.exit(1);
   }

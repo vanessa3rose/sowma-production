@@ -1,7 +1,10 @@
 // scripts/meta-page-token-validate.ts
 import "dotenv/config";
 import fetch from "node-fetch";
-import { getSocialMediaAuth, updateSocialMediaAuth } from "../../db/social-media-auth";
+import {
+  getSocialMediaAuth,
+  updateSocialMediaAuth,
+} from "../../db/social-media-auth";
 
 /**
  * Meta (Facebook Page Token) validation script — Setup A
@@ -38,11 +41,16 @@ const VALIDATE_EVERY_MS = 7 * 24 * 60 * 60 * 1000; // weekly
 function getFacebookAppCreds() {
   // Support both naming schemes
   const appId = process.env.FACEBOOK_APP_ID ?? process.env.FB_APP_ID;
-  const appSecret = process.env.FACEBOOK_APP_SECRET ?? process.env.FB_APP_SECRET;
+  const appSecret =
+    process.env.FACEBOOK_APP_SECRET ?? process.env.FB_APP_SECRET;
   return { appId, appSecret };
 }
 
-async function debugToken(inputToken: string, appId: string, appSecret: string) {
+async function debugToken(
+  inputToken: string,
+  appId: string,
+  appSecret: string,
+) {
   const url = new URL("https://graph.facebook.com/debug_token");
   url.searchParams.set("input_token", inputToken);
   url.searchParams.set("access_token", `${appId}|${appSecret}`);
@@ -101,7 +109,9 @@ export default async function validateMetaPageToken(): Promise<number> {
     if (!shouldValidate(rec, nowMs)) continue;
 
     if (!rec.accessToken) {
-      console.warn(`[token][META] ${shortId}… :: missing page token (needs manual auth)`);
+      console.warn(
+        `[token][META] ${shortId}… :: missing page token (needs manual auth)`,
+      );
       continue;
     }
 
@@ -109,7 +119,9 @@ export default async function validateMetaPageToken(): Promise<number> {
       const info = await debugToken(rec.accessToken, appId, appSecret);
 
       if (!info.isValid) {
-        console.error(`[token][META] ${shortId}… :: token INVALID (needs manual re-auth)`);
+        console.error(
+          `[token][META] ${shortId}… :: token INVALID (needs manual re-auth)`,
+        );
         // still update lastRefreshed to avoid spamming
         await updateSocialMediaAuth(rec.id, { lastRefreshed: new Date() });
         continue;
@@ -125,7 +137,9 @@ export default async function validateMetaPageToken(): Promise<number> {
         `[token][META] ${shortId}… :: valid (covers FB + IG) (expiresAt=${(info.expiresAt ?? rec.expiresAt)?.toISOString() ?? "n/a"})`,
       );
     } catch (err: any) {
-      console.error(`[token][META] ${shortId}… :: ERROR ${err?.message ?? String(err)}`);
+      console.error(
+        `[token][META] ${shortId}… :: ERROR ${err?.message ?? String(err)}`,
+      );
     }
   }
 

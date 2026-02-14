@@ -1,3 +1,4 @@
+import { getAuthBySocialMediaId } from "../../db/social-media-auth";
 import { PrismaClient, Metric } from "../../src/generated/prisma/index.js";
 import fetch from "node-fetch";
 import "dotenv/config";
@@ -18,7 +19,6 @@ const prisma = new PrismaClient();
    Config
 -------------------------------------------------- */
 const FB_PAGE_ID = process.env.FACEBOOK_PAGE_ID!;
-const ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!;
 const FB_API_VERSION = "v24.0";
 const POSTS_LIMIT = 50;
 
@@ -43,7 +43,7 @@ type PostsResponse = {
 /* -------------------------------------------------
    API helpers
 -------------------------------------------------- */
-async function fetchDailyInsights(date: Date) {
+async function fetchDailyInsights(date: Date, accessToken: string) {
   const since = toUnixTimestamp(startOfDay(date));
   const until = toUnixTimestamp(endOfDay(date));
 
@@ -60,7 +60,7 @@ async function fetchDailyInsights(date: Date) {
     `&period=day` +
     `&metric_type=total_value` +
     `&since=${since}&until=${until}` +
-    `&access_token=${ACCESS_TOKEN}`;
+    `&access_token=${accessToken}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text());
@@ -81,12 +81,12 @@ async function fetchDailyInsights(date: Date) {
   };
 }
 
-async function fetchPostsForDay(date: Date) {
+async function fetchPostsForDay(date: Date, accessToken: string) {
   const url =
     `https://graph.facebook.com/${FB_API_VERSION}/${FB_PAGE_ID}/posts` +
     `?fields=created_time,shares,comments.summary(true)` +
     `&limit=${POSTS_LIMIT}` +
-    `&access_token=${ACCESS_TOKEN}`;
+    `&access_token=${accessToken}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text());
@@ -112,6 +112,18 @@ export async function runDailyFacebookSync() {
   });
 
   for (const account of accounts) {
+    // gets FACEBOOK_PAGE_TOKEN
+    const fbAuth = await getAuthBySocialMediaId(account.id);
+
+    if (!fbAuth || !fbAuth.accessToken) {
+      console.error(
+        `[FB] No access token found in DB for account ${account.username}`,
+      );
+      continue; // skip this account
+    }
+
+    const ACCESS_TOKEN = fbAuth.accessToken;
+
     // Skip if metrics already exist for this day
     if (await metricsExistForDay(account.id, metricDate)) {
       console.log(
@@ -126,7 +138,7 @@ export async function runDailyFacebookSync() {
 
     try {
       // Fetch all posts for the day
-      const posts = await fetchPostsForDay(metricDate);
+      const posts = await fetchPostsForDay(metricDate, ACCESS_TOKEN);
 
       // Aggregate comments, shares, and daysPosted
       const dailyComments = posts.reduce(
@@ -137,7 +149,7 @@ export async function runDailyFacebookSync() {
       const daysPosted = posts.length > 0 ? 1 : 0;
 
       // Fetch daily insights (followers, views, likes)
-      const insights = await fetchDailyInsights(metricDate);
+      const insights = await fetchDailyInsights(metricDate, ACCESS_TOKEN);
 
       // Prepare all metrics to insert into Prisma
       const metricsToInsert = [
@@ -175,4 +187,20 @@ export async function runDailyFacebookSync() {
 
   // Disconnect Prisma
   await prisma.$disconnect();
+}
+
+/* -------------------------------------------------
+   CLI Entrypoint
+-------------------------------------------------- */
+if (import.meta.url === `file://${process.argv[1]}`) {
+  (async () => {
+    try {
+      await runDailyFacebookSync();
+    } catch (err) {
+      console.error("Facebook sync failed", err);
+      process.exit(1);
+    } finally {
+      await prisma.$disconnect();
+    }
+  })();
 }
