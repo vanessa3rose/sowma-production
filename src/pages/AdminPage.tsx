@@ -16,7 +16,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="relative p-5 ml-6">
+    <div className="p-5 ml-6">
       <div className="flex items-center space-x-2">
         <button
           onClick={() => (window.location.href = "/")}
@@ -51,7 +51,7 @@ export default function AdminPage() {
               <button
                 key={tab}
                 onClick={() => setSelectedTab(tab)}
-                className={`font-poppins font-bold text-2xl leading-6 transition-colors lg:px-5 py-1.5 rounded-full px-8 lg:text-[24px] text-[20px] ${
+                className={`font-poppins font-bold leading-6 transition-colors lg:px-5 py-1.5 rounded-full px-8 lg:text-[24px] text-[20px] ${
                   isSelected
                     ? "bg-[#4e8bcc] text-white"
                     : "text-gray-500 hover:text-gray-600"
