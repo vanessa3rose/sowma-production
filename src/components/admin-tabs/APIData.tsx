@@ -145,14 +145,14 @@ export default function APIData() {
               )}
             </div>
 
-              <div className="lg:absolute lg:right-2 lg:bottom-2 lg:mt-0 lg:self-end mt-4 self-end">
-                <button
-                  onClick={() => setSubmittedText(text)}
-                  className="rounded-3xl bg-[#4e8bcc] text-white text-xl font-bold px-10 py-2"
-                >
-                  Submit
-                </button>
-              </div>
+            <div className="lg:absolute lg:right-2 lg:bottom-2 lg:mt-0 lg:self-end mt-4 self-end">
+              <button
+                onClick={() => setSubmittedText(text)}
+                className="rounded-3xl bg-[#4e8bcc] text-white text-xl font-bold px-10 py-2"
+              >
+                Submit
+              </button>
+            </div>
           </div>
         </div>
       </div>
