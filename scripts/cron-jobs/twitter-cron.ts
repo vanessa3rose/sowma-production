@@ -65,7 +65,6 @@ export async function runDailyTwitterSync() {
   };
 
   for (const account of accounts) {
-
     // gets TWITTER_BEARER_TOKEN
     const auth = await getAuthBySocialMediaId(account.id);
     if (!auth?.accessToken) {

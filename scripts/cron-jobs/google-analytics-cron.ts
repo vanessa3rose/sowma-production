@@ -332,3 +332,19 @@ export async function runDailyGoogleAnalyticsSync() {
     await prisma.$disconnect();
   }
 }
+
+/* -------------------------------------------------
+   CLI Entrypoint
+-------------------------------------------------- */
+if (import.meta.url === `file://${process.argv[1]}`) {
+  (async () => {
+    try {
+      await runDailyGoogleAnalyticsSync();
+    } catch (err) {
+      console.error("[GA] Cron job failed", err);
+      process.exit(1);
+    } finally {
+      await prisma.$disconnect();
+    }
+  })();
+}
