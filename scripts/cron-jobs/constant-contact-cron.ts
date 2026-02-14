@@ -1,7 +1,7 @@
-import { PrismaClient, Metric, Provider } from "../src/generated/prisma/index.js";
+import { PrismaClient, Metric, Provider } from "../../src/generated/prisma/index.js";
 import fetch from "node-fetch";
 import "dotenv/config";
-import { startOfDay, endOfDay, formatISODate } from "../src/utils/dates";
+import { startOfDay, endOfDay, formatISODate } from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client

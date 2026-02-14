@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import "dotenv/config";
-import { PrismaClient, Metric } from "../src/generated/prisma/index.js";
-import { startOfDay, formatISODate } from "../src/utils/dates";
+import { PrismaClient, Metric } from "../../src/generated/prisma/index.js";
+import { startOfDay, formatISODate } from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma setup (serverless-friendly)

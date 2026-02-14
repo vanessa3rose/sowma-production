@@ -4,7 +4,7 @@
 
 
 import { fileURLToPath } from "node:url";
-import { PrismaClient, Metric, Provider } from "../src/generated/prisma/index.js";
+import { PrismaClient, Metric, Provider } from "../../src/generated/prisma/index.js";
 import fetch from "node-fetch";
 import "dotenv/config";
 import {
@@ -12,7 +12,7 @@ import {
   endOfDay,
   formatISODate,
   metricsExistForDay,
-} from "../src/utils/dates";
+} from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client

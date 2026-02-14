@@ -1,4 +1,4 @@
-import refreshAllTokens from "../../api/token-cron/refreshAllTokens";
+import refreshAllTokens from "../../scripts/token-refresh.js";
 import { getSocialMediaAuth } from "../social-media-auth";
 import fetch from "node-fetch";
 

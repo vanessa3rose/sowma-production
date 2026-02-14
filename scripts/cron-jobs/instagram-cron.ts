@@ -1,4 +1,4 @@
-import { PrismaClient, Metric } from "../src/generated/prisma/index.js";
+import { PrismaClient, Metric } from "../../src/generated/prisma/index.js";
 import fetch from "node-fetch";
 import "dotenv/config";
 import {
@@ -7,7 +7,7 @@ import {
   toUnixTimestamp,
   formatISODate,
   metricsExistForDay,
-} from "../src/utils/dates.js";
+} from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client

@@ -1,10 +1,10 @@
-import { PrismaClient, Metric } from "../src/generated/prisma/index.js";
+import { PrismaClient, Metric } from "../../src/generated/prisma/index.js";
 import "dotenv/config";
 import {
   startOfDay,
   formatISODate,
   metricsExistForDay,
-} from "../src/utils/dates.js";
+} from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client

@@ -5,17 +5,17 @@ import {
   createSocialMediaMetric,
   updateSocialMediaMetric,
   getMetricsBySocialMediaId,
-} from "../db/social-media-metrics.js";
+} from "../../db/social-media-metrics.js";
 import {
   PrismaClient,
   Provider,
   Metric,
-} from "../src/generated/prisma/index.js";
+} from "../../src/generated/prisma/index.js";
 import {
   startOfDay,
   formatISODate,
   metricsExistForDay,
-} from "../src/utils/dates.js";
+} from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client
