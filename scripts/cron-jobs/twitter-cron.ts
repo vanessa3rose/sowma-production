@@ -1,4 +1,5 @@
 import { PrismaClient, Metric } from "../../src/generated/prisma/index.js";
+import { getAuthBySocialMediaId } from "../../db/social-media-auth";
 import "dotenv/config";
 import {
   startOfDay,
@@ -26,12 +27,13 @@ type TwitterPublicMetrics = {
  */
 async function fetchTwitterMetrics(
   username: string,
+  accessToken: string,
 ): Promise<TwitterPublicMetrics> {
   const res = await fetch(
     `https://api.twitter.com/2/users/by/username/${username}?user.fields=public_metrics`,
     {
       headers: {
-        Authorization: `Bearer ${process.env.TWITTER_BEARER_TOKEN}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     },
   );
@@ -63,7 +65,18 @@ export async function runDailyTwitterSync() {
   };
 
   for (const account of accounts) {
-    // ---- GLOBAL IDEMPOTENCY CHECK ----
+
+    // gets TWITTER_BEARER_TOKEN
+    const auth = await getAuthBySocialMediaId(account.id);
+    if (!auth?.accessToken) {
+      console.error(
+        `[TW] No bearer token found in DB for account ${account.username}`,
+      );
+      continue;
+    }
+    const ACCESS_TOKEN = auth.accessToken;
+
+    // Skip if metrics already exist for today
     if (await metricsExistForDay(account.id, metricDate)) {
       console.log(
         `[TW] ${account.username} already synced (${formatISODate(metricDate)})`,
@@ -72,7 +85,7 @@ export async function runDailyTwitterSync() {
     }
 
     try {
-      const metrics = await fetchTwitterMetrics(account.username);
+      const metrics = await fetchTwitterMetrics(account.username, ACCESS_TOKEN);
 
       const metricsToInsert = Object.entries(metrics)
         .map(([key, value]) => {
@@ -111,4 +124,20 @@ export async function runDailyTwitterSync() {
 
   // Disconnect Prisma
   await prisma.$disconnect();
+}
+
+/* -------------------------------------------------
+   CLI Entrypoint
+-------------------------------------------------- */
+if (import.meta.url === `file://${process.argv[1]}`) {
+  (async () => {
+    try {
+      await runDailyTwitterSync();
+    } catch (err) {
+      console.error("[TW] Cron job failed", err);
+      process.exit(1);
+    } finally {
+      await prisma.$disconnect();
+    }
+  })();
 }
