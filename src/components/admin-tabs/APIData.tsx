@@ -1,4 +1,4 @@
-import React, { SetStateAction, useState } from "react";
+import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -70,8 +70,8 @@ export default function APIData() {
         Manual Data Entry
       </h2>
 
-      <div className="font-poppins font-[400] text-2xl grid grid-rows gap-6 py-6">
-        <div className="flex items-center gap-6">
+      <div className="font-poppins font-[400] lg:text-2xl text-lg grid grid-rows gap-6 py-6 items-start">
+        <div className="flex flex-col lg:flex-row lg:items-center items-start gap-2 lg:gap-6">
           <p className="text-gray-500">Select a platform</p>
           <select
             value={platform}
@@ -79,7 +79,7 @@ export default function APIData() {
               setPlatform(e.target.value);
               setMetric("");
             }}
-            className="rounded-2xl border-gray-500 border-2 px-3 py-2 text-xl"
+            className="rounded-2xl border-gray-500 border-2 px-3 py-2 lg:text-xl"
           >
             {SOCIAL_MEDIA_METRICS.map((p) => (
               <option key={p.socialMedia} value={p.socialMedia}>
@@ -89,7 +89,7 @@ export default function APIData() {
           </select>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col lg:flex-row lg:items-center items-start gap-2 lg:gap-6">
           <p className="text-gray-500">
             Which metric would you like to change?
           </p>
@@ -97,7 +97,7 @@ export default function APIData() {
             value={metric}
             onChange={(e) => setMetric(e.target.value)}
             disabled={!selectedPlatform}
-            className="rounded-2xl border-gray-500 border-2 px-3 py-2 text-xl disabled:opacity-50"
+            className="rounded-2xl border-gray-500 border-2 px-3 py-2 lg:text-xl disabled:opacity-50"
           >
             <option value="" disabled>
               Select metric
@@ -110,10 +110,10 @@ export default function APIData() {
           </select>
         </div>
 
-        <div className="flex flex-col">
-          <div className="flex gap-20">
-            <div className="grid-rows">
-              <p className="text-xl text-black py-3">Date</p>
+        <div className="flex flex-col gap-10">
+          <div className="flex flex-col relative lg:flex-row h-full lg:items-start lg:gap-20 items-start gap-6">
+            <div className="flex flex-col">
+              <p className="lg:text-xl text-black lg:py-3 pt-3 pb-1">Date</p>
               <DatePicker
                 selectsRange
                 startDate={startDate}
@@ -126,8 +126,8 @@ export default function APIData() {
               />
             </div>
 
-            <div className="flex-rows">
-              <p className="text-xl text-black py-3">Metrics</p>
+            <div className="flex flex-col h-full">
+              <p className="lg:text-xl text-black lg:py-3 pt-3 pb-1">Metrics</p>
               <input
                 type="text"
                 value={text}
@@ -135,7 +135,7 @@ export default function APIData() {
                   setText(e.target.value);
                   console.log(e.target.value);
                 }}
-                className="rounded-3xl border-2 border-gray-500 px-4 py-2 text-xl"
+                className="rounded-3xl border-2 border-gray-500 px-4 py-2 lg:text-xl"
               />
 
               {submittedText && (
@@ -144,15 +144,15 @@ export default function APIData() {
                 </p>
               )}
             </div>
-          </div>
 
-          <div className="mt-4 self-end">
-            <button
-              onClick={() => setSubmittedText(text)}
-              className="rounded-3xl bg-[#4e8bcc] text-white text-xl font-bold px-10 py-2"
-            >
-              Submit
-            </button>
+              <div className="lg:absolute lg:right-2 lg:bottom-2 lg:mt-0 lg:self-end mt-4 self-end">
+                <button
+                  onClick={() => setSubmittedText(text)}
+                  className="rounded-3xl bg-[#4e8bcc] text-white text-xl font-bold px-10 py-2"
+                >
+                  Submit
+                </button>
+              </div>
           </div>
         </div>
       </div>
