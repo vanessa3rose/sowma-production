@@ -59,21 +59,10 @@ model DatabaseReportCount {
   @@unique([reportId, count])
 }
 
-model User {
-  email        String  @id
-  firstName    String
-  lastName     String
-  username     String  @unique
-  password     String
-  phone        String
-  role         Role
-  isWaitlisted Boolean @default(false)
-}
-
-enum Role {
-  ADMIN
-  USER
-  VIEWER
+model Waitlist {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
 }
 
 enum Provider {

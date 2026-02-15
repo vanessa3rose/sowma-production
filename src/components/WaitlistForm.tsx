@@ -38,20 +38,6 @@ export default function WaitlistForm() {
     setStatus({ type: "idle", message: "" });
 
     try {
-      // TODO: Call /api/waitlist endpoint here
-      // const response = await fetch("/api/waitlist", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ email }),
-      // });
-      //
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   throw new Error(errorData.error || "Failed to join waitlist");
-      // }
-      //
-      // const data = await response.json();
-
       // Temporary success simulation
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
