@@ -21,7 +21,7 @@ const socialLinks = [
 ];
 
 const exceptionRoutes: Record<string, string> = {
-  google: "/google-analytics",
+  google: "/social/google-analytics",
   linkedin: "/error/linkedin",
   tiktok: "/error/tiktok",
   newsletter: "/newsletter",

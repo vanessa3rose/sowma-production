@@ -3,10 +3,11 @@ import { Route, Switch, useLocation } from "wouter";
 import LeftSidebar from "./components/LeftSidebar";
 
 import Homepage from "./pages/Homepage";
-import SocialMediaPage from "./pages/SocialMediaPage";
 import LoginPage from "./pages/LoginPage";
-import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
-import InstagramPage from "./pages/InstagramPage";
+import GoogleAnalyticsPage from "./pages/SocialMedia/GoogleAnalyticsPage";
+import TwitterPage from "./pages/SocialMedia/TwitterPage";
+import FacebookPage from "./pages/SocialMedia/FacebookPage";
+import InstagramPage from "./pages/SocialMedia/InstagramPage";
 import AdminPage from "./pages/AdminPage";
 import GlossaryPage from "./pages/Glossary";
 import { useState } from "react";
@@ -64,17 +65,19 @@ const App = () => {
         >
           <Switch>
             <Route path="/" component={Homepage} />
-            <Route path="/social-media" component={SocialMediaPage} />
+            <Route path="/social/facebook" component={FacebookPage} />
+            <Route path="/social/twitter" component={TwitterPage} />
             <Route path="/social/instagram" component={InstagramPage} />
-            <Route path="/social/:platform" component={SocialMediaPage} />
             <Route path="/login" component={LoginPage} />
-            <Route path="/google-analytics" component={GoogleAnalyticsPage} />
+            <Route
+              path="/social/google-analytics"
+              component={GoogleAnalyticsPage}
+            />
             <Route path="/admin" component={AdminPage} />
             <Route path="/glossary" component={GlossaryPage} />
             <Route path="/error/tiktok" component={ErrorPage} />
             <Route path="/error/linkedin" component={ErrorPage} />
             <Route path="/newsletter" component={Newsletter} />
-
             <Route>
               <p className="p-4 text-black">404: Page Not Found</p>
             </Route>
