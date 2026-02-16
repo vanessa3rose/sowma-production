@@ -16,7 +16,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="p-5">
+    <div className="p-5 ml-6">
       <div className="flex items-center space-x-2">
         <button
           onClick={() => (window.location.href = "/")}
@@ -43,15 +43,15 @@ export default function AdminPage() {
       </div>
 
       {/* HEADER */}
-      <div className="pl-12 my-6">
-        <div className="flex items-center gap-10">
+      <div className="my-6">
+        <div className="flex justify-evenly items-center">
           {tabs.map((tab) => {
             const isSelected = tab === selectedTab;
             return (
               <button
                 key={tab}
                 onClick={() => setSelectedTab(tab)}
-                className={`font-poppins font-bold text-2xl leading-7 transition-colors px-5 py-1 rounded-full ${
+                className={`font-poppins font-bold leading-6 transition-colors lg:px-5 py-1.5 rounded-full px-8 lg:text-[24px] text-[20px] ${
                   isSelected
                     ? "bg-[#4e8bcc] text-white"
                     : "text-gray-500 hover:text-gray-600"
@@ -66,7 +66,7 @@ export default function AdminPage() {
       </div>
 
       {/* ROWS */}
-      <div className="pl-12">{tabContent[selectedTab]}</div>
+      <div>{tabContent[selectedTab]}</div>
     </div>
   );
 }
