@@ -52,11 +52,7 @@ export default function APIData() {
   const [platform, setPlatform] = useState("instagram");
   const [metric, setMetric] = useState("");
 
-  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-    null,
-    null,
-  ]);
-  const [startDate, endDate] = dateRange;
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const [text, setText] = useState("");
   const [submittedText, setSubmittedText] = useState("");
@@ -115,12 +111,8 @@ export default function APIData() {
             <div className="flex flex-col">
               <p className="lg:text-xl text-black lg:py-3 pt-3 pb-1">Date</p>
               <DatePicker
-                selectsRange
-                startDate={startDate}
-                endDate={endDate}
-                onChange={(update: [Date | null, Date | null]) =>
-                  setDateRange(update)
-                }
+                selected={selectedDate}
+                onChange={(date: Date | null) => setSelectedDate(date)}
                 inline
                 dateFormat="MMMM d, yyyy"
               />

@@ -24,13 +24,13 @@ export default function UsersRoles() {
             className="flex w-full justify-center text-center items-center font-poppins text-xs md:text-lg leading-[48px] py-3"
           >
             {/* Name */}
-            <div className="flex lg:flex-row lg:space-x-2 flex-col justify-center items-center leading-4 lg:leading-8 w-[30%] overflow-x-scroll text-gray-800">
+            <div className="flex lg:flex-row lg:space-x-2 flex-col justify-center items-center leading-4 lg:leading-8 w-[30%] text-gray-800">
               <div>{user.firstName}</div>
               <div>{user.lastName}</div>
             </div>
 
             {/* Email */}
-            <div className="flex lg:flex-row flex-col justify-center items-center leading-4 lg:leading-8 w-[30%] overflow-x-scroll text-gray-800">
+            <div className="flex lg:flex-row flex-col justify-center items-center leading-4 lg:leading-8 w-[30%] text-gray-800">
               <div>{user.email.split("@")[0]}</div>
               <div>{`@${user.email.split("@")[1]}`}</div>
             </div>

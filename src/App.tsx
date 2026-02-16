@@ -22,16 +22,17 @@ const App = () => {
   const hideLayoutRoutes = ["/login"];
   const hideLayout = hideLayoutRoutes.includes(currentPath);
 
+  const [isCollapsed, setCollapsed] = useState(false);
   const [isMobile, setisMobile] = useState(false);
 
   return (
     <GlobalPageExportProvider>
-      <div className={`${!hideLayout && "flex min-h-screen bg-white"}`}>
+      <div className={`${!hideLayout && "flex min-h-screen ml-2 bg-white"}`}>
         {!hideLayout && (
           <>
             {/* Desktop sidebar */}
             <div className="hidden md:block">
-              <LeftSidebar />
+              <LeftSidebar collapsed={isCollapsed} onCollapse={setCollapsed} />
             </div>
 
             {/* Mobile sidebar/making it visible only on small screens*/}
@@ -39,6 +40,8 @@ const App = () => {
               <LeftSidebar
                 mobile
                 open={isMobile}
+                collapsed={isCollapsed}
+                onCollapse={setCollapsed}
                 onClose={() => setisMobile(false)}
               />
             </div>
@@ -55,9 +58,9 @@ const App = () => {
 
         {/* Content on page */}
         <div
-          className={`flex-grow flex flex-col pt-0 px-6 bg-white ${
-            !hideLayout ? "md:ml-[20%]" : ""
-          }`}
+          className={`flex-grow flex flex-col pt-0 px-6 bg-white
+            ${!hideLayout ? (isCollapsed ? "md:ml-20" : "md:ml-64") : ""}
+          `}
         >
           <Switch>
             <Route path="/" component={Homepage} />

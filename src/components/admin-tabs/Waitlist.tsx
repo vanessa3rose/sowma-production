@@ -44,7 +44,7 @@ export default function Waitlist() {
               className="flex w-full justify-center text-center items-center font-poppins text-xs md:text-lg leading-[48px] py-3"
             >
               {/* Email */}
-              <div className="flex w-1/2 lg:flex-row flex-col justify-center items-center leading-4 lg:leading-8 overflow-x-scroll text-gray-800">
+              <div className="flex w-1/2 lg:flex-row flex-col justify-center items-center leading-4 lg:leading-8 text-gray-800">
                 <div>
                   {typeof user.email === "string"
                     ? user.email.split("@")[0]
