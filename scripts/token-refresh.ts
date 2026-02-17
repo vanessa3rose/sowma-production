@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import {
+  createSocialMediaAuth,
   getSocialMediaAuth,
   updateSocialMediaAuth,
 } from "../db/social-media-auth";
@@ -249,7 +250,11 @@ async function refreshConstantContact(rec: AuthRow) {
 
   const clientId = process.env.CONSTANT_CONTACT_CLIENT_ID ?? "";
   const clientSecret = process.env.CONSTANT_CONTACT_CLIENT_SECRET ?? "";
-  if (!clientId || !clientSecret) return null;
+  if (!clientId || !clientSecret) {
+    throw new Error(
+      "Missing CONSTANT_CONTACT_CLIENT_ID / CONSTANT_CONTACT_CLIENT_SECRET in .env",
+    );
+  }
 
   const body = new URLSearchParams({
     grant_type: "refresh_token",
@@ -262,9 +267,7 @@ async function refreshConstantContact(rec: AuthRow) {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${Buffer.from(
-          `${clientId}:${clientSecret}`,
-        ).toString("base64")}`,
+        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
       },
       body,
     },
@@ -294,8 +297,104 @@ async function refreshConstantContact(rec: AuthRow) {
   return {
     accessToken: j.access_token ?? rec.accessToken,
     refreshToken: j.refresh_token ?? rec.refreshToken,
-    expiresAt: j.expires_in ? new Date(nowMs + j.expires_in * 1000) : null,
-    refreshTokenExpiresAt,
+    expiresAt: j.expires_in ? new Date(Date.now() + j.expires_in * 1000) : null,
+  };
+}
+
+type ConstantContactAuthInput = {
+  id?: string;
+  accessToken?: string | null;
+  refreshToken?: string | null;
+  expiresAt?: Date | null;
+  lastRefreshed?: Date | null;
+};
+
+export async function ensureConstantContactAccessToken(params: {
+  socialMediaId: string;
+  auth: ConstantContactAuthInput | null;
+  fallbackRefreshToken?: string | null;
+  forceRefresh?: boolean;
+}) {
+  const { socialMediaId, auth, fallbackRefreshToken, forceRefresh } = params;
+  const now = Date.now();
+  const refreshWindow = REFRESH_WINDOW_MS.CONSTANT_CONTACT;
+
+  const accessToken = auth?.accessToken ?? null;
+  const expiresAt = auth?.expiresAt ?? null;
+  const authId = auth?.id ?? null;
+
+  const expMs = expiresAt?.getTime();
+  const hasExpiry = typeof expMs === "number";
+  const expiringSoon = hasExpiry ? expMs! - now <= refreshWindow : true;
+
+  const needsRefresh =
+    forceRefresh === true || !accessToken || !expiresAt || expiringSoon;
+
+  if (!needsRefresh) {
+    if (!accessToken || !authId) {
+      throw new Error(
+        "[token] Constant Contact auth missing; cannot proceed without refresh.",
+      );
+    }
+    return {
+      accessToken,
+      refreshToken: auth?.refreshToken ?? null,
+      expiresAt,
+      authId,
+    };
+  }
+
+  const refreshToken = auth?.refreshToken ?? fallbackRefreshToken ?? null;
+  if (!refreshToken) {
+    throw new Error(
+      "[token] Missing Constant Contact refresh token. Set CONSTANT_CONTACT_REFRESH_TOKEN or complete OAuth.",
+    );
+  }
+
+  const updated = await refreshConstantContact({
+    id: authId ?? "",
+    socialMediaId,
+    accessToken: accessToken ?? "",
+    refreshToken,
+    expiresAt,
+    lastRefreshed: auth?.lastRefreshed ?? null,
+    socialMedia: { provider: "CONSTANT_CONTACT" },
+  });
+
+  if (!updated?.accessToken) {
+    throw new Error(
+      "[token] Constant Contact refresh returned no access token.",
+    );
+  }
+
+  if (authId) {
+    await updateSocialMediaAuth(authId, {
+      accessToken: updated.accessToken ?? accessToken ?? "",
+      refreshToken: updated.refreshToken ?? refreshToken,
+      expiresAt: updated.expiresAt ?? expiresAt,
+      lastRefreshed: new Date(),
+    });
+    return {
+      accessToken: updated.accessToken ?? accessToken ?? "",
+      refreshToken: updated.refreshToken ?? refreshToken,
+      expiresAt: updated.expiresAt ?? expiresAt,
+      authId,
+    };
+  }
+
+  const created = await createSocialMediaAuth({
+    socialMediaId,
+    accessToken: updated.accessToken ?? "",
+    refreshToken: updated.refreshToken ?? refreshToken,
+    expiresAt: updated.expiresAt ?? null,
+    lastRefreshed: new Date(),
+  });
+
+  return {
+    accessToken: created.accessToken,
+    refreshToken: created.refreshToken,
+    expiresAt: created.expiresAt,
+    authId: created.id,
   };
 }
 

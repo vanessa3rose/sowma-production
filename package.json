@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"vercel dev --listen 4000 --yes\"",
+    "dev": "concurrently \"vite --host\" \"vercel dev --listen 4000 --yes\"",
     "preview": "vite preview",
     "build": "npm exec -- prisma generate && tsc && vite build",
     "postinstall": "npm exec -- prisma generate",
@@ -62,6 +62,7 @@
   },
   "overrides": {
     "prisma": "6.19.1",
-    "@prisma/client": "6.19.1"
+    "@prisma/client": "6.19.1",
+    "picomatch": "^4.0.3"
   }
 }

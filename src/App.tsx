@@ -5,7 +5,6 @@ import LeftSidebar from "./components/LeftSidebar";
 import Homepage from "./pages/Homepage";
 import SocialMediaPage from "./pages/SocialMediaPage";
 import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
 import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
 import InstagramPage from "./pages/InstagramPage";
 import AdminPage from "./pages/AdminPage";
@@ -14,20 +13,18 @@ import { useState } from "react";
 import ErrorPage from "./pages/ErrorPage";
 import Newsletter from "./pages/Newsletter";
 
-// ⭐ Correct import
 import { GlobalPageExportProvider } from "./components/export-pdf/GlobalPageExportProvider";
 
 const App = () => {
   const [location] = useLocation();
 
   const currentPath = location.toLowerCase();
-  const hideLayoutRoutes = ["/signup", "/login"];
+  const hideLayoutRoutes = ["/login"];
   const hideLayout = hideLayoutRoutes.includes(currentPath);
 
   const [isMobile, setisMobile] = useState(false);
 
   return (
-    // ⭐ Correct opening tag
     <GlobalPageExportProvider>
       <div className={`${!hideLayout && "flex min-h-screen bg-white"}`}>
         {!hideLayout && (
@@ -67,12 +64,12 @@ const App = () => {
             <Route path="/social-media" component={SocialMediaPage} />
             <Route path="/social/instagram" component={InstagramPage} />
             <Route path="/social/:platform" component={SocialMediaPage} />
-            <Route path="/signup" component={SignupPage} />
             <Route path="/login" component={LoginPage} />
             <Route path="/google-analytics" component={GoogleAnalyticsPage} />
             <Route path="/admin" component={AdminPage} />
             <Route path="/glossary" component={GlossaryPage} />
-            <Route path="/error" component={ErrorPage} />
+            <Route path="/error/tiktok" component={ErrorPage} />
+            <Route path="/error/linkedin" component={ErrorPage} />
             <Route path="/newsletter" component={Newsletter} />
 
             <Route>
