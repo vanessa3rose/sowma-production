@@ -8,7 +8,8 @@ export type Provider =
   | "GOOGLE_ANALYTICS"
   | "INSTAGRAM"
   | "FACEBOOK"
-  | "TWITTER";
+  | "TWITTER"
+  | "CONSTANT_CONTACT";
 // | "LINKEDIN"
 // | "TIKTOK";
 
@@ -20,6 +21,7 @@ export const REFRESH_STRATEGY: Record<
   INSTAGRAM: "refresh",
   FACEBOOK: "validate",
   TWITTER: "refresh",
+  CONSTANT_CONTACT: "refresh",
   // LINKEDIN: "refresh",
   // TIKTOK: "refresh",
 };
@@ -31,6 +33,7 @@ const REFRESH_WINDOW_MS: Record<Provider, number> = {
   INSTAGRAM: 3 * 24 * 60 * 60 * 1000, // 3 days
   // LINKEDIN: 3 * 24 * 60 * 60 * 1000,     // 3 days
   FACEBOOK: 7 * 24 * 60 * 60 * 1000, // weekly
+  CONSTANT_CONTACT: 150 * 24 * 60 * 60 * 1000, // 150 days
 };
 
 type AuthRow = {
@@ -39,6 +42,7 @@ type AuthRow = {
   accessToken: string;
   refreshToken: string | null;
   expiresAt: Date | null;
+  refreshTokenExpiresAt: Date | null;
   lastRefreshed: Date | null;
   socialMedia: { provider: Provider };
 };
@@ -109,6 +113,8 @@ async function refreshDispatcher(provider: Provider, rec: AuthRow) {
       return validateFacebook(rec);
     case "TWITTER":
       return refreshTwitter(rec);
+    case "CONSTANT_CONTACT":
+      return refreshConstantContact(rec);
     // case "LINKEDIN": return refreshLinkedIn(rec);
     // case "TIKTOK": return refreshTikTok(rec);
     default:
@@ -235,6 +241,61 @@ async function refreshTwitter(rec: AuthRow) {
     accessToken: j.access_token ?? rec.accessToken,
     refreshToken: j.refresh_token ?? rec.refreshToken,
     expiresAt: j.expires_in ? new Date(Date.now() + j.expires_in * 1000) : null,
+  };
+}
+
+async function refreshConstantContact(rec: AuthRow) {
+  if (!rec.refreshToken) return null;
+
+  const clientId = process.env.CONSTANT_CONTACT_CLIENT_ID ?? "";
+  const clientSecret = process.env.CONSTANT_CONTACT_CLIENT_SECRET ?? "";
+  if (!clientId || !clientSecret) return null;
+
+  const body = new URLSearchParams({
+    grant_type: "refresh_token",
+    refresh_token: rec.refreshToken,
+  });
+
+  const res = await fetch(
+    "https://authz.constantcontact.com/oauth2/default/v1/token",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${Buffer.from(
+          `${clientId}:${clientSecret}`,
+        ).toString("base64")}`,
+      },
+      body,
+    },
+  );
+
+  const j = (await res.json()) as {
+    access_token?: string;
+    refresh_token?: string;
+    expires_in?: number;
+    refresh_token_expires_in?: number;
+  };
+  if (!res.ok)
+    throw new Error(`[CC] refresh failed: ${res.status} ${JSON.stringify(j)}`);
+
+  const nowMs = Date.now();
+  let refreshTokenExpiresAt = rec.refreshTokenExpiresAt ?? null;
+  if (j.refresh_token_expires_in) {
+    refreshTokenExpiresAt = new Date(
+      nowMs + j.refresh_token_expires_in * 1000,
+    );
+  } else if (j.refresh_token) {
+    refreshTokenExpiresAt = new Date(
+      nowMs + 180 * 24 * 60 * 60 * 1000,
+    );
+  }
+
+  return {
+    accessToken: j.access_token ?? rec.accessToken,
+    refreshToken: j.refresh_token ?? rec.refreshToken,
+    expiresAt: j.expires_in ? new Date(nowMs + j.expires_in * 1000) : null,
+    refreshTokenExpiresAt,
   };
 }
 
