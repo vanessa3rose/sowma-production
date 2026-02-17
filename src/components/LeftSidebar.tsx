@@ -50,7 +50,7 @@ const LeftSidebar = ({
 
   const [location] = useLocation();
 
-  const isDashboardActive = location === "/";
+  const isDashboardActive = location === "/" || location === "/homepage";
   const isGlossaryActive = location === "/glossary";
   const isAdminActive = location === "/admin";
 
