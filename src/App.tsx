@@ -3,10 +3,11 @@ import { Route, Switch, useLocation } from "wouter";
 import LeftSidebar from "./components/LeftSidebar";
 
 import Homepage from "./pages/Homepage";
-import SocialMediaPage from "./pages/SocialMediaPage";
 import LoginPage from "./pages/LoginPage";
-import GoogleAnalyticsPage from "./pages/GoogleAnalyticsPage";
-import InstagramPage from "./pages/InstagramPage";
+import GoogleAnalyticsPage from "./pages/SocialMedia/GoogleAnalyticsPage";
+import TwitterPage from "./pages/SocialMedia/TwitterPage";
+import FacebookPage from "./pages/SocialMedia/FacebookPage";
+import InstagramPage from "./pages/SocialMedia/InstagramPage";
 import AdminPage from "./pages/AdminPage";
 import GlossaryPage from "./pages/Glossary";
 import { useState } from "react";
@@ -22,16 +23,17 @@ const App = () => {
   const hideLayoutRoutes = ["/login"];
   const hideLayout = hideLayoutRoutes.includes(currentPath);
 
+  const [isCollapsed, setCollapsed] = useState(false);
   const [isMobile, setisMobile] = useState(false);
 
   return (
     <GlobalPageExportProvider>
-      <div className={`${!hideLayout && "flex min-h-screen bg-white"}`}>
+      <div className={`${!hideLayout && "flex min-h-screen ml-2 bg-white"}`}>
         {!hideLayout && (
           <>
             {/* Desktop sidebar */}
             <div className="hidden md:block">
-              <LeftSidebar />
+              <LeftSidebar collapsed={isCollapsed} onCollapse={setCollapsed} />
             </div>
 
             {/* Mobile sidebar/making it visible only on small screens*/}
@@ -39,6 +41,8 @@ const App = () => {
               <LeftSidebar
                 mobile
                 open={isMobile}
+                collapsed={isCollapsed}
+                onCollapse={setCollapsed}
                 onClose={() => setisMobile(false)}
               />
             </div>
@@ -55,23 +59,25 @@ const App = () => {
 
         {/* Content on page */}
         <div
-          className={`flex-grow flex flex-col pt-0 px-6 bg-white ${
-            !hideLayout ? "md:ml-[20%]" : ""
-          }`}
+          className={`flex-grow flex flex-col pt-0 px-6 bg-white
+            ${!hideLayout ? (isCollapsed ? "md:ml-20" : "md:ml-64") : ""}
+          `}
         >
           <Switch>
             <Route path="/" component={Homepage} />
-            <Route path="/social-media" component={SocialMediaPage} />
+            <Route path="/social/facebook" component={FacebookPage} />
+            <Route path="/social/twitter" component={TwitterPage} />
             <Route path="/social/instagram" component={InstagramPage} />
-            <Route path="/social/:platform" component={SocialMediaPage} />
             <Route path="/login" component={LoginPage} />
-            <Route path="/google-analytics" component={GoogleAnalyticsPage} />
+            <Route
+              path="/social/google-analytics"
+              component={GoogleAnalyticsPage}
+            />
             <Route path="/admin" component={AdminPage} />
             <Route path="/glossary" component={GlossaryPage} />
             <Route path="/error/tiktok" component={ErrorPage} />
             <Route path="/error/linkedin" component={ErrorPage} />
             <Route path="/newsletter" component={Newsletter} />
-
             <Route>
               <p className="p-4 text-black">404: Page Not Found</p>
             </Route>

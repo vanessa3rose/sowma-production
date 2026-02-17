@@ -56,15 +56,6 @@ const CHART_CONFIGS: Record<string, ChartConfig[]> = {
     { id: "shares", title: "Shares", type: "line", metric: "SHARES" },
   ],
   facebook: [
-    {
-      id: "followers",
-      title: "Page Follows",
-      type: "line",
-      metric: "FOLLOWERS",
-    },
-    { id: "likes", title: "Reactions / Likes", type: "line", metric: "LIKES" },
-    { id: "views", title: "Page Views", type: "line", metric: "VIEWS" },
-    { id: "comments", title: "Comments", type: "line", metric: "COMMENTS" },
     { id: "posts", title: "Posts", type: "line", metric: "POSTS" },
     { id: "shares", title: "Shares", type: "line", metric: "SHARES" },
   ],
