@@ -192,13 +192,13 @@ export default function InstagramPage() {
     { label: "Posts", value: postsNow },
   ];
   return (
-    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
+    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 py-2">
       {/* Header */}
-      <div className="w-full flex items-center px-4 py-2">
-        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px]"
+            className="w-[40px] h-[40px] flex items-center justify-center"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -216,12 +216,20 @@ export default function InstagramPage() {
             </svg>
           </button>
 
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl text-[#4A8CDE]">
             Instagram
           </h1>
         </div>
-
-        <div className="ml-auto">
+        <div className="flex flex-row justify-center items-center mt-2 lg:flex-row lg:mt-0 lg:space-x-2 space-x-4">
+          <a
+            href="https://www.instagram.com/schoolonwheelsma/?hl=en"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
+          >
+            {" "}
+            Go to Account{" "}
+          </a>
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
