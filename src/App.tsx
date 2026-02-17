@@ -6,7 +6,6 @@ import LeftSidebar from "./components/LeftSidebar";
 
 import Homepage from "./pages/Homepage";
 import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
 
 import GoogleAnalyticsPage from "./pages/SocialMedia/GoogleAnalyticsPage";
 import TwitterPage from "./pages/SocialMedia/TwitterPage";
@@ -131,7 +130,6 @@ const App = () => {
 
             {/* Public */}
             <Route path="/login" component={LoginPage} />
-            <Route path="/signup" component={SignupPage} />
 
             <Route>
               <p className="p-4 text-black">404: Page Not Found</p>
