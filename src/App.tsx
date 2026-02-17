@@ -6,30 +6,33 @@ import LeftSidebar from "./components/LeftSidebar";
 
 import Homepage from "./pages/Homepage";
 import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+
 import GoogleAnalyticsPage from "./pages/SocialMedia/GoogleAnalyticsPage";
 import TwitterPage from "./pages/SocialMedia/TwitterPage";
 import FacebookPage from "./pages/SocialMedia/FacebookPage";
 import InstagramPage from "./pages/SocialMedia/InstagramPage";
+
 import AdminPage from "./pages/AdminPage";
+import AdminRejection from "./pages/AdminRejection";
+
 import GlossaryPage from "./pages/Glossary";
 import ErrorPage from "./pages/ErrorPage";
 import Newsletter from "./pages/Newsletter";
 
 import { ProtectedRoute } from "./components/routes/ProtectedRoute";
 import { AdminRoute } from "./components/routes/AdminRoute";
-import AdminRejection from "./pages/AdminRejection";
 
-// ⭐ Correct import
 import { GlobalPageExportProvider } from "./components/export-pdf/GlobalPageExportProvider";
 
 const App = () => {
-  const { isLoaded, isSignedIn } = useUser(); // ✅ add
+  const { isLoaded, isSignedIn } = useUser();
   const [location] = useLocation();
 
   const currentPath = location.toLowerCase();
-const hideLayoutRoutes = ["/signup", "/login"];
-const hideLayout =
-  hideLayoutRoutes.includes(currentPath) || !isLoaded || !isSignedIn;
+  const hideLayoutRoutes = ["/signup", "/login"];
+  const hideLayout =
+    hideLayoutRoutes.includes(currentPath) || !isLoaded || !isSignedIn;
 
   const [isCollapsed, setCollapsed] = useState(false);
   const [isMobile, setisMobile] = useState(false);
@@ -44,7 +47,7 @@ const hideLayout =
               <LeftSidebar collapsed={isCollapsed} onCollapse={setCollapsed} />
             </div>
 
-            {/* Mobile sidebar/making it visible only on small screens*/}
+            {/* Mobile sidebar */}
             <div className="md:hidden">
               <LeftSidebar
                 mobile
@@ -55,7 +58,7 @@ const hideLayout =
               />
             </div>
 
-            {/* Button to collapse the page */}
+            {/* Mobile toggle button */}
             <button
               className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-200 rounded-lg shadow"
               onClick={() => setisMobile(!isMobile)}
@@ -65,16 +68,22 @@ const hideLayout =
           </>
         )}
 
-        {/* Content on page */}
+        {/* Content */}
         <div
-          className={`flex-grow flex flex-col pt-0 px-6 bg-white
-            ${!hideLayout ? (isCollapsed ? "md:ml-20" : "md:ml-64") : ""}
-          `}
+          className={`flex-grow flex flex-col pt-0 px-6 bg-white ${
+            !hideLayout ? (isCollapsed ? "md:ml-20" : "md:ml-64") : ""
+          }`}
         >
           <Switch>
             {/* Protected */}
-            <Route path="/" component={() => <ProtectedRoute component={Homepage} />} />
-
+            <Route
+              path="/"
+              component={() => <ProtectedRoute component={Homepage} />}
+            />
+            <Route
+              path="/homepage"
+              component={() => <ProtectedRoute component={Homepage} />}
+            />
             <Route
               path="/social/facebook"
               component={() => <ProtectedRoute component={FacebookPage} />}
@@ -87,12 +96,14 @@ const hideLayout =
               path="/social/instagram"
               component={() => <ProtectedRoute component={InstagramPage} />}
             />
-
             <Route
               path="/google-analytics"
               component={() => <ProtectedRoute component={GoogleAnalyticsPage} />}
             />
-
+            <Route
+              path="/newsletter"
+              component={() => <ProtectedRoute component={Newsletter} />}
+            />
             <Route
               path="/glossary"
               component={() => <ProtectedRoute component={GlossaryPage} />}
@@ -105,21 +116,14 @@ const hideLayout =
               path="/error/linkedin"
               component={() => <ProtectedRoute component={ErrorPage} />}
             />
-            <Route
-              path="/admin-rejection"
-              component={() => <ProtectedRoute component={AdminRejection} />}
-            />
-
-            <Route path="/login" component={LoginPage} />
-            <Route
-              path="/newsletter"
-              component={() => <ProtectedRoute component={Newsletter} />}
-            />
 
             {/* Admin-only */}
-            <Route path="/admin" component={() => <AdminRoute component={AdminPage} />} />
+            <Route
+              path="/admin"
+              component={() => <AdminRoute component={AdminPage} />}
+            />
 
-            {/* Admin rejection (logged-in users only) */}
+            {/* Logged-in users only */}
             <Route
               path="/admin-rejection"
               component={() => <ProtectedRoute component={AdminRejection} />}
@@ -127,6 +131,7 @@ const hideLayout =
 
             {/* Public */}
             <Route path="/login" component={LoginPage} />
+            <Route path="/signup" component={SignupPage} />
 
             <Route>
               <p className="p-4 text-black">404: Page Not Found</p>
