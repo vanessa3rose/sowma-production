@@ -331,7 +331,7 @@ export default function GoogleAnalyticsPage() {
             </svg>
           </button>
 
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl text-[#4A8CDE] whitespace-nowrap">
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
             Google Analytics
           </h1>
         </div>

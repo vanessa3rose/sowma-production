@@ -287,7 +287,7 @@ export default function FacebookPage() {
             </svg>
           </button>
 
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl text-[#4A8CDE]">
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
             Facebook
           </h1>
         </div>
