@@ -435,7 +435,7 @@ export default function GoogleAnalyticsPage() {
                     />
                   </div>
                 }
-                displayMode="both"
+                displayMode="chart-only"
                 className="w-full h-full"
               />
             </div>
@@ -481,10 +481,11 @@ export default function GoogleAnalyticsPage() {
                       data={pageviewsOverTime}
                       xAxisKey="date"
                       dataKeys={["screenPageViews"]}
+                      showArea
                     />
                   </div>
                 }
-                displayMode="both"
+                displayMode="chart-only"
                 className="w-full h-full"
               />
             </div>
@@ -509,7 +510,7 @@ export default function GoogleAnalyticsPage() {
                     />
                   </div>
                 }
-                displayMode="both"
+                displayMode="chart-only"
                 className="w-full h-full"
               />
             </div>

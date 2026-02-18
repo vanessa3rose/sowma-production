@@ -327,6 +327,8 @@ export default function Homepage() {
                   xAxisKey="date"
                   dataKeys={["posts"]}
                   autoAdjustYAxis
+                  showArea
+                  
                 />
               </div>
             ) : (
