@@ -10,6 +10,7 @@ const PROVIDER_MAP: Record<SocialPlatform, string> = {
   instagram: "INSTAGRAM",
   twitter: "TWITTER",
   facebook: "FACEBOOK",
+  constantcontact: "CONSTANT_CONTACT",
 };
 
 function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
