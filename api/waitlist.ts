@@ -39,20 +39,24 @@ function getSmtpEnv(): SmtpEnv | null {
 }
 
 async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
+  console.log("[waitlist-email] called for:", newUserEmail);
+
   const smtp = getSmtpEnv();
   if (!smtp) {
-    // In prod you likely want this configured; but per requirements, don't break endpoint
     console.error(
       "[waitlist-email] Missing/invalid SMTP env vars. Expected SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM (optional SMTP_SECURE)."
     );
     return;
   }
 
-  // 1) Identify admin recipients
+  console.log("[waitlist-email] SMTP env vars detected. host:", smtp.host, "port:", smtp.port);
+
+  console.log("[waitlist-email] querying admins...");
   const admins = await prisma.user.findMany({
-    where: { role: "ADMIN" },
+    where: { role: "ADMIN" }, // ✅ correct for your schema enum Role
     select: { email: true },
   });
+  console.log("[waitlist-email] admins fetched:", admins);
 
   const recipients = admins
     .map((a) => a.email)
@@ -62,10 +66,8 @@ async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
     console.warn("[waitlist-email] No admin recipients found (role=ADMIN).");
     return;
   }
-  console.log(
-  `[waitlist-email] Sending email to ${recipients.length} admin(s):`,
-  recipients
-)
+
+  console.log(`[waitlist-email] Sending email to ${recipients.length} admin(s):`, recipients);
 
   const transporter = nodemailer.createTransport({
     host: smtp.host,
@@ -76,9 +78,6 @@ async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
       pass: smtp.pass,
     },
   });
-
-  // Optional sanity check; can be noisy locally, but helps debugging
-  // await transporter.verify();
 
   const dashboardUrl =
     process.env.ADMIN_DASHBOARD_URL || "Open the admin dashboard to review.";
@@ -92,17 +91,22 @@ async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
     `Review: ${dashboardUrl}`,
   ].join("\n");
 
-  await transporter.sendMail({
+  console.log("[waitlist-email] sending via nodemailer...");
+  const info = await transporter.sendMail({
     from: smtp.from,
-    to: recipients, // array is fine
+    to: recipients,
     subject,
     text,
   });
+
+  console.log("[waitlist-email] Email successfully sent. messageId:", info.messageId);
 }
 
 // POST /api/waitlist
 export default async function handler(req: any, res: any) {
   try {
+    console.log("[waitlist] HIT", req.method, req.body);
+
     const { email } = req.body;
 
     if (!email) {
@@ -115,7 +119,7 @@ export default async function handler(req: any, res: any) {
 
     // Check if user already exists with this email (waitlisted or not)
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email }, // ✅ email is @id in your schema
       select: { email: true },
     });
 
@@ -123,11 +127,11 @@ export default async function handler(req: any, res: any) {
       return res.status(409).json({ error: "A user with this email already exists" });
     }
 
-    // Create new waitlisted user with empty fields
+    // Create new waitlisted user
     const newUser = await prisma.user.create({
       data: {
         email,
-        role: "VIEWER",
+        role: "VIEWER", // ✅ valid Role enum value
         isWaitlisted: true,
         firstName: "",
         lastName: "",
@@ -141,10 +145,16 @@ export default async function handler(req: any, res: any) {
       },
     });
 
-    // 2) Trigger email AFTER successful waitlist creation (non-blocking)
-    void sendWaitlistAdminEmail(newUser.email).catch((err) => {
+    console.log("[waitlist] created user, preparing to notify admins for:", newUser.email);
+
+    // ✅ KEY CHANGE:
+    // Await email so it actually runs under vercel dev / serverless.
+    // Still do NOT fail the API if email fails.
+    try {
+      await sendWaitlistAdminEmail(newUser.email);
+    } catch (err) {
       console.error("[waitlist-email] Failed to send admin email:", err);
-    });
+    }
 
     return res.status(201).json({
       message: "Successfully added to waitlist",
@@ -154,5 +164,4 @@ export default async function handler(req: any, res: any) {
     console.error("Error creating waitlist user:", error);
     return res.status(500).json({ error: "Failed to add user to waitlist" });
   }
-
 }
