@@ -93,6 +93,7 @@ const LineCharts = ({
           <YAxis
             tick={{ fontFamily: "Poppins, sans-serif" }}
             domain={yDomain}
+            allowDecimals={false}
           />
           <Tooltip content={<ChartTooltip />} />
 
@@ -123,6 +124,7 @@ const LineCharts = ({
           <YAxis
             tick={{ fontFamily: "Poppins, sans-serif" }}
             domain={yDomain}
+            allowDecimals={false}
           />
           <Tooltip content={<ChartTooltip />} />
 

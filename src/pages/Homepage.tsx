@@ -402,6 +402,7 @@ export default function Homepage() {
                   xAxisKey="date"
                   dataKeys={["followers"]}
                   autoAdjustYAxis
+                  showArea
                 />
               </div>
             ) : (
