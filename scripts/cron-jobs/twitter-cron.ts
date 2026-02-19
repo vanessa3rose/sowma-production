@@ -1,20 +1,21 @@
-import { PrismaClient, Metric } from "../../src/generated/prisma/index.js";
-import { getAuthBySocialMediaId } from "../../db/social-media-auth";
-import "dotenv/config";
 import {
-  startOfDay,
-  formatISODate,
-  metricsExistForDay,
-} from "../../src/utils/dates.js";
+  PrismaClient,
+  Metric,
+  Provider,
+} from "../../src/generated/prisma/index.js";
+import { getAuthBySocialMediaId } from "../../db/social-media-auth";
+import fetch from "node-fetch";
+import "dotenv/config";
+import { startOfDay, formatISODate } from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client
 -------------------------------------------------- */
 const prisma = new PrismaClient();
 
-/**
- * Twitter public metrics available on the free API
- */
+/* -------------------------------------------------
+   Types
+-------------------------------------------------- */
 type TwitterPublicMetrics = {
   followers_count: number;
   following_count: number;
@@ -22,9 +23,9 @@ type TwitterPublicMetrics = {
   listed_count: number;
 };
 
-/**
- * Fetch current snapshot of Twitter public metrics
- */
+/* -------------------------------------------------
+   Helpers
+-------------------------------------------------- */
 async function fetchTwitterMetrics(
   username: string,
   accessToken: string,
@@ -40,51 +41,57 @@ async function fetchTwitterMetrics(
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Twitter API error ${res.status}: ${text}`);
+    throw new Error(`[TW] API error ${res.status}: ${text}`);
   }
 
-  const json = await res.json();
-  return json.data.public_metrics as TwitterPublicMetrics;
+  const json = (await res.json()) as {
+    data: {
+      public_metrics: TwitterPublicMetrics;
+    };
+  };
+
+  return json.data.public_metrics;
 }
 
 /* -------------------------------------------------
    Daily Twitter Sync
 -------------------------------------------------- */
 export async function runDailyTwitterSync() {
-  const metricDate = startOfDay(new Date());
+  try {
+    const metricDate = startOfDay(new Date());
 
-  const accounts = await prisma.socialMedia.findMany({
-    where: { provider: "TWITTER" },
-  });
+    console.log(`[TW] Starting daily sync for ${formatISODate(metricDate)}`);
 
-  if (accounts.length === 0) return;
+    const accounts = await prisma.socialMedia.findMany({
+      where: { provider: Provider.TWITTER },
+    });
 
-  const METRIC_MAP: Partial<Record<keyof TwitterPublicMetrics, Metric>> = {
-    followers_count: Metric.FOLLOWERS,
-    tweet_count: Metric.POSTS,
-  };
-
-  for (const account of accounts) {
-    // gets TWITTER_BEARER_TOKEN
-    const auth = await getAuthBySocialMediaId(account.id);
-    if (!auth?.accessToken) {
-      console.error(
-        `[TW] No bearer token found in DB for account ${account.username}`,
-      );
-      continue;
+    if (accounts.length === 0) {
+      console.log("[TW] No Twitter accounts found");
+      return;
     }
-    const ACCESS_TOKEN = auth.accessToken;
 
-    // Skip if metrics already exist for today
-    if (await metricsExistForDay(account.id, metricDate)) {
+    const METRIC_MAP: Partial<Record<keyof TwitterPublicMetrics, Metric>> = {
+      followers_count: Metric.FOLLOWERS,
+      tweet_count: Metric.POSTS,
+    };
+
+    for (const account of accounts) {
+      const auth = await getAuthBySocialMediaId(account.id);
+
+      if (!auth?.accessToken) {
+        console.error(`[TW] No bearer token found for ${account.username}`);
+        continue;
+      }
+
       console.log(
-        `[TW] ${account.username} already synced (${formatISODate(metricDate)})`,
+        `[TW] Syncing ${account.username} (${formatISODate(metricDate)})`,
       );
-      continue;
-    }
 
-    try {
-      const metrics = await fetchTwitterMetrics(account.username, ACCESS_TOKEN);
+      const metrics = await fetchTwitterMetrics(
+        account.username,
+        auth.accessToken,
+      );
 
       const metricsToInsert = Object.entries(metrics)
         .map(([key, value]) => {
@@ -96,47 +103,57 @@ export async function runDailyTwitterSync() {
             metricValue: Number(value ?? 0),
           };
         })
-        .filter(Boolean) as { metricName: Metric; metricValue: number }[];
+        .filter(Boolean) as {
+        metricName: Metric;
+        metricValue: number;
+      }[];
 
-      await prisma.$transaction(
-        metricsToInsert.map((m) =>
-          prisma.socialMediaMetrics.create({
-            data: {
-              socialMediaId: account.id,
-              metricName: m.metricName,
-              metricValue: m.metricValue,
-              metricDate,
-              lastSynced: new Date(),
+      if (metricsToInsert.length === 0) {
+        console.log(`[TW] No mapped metrics for ${account.username}`);
+        continue;
+      }
+
+      await prisma.$transaction(async (tx) => {
+        await tx.socialMediaMetrics.deleteMany({
+          where: {
+            socialMediaId: account.id,
+            metricDate,
+            metricName: {
+              in: metricsToInsert.map((m) => m.metricName),
             },
-          }),
-        ),
-      );
-    } catch (error) {
-      console.error(
-        `[TW] Sync failed for ${account.username} (${formatISODate(metricDate)})`,
-        error,
+          },
+        });
+
+        await Promise.all(
+          metricsToInsert.map((m) =>
+            tx.socialMediaMetrics.create({
+              data: {
+                socialMediaId: account.id,
+                metricName: m.metricName,
+                metricValue: m.metricValue,
+                metricDate,
+                lastSynced: new Date(),
+              },
+            }),
+          ),
+        );
+      });
+
+      console.log(
+        `[TW] OK: followers=${metrics.followers_count} tweets=${metrics.tweet_count}`,
       );
     }
+
+    console.log("[TW] Daily Twitter sync complete");
+  } catch (err) {
+    console.error("[TW] Daily Twitter sync failed", err);
+    throw err;
+  } finally {
+    await prisma.$disconnect();
   }
-
-  console.log("[TW] Daily Twitter sync complete");
-
-  // Disconnect Prisma
-  await prisma.$disconnect();
 }
 
 /* -------------------------------------------------
-   CLI Entrypoint
+   Entrypoint
 -------------------------------------------------- */
-if (import.meta.url === `file://${process.argv[1]}`) {
-  (async () => {
-    try {
-      await runDailyTwitterSync();
-    } catch (err) {
-      console.error("[TW] Cron job failed", err);
-      process.exit(1);
-    } finally {
-      await prisma.$disconnect();
-    }
-  })();
-}
+runDailyTwitterSync().catch(console.error);

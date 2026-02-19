@@ -2,20 +2,11 @@ import "dotenv/config";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { GoogleAuth } from "google-auth-library";
 import {
-  createSocialMediaMetric,
-  updateSocialMediaMetric,
-  getMetricsBySocialMediaId,
-} from "../../db/social-media-metrics.js";
-import {
   PrismaClient,
   Provider,
   Metric,
 } from "../../src/generated/prisma/index.js";
-import {
-  startOfDay,
-  formatISODate,
-  metricsExistForDay,
-} from "../../src/utils/dates.js";
+import { startOfDay, formatISODate } from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client
@@ -23,7 +14,7 @@ import {
 const prisma = new PrismaClient();
 
 /* -------------------------------------------------
-   GA client setup
+   GA Client Setup
 -------------------------------------------------- */
 
 const jsonKey = {
@@ -44,26 +35,18 @@ if (!jsonKey.private_key || !jsonKey.client_email) {
   throw new Error("Missing Google Analytics service account credentials");
 }
 
-// Create a GoogleAuth instance using the credentials
 const auth = new GoogleAuth({
   credentials: jsonKey,
   scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
 });
 
-// Initialize the Analytics Data API client
 const analyticsDataClient = new BetaAnalyticsDataClient({ auth });
+
+const GA_PROPERTY = "properties/393011442";
 
 /* -------------------------------------------------
    Helpers
 -------------------------------------------------- */
-
-async function getSocialMediaIdByProvider(): Promise<string | null> {
-  const record = await prisma.socialMedia.findFirst({
-    where: { provider: Provider.GOOGLE_ANALYTICS },
-    select: { id: true },
-  });
-  return record?.id || null;
-}
 
 function getYesterdayUTC(): Date {
   const d = new Date();
@@ -71,162 +54,27 @@ function getYesterdayUTC(): Date {
   return d;
 }
 
-/**
- * Helper: breakdown for New vs Returning (pie chart)
- */
-async function syncNewVsReturningBreakdown(
-  metricDate: Date,
-  socialMediaId: string,
-  existingMetrics: any[],
-) {
-  const dateStr = formatISODate(metricDate);
-
-  const [response] = await analyticsDataClient.runReport({
-    property: "properties/393011442",
-    dateRanges: [{ startDate: dateStr, endDate: dateStr }],
-    dimensions: [{ name: "newVsReturning" }],
-    metrics: [{ name: "sessions" }],
-  });
-
-  if (!response.rows || response.rows.length === 0) {
-    console.error(
-      `[GA] newVsReturning breakdown returned no rows for ${dateStr}`,
-    );
-    return;
-  }
-
-  for (const row of response.rows) {
-    const label = row.dimensionValues?.[0]?.value ?? "unknown";
-    const sessions = Number(row.metricValues?.[0]?.value ?? 0);
-
-    const existing = existingMetrics.find(
-      (m) =>
-        m.metricName === Metric.TOTAL_SESSIONS &&
-        m.metricDate?.getTime() === metricDate.getTime() &&
-        m.breakdownKey === "newVsReturning" &&
-        m.breakdownValue === label,
-    );
-
-    try {
-      if (existing) {
-        await updateSocialMediaMetric(existing.id, {
-          metricName: Metric.TOTAL_SESSIONS,
-          metricValue: sessions,
-          metricDate,
-          breakdownKey: "newVsReturning",
-          breakdownValue: label,
-          lastSynced: new Date(),
-        });
-      } else {
-        await createSocialMediaMetric({
-          socialMediaId,
-          metricName: Metric.TOTAL_SESSIONS,
-          metricValue: sessions,
-          metricDate,
-          breakdownKey: "newVsReturning",
-          breakdownValue: label,
-          lastSynced: new Date(),
-        });
-      }
-    } catch (err) {
-      console.error(
-        `[GA] Failed saving TOTAL_SESSIONS (${label}) for ${dateStr}`,
-        err,
-      );
-    }
-  }
-}
-
-/**
- * Helper: breakdown for Sessions by Source (bar chart)
- */
-async function syncSessionsBySourceBreakdown(
-  metricDate: Date,
-  socialMediaId: string,
-  existingMetrics: any[],
-) {
-  const dateStr = formatISODate(metricDate);
-
-  const [response] = await analyticsDataClient.runReport({
-    property: "properties/393011442",
-    dateRanges: [{ startDate: dateStr, endDate: dateStr }],
-    dimensions: [{ name: "sessionSource" }],
-    metrics: [{ name: "sessions" }],
-  });
-
-  if (!response.rows || response.rows.length === 0) {
-    console.error(
-      `[GA] sessionsBySource breakdown returned no rows for ${dateStr}`,
-    );
-    return;
-  }
-
-  for (const row of response.rows) {
-    const source = row.dimensionValues?.[0]?.value ?? "unknown";
-    const sessions = Number(row.metricValues?.[0]?.value ?? 0);
-
-    const existing = existingMetrics.find(
-      (m) =>
-        m.metricName === Metric.SESSIONS_BY_SOURCE &&
-        m.metricDate?.getTime() === metricDate.getTime() &&
-        m.breakdownKey === "sessionSource" &&
-        m.breakdownValue === source,
-    );
-
-    try {
-      if (existing) {
-        await updateSocialMediaMetric(existing.id, {
-          metricName: Metric.SESSIONS_BY_SOURCE,
-          metricValue: sessions,
-          metricDate,
-          breakdownKey: "sessionSource",
-          breakdownValue: source,
-          lastSynced: new Date(),
-        });
-      } else {
-        await createSocialMediaMetric({
-          socialMediaId,
-          metricName: Metric.SESSIONS_BY_SOURCE,
-          metricValue: sessions,
-          metricDate,
-          breakdownKey: "sessionSource",
-          breakdownValue: source,
-          lastSynced: new Date(),
-        });
-      }
-    } catch (err) {
-      console.error(
-        `[GA] Failed saving SESSIONS_BY_SOURCE (${source}) for ${dateStr}`,
-        err,
-      );
-    }
-  }
-}
-
 /* -------------------------------------------------
-   Daily GA sync
+   Daily Google Analytics Sync
 -------------------------------------------------- */
 export async function runDailyGoogleAnalyticsSync() {
-  const metricDate = startOfDay(getYesterdayUTC());
-  const dateStr = formatISODate(metricDate);
-
   try {
-    const socialMediaId = await getSocialMediaIdByProvider();
-    if (!socialMediaId) {
-      console.error("[GA] SocialMedia entry not found.");
+    const metricDate = startOfDay(getYesterdayUTC());
+    const dateStr = formatISODate(metricDate);
+
+    console.log(`[GA] Starting daily sync for ${dateStr} (T-1 UTC)`);
+
+    const account = await prisma.socialMedia.findFirst({
+      where: { provider: Provider.GOOGLE_ANALYTICS },
+    });
+
+    if (!account) {
+      console.error("[GA] No Google Analytics account found");
       return;
     }
-
-    // ---- GLOBAL IDEMPOTENCY CHECK ----
-    if (await metricsExistForDay(socialMediaId, metricDate)) {
-      console.log(`[GA] already synced (${dateStr})`);
-      return;
-    }
-
-    const existingMetrics = await getMetricsBySocialMediaId(socialMediaId);
 
     const [response] = await analyticsDataClient.runReport({
-      property: "properties/393011442",
+      property: GA_PROPERTY,
       dateRanges: [{ startDate: dateStr, endDate: dateStr }],
       dimensions: [{ name: "date" }],
       metrics: [
@@ -243,14 +91,14 @@ export async function runDailyGoogleAnalyticsSync() {
       ],
     });
 
-    if (!response.rows || response.rows.length === 0) {
-      console.error(`[GA] no rows returned for ${dateStr}`);
+    if (!response.rows?.length) {
+      console.error(`[GA] No rows returned for ${dateStr}`);
       return;
     }
 
     const values = response.rows[0].metricValues ?? [];
 
-    const metricsToSave = [
+    const metricsToInsert = [
       {
         metricName: Metric.ACTIVE_USERS,
         metricValue: Number(values[0]?.value ?? 0),
@@ -291,42 +139,39 @@ export async function runDailyGoogleAnalyticsSync() {
         metricName: Metric.ENGAGEMENT_TIME,
         metricValue: Number(values[9]?.value ?? 0),
       },
-    ];
+    ] as const;
 
-    for (const metric of metricsToSave) {
-      const existing = existingMetrics.find(
-        (m: any) =>
-          m.metricName === metric.metricName &&
-          m.metricDate?.getTime() === metricDate.getTime() &&
-          !m.breakdownKey &&
-          !m.breakdownValue,
-      );
-
-      if (!existing) {
-        await createSocialMediaMetric({
-          socialMediaId,
-          metricName: metric.metricName,
-          metricValue: metric.metricValue,
+    await prisma.$transaction(async (tx) => {
+      await tx.socialMediaMetrics.deleteMany({
+        where: {
+          socialMediaId: account.id,
           metricDate,
-          lastSynced: new Date(),
-        });
-      }
-    }
+          metricName: { in: metricsToInsert.map((m) => m.metricName) },
+        },
+      });
 
-    await syncNewVsReturningBreakdown(
-      metricDate,
-      socialMediaId,
-      existingMetrics,
-    );
-    await syncSessionsBySourceBreakdown(
-      metricDate,
-      socialMediaId,
-      existingMetrics,
+      await Promise.all(
+        metricsToInsert.map((m) =>
+          tx.socialMediaMetrics.create({
+            data: {
+              socialMediaId: account.id,
+              metricName: m.metricName,
+              metricValue: m.metricValue,
+              metricDate,
+              lastSynced: new Date(),
+            },
+          }),
+        ),
+      );
+    });
+
+    console.log(
+      `[GA] OK: sessions=${values[6]?.value ?? 0} users=${values[0]?.value ?? 0}`,
     );
 
-    console.log(`[GA] Daily Google Analytics sync complete (${dateStr})`);
+    console.log("[GA] Daily Google Analytics sync complete");
   } catch (err) {
-    console.error(`[GA] Daily sync failed for ${dateStr}`, err);
+    console.error("[GA] Daily Google Analytics sync failed", err);
     throw err;
   } finally {
     await prisma.$disconnect();
@@ -334,17 +179,6 @@ export async function runDailyGoogleAnalyticsSync() {
 }
 
 /* -------------------------------------------------
-   CLI Entrypoint
+   Entrypoint
 -------------------------------------------------- */
-if (import.meta.url === `file://${process.argv[1]}`) {
-  (async () => {
-    try {
-      await runDailyGoogleAnalyticsSync();
-    } catch (err) {
-      console.error("[GA] Cron job failed", err);
-      process.exit(1);
-    } finally {
-      await prisma.$disconnect();
-    }
-  })();
-}
+runDailyGoogleAnalyticsSync().catch(console.error);
