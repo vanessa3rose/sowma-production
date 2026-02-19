@@ -55,9 +55,7 @@ export default function GlossaryPage() {
               />
             </svg>
           </button>
-          <h1 className="font-semibold text-3xl lg:text-4xl">
-            Glossary
-          </h1>
+          <h1 className="font-semibold text-3xl lg:text-4xl">Glossary</h1>
         </div>
       </div>
 
