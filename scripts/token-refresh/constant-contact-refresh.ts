@@ -40,6 +40,9 @@ const EXPIRY_SOON_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 function shouldRefresh(rec: AuthRow, nowMs: number) {
   if (!rec.refreshToken) return false;
 
+  if (rec.accessToken === "" || !rec.expiresAt || !rec.refreshTokenExpiresAt)
+    return true;
+
   const last = rec.lastRefreshed?.getTime() ?? 0;
   if (!last) return true;
 
@@ -93,9 +96,7 @@ async function refreshConstantContact(rec: AuthRow) {
   };
 
   if (!res.ok) {
-    throw new Error(
-      `[CC] refresh failed: ${res.status} ${JSON.stringify(j)}`,
-    );
+    throw new Error(`[CC] refresh failed: ${res.status} ${JSON.stringify(j)}`);
   }
 
   const nowMs = Date.now();
@@ -107,14 +108,10 @@ async function refreshConstantContact(rec: AuthRow) {
 
   let refreshTokenExpiresAt = rec.refreshTokenExpiresAt;
   if (j.refresh_token_expires_in) {
-    refreshTokenExpiresAt = new Date(
-      nowMs + j.refresh_token_expires_in * 1000,
-    );
+    refreshTokenExpiresAt = new Date(nowMs + j.refresh_token_expires_in * 1000);
   } else if (j.refresh_token) {
     // If server returns a new refresh token without expiry info, assume 180 days.
-    refreshTokenExpiresAt = new Date(
-      nowMs + 180 * 24 * 60 * 60 * 1000,
-    );
+    refreshTokenExpiresAt = new Date(nowMs + 180 * 24 * 60 * 60 * 1000);
   }
 
   return { accessToken, refreshToken, expiresAt, refreshTokenExpiresAt };

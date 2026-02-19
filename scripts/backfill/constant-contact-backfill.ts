@@ -4,8 +4,8 @@ import {
   Metric,
   Provider,
 } from "../../src/generated/prisma/index.js";
-import fetch from "node-fetch";
 import "dotenv/config";
+import fetch from "node-fetch";
 import {
   startOfDay,
   formatISODate,
@@ -170,13 +170,18 @@ async function backfillConstantContact() {
   const refreshed = await ensureConstantContactAccessToken({
     socialMediaId: account.id,
     auth: account.SocialMediaAuth,
-    fallbackRefreshToken: process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
+    fallbackRefreshToken: null,
     forceRefresh: true,
   });
   authId = refreshed.authId;
   accessToken = refreshed.accessToken;
   refreshToken = refreshed.refreshToken;
   expiresAt = refreshed.expiresAt;
+
+  if (!accessToken) {
+    throw new Error("[CC] No access token available after refresh.");
+  }
+  const validAccessToken: string = accessToken;
 
   const current = new Date(rangeStart);
   while (current <= rangeEnd) {
@@ -190,7 +195,10 @@ async function backfillConstantContact() {
     }
 
     try {
-      const campaigns = await fetchCampaignsSentOn(accessToken, metricDate);
+      const campaigns = await fetchCampaignsSentOn(
+        validAccessToken,
+        metricDate,
+      );
 
       if (campaigns.length === 0) {
         console.log(`  ${dateStr} -- no campaigns sent`);
@@ -240,8 +248,7 @@ async function backfillConstantContact() {
             expiresAt,
             lastRefreshed: new Date(),
           },
-          fallbackRefreshToken:
-            process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
+          fallbackRefreshToken: null,
           forceRefresh: true,
         });
         authId = retry.authId;

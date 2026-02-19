@@ -4,7 +4,6 @@ import {
   Provider,
 } from "../../src/generated/prisma/index.js";
 import fetch from "node-fetch";
-import "dotenv/config";
 import { startOfDay, endOfDay, formatISODate } from "../../src/utils/dates";
 import { ensureConstantContactAccessToken } from "./../token-refresh";
 
@@ -135,7 +134,7 @@ export async function runDailyConstantContactSync() {
     const { accessToken } = await ensureConstantContactAccessToken({
       socialMediaId: account.id,
       auth: account.SocialMediaAuth,
-      fallbackRefreshToken: process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
+      fallbackRefreshToken: null,
     });
 
     console.log(

@@ -285,13 +285,9 @@ async function refreshConstantContact(rec: AuthRow) {
   const nowMs = Date.now();
   let refreshTokenExpiresAt = rec.refreshTokenExpiresAt ?? null;
   if (j.refresh_token_expires_in) {
-    refreshTokenExpiresAt = new Date(
-      nowMs + j.refresh_token_expires_in * 1000,
-    );
+    refreshTokenExpiresAt = new Date(nowMs + j.refresh_token_expires_in * 1000);
   } else if (j.refresh_token) {
-    refreshTokenExpiresAt = new Date(
-      nowMs + 180 * 24 * 60 * 60 * 1000,
-    );
+    refreshTokenExpiresAt = new Date(nowMs + 180 * 24 * 60 * 60 * 1000);
   }
 
   return {
@@ -357,6 +353,7 @@ export async function ensureConstantContactAccessToken(params: {
     accessToken: accessToken ?? "",
     refreshToken,
     expiresAt,
+    refreshTokenExpiresAt: null, // ← ADD THIS
     lastRefreshed: auth?.lastRefreshed ?? null,
     socialMedia: { provider: "CONSTANT_CONTACT" },
   });
