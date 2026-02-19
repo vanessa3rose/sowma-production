@@ -88,6 +88,31 @@ function isSameDay(dateStr: string, target: Date): boolean {
   );
 }
 
+// to deal with rate limiting
+async function fetchCampaignsSentOnWithRetry(
+  accessToken: string,
+  targetDate: Date,
+  retries = 5,
+  delayMs = 1000
+): Promise<CampaignSummary[]> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fetchCampaignsSentOn(accessToken, targetDate);
+    } catch (err: any) {
+      if (err.message.includes("429")) {
+        console.warn(
+          `[CC] Rate limited on ${formatISODate(targetDate)}, attempt ${attempt}/${retries}. Waiting ${delayMs}ms...`
+        );
+        await new Promise((r) => setTimeout(r, delayMs));
+        delayMs *= 2; // exponential backoff
+      } else {
+        throw err;
+      }
+    }
+  }
+  throw new Error(`[CC] Failed to fetch campaigns for ${formatISODate(targetDate)} after retries`);
+}
+
 async function fetchCampaignsSentOn(
   accessToken: string,
   targetDate: Date,
@@ -195,10 +220,7 @@ async function backfillConstantContact() {
     }
 
     try {
-      const campaigns = await fetchCampaignsSentOn(
-        validAccessToken,
-        metricDate,
-      );
+      const campaigns = await fetchCampaignsSentOnWithRetry(validAccessToken, metricDate);
 
       if (campaigns.length === 0) {
         console.log(`  ${dateStr} -- no campaigns sent`);
