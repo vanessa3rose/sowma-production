@@ -337,7 +337,7 @@ export default function GoogleAnalyticsPage() {
         </div>
         <div className="flex flex-row justify-center items-center mt-2 lg:flex-row lg:mt-0 lg:space-x-2 space-x-4">
           <a
-            href="https://www.sowma.org"
+            href="https://analytics.google.com/analytics/web"
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
