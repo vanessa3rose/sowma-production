@@ -3,9 +3,7 @@ import nodemailer from "nodemailer";
 
 const prisma = new PrismaClient();
 
-/**
- * Keep validation simple and consistent with the ticket.
- */
+
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -27,7 +25,7 @@ function getSmtpEnv(): SmtpEnv | null {
   const pass = process.env.SMTP_PASS;
   const from = process.env.SMTP_FROM;
 
-  // Optional: allow SMTP_SECURE=true to force TLS
+  
   const secure = String(process.env.SMTP_SECURE || "").toLowerCase() === "true";
 
   if (!host || !portRaw || !user || !pass || !from) return null;
@@ -53,7 +51,7 @@ async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
 
   console.log("[waitlist-email] querying admins...");
   const admins = await prisma.user.findMany({
-    where: { role: "ADMIN" }, // ✅ correct for your schema enum Role
+    where: { role: "ADMIN" }, 
     select: { email: true },
   });
   console.log("[waitlist-email] admins fetched:", admins);
@@ -72,7 +70,7 @@ async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
   const transporter = nodemailer.createTransport({
     host: smtp.host,
     port: smtp.port,
-    secure: smtp.secure, // true for 465, false for 587/other
+    secure: smtp.secure, 
     auth: {
       user: smtp.user,
       pass: smtp.pass,
@@ -80,7 +78,7 @@ async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
   });
 
   const dashboardUrl =
-    process.env.ADMIN_DASHBOARD_URL || "Open the admin dashboard to review.";
+    process.env.ADMIN_DASHBOARD_URL || "[ADMIN DASHBOARD PLACEHOLDER URL]";
 
   const subject = `New waitlist signup: ${newUserEmail}`;
   const text = [
@@ -102,7 +100,7 @@ async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
   console.log("[waitlist-email] Email successfully sent. messageId:", info.messageId);
 }
 
-// POST /api/waitlist
+
 export default async function handler(req: any, res: any) {
   try {
     console.log("[waitlist] HIT", req.method, req.body);
@@ -117,9 +115,9 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: "Invalid email format" });
     }
 
-    // Check if user already exists with this email (waitlisted or not)
+    
     const existingUser = await prisma.user.findUnique({
-      where: { email }, // ✅ email is @id in your schema
+      where: { email },
       select: { email: true },
     });
 
@@ -127,11 +125,11 @@ export default async function handler(req: any, res: any) {
       return res.status(409).json({ error: "A user with this email already exists" });
     }
 
-    // Create new waitlisted user
+    
     const newUser = await prisma.user.create({
       data: {
         email,
-        role: "VIEWER", // ✅ valid Role enum value
+        role: "VIEWER", 
         isWaitlisted: true,
         firstName: "",
         lastName: "",
@@ -147,9 +145,7 @@ export default async function handler(req: any, res: any) {
 
     console.log("[waitlist] created user, preparing to notify admins for:", newUser.email);
 
-    // ✅ KEY CHANGE:
-    // Await email so it actually runs under vercel dev / serverless.
-    // Still do NOT fail the API if email fails.
+    
     try {
       await sendWaitlistAdminEmail(newUser.email);
     } catch (err) {
