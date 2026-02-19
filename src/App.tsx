@@ -12,7 +12,7 @@ import GoogleAnalyticsPage from "./pages/SocialMedia/GoogleAnalyticsPage";
 import TwitterPage from "./pages/SocialMedia/TwitterPage";
 import FacebookPage from "./pages/SocialMedia/FacebookPage";
 import InstagramPage from "./pages/SocialMedia/InstagramPage";
-
+import ConstantContactPage from "./pages/SocialMedia/ConstantContactPage";
 import AdminPage from "./pages/AdminPage";
 import AdminRejection from "./pages/AdminRejection";
 
@@ -100,6 +100,10 @@ const App = () => {
             <Route
               path="/social/instagram"
               component={() => <ProtectedRoute component={InstagramPage} />}
+            />
+            <Route
+              path="/social/constantcontact"
+              component={() => <ProtectedRoute component={ConstantContactPage} />}
             />
             <Route
               path="/social/google-analytics"
