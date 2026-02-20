@@ -57,7 +57,7 @@ const LineCharts = ({
       {showArea ? (
         <AreaChart
           data={data}
-          margin={{ top: 20, right: 50, left: 20, bottom: 20 }}
+          margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
         >
           <defs>
             {dataKeys.map((key, index) => (
@@ -112,7 +112,7 @@ const LineCharts = ({
       ) : (
         <LineChart
           data={data}
-          margin={{ top: 20, right: 50, left: 20, bottom: 20 }}
+          margin={{ top: 20, right: 50, left: 20, bottom: 48 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
@@ -127,7 +127,6 @@ const LineCharts = ({
             allowDecimals={false}
           />
           <Tooltip content={<ChartTooltip />} />
-
           {dataKeys.map((key, index) => (
             <Line
               key={key}

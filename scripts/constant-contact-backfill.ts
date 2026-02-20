@@ -116,7 +116,7 @@ async function fetchCampaignsSentOn(
       }
     }
 
-    // Results are sorted desc by last_sent_date -- stop if we've gone past target
+    // Results are sorted desc by last_sent_date — stop if we've gone past target
     const last = data.bulk_email_campaign_summaries.at(-1);
     if (last && new Date(last.last_sent_date) < startOfDay(targetDate)) {
       break;
@@ -149,7 +149,9 @@ function aggregateCampaigns(campaigns: CampaignSummary[]) {
 -------------------------------------------------- */
 async function backfillConstantContact() {
   const rangeEnd = startOfDay(new Date(Date.now() - 24 * 60 * 60 * 1000)); // yesterday
-  const rangeStart = startOfDay(new Date(Date.now() - 5 * 365 * 24 * 60 * 60 * 1000)); // 5 years
+  const rangeStart = startOfDay(
+    new Date(Date.now() - 5 * 365 * 24 * 60 * 60 * 1000),
+  ); // 5 years
 
   console.log(
     `[CC] Starting backfill: ${formatISODate(rangeStart)} -> ${formatISODate(rangeEnd)}`,
@@ -168,8 +170,7 @@ async function backfillConstantContact() {
   const refreshed = await ensureConstantContactAccessToken({
     socialMediaId: account.id,
     auth: account.SocialMediaAuth,
-    fallbackRefreshToken:
-      process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
+    fallbackRefreshToken: process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
     forceRefresh: true,
   });
   authId = refreshed.authId;

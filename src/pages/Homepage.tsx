@@ -342,7 +342,7 @@ export default function Homepage() {
         />
 
         <BigCard
-          title="Google Analytics Website Sessions"
+          title="Google Website Sessions"
           subtitle=""
           dropdown={
             <div className="flex items-center gap-2">
