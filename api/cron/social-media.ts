@@ -13,10 +13,8 @@ export async function GET(req: Request) {
   }
 
   const results: Record<string, string> = {};
-  console.log("beginning");
 
   try {
-    console.log("1");
     await runDailyFacebookSync();
     results.facebook = "ok";
   } catch (err: any) {
@@ -24,7 +22,6 @@ export async function GET(req: Request) {
   }
 
   try {
-    console.log("2");
     await runDailyGoogleAnalyticsSync();
     results.googleAnalytics = "ok";
   } catch (err: any) {
@@ -32,7 +29,6 @@ export async function GET(req: Request) {
   }
 
   try {
-    console.log("3");
     await runDailyInstagramSync();
     results.instagram = "ok";
   } catch (err: any) {
@@ -40,7 +36,6 @@ export async function GET(req: Request) {
   }
 
   try {
-    console.log("4");
     await runDailyTwitterSync();
     results.twitter = "ok";
   } catch (err: any) {
@@ -48,7 +43,6 @@ export async function GET(req: Request) {
   }
 
   try {
-    console.log("5");
     await runDailyConstantContactSync();
     results.constantContact = "ok";
   } catch (err: any) {

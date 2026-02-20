@@ -24,15 +24,15 @@ export const REFRESH_STRATEGY: Record<
   Provider,
   "refresh" | "validate" | "static"
 > = {
-  GOOGLE_ANALYTICS: "refresh", // refresh token using OAuth2
-  INSTAGRAM: "refresh", // Instagram long-lived tokens
-  FACEBOOK: "validate", // just check validity
-  TWITTER: "refresh", // refresh token OAuth2
-  CONSTANT_CONTACT: "refresh", // refresh token via CC API
+  GOOGLE_ANALYTICS: "validate",
+  INSTAGRAM: "validate",
+  FACEBOOK: "validate",
+  TWITTER: "validate",
+  CONSTANT_CONTACT: "refresh",
 };
 
 /* -------------------------------------------------
-   Refresh window (how soon before expiry we refresh)
+  Refresh window (how soon before expiry we refresh)
 -------------------------------------------------- */
 const REFRESH_WINDOW_MS: Record<Provider, number> = {
   GOOGLE_ANALYTICS: 5 * 60 * 1000, // 5 min
