@@ -401,8 +401,7 @@ export default function Homepage() {
               />
               <DateDropdown
                 value={followersRange}
-                onChange={setFollowersRange
-                }
+                onChange={setFollowersRange}
                 minDate={followersBounds.min}
                 maxDate={followersBounds.max}
               />

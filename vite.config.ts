@@ -6,8 +6,8 @@ export default defineConfig({
     port: 3000, // frontend port
 
     watch: {
-        usePolling: true,
-        interval: 100,
+      usePolling: true,
+      interval: 100,
     },
 
     proxy: {

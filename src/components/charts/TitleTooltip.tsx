@@ -9,7 +9,12 @@ const TitleTooltip: React.FC<TitleTooltipProps> = ({ description }) => {
 
   return (
     <span
-      style={{ position: "relative", display: "inline-flex", alignItems: "center", marginLeft: "6px" }}
+      style={{
+        position: "relative",
+        display: "inline-flex",
+        alignItems: "center",
+        marginLeft: "6px",
+      }}
       onMouseEnter={() => setVisible(true)}
       onMouseLeave={() => setVisible(false)}
     >
