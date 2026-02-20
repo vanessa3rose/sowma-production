@@ -71,6 +71,15 @@ const INITIAL_RANGES: Record<MetricKey, DateRangeId> = {
   shares: "30d",
 };
 
+const METRIC_DESCRIPTIONS: Record<MetricKey, string> = {
+  followers: "Cumulative count",
+  likes: "Cumulative count",
+  views: "Cumulative count",
+  comments: "Cumulative count",
+  posts: "Purple squares indicate posts",
+  shares: "Cumulative count",
+};
+
 function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
   return raw
     .filter((m) => m.metricDate || m.lastSynced)
@@ -313,6 +322,7 @@ export default function FacebookPage() {
                 <SmallCard
                   key={`${card.title}-${idx}`}
                   title={card.title}
+                  titleTooltip={METRIC_DESCRIPTIONS[card.key]}
                   subtitle="Total"
                   displayMode="metric-only"
                   className="w-full min-h-[172px]"
@@ -326,6 +336,7 @@ export default function FacebookPage() {
 
           <BigCard
             title="Followers"
+            titleTooltip={METRIC_DESCRIPTIONS.followers}
             subtitle={
               <DateDropdown
                 value={ranges.followers}
@@ -361,6 +372,7 @@ export default function FacebookPage() {
         <div className="flex flex-col gap-4">
           <BigCard
             title="Views"
+            titleTooltip={METRIC_DESCRIPTIONS.views}
             subtitle={
               <DateDropdown
                 value={ranges.views}
@@ -392,6 +404,7 @@ export default function FacebookPage() {
 
           <BigCard
             title="Days Posted"
+            titleTooltip={METRIC_DESCRIPTIONS.posts}
             chart={
               daysPostedRows.length ? (
                 <div className="w-full flex flex-col gap-2 pt-2">
@@ -420,6 +433,7 @@ export default function FacebookPage() {
 
         <BigCard
           title="Recent Posts"
+          titleTooltip="Displays the date and quantity of most recent posts"
           chart={
             recentPosts.length ? (
               <div className="w-full flex flex-col gap-2 pt-2">

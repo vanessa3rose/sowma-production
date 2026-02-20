@@ -1,4 +1,5 @@
 import React from "react";
+import TitleTooltip from "../charts/TitleTooltip";
 
 type DisplayMode = "both" | "chart-only";
 
@@ -12,6 +13,7 @@ interface BigCardProps {
   displayMode: DisplayMode;
   className: string;
   dropdown?: React.ReactNode;
+  titleTooltip?: string;
 }
 
 const BigCard: React.FC<BigCardProps> = ({
@@ -24,6 +26,7 @@ const BigCard: React.FC<BigCardProps> = ({
   displayMode = "both",
   className = "",
   dropdown,
+  titleTooltip,
 }) => {
   const shouldShowChart =
     displayMode === "both" || displayMode === "chart-only";
@@ -42,16 +45,19 @@ const BigCard: React.FC<BigCardProps> = ({
     >
       {/* Header with title, subtitle, and optional dropdown */}
       <div className="flex justify-between items-center opacity-100">
-        <h3
-          style={{
-            fontFamily: "Poppins, sans-serif",
-            fontWeight: 500,
-            fontSize: "16px",
-            color: "#000000",
-          }}
-        >
-          {title}
-        </h3>
+        <div className="flex items-center">
+          <h3
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontWeight: 500,
+              fontSize: "16px",
+              color: "#000000",
+            }}
+          >
+            {title}
+          </h3>
+          {titleTooltip && <TitleTooltip description={titleTooltip} />}
+        </div>
 
         <div className="flex items-center gap-2">
           {subtitle && (

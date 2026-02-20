@@ -66,7 +66,17 @@ export default function Homepage() {
   }
 
   function mapToDaysPostedPoints(raw: SocialMediaMetric[]): DaysPostedPoint[] {
-    return getSortedMetrics(raw).map((m) => {
+    const sorted = getSortedMetrics(raw);
+    if (daysPostedProvider === "FACEBOOK") {
+      let runningTotal = 0;
+      return sorted.map((m) => {
+        const timestamp =
+          m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+        runningTotal += m.metricValue;
+        return { date: timestamp.slice(0, 10), posts: runningTotal };
+      });
+    }
+    return sorted.map((m) => {
       const timestamp =
         m.metricDate ?? m.lastSynced ?? new Date().toISOString();
       return { date: timestamp.slice(0, 10), posts: m.metricValue };
@@ -266,6 +276,7 @@ export default function Homepage() {
       <div className="flex flex-col flex-wrap gap-4 w-full lg:flex-row">
         <BigCard
           title="Impressions"
+          titleTooltip="Number of users who see your website"
           subtitle=""
           dropdown={
             <div className="flex items-center gap-2">
@@ -303,7 +314,8 @@ export default function Homepage() {
         />
 
         <BigCard
-          title="Days Posted"
+          title="Total Posts"
+          titleTooltip="Cumulative count"
           subtitle=""
           dropdown={
             <div className="flex items-center gap-2">
@@ -328,7 +340,6 @@ export default function Homepage() {
                   dataKeys={["posts"]}
                   autoAdjustYAxis
                   showArea
-                  
                 />
               </div>
             ) : (
@@ -342,7 +353,8 @@ export default function Homepage() {
         />
 
         <BigCard
-          title="Google Website Sessions"
+          title="Google Analytics Website Sessions"
+          titleTooltip="A session is all the actions a user takes during one visit"
           subtitle=""
           dropdown={
             <div className="flex items-center gap-2">
@@ -379,6 +391,7 @@ export default function Homepage() {
       <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
         <BigCard
           title="Follower Count"
+          titleTooltip="Cumulative count"
           subtitle=""
           dropdown={
             <div className="flex items-center gap-2">
@@ -388,7 +401,8 @@ export default function Homepage() {
               />
               <DateDropdown
                 value={followersRange}
-                onChange={setFollowersRange}
+                onChange={setFollowersRange
+                }
                 minDate={followersBounds.min}
                 maxDate={followersBounds.max}
               />

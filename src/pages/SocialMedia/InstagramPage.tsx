@@ -31,6 +31,7 @@ type MetricConfig = {
   title: string;
   metric: string;
   metricLabel?: string;
+  description: string;
 };
 
 const PROVIDER = "INSTAGRAM";
@@ -38,16 +39,41 @@ const DEFAULT_START_DATE = "2024-01-01";
 const DEFAULT_END_DATE = "3000-01-01";
 
 const METRICS: MetricConfig[] = [
-  { id: "impressions", title: "Impressions", metric: "VIEWS", metricLabel: "" },
-  { id: "followers", title: "Followers", metric: "FOLLOWERS", metricLabel: "" },
-  { id: "likes", title: "Total Likes", metric: "LIKES", metricLabel: "" },
+  {
+    id: "impressions",
+    title: "Impressions",
+    metric: "VIEWS",
+    metricLabel: "",
+    description: "Number of users who see your website",
+  },
+  {
+    id: "followers",
+    title: "Followers",
+    metric: "FOLLOWERS",
+    metricLabel: "",
+    description: "Cumulative count",
+  },
+  {
+    id: "likes",
+    title: "Total Likes",
+    metric: "LIKES",
+    metricLabel: "",
+    description: "Cumulative count",
+  },
   {
     id: "comments",
     title: "Total Comments",
     metric: "COMMENTS",
     metricLabel: "",
+    description: "Cumulative count",
   },
-  { id: "posts", title: "Posts", metric: "POSTS", metricLabel: "" },
+  {
+    id: "posts",
+    title: "Posts",
+    metric: "POSTS",
+    metricLabel: "",
+    description: "Cumulative count",
+  },
 ];
 
 /* ---------- helpers ---------- */
@@ -191,6 +217,7 @@ export default function InstagramPage() {
     { label: "Comments", value: commentsNow },
     { label: "Posts", value: postsNow },
   ];
+
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
@@ -239,6 +266,7 @@ export default function InstagramPage() {
                 <SmallCard
                   key={id}
                   title={cfg.title}
+                  titleTooltip={cfg.description}
                   displayMode="metric-only"
                   className="w-full h-full"
                   metricValue={s?.current ?? 0}
@@ -253,6 +281,7 @@ export default function InstagramPage() {
           <div className="lg:col-span-1">
             <BigCard
               title="Engagement Mix"
+              titleTooltip="Spread of interactions between Posts, Comments, and Likes"
               chart={
                 <div className="w-full h-64">
                   <PieCharts
@@ -268,8 +297,8 @@ export default function InstagramPage() {
           </div>
         </div>
 
-        {/* Only Posts BigCard */}
-        <div className="w-full grid grid-cols-1  gap-4 lg:h-full">
+        {/* Only Likes BigCard */}
+        <div className="w-full grid grid-cols-1 gap-4 lg:h-full">
           {METRICS.filter((cfg) => cfg.id === "likes").map((cfg) => {
             const item = computed[cfg.id];
             const filtered = item?.filtered ?? [];
@@ -280,6 +309,7 @@ export default function InstagramPage() {
               <div key={cfg.id}>
                 <BigCard
                   title={cfg.title}
+                  titleTooltip={cfg.description}
                   subtitle={
                     <DateDropdown
                       value={ranges[cfg.id] ?? "30d"}
