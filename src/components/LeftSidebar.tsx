@@ -20,7 +20,7 @@ const socialLinks = [
   { slug: "tiktok", label: "TikTok", icon: tiktok },
   { slug: "linkedin", label: "LinkedIn", icon: linkedin },
   { slug: "twitter", label: "Twitter/X", icon: twitter },
-  { slug: "constantcontact", label: "Newsletter", icon: newsletter },
+  { slug: "constant-contact", label: "Newsletter", icon: newsletter },
 ];
 
 const exceptionRoutes: Record<string, string> = {

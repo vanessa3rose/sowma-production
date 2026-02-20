@@ -39,10 +39,30 @@ const DEFAULT_END_DATE = "3000-01-01";
 
 const METRICS: MetricConfig[] = [
   { id: "sent", title: "Emails Sent", metric: "EMAILS_SENT", metricLabel: "" },
-  { id: "delivered", title: "Emails Delivered", metric: "EMAILS_DELIVERED", metricLabel: "" },
-  { id: "opened", title: "Emails Opened", metric: "EMAILS_OPENED", metricLabel: "" },
-  { id: "clicked", title: "Emails Clicked", metric: "EMAILS_CLICKED", metricLabel: "" },
-  { id: "unsubscribed", title: "Emails Unsubscribed", metric: "EMAILS_UNSUBSCRIBED", metricLabel: "" },
+  {
+    id: "delivered",
+    title: "Emails Delivered",
+    metric: "EMAILS_DELIVERED",
+    metricLabel: "",
+  },
+  {
+    id: "opened",
+    title: "Emails Opened",
+    metric: "EMAILS_OPENED",
+    metricLabel: "",
+  },
+  {
+    id: "clicked",
+    title: "Emails Clicked",
+    metric: "EMAILS_CLICKED",
+    metricLabel: "",
+  },
+  {
+    id: "unsubscribed",
+    title: "Emails Unsubscribed",
+    metric: "EMAILS_UNSUBSCRIBED",
+    metricLabel: "",
+  },
 ];
 
 /* ---------- helpers ---------- */
@@ -230,22 +250,24 @@ export default function ConstantContactPage() {
         {/* Top band: 2x2 small cards + pie chart */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {["sent", "delivered", "opened", "clicked", "unsubscribed"].map((id) => {
-              const cfg = METRICS.find((m) => m.id === id)!;
-              const s = computed[id]?.summary;
+            {["sent", "delivered", "opened", "clicked", "unsubscribed"].map(
+              (id) => {
+                const cfg = METRICS.find((m) => m.id === id)!;
+                const s = computed[id]?.summary;
 
-              return (
-                <SmallCard
-                  key={id}
-                  title={cfg.title}
-                  displayMode="metric-only"
-                  className="w-full h-full"
-                  metricValue={s?.current ?? 0}
-                  metricLabel={cfg.metricLabel ?? ""}
-                  metricChange={formatPercentChange(s)}
-                />
-              );
-            })}
+                return (
+                  <SmallCard
+                    key={id}
+                    title={cfg.title}
+                    displayMode="metric-only"
+                    className="w-full h-full"
+                    metricValue={s?.current ?? 0}
+                    metricLabel={cfg.metricLabel ?? ""}
+                    metricChange={formatPercentChange(s)}
+                  />
+                );
+              },
+            )}
           </div>
 
           {/* Pie chart */}

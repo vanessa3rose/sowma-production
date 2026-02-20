@@ -102,13 +102,15 @@ const App = () => {
               component={() => <ProtectedRoute component={InstagramPage} />}
             />
             <Route
-              path="/social/constantcontact"
-              component={() => <ProtectedRoute component={ConstantContactPage} />}
-            />
-            <Route
               path="/social/google-analytics"
               component={() => (
                 <ProtectedRoute component={GoogleAnalyticsPage} />
+              )}
+            />
+            <Route
+              path="/social/constant-contact"
+              component={() => (
+                <ProtectedRoute component={ConstantContactPage} />
               )}
             />
             <Route
