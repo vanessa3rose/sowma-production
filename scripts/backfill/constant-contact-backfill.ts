@@ -11,7 +11,6 @@ import {
   formatISODate,
   metricsExistForDay,
 } from "../../src/utils/dates";
-import { ensureConstantContactAccessToken } from "./../token-refresh";
 
 /* -------------------------------------------------
    Prisma Client
@@ -194,17 +193,6 @@ async function backfillConstantContact() {
   let refreshToken = account.SocialMediaAuth?.refreshToken ?? null;
   let expiresAt = account.SocialMediaAuth?.expiresAt ?? null;
 
-  const refreshed = await ensureConstantContactAccessToken({
-    socialMediaId: account.id,
-    auth: account.SocialMediaAuth,
-    fallbackRefreshToken: null,
-    forceRefresh: true,
-  });
-  authId = refreshed.authId;
-  accessToken = refreshed.accessToken;
-  refreshToken = refreshed.refreshToken;
-  expiresAt = refreshed.expiresAt;
-
   if (!accessToken) {
     throw new Error("[CC] No access token available after refresh.");
   }
@@ -265,24 +253,11 @@ async function backfillConstantContact() {
       );
     } catch (err: any) {
       if (err?.message?.includes("401")) {
-        console.warn(`  ${dateStr} -- 401, refreshing token and retrying...`);
-        const retry = await ensureConstantContactAccessToken({
-          socialMediaId: account.id,
-          auth: {
-            id: authId ?? undefined,
-            accessToken,
-            refreshToken,
-            expiresAt,
-            lastRefreshed: new Date(),
-          },
-          fallbackRefreshToken: null,
-          forceRefresh: true,
-        });
-        authId = retry.authId;
-        accessToken = retry.accessToken;
-        refreshToken = retry.refreshToken;
-        expiresAt = retry.expiresAt;
-        continue; // retry same day
+        console.warn(
+          `  ${dateStr} -- 401 Unauthorized. Access token may be expired. Skipping this day.`,
+        );
+        current.setUTCDate(current.getUTCDate() + 1);
+        continue;
       }
       console.error(`  ${dateStr} -- failed:`, err);
     }
