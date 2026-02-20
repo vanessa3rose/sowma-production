@@ -116,7 +116,7 @@ async function fetchCampaignsSentOn(
       }
     }
 
-    // Results are sorted desc by last_sent_date -- stop if we've gone past target
+    // Results are sorted desc by last_sent_date — stop if we've gone past target
     const last = data.bulk_email_campaign_summaries.at(-1);
     if (last && new Date(last.last_sent_date) < startOfDay(targetDate)) {
       break;
