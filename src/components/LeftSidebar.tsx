@@ -20,13 +20,12 @@ const socialLinks = [
   { slug: "tiktok", label: "TikTok", icon: tiktok },
   { slug: "linkedin", label: "LinkedIn", icon: linkedin },
   { slug: "twitter", label: "Twitter/X", icon: twitter },
-  { slug: "newsletter", label: "Newsletter", icon: newsletter },
+  { slug: "constantcontact", label: "Newsletter", icon: newsletter },
 ];
 
 const exceptionRoutes: Record<string, string> = {
   linkedin: "/error/linkedin",
   tiktok: "/error/tiktok",
-  newsletter: "/newsletter",
 };
 
 const LeftSidebar = ({
