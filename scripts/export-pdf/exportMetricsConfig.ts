@@ -1,4 +1,4 @@
-import { PLATFORM_LABELS, type Platform } from "../../config/chartConfigs";
+import { PLATFORM_LABELS, type Platform } from "../../src/config/chartConfigs";
 
 export type ExportMetricFormat = "number" | "percent" | "decimal" | "seconds";
 

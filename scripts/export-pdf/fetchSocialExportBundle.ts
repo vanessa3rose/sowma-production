@@ -1,7 +1,10 @@
-import type { SocialExportBundle } from "../../types/exportTypes";
-import { type Platform } from "../../config/chartConfigs";
-import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
-import { computeRangeDates, type DateRangeId } from "../charts/DateDropdown";
+import type { SocialExportBundle } from "../../src/types/exportTypes";
+import { type Platform } from "../../src/config/chartConfigs";
+import { fetchMetrics, SocialMediaMetric } from "../../src/utils/fetchMetrics";
+import {
+  computeRangeDates,
+  type DateRangeId,
+} from "../../src/components/charts/DateDropdown";
 import { EXPORT_PLATFORM_CONFIGS } from "./exportMetricsConfig";
 
 type SocialPlatform = Exclude<Platform, "google">;

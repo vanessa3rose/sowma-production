@@ -5,7 +5,7 @@ import LineCharts from "../charts/LineCharts";
 import {
   EXPORT_PLATFORM_CONFIGS,
   type ExportMetricFormat,
-} from "./exportMetricsConfig";
+} from "../../../scripts/export-pdf/exportMetricsConfig.js";
 import type { Platform } from "../../config/chartConfigs";
 
 export type ExportReportViewProps = {
@@ -70,7 +70,7 @@ function MetricRow({
   items: { label: string; value: string; delta: string }[];
 }) {
   return (
-    <div className="flex flex-wrap gap-4">
+    <div className="grid grid-cols-5 gap-4 w-full">
       {items.map((item) => (
         <div
           key={item.label}
@@ -81,7 +81,6 @@ function MetricRow({
             borderRight: "2px solid #D1D5DB",
             borderRadius: "12px",
             padding: "20px",
-            minWidth: "170px",
             fontFamily: "Poppins, sans-serif",
           }}
         >
@@ -129,6 +128,7 @@ function ChartBlock({
   const hasData = Array.isArray(data) && data.length > 0;
   return (
     <div
+      className="flex flex-col h-[200px]"
       style={{
         backgroundColor: "#ffffff",
         border: "1px solid #E5E5E5",
@@ -142,20 +142,20 @@ function ChartBlock({
       <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
         {title}
       </div>
-      <div style={{ height: "200px", width: "100%", marginTop: "8px" }}>
-        {hasData ? (
+      {hasData ? (
+        <div className="flex w-full h-[200px]">
           <LineCharts
             data={data}
             xAxisKey="date"
             dataKeys={dataKeys}
             showArea
           />
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-gray-500">
-            No data in range
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="flex h-full items-center justify-center text-sm text-gray-500">
+          No data in range
+        </div>
+      )}
     </div>
   );
 }
