@@ -1,7 +1,8 @@
+import { getAuthBySocialMediaId } from "../../db/social-media-auth";
 import fetch from "node-fetch";
 import "dotenv/config";
-import { PrismaClient, Metric } from "../src/generated/prisma/index.js";
-import { startOfDay, formatISODate } from "../src/utils/dates";
+import { PrismaClient, Metric } from "../../src/generated/prisma/index.js";
+import { startOfDay, formatISODate } from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma setup (serverless-friendly)
@@ -13,7 +14,6 @@ if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
    Constants
 -------------------------------------------------- */
 const INSTAGRAM_USER_ID = process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
-const ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!;
 
 type MediaItem = {
   id: string;
@@ -36,11 +36,11 @@ type IGApiResponse = {
 /* -------------------------------------------------
    Fetch ALL Instagram media with pagination
 -------------------------------------------------- */
-async function fetchAllMedia(): Promise<MediaItem[]> {
+async function fetchAllMedia(accessToken: string): Promise<MediaItem[]> {
   let url: string | null =
     `https://graph.facebook.com/v20.0/${INSTAGRAM_USER_ID}/media` +
     `?fields=id,like_count,comments_count,timestamp` +
-    `&limit=50&access_token=${ACCESS_TOKEN}`;
+    `&limit=50&access_token=${accessToken}`;
   const all: MediaItem[] = [];
 
   while (url) {
@@ -86,8 +86,24 @@ export async function backfillInstagram() {
 
   if (!account) throw new Error("No Instagram account found");
 
+  // gets FACEBOOK_PAGE_TOKEN
+  const fbAccount = await prisma.socialMedia.findFirst({
+    where: { provider: "FACEBOOK" },
+  });
+  const fbAuth = fbAccount ? await getAuthBySocialMediaId(fbAccount.id) : null;
+
+  // Instagram can share Facebook Page token (Setup A)
+  if (!fbAuth || !fbAuth.accessToken) {
+    console.error(
+      "[IG] No access token found in DB for this Instagram account",
+    );
+    return;
+  }
+
+  const ACCESS_TOKEN = fbAuth.accessToken;
+
   console.log("[IG] Fetching all media...");
-  const media = await fetchAllMedia();
+  const media = await fetchAllMedia(ACCESS_TOKEN);
   console.log(`[IG] ${media.length} media items fetched`);
 
   const dailyMetrics = buildDailyMetrics(media);
