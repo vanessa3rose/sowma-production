@@ -3,7 +3,6 @@ import nodemailer from "nodemailer";
 
 const prisma = new PrismaClient();
 
-
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -25,7 +24,6 @@ function getSmtpEnv(): SmtpEnv | null {
   const pass = process.env.SMTP_PASS;
   const from = process.env.SMTP_FROM;
 
-  
   const secure = String(process.env.SMTP_SECURE || "").toLowerCase() === "true";
 
   if (!host || !portRaw || !user || !pass || !from) return null;
@@ -42,16 +40,21 @@ async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
   const smtp = getSmtpEnv();
   if (!smtp) {
     console.error(
-      "[waitlist-email] Missing/invalid SMTP env vars. Expected SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM (optional SMTP_SECURE)."
+      "[waitlist-email] Missing/invalid SMTP env vars. Expected SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM (optional SMTP_SECURE).",
     );
     return;
   }
 
-  console.log("[waitlist-email] SMTP env vars detected. host:", smtp.host, "port:", smtp.port);
+  console.log(
+    "[waitlist-email] SMTP env vars detected. host:",
+    smtp.host,
+    "port:",
+    smtp.port,
+  );
 
   console.log("[waitlist-email] querying admins...");
   const admins = await prisma.user.findMany({
-    where: { role: "ADMIN" }, 
+    where: { role: "ADMIN" },
     select: { email: true },
   });
   console.log("[waitlist-email] admins fetched:", admins);
@@ -65,12 +68,15 @@ async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
     return;
   }
 
-  console.log(`[waitlist-email] Sending email to ${recipients.length} admin(s):`, recipients);
+  console.log(
+    `[waitlist-email] Sending email to ${recipients.length} admin(s):`,
+    recipients,
+  );
 
   const transporter = nodemailer.createTransport({
     host: smtp.host,
     port: smtp.port,
-    secure: smtp.secure, 
+    secure: smtp.secure,
     auth: {
       user: smtp.user,
       pass: smtp.pass,
@@ -97,9 +103,11 @@ async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
     text,
   });
 
-  console.log("[waitlist-email] Email successfully sent. messageId:", info.messageId);
+  console.log(
+    "[waitlist-email] Email successfully sent. messageId:",
+    info.messageId,
+  );
 }
-
 
 export default async function handler(req: any, res: any) {
   try {
@@ -115,21 +123,21 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: "Invalid email format" });
     }
 
-    
     const existingUser = await prisma.user.findUnique({
       where: { email },
       select: { email: true },
     });
 
     if (existingUser) {
-      return res.status(409).json({ error: "A user with this email already exists" });
+      return res
+        .status(409)
+        .json({ error: "A user with this email already exists" });
     }
 
-    
     const newUser = await prisma.user.create({
       data: {
         email,
-        role: "VIEWER", 
+        role: "VIEWER",
         isWaitlisted: true,
         firstName: "",
         lastName: "",
@@ -143,9 +151,11 @@ export default async function handler(req: any, res: any) {
       },
     });
 
-    console.log("[waitlist] created user, preparing to notify admins for:", newUser.email);
+    console.log(
+      "[waitlist] created user, preparing to notify admins for:",
+      newUser.email,
+    );
 
-    
     try {
       await sendWaitlistAdminEmail(newUser.email);
     } catch (err) {
