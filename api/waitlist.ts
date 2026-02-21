@@ -1,41 +1,135 @@
 import { PrismaClient } from "../src/generated/prisma/index.js";
+import nodemailer from "nodemailer";
+
 const prisma = new PrismaClient();
 
-// POST /api/waitlist
+
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+type SmtpEnv = {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+  from: string;
+  secure: boolean;
+};
+
+function getSmtpEnv(): SmtpEnv | null {
+  const host = process.env.SMTP_HOST;
+  const portRaw = process.env.SMTP_PORT;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const from = process.env.SMTP_FROM;
+
+  
+  const secure = String(process.env.SMTP_SECURE || "").toLowerCase() === "true";
+
+  if (!host || !portRaw || !user || !pass || !from) return null;
+
+  const port = Number(portRaw);
+  if (!Number.isFinite(port) || port <= 0) return null;
+
+  return { host, port, user, pass, from, secure };
+}
+
+async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
+  console.log("[waitlist-email] called for:", newUserEmail);
+
+  const smtp = getSmtpEnv();
+  if (!smtp) {
+    console.error(
+      "[waitlist-email] Missing/invalid SMTP env vars. Expected SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM (optional SMTP_SECURE)."
+    );
+    return;
+  }
+
+  console.log("[waitlist-email] SMTP env vars detected. host:", smtp.host, "port:", smtp.port);
+
+  console.log("[waitlist-email] querying admins...");
+  const admins = await prisma.user.findMany({
+    where: { role: "ADMIN" }, 
+    select: { email: true },
+  });
+  console.log("[waitlist-email] admins fetched:", admins);
+
+  const recipients = admins
+    .map((a) => a.email)
+    .filter((e): e is string => typeof e === "string" && e.length > 0);
+
+  if (recipients.length === 0) {
+    console.warn("[waitlist-email] No admin recipients found (role=ADMIN).");
+    return;
+  }
+
+  console.log(`[waitlist-email] Sending email to ${recipients.length} admin(s):`, recipients);
+
+  const transporter = nodemailer.createTransport({
+    host: smtp.host,
+    port: smtp.port,
+    secure: smtp.secure, 
+    auth: {
+      user: smtp.user,
+      pass: smtp.pass,
+    },
+  });
+
+  const dashboardUrl =
+    process.env.ADMIN_DASHBOARD_URL || "[ADMIN DASHBOARD PLACEHOLDER URL]";
+
+  const subject = `New waitlist signup: ${newUserEmail}`;
+  const text = [
+    "A new user has joined the waitlist.",
+    "",
+    `Email: ${newUserEmail}`,
+    "",
+    `Review: ${dashboardUrl}`,
+  ].join("\n");
+
+  console.log("[waitlist-email] sending via nodemailer...");
+  const info = await transporter.sendMail({
+    from: smtp.from,
+    to: recipients,
+    subject,
+    text,
+  });
+
+  console.log("[waitlist-email] Email successfully sent. messageId:", info.messageId);
+}
+
+
 export default async function handler(req: any, res: any) {
   try {
+    console.log("[waitlist] HIT", req.method, req.body);
+
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({
-        error: "Email is required",
-      });
+      return res.status(400).json({ error: "Email is required" });
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        error: "Invalid email format",
-      });
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
     }
 
-    // Check if user already exists with this email (waitlisted or not)
+    
     const existingUser = await prisma.user.findUnique({
       where: { email },
+      select: { email: true },
     });
 
     if (existingUser) {
-      return res.status(409).json({
-        error: "A user with this email already exists",
-      });
+      return res.status(409).json({ error: "A user with this email already exists" });
     }
 
-    // Create new waitlisted user with empty fields
+    
     const newUser = await prisma.user.create({
       data: {
-        email: email,
-        role: "VIEWER",
+        email,
+        role: "VIEWER", 
         isWaitlisted: true,
         firstName: "",
         lastName: "",
@@ -43,19 +137,27 @@ export default async function handler(req: any, res: any) {
         password: "",
         phone: "",
       },
+      select: {
+        email: true,
+        role: true,
+      },
     });
+
+    console.log("[waitlist] created user, preparing to notify admins for:", newUser.email);
+
+    
+    try {
+      await sendWaitlistAdminEmail(newUser.email);
+    } catch (err) {
+      console.error("[waitlist-email] Failed to send admin email:", err);
+    }
 
     return res.status(201).json({
       message: "Successfully added to waitlist",
-      user: {
-        email: newUser.email,
-        role: newUser.role,
-      },
+      user: newUser,
     });
   } catch (error) {
     console.error("Error creating waitlist user:", error);
-    return res.status(500).json({
-      error: "Failed to add user to waitlist",
-    });
+    return res.status(500).json({ error: "Failed to add user to waitlist" });
   }
 }
