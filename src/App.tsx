@@ -96,8 +96,10 @@ const App = () => {
               component={() => <ProtectedRoute component={InstagramPage} />}
             />
             <Route
-              path="/google-analytics"
-              component={() => <ProtectedRoute component={GoogleAnalyticsPage} />}
+              path="/social/google-analytics"
+              component={() => (
+                <ProtectedRoute component={GoogleAnalyticsPage} />
+              )}
             />
             <Route
               path="/newsletter"
