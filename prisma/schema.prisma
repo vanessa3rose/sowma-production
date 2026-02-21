@@ -38,7 +38,7 @@ model SocialMediaAuth {
   accessToken   String
   refreshToken  String?
   expiresAt     DateTime?
-  refreshTokenExpiresAt DateTime? 
+  refreshTokenExpiresAt DateTime?
   lastRefreshed DateTime?
   socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])
 }
