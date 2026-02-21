@@ -320,6 +320,7 @@ async function refreshConstantContact(rec: AuthRow) {
     accessToken: j.access_token ?? rec.accessToken,
     refreshToken: j.refresh_token ?? rec.refreshToken,
     expiresAt: j.expires_in ? new Date(Date.now() + j.expires_in * 1000) : null,
+    refreshTokenExpiresAt,
   };
 }
 
