@@ -1,4 +1,4 @@
-import { getAuthBySocialMediaId } from "../../db/social-media-auth";
+import { getAuthBySocialMediaId } from "../../db/social-media-auth.js";
 import {
   PrismaClient,
   Metric,

@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 import {
   getSocialMediaAuth,
   updateSocialMediaAuth,
-} from "../../db/social-media-auth";
+} from "../../db/social-media-auth.js";
 
 /**
  * Meta (Facebook Page Token) validation script — Setup A

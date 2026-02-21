@@ -1,5 +1,5 @@
 import refreshAllTokens from "../../scripts/token-refresh.js";
-import { getSocialMediaAuth } from "../social-media-auth";
+import { getSocialMediaAuth } from "../social-media-auth.js";
 import fetch from "node-fetch";
 
 async function runRefreshTest() {

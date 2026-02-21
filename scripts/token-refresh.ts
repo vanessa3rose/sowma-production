@@ -3,7 +3,7 @@ import {
   createSocialMediaAuth,
   getSocialMediaAuth,
   updateSocialMediaAuth,
-} from "../db/social-media-auth";
+} from "../db/social-media-auth.js";
 
 /* -------------------------------------------------
    Supported social media providers

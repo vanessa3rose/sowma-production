@@ -1,4 +1,4 @@
-import { getAuthBySocialMediaId } from "../../db/social-media-auth";
+import { getAuthBySocialMediaId } from "../../db/social-media-auth.js";
 import fetch from "node-fetch";
 import "dotenv/config";
 import { PrismaClient, Metric } from "../../src/generated/prisma/index.js";
