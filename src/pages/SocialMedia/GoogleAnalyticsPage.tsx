@@ -1,5 +1,3 @@
-//drop down menu for home page
-
 import { useEffect, useState } from "react";
 
 // Cards
@@ -343,6 +341,7 @@ export default function GoogleAnalyticsPage() {
         <div className="flex flex-col gap-4 lg:w-3/5 w-full">
           <BigCard
             title="Active Users"
+            titleTooltip="Active means 10+ seconds on the site or viewed 2+ pages"
             subtitle={
               <DateDropdown
                 value={activeUsersRange}
@@ -368,6 +367,7 @@ export default function GoogleAnalyticsPage() {
 
           <BigCard
             title="Engagement Rate"
+            titleTooltip="Percent of visitors to the page that stayed for 10+ seconds"
             subtitle={
               <DateDropdown
                 value={engagementRange}
@@ -396,6 +396,7 @@ export default function GoogleAnalyticsPage() {
         <div className="flex flex-col gap-4 lg:w-2/5 w-full">
           <BigCard
             title="New vs Returning Users"
+            titleTooltip="New users have not visited the site in at least a month"
             chart={
               <PieCharts
                 data={returningVsNew}
@@ -409,6 +410,7 @@ export default function GoogleAnalyticsPage() {
 
           <SmallCard
             title="Page Views"
+            titleTooltip="Number of times any page on the website was viewed"
             displayMode="metric-only"
             className="w-full h-full"
             metricValue={dMetrics.screenPageViews}
@@ -417,6 +419,7 @@ export default function GoogleAnalyticsPage() {
           />
           <SmallCard
             title="Active 7-Day Users"
+            titleTooltip="Number of unique, engaged users who visited the website in the last 7 days"
             displayMode="metric-only"
             className="w-full h-full"
             metricValue={dMetrics.active7DayUsers}
