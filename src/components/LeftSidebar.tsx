@@ -52,25 +52,9 @@ const LeftSidebar = ({
   const isGlossaryActive = location === "/glossary";
   const isAdminActive = location === "/admin";
 
-  // Only change needed for this branch: show Admin button for ADMIN users
-  // Role must be fetched via backend (/api/users), not from Clerk metadata on the frontend.
+  // show Admin button for ADMIN users
+
   useEffect(() => {
-    let cancelled = false;
-
-    async function fetchRoleByEmail(email: string) {
-      try {
-        const resp = await fetch(
-          `/api/users?email=${encodeURIComponent(email)}`,
-        );
-        const json = await resp.json();
-        const fetchedRole =
-          (json?.data?.[0]?.role as Role | undefined) ?? "VIEWER";
-        if (!cancelled) setRole(fetchedRole);
-      } catch {
-        if (!cancelled) setRole("VIEWER");
-      }
-    }
-
     if (!isLoaded) return;
 
     if (!isSignedIn) {
@@ -78,18 +62,11 @@ const LeftSidebar = ({
       return;
     }
 
-    const email = user?.primaryEmailAddress?.emailAddress;
-    if (!email) {
-      setRole("VIEWER");
-      return;
-    }
+    const clerkRole = user?.publicMetadata?.role as Role | undefined;
 
-    fetchRoleByEmail(email);
-
-    return () => {
-      cancelled = true;
-    };
-  }, [user, isLoaded, isSignedIn]);
+    // Fail closed
+    setRole(clerkRole ?? "VIEWER");
+  }, [isLoaded, isSignedIn, user]);
 
   const sidebarClasses = mobile
     ? `fixed top-0 left-0 h-full w-64 bg-white shadow-2xl z-50 overflow-y-scroll no-scrollbar
