@@ -325,7 +325,7 @@ export default function InstagramPage() {
                   metricChange={formatPercentChange(summary)}
                   chart={
                     filtered.length ? (
-                      <div className="w-full h-64">
+                      <div className="w-full h-full">
                         <LineCharts
                           data={filtered}
                           xAxisKey="date"
