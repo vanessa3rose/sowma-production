@@ -6,9 +6,8 @@ import {
 } from "../../types/exportTypes";
 import type { DateRangeId } from "../charts/DateDropdown";
 
-import { fetchGoogleExportBundle } from "./fetchExportData";
-// ⭐ NEW: social export is now fetched independently
-import { fetchSocialExportBundle } from "./fetchSocialExportBundle";
+import { fetchGoogleExportBundle } from "../../../scripts/export-pdf/fetchExportData.js";
+import { fetchSocialExportBundle } from "../../../scripts/export-pdf/fetchSocialExportBundle.js";
 
 import { Platform } from "../../config/chartConfigs";
 import { usePDFExporter } from "../../hooks/usePDFExporter";
