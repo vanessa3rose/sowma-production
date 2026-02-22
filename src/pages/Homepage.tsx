@@ -279,7 +279,7 @@ export default function Homepage() {
           titleTooltip="Number of users who see your website"
           subtitle=""
           dropdown={
-            <div className="flex items-center gap-2">
+            <div className="flex h-full items-center gap-2">
               <ProviderSelect
                 value={impressionsProvider}
                 onChange={setImpressionsProvider}
@@ -294,7 +294,7 @@ export default function Homepage() {
           }
           chart={
             impressionsFiltered.length > 0 ? (
-              <div className="w-full h-64">
+              <div className="w-full h-full">
                 <LineCharts
                   data={impressionsFiltered}
                   xAxisKey="date"
@@ -304,13 +304,13 @@ export default function Homepage() {
                 />
               </div>
             ) : (
-              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">
                 No impressions data available.
               </div>
             )
           }
           displayMode="both"
-          className="flex-1 w-full"
+          className="flex-1 w-full max-h-[320px]"
         />
 
         <BigCard
@@ -333,7 +333,7 @@ export default function Homepage() {
           }
           chart={
             daysPostedFiltered.length > 0 ? (
-              <div className="w-full h-64">
+              <div className="w-full h-full">
                 <LineCharts
                   data={daysPostedFiltered}
                   xAxisKey="date"
@@ -343,13 +343,13 @@ export default function Homepage() {
                 />
               </div>
             ) : (
-              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">
                 No days posted data available.
               </div>
             )
           }
           displayMode="both"
-          className="flex-1 w-full"
+          className="flex-1 w-full max-h-[320px]"
         />
 
         <BigCard
@@ -368,7 +368,7 @@ export default function Homepage() {
           }
           chart={
             sessionsFiltered.length > 0 ? (
-              <div className="w-full h-64">
+              <div className="w-full h-full">
                 <LineCharts
                   data={sessionsFiltered}
                   xAxisKey="date"
@@ -378,13 +378,13 @@ export default function Homepage() {
                 />
               </div>
             ) : (
-              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">
                 No website sessions data available.
               </div>
             )
           }
           displayMode="both"
-          className="flex-1 w-full"
+          className="flex-1 w-full max-h-[320px]"
         />
       </div>
 
@@ -409,7 +409,7 @@ export default function Homepage() {
           }
           chart={
             followersFiltered.length > 0 ? (
-              <div className="w-full h-64">
+              <div className="w-full h-full">
                 <LineCharts
                   data={followersFiltered}
                   xAxisKey="date"
@@ -419,25 +419,25 @@ export default function Homepage() {
                 />
               </div>
             ) : (
-              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">
                 No follower count data available.
               </div>
             )
           }
           displayMode="both"
-          className="flex-1 w-full"
+          className="flex-1 w-full max-h-[320px]"
         />
 
         <BigCard
           title="How did you hear about us?"
           subtitle=""
           chart={
-            <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+            <div className="w-full flex items-center justify-center text-sm text-gray-500">
               No data available.
             </div>
           }
           displayMode="both"
-          className="flex-1 w-full"
+          className="flex-1 w-full max-h-[320px]"
         />
       </div>
     </div>

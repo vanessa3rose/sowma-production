@@ -342,7 +342,7 @@ export default function InstagramPage() {
                         />
                       </div>
                     ) : (
-                      <div className="h-64 flex items-center justify-center text-gray-500">
+                      <div className="flex items-center justify-center text-gray-500">
                         No data available
                       </div>
                     )
