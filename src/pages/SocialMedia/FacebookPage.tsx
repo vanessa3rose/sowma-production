@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-
+import {
+  CalendarHeatmap,
+  HeatmapLegend,
+} from "../../components/charts/CalendarHeatmap";
 import BigCard from "../../components/cards/BigCard";
 import SmallCard from "../../components/cards/SmallCard";
 import LineCharts from "../../components/charts/LineCharts";
@@ -18,16 +21,8 @@ type MetricKey =
   | "posts"
   | "shares";
 
-type LinePoint = {
-  date: string;
-  value: number;
-};
-
-type MetricSummary = {
-  current: number | null;
-  prev: number | null;
-};
-
+type LinePoint = { date: string; value: number };
+type MetricSummary = { current: number | null; prev: number | null };
 type MetricConfig = {
   id: MetricKey;
   metric: string;
@@ -61,7 +56,6 @@ const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
   posts: [],
   shares: [],
 };
-
 const INITIAL_RANGES: Record<MetricKey, DateRangeId> = {
   followers: "30d",
   likes: "30d",
@@ -69,6 +63,14 @@ const INITIAL_RANGES: Record<MetricKey, DateRangeId> = {
   comments: "30d",
   posts: "30d",
   shares: "30d",
+};
+const METRIC_DESCRIPTIONS: Record<MetricKey, string> = {
+  followers: "Cumulative count",
+  likes: "Cumulative count",
+  views: "Cumulative count",
+  comments: "Cumulative count",
+  posts: "Green squares indicate days with posts",
+  shares: "Cumulative count",
 };
 
 function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
@@ -104,9 +106,8 @@ function formatPercentChange(summary?: MetricSummary | null): string {
     summary.current == null ||
     summary.prev == null ||
     summary.prev === 0
-  ) {
+  )
     return "+ 0%";
-  }
   const pct = ((summary.current - summary.prev) / summary.prev) * 100;
   return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
 }
@@ -133,48 +134,14 @@ function filterByRange(pts: LinePoint[], range: DateRangeId) {
   return pts.filter((p) => p.date >= startStr && p.date <= endStr);
 }
 
-function buildPostingActivity(points: LinePoint[]) {
-  if (points.length < 2) return new Map<string, number>();
+function buildPostingActivity(points: LinePoint[]): Map<string, number> {
+  if (points.length < 2) return new Map();
   const activity = new Map<string, number>();
-  for (let i = 1; i < points.length; i += 1) {
+  for (let i = 1; i < points.length; i++) {
     const delta = points[i].value - points[i - 1].value;
     activity.set(points[i].date, Math.max(0, delta));
   }
   return activity;
-}
-
-function buildHeatmapRows(points: LinePoint[], cells = 55) {
-  const activity = buildPostingActivity(points);
-  if (!activity.size) return [];
-
-  const sortedDates = Array.from(activity.keys()).sort((a, b) =>
-    a.localeCompare(b),
-  );
-  const end = new Date(sortedDates[sortedDates.length - 1]);
-  const values: number[] = [];
-
-  for (let i = cells - 1; i >= 0; i -= 1) {
-    const d = new Date(end);
-    d.setDate(end.getDate() - i);
-    const key = d.toISOString().slice(0, 10);
-    values.push(activity.get(key) ?? 0);
-  }
-
-  const nonZero = values.filter((v) => v > 0).sort((a, b) => a - b);
-  const q1 = nonZero[Math.floor(nonZero.length * 0.33)] ?? 0;
-  const q2 = nonZero[Math.floor(nonZero.length * 0.66)] ?? 0;
-
-  const levels = values.map((v) => {
-    if (v <= 0) return 0;
-    if (v <= q1) return 1;
-    if (v <= q2) return 2;
-    return 3;
-  });
-
-  const rows: number[][] = [];
-  for (let i = 0; i < levels.length; i += 11)
-    rows.push(levels.slice(i, i + 11));
-  return rows;
 }
 
 function buildRecentPosts(points: LinePoint[], count = 6) {
@@ -186,13 +153,7 @@ function buildRecentPosts(points: LinePoint[], count = 6) {
     .map(([date, value]) => ({ date, value }));
 }
 
-function heatColor(level: number) {
-  if (level <= 0) return "#CFF3FF";
-  if (level === 1) return "#8A54FF";
-  if (level === 2) return "#6E38F5";
-  return "#F083FF";
-}
-
+// ── Page ────────────────────────────────────────────────────────────────────
 export default function FacebookPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
   const [rawSeries, setRawSeries] =
@@ -213,7 +174,6 @@ export default function FacebookPage() {
             }).then((rows) => ({ id: cfg.id, rows })),
           ),
         );
-
         const next = { ...INITIAL_SERIES };
         results.forEach(({ id, rows }) => {
           next[id] = toLinePoints(rows);
@@ -223,7 +183,6 @@ export default function FacebookPage() {
         console.error("Error loading Facebook metrics:", err);
       }
     }
-
     loadFacebook();
   }, []);
 
@@ -236,7 +195,6 @@ export default function FacebookPage() {
         bounds: { min: Date | null; max: Date | null };
       }
     >;
-
     METRICS.forEach((cfg) => {
       const full = rawSeries[cfg.id] ?? [];
       const filtered = filterByRange(full, ranges[cfg.id] ?? "30d");
@@ -260,7 +218,8 @@ export default function FacebookPage() {
     { title: "Likes", key: "likes" as MetricKey, label: "from last year" },
   ];
 
-  const daysPostedRows = buildHeatmapRows(computed.posts?.filtered ?? []);
+  // Use ALL posts data (not range-filtered) for the calendar so past months work
+  const allPostsPoints = rawSeries.posts ?? [];
   const recentPosts = buildRecentPosts(computed.posts?.filtered ?? []);
 
   return (
@@ -313,6 +272,7 @@ export default function FacebookPage() {
                 <SmallCard
                   key={`${card.title}-${idx}`}
                   title={card.title}
+                  titleTooltip={METRIC_DESCRIPTIONS[card.key]}
                   subtitle="Total"
                   displayMode="metric-only"
                   className="w-full min-h-[172px]"
@@ -326,6 +286,7 @@ export default function FacebookPage() {
 
           <BigCard
             title="Followers"
+            titleTooltip={METRIC_DESCRIPTIONS.followers}
             subtitle={
               <DateDropdown
                 value={ranges.followers}
@@ -361,6 +322,7 @@ export default function FacebookPage() {
         <div className="flex flex-col gap-4">
           <BigCard
             title="Views"
+            titleTooltip={METRIC_DESCRIPTIONS.views}
             subtitle={
               <DateDropdown
                 value={ranges.views}
@@ -392,34 +354,25 @@ export default function FacebookPage() {
 
           <BigCard
             title="Days Posted"
+            titleTooltip={METRIC_DESCRIPTIONS.posts}
+            subtitle={<HeatmapLegend />}
             chart={
-              daysPostedRows.length ? (
-                <div className="w-full flex flex-col gap-2 pt-2">
-                  {daysPostedRows.map((row, rowIndex) => (
-                    <div key={rowIndex} className="grid grid-cols-11 gap-2">
-                      {row.map((level, colIndex) => (
-                        <div
-                          key={`${rowIndex}-${colIndex}`}
-                          className="h-5 w-5 rounded-[2px]"
-                          style={{ backgroundColor: heatColor(level) }}
-                        />
-                      ))}
-                    </div>
-                  ))}
-                </div>
+              allPostsPoints.length ? (
+                <CalendarHeatmap points={allPostsPoints} />
               ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
+                <div className="flex items-center justify-center text-gray-500">
                   No post activity data
                 </div>
               )
             }
             displayMode="chart-only"
-            className="h-[310px]"
+            className="lmd:h-[500px] g:h-[400px] xl:h-[360px]"
           />
         </div>
 
         <BigCard
           title="Recent Posts"
+          titleTooltip="Displays the date and quantity of most recent posts"
           chart={
             recentPosts.length ? (
               <div className="w-full flex flex-col gap-2 pt-2">
@@ -442,7 +395,7 @@ export default function FacebookPage() {
             )
           }
           displayMode="chart-only"
-          className="h-[674px]"
+          className="xl:h-[736px]"
         />
       </div>
     </div>

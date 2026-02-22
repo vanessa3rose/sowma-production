@@ -45,6 +45,7 @@ export async function updateSocialMediaAuth(
     accessToken: string;
     refreshToken: string | null;
     expiresAt: Date | null;
+    refreshTokenExpiresAt: Date | null;
     lastRefreshed: Date | null;
   }>,
 ) {

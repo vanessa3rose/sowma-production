@@ -1,4 +1,4 @@
-import { PLATFORM_LABELS, type Platform } from "../../config/chartConfigs";
+import { PLATFORM_LABELS, type Platform } from "../../src/config/chartConfigs";
 
 export type ExportMetricFormat = "number" | "percent" | "decimal" | "seconds";
 
@@ -56,6 +56,14 @@ const TWITTER_METRICS: ExportMetricDefinition[] = [
   { id: "POSTS", label: "Posts" },
 ];
 
+const CONSTANT_CONTACT_METRICS: ExportMetricDefinition[] = [
+  { id: "EMAILS_SENT", label: "Emails Sent" },
+  { id: "EMAILS_DELIVERED", label: "Emails Delivered" },
+  { id: "EMAIL_OPENED", label: "Emails Opened" },
+  { id: "EMAILS_CLICKED", label: "Emails Clicked" },
+  { id: "EMAILS_UNSUBSCRIBED", label: "Unsubscribed" },
+];
+
 export const EXPORT_PLATFORM_CONFIGS: Record<Platform, ExportPlatformConfig> = {
   google: {
     platform: "google",
@@ -89,6 +97,16 @@ export const EXPORT_PLATFORM_CONFIGS: Record<Platform, ExportPlatformConfig> = {
     label: PLATFORM_LABELS.twitter,
     metrics: TWITTER_METRICS,
     charts: TWITTER_METRICS.map((metric) => ({
+      metricId: metric.id,
+      title: metric.label,
+    })),
+  },
+
+  constantcontact: {
+    platform: "constantcontact",
+    label: PLATFORM_LABELS.constantcontact,
+    metrics: CONSTANT_CONTACT_METRICS,
+    charts: CONSTANT_CONTACT_METRICS.map((metric) => ({
       metricId: metric.id,
       title: metric.label,
     })),

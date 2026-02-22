@@ -226,6 +226,7 @@ export default function TwitterPage() {
           <div className="flex flex-col gap-4 w-full">
             <BigCard
               title="Tweets"
+              titleTooltip="Cumulative count"
               subtitle={
                 <DateDropdown
                   value={tweetsRange}
@@ -252,6 +253,7 @@ export default function TwitterPage() {
             <div className="flex flex-col gap-4 w-full">
               <BigCard
                 title="Followers"
+                titleTooltip="Cumulative count"
                 subtitle={
                   <DateDropdown
                     value={followersRange}

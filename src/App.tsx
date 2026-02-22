@@ -1,27 +1,37 @@
 import { Route, Switch, useLocation } from "wouter";
+import { useState } from "react";
+import { useUser } from "@clerk/clerk-react";
 
 import LeftSidebar from "./components/LeftSidebar";
 
 import Homepage from "./pages/Homepage";
 import LoginPage from "./pages/LoginPage";
+
 import GoogleAnalyticsPage from "./pages/SocialMedia/GoogleAnalyticsPage";
 import TwitterPage from "./pages/SocialMedia/TwitterPage";
 import FacebookPage from "./pages/SocialMedia/FacebookPage";
 import InstagramPage from "./pages/SocialMedia/InstagramPage";
+
 import AdminPage from "./pages/AdminPage";
+import AdminRejection from "./pages/AdminRejection";
+
 import GlossaryPage from "./pages/Glossary";
-import { useState } from "react";
 import ErrorPage from "./pages/ErrorPage";
 import Newsletter from "./pages/Newsletter";
+
+import { ProtectedRoute } from "./components/routes/ProtectedRoute";
+import { AdminRoute } from "./components/routes/AdminRoute";
 
 import { GlobalPageExportProvider } from "./components/export-pdf/GlobalPageExportProvider";
 
 const App = () => {
+  const { isLoaded, isSignedIn } = useUser();
   const [location] = useLocation();
 
   const currentPath = location.toLowerCase();
-  const hideLayoutRoutes = ["/login"];
-  const hideLayout = hideLayoutRoutes.includes(currentPath);
+  const hideLayoutRoutes = ["/signup", "/login"];
+  const hideLayout =
+    hideLayoutRoutes.includes(currentPath) || !isLoaded || !isSignedIn;
 
   const [isCollapsed, setCollapsed] = useState(false);
   const [isMobile, setisMobile] = useState(false);
@@ -36,7 +46,7 @@ const App = () => {
               <LeftSidebar collapsed={isCollapsed} onCollapse={setCollapsed} />
             </div>
 
-            {/* Mobile sidebar/making it visible only on small screens*/}
+            {/* Mobile sidebar */}
             <div className="md:hidden">
               <LeftSidebar
                 mobile
@@ -47,7 +57,7 @@ const App = () => {
               />
             </div>
 
-            {/* Button to collapse the page */}
+            {/* Mobile toggle button */}
             <button
               className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-200 rounded-lg shadow"
               onClick={() => setisMobile(!isMobile)}
@@ -57,40 +67,86 @@ const App = () => {
           </>
         )}
 
-        {/* Content on page */}
+        {/* Content */}
         <div
-          className={`flex-grow flex flex-col pt-0 px-6 bg-white
-            ${!hideLayout ? (isCollapsed ? "md:ml-20" : "md:ml-64") : ""}
-          `}
+          className={`flex-grow flex flex-col pt-0 px-6 bg-white ${
+            !hideLayout ? (isCollapsed ? "md:ml-20" : "md:ml-64") : ""
+          }`}
         >
           <Switch>
-            <Route path="/" component={Homepage} />
-            <Route path="/social/facebook" component={FacebookPage} />
-            <Route path="/social/twitter" component={TwitterPage} />
-            <Route path="/social/instagram" component={InstagramPage} />
-            <Route path="/login" component={LoginPage} />
+            {/* Protected */}
+            <Route
+              path="/"
+              component={() => <ProtectedRoute component={Homepage} />}
+            />
+            <Route
+              path="/homepage"
+              component={() => <ProtectedRoute component={Homepage} />}
+            />
+            <Route
+              path="/social/facebook"
+              component={() => <ProtectedRoute component={FacebookPage} />}
+            />
+            <Route
+              path="/social/twitter"
+              component={() => <ProtectedRoute component={TwitterPage} />}
+            />
+            <Route
+              path="/social/instagram"
+              component={() => <ProtectedRoute component={InstagramPage} />}
+            />
             <Route
               path="/social/google-analytics"
-              component={GoogleAnalyticsPage}
+              component={() => (
+                <ProtectedRoute component={GoogleAnalyticsPage} />
+              )}
             />
-            <Route path="/admin" component={AdminPage} />
-            <Route path="/glossary" component={GlossaryPage} />
-            <Route path="/error/tiktok" component={ErrorPage} />
-            <Route path="/error/linkedin" component={ErrorPage} />
-            <Route path="/newsletter" component={Newsletter} />
+            <Route
+              path="/newsletter"
+              component={() => <ProtectedRoute component={Newsletter} />}
+            />
+            <Route
+              path="/glossary"
+              component={() => <ProtectedRoute component={GlossaryPage} />}
+            />
+            <Route
+              path="/error/tiktok"
+              component={() => <ProtectedRoute component={ErrorPage} />}
+            />
+            <Route
+              path="/error/linkedin"
+              component={() => <ProtectedRoute component={ErrorPage} />}
+            />
+
+            {/* Admin-only */}
+            <Route
+              path="/admin"
+              component={() => <AdminRoute component={AdminPage} />}
+            />
+
+            {/* Logged-in users only */}
+            <Route
+              path="/admin-rejection"
+              component={() => <ProtectedRoute component={AdminRejection} />}
+            />
+
+            {/* Public */}
+            <Route path="/login" component={LoginPage} />
+
             <Route>
               <p className="p-4 text-black">404: Page Not Found</p>
             </Route>
           </Switch>
         </div>
       </div>
+
       <div
         id="pdf-export-container"
         style={{
           position: "absolute",
           top: "-9999px",
           left: "-9999px",
-          width: "1000px", // fixed logical width for cards
+          width: "1000px",
           pointerEvents: "none",
         }}
       />
