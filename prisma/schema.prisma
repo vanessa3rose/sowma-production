@@ -8,6 +8,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Waitlist {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
 model SocialMedia {
   id              String               @id @default(cuid())
   provider        Provider
@@ -33,14 +39,14 @@ model SocialMediaMetrics {
 }
 
 model SocialMediaAuth {
-  id            String      @id @default(cuid())
-  socialMediaId String      @unique
-  accessToken   String
-  refreshToken  String?
-  expiresAt     DateTime?
-  refreshTokenExpiresAt DateTime? 
-  lastRefreshed DateTime?
-  socialMedia   SocialMedia @relation(fields: [socialMediaId], references: [id])
+  id                    String      @id @default(cuid())
+  socialMediaId         String      @unique
+  accessToken           String
+  refreshToken          String?
+  expiresAt             DateTime?
+  lastRefreshed         DateTime?
+  refreshTokenExpiresAt DateTime?
+  socialMedia           SocialMedia @relation(fields: [socialMediaId], references: [id])
 }
 
 model DatabaseReport {
@@ -57,12 +63,6 @@ model DatabaseReportCount {
   report   DatabaseReport @relation(fields: [reportId], references: [id])
 
   @@unique([reportId, count])
-}
-
-model Waitlist {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
 }
 
 enum Provider {
