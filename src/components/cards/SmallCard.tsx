@@ -1,4 +1,5 @@
 import React from "react";
+import TitleTooltip from "../charts/TitleTooltip";
 
 // Type definitions - consistent with BigCard
 type DisplayMode = "both" | "metric-only";
@@ -12,6 +13,7 @@ interface SmallCardProps {
   metricChange?: string;
   displayMode: DisplayMode;
   className: string;
+  titleTooltip?: string;
 }
 
 // SmallCard Component
@@ -24,6 +26,7 @@ const SmallCard: React.FC<SmallCardProps> = ({
   metricChange,
   displayMode = "metric-only",
   className = "",
+  titleTooltip,
 }) => {
   const shouldShowChart = displayMode === "both";
   const shouldShowMetric =
@@ -43,16 +46,19 @@ const SmallCard: React.FC<SmallCardProps> = ({
     >
       {/* Header with title and subtitle */}
       <div className="flex justify-between items-center mb-3">
-        <h3
-          style={{
-            fontFamily: "Poppins, sans-serif",
-            fontWeight: 500,
-            fontSize: "16px",
-            color: "#000000",
-          }}
-        >
-          {title}
-        </h3>
+        <div className="flex items-center">
+          <h3
+            style={{
+              fontFamily: "Poppins, sans-serif",
+              fontWeight: 500,
+              fontSize: "16px",
+              color: "#000000",
+            }}
+          >
+            {title}
+          </h3>
+          {titleTooltip && <TitleTooltip description={titleTooltip} />}
+        </div>
         {subtitle && (
           <div className="flex items-center gap-1 cursor-pointer">
             <span

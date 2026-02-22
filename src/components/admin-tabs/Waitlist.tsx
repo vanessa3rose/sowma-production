@@ -9,14 +9,14 @@ import { mockUsers } from "./mockUsers.ts";
 
 export default function Waitlist() {
   return (
-    <div className="p-6">
-      <div className="flex w-full gap-4 mb-3 text-xs md:text-lg font-bold">
-        <div className="w-1/2">Email:</div>
-        <div className="w-1/6">Role:</div>
-        <div className="w-1/3"></div>
+    <div className="lg:px-6 px-2 lg:py-6 py-4">
+      <div className="flex items-center text-center font-poppins text-md md:text-2xl font-normal leading-[48px] text-gray-500 border-b border-gray-300 pb-2">
+        <div className="w-1/2">Email</div>
+        <div className="w-1/4 lg:w-1/6">Role</div>
+        <div className="w-1/4 lg:w-1/3" />
       </div>
 
-      <div className="space-y-4">
+      <div className="divide-y divide-gray-300">
         {mockUsers.map(
           (user: {
             id: Key | null | undefined;
@@ -41,20 +41,31 @@ export default function Waitlist() {
           }) => (
             <div
               key={user.id}
-              className="flex w-full mb-3 text-xs md:text-lg items-start text-left"
+              className="flex w-full justify-center text-center items-center font-poppins text-xs md:text-lg leading-[48px] py-3"
             >
-              <div className="w-1/2">{user.email}</div>
-              <div className="w-1/6">{user.role}</div>
+              {/* Email */}
+              <div className="flex w-1/2 lg:flex-row flex-col justify-center items-center leading-4 lg:leading-8 text-gray-800">
+                <div>
+                  {typeof user.email === "string"
+                    ? user.email.split("@")[0]
+                    : ""}
+                </div>
+                <div>{`@${typeof user.email === "string" ? user.email.split("@")[1] : ""}`}</div>
+              </div>
 
-              <div className="w-1/3 flex gap-4 sm:flex-row flex-col">
+              <div className="flex justify-center items-center w-1/4 lg:w-1/6 text-center">
+                {user.role}
+              </div>
+
+              <div className="w-1/4 lg:w-1/3 px-1 lg:px-4 flex gap-2 lg:gap-4 lg:flex-row flex-col">
                 <button
-                  className="rounded-full bg-[#4e8bcc] px-6 py-2 text-white"
+                  className="flex flex-1 justify-center items-center rounded-full bg-[#4e8bcc] text-white py-1 lg:py-2 px-6 lg:px-8 text-sm md:text-base lg:text-lg"
                   onClick={() => console.log(user.email, "Approved")}
                 >
                   Approve
                 </button>
                 <button
-                  className="rounded-full bg-[#ad3a3b] px-6 py-2 text-white"
+                  className="flex flex-1 justify-center items-center rounded-full bg-[#ad3a3b] text-white py-1 lg:py-2 px-6 lg:px-8 text-sm md:text-base lg:text-lg"
                   onClick={() => console.log(user.email, "Denied")}
                 >
                   Deny

@@ -5,13 +5,13 @@ import {
   createSocialMediaMetric,
   updateSocialMediaMetric,
   getMetricsBySocialMediaId,
-} from "../db/social-media-metrics.js";
-import { startOfDay, endOfDay } from "../src/utils/dates.js";
+} from "../../db/social-media-metrics.js";
+import { startOfDay, endOfDay } from "../../src/utils/dates.js";
 import {
   PrismaClient,
   Provider,
   Metric,
-} from "../src/generated/prisma/index.js";
+} from "../../src/generated/prisma/index.js";
 
 console.log("[GA] Script loaded");
 
