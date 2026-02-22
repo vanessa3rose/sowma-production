@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 
 import ExportModal from "./ExportModal";
@@ -13,58 +13,17 @@ interface ExportButtonProps {
 
 export default function ExportButton({ onExport }: ExportButtonProps) {
   const { user, isLoaded, isSignedIn } = useUser();
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [role, setRole] = useState<Role | null>(null);
-  const [roleLoading, setRoleLoading] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  // gets role directly from Clerk
+  const role = (user?.publicMetadata?.role as Role | undefined) ?? "VIEWER";
 
-    async function fetchRoleByEmail(email: string) {
-      setRoleLoading(true);
-      try {
-        const resp = await fetch(
-          `/api/users?email=${encodeURIComponent(email)}`,
-        );
-        const json = await resp.json();
-        const fetchedRole =
-          (json?.data?.[0]?.role as Role | undefined) ?? "VIEWER";
-        if (!cancelled) setRole(fetchedRole);
-      } catch {
-        // Fail closed: if anything goes wrong, hide Export (treat as VIEWER)
-        if (!cancelled) setRole("VIEWER");
-      } finally {
-        if (!cancelled) setRoleLoading(false);
-      }
-    }
-
-    if (!isLoaded) return;
-
-    if (!isSignedIn) {
-      setRole(null);
-      return;
-    }
-
-    const email = user?.primaryEmailAddress?.emailAddress;
-    if (!email) {
-      setRole("VIEWER");
-      return;
-    }
-
-    fetchRoleByEmail(email);
-
-    return () => {
-      cancelled = true;
-    };
-  }, [user, isLoaded, isSignedIn]);
-
-  // If auth/role isn't ready yet, don't show Export (prevents flicker)
-  if (!isLoaded || !isSignedIn || roleLoading || role === null) {
+  // don't render until auth is ready
+  if (!isLoaded || !isSignedIn) {
     return null;
   }
 
-  // VIEWERs cannot export
+  // VIEWER cannot export
   if (role === "VIEWER") {
     return null;
   }
