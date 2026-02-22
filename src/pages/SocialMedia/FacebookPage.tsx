@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-
+import {
+  CalendarHeatmap,
+  HeatmapLegend,
+} from "../../components/charts/CalendarHeatmap";
 import BigCard from "../../components/cards/BigCard";
 import SmallCard from "../../components/cards/SmallCard";
 import LineCharts from "../../components/charts/LineCharts";
@@ -20,14 +23,24 @@ type MetricKey =
 
 type LinePoint = { date: string; value: number };
 type MetricSummary = { current: number | null; prev: number | null };
-type MetricConfig = { id: MetricKey; metric: string; title: string; label: string };
+type MetricConfig = {
+  id: MetricKey;
+  metric: string;
+  title: string;
+  label: string;
+};
 
 const PROVIDER = "FACEBOOK";
 const DEFAULT_START_DATE = "2024-01-01";
 const DEFAULT_END_DATE = "3000-01-01";
 
 const METRICS: MetricConfig[] = [
-  { id: "followers", metric: "FOLLOWERS", title: "Followers", label: "followers" },
+  {
+    id: "followers",
+    metric: "FOLLOWERS",
+    title: "Followers",
+    label: "followers",
+  },
   { id: "likes", metric: "LIKES", title: "Reactions / Likes", label: "likes" },
   { id: "views", metric: "VIEWS", title: "Views", label: "views" },
   { id: "comments", metric: "COMMENTS", title: "Comments", label: "comments" },
@@ -36,10 +49,20 @@ const METRICS: MetricConfig[] = [
 ];
 
 const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
-  followers: [], likes: [], views: [], comments: [], posts: [], shares: [],
+  followers: [],
+  likes: [],
+  views: [],
+  comments: [],
+  posts: [],
+  shares: [],
 };
 const INITIAL_RANGES: Record<MetricKey, DateRangeId> = {
-  followers: "30d", likes: "30d", views: "30d", comments: "30d", posts: "30d", shares: "30d",
+  followers: "30d",
+  likes: "30d",
+  views: "30d",
+  comments: "30d",
+  posts: "30d",
+  shares: "30d",
 };
 const METRIC_DESCRIPTIONS: Record<MetricKey, string> = {
   followers: "Cumulative count",
@@ -55,7 +78,9 @@ function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     .filter((m) => m.metricDate || m.lastSynced)
     .slice()
     .sort((a, b) =>
-      (a.metricDate ?? a.lastSynced)!.localeCompare((b.metricDate ?? b.lastSynced)!),
+      (a.metricDate ?? a.lastSynced)!.localeCompare(
+        (b.metricDate ?? b.lastSynced)!,
+      ),
     );
 }
 
@@ -69,18 +94,31 @@ function toLinePoints(raw: SocialMediaMetric[]): LinePoint[] {
 function summarizeSeries(points: LinePoint[]): MetricSummary {
   if (!points.length) return { current: null, prev: null };
   if (points.length === 1) return { current: points[0].value, prev: null };
-  return { current: points[points.length - 1].value, prev: points[points.length - 2].value };
+  return {
+    current: points[points.length - 1].value,
+    prev: points[points.length - 2].value,
+  };
 }
 
 function formatPercentChange(summary?: MetricSummary | null): string {
-  if (!summary || summary.current == null || summary.prev == null || summary.prev === 0) return "+ 0%";
+  if (
+    !summary ||
+    summary.current == null ||
+    summary.prev == null ||
+    summary.prev === 0
+  )
+    return "+ 0%";
   const pct = ((summary.current - summary.prev) / summary.prev) * 100;
   return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
 }
 
 function getBounds(pts: LinePoint[]) {
-  if (!pts.length) return { min: null as Date | null, max: null as Date | null };
-  const dates = pts.map((p) => p.date).slice().sort();
+  if (!pts.length)
+    return { min: null as Date | null, max: null as Date | null };
+  const dates = pts
+    .map((p) => p.date)
+    .slice()
+    .sort();
   return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
 }
 
@@ -115,163 +153,13 @@ function buildRecentPosts(points: LinePoint[], count = 6) {
     .map(([date, value]) => ({ date, value }));
 }
 
-// GitHub-style green palette
-function heatColor(level: number): { bg: string; text: string } {
-  if (level <= 0) return { bg: "#989b9f", text: "#ffffff" };
-  if (level === 1) return { bg: "#7987ff", text: "#ffffff" };
-  if (level === 2) return { bg: "#6772d7", text: "#ffffff" };
-  return { bg: "#545dae", text: "#ffffff" };
-}
-
-function activityToLevel(value: number, allValues: number[]): number {
-  if (value <= 0) return 0;
-  const nonZero = allValues.filter((v) => v > 0).sort((a, b) => a - b);
-  if (!nonZero.length) return 1;
-  const q1 = nonZero[Math.floor(nonZero.length * 0.33)];
-  const q2 = nonZero[Math.floor(nonZero.length * 0.66)];
-  if (value <= q1) return 1;
-  if (value <= q2) return 2;
-  return 3;
-}
-
-// ── Calendar heatmap component ──────────────────────────────────────────────
-function CalendarHeatmap({ points }: { points: LinePoint[] }) {
-  const today = new Date();
-  const [offset, setOffset] = useState(0); // 0 = current month, -1 = last month, etc.
-
-  const activity = useMemo(() => buildPostingActivity(points), [points]);
-  const allActivityValues = useMemo(() => Array.from(activity.values()), [activity]);
-
-  // Earliest month we have data for
-  const minOffset = useMemo(() => {
-    if (!points.length) return -12;
-    const earliest = points[0].date.slice(0, 7); // "YYYY-MM"
-    const eYear = parseInt(earliest.slice(0, 4));
-    const eMonth = parseInt(earliest.slice(5, 7)) - 1;
-    const monthsDiff = (today.getFullYear() - eYear) * 12 + (today.getMonth() - eMonth);
-    return -monthsDiff;
-  }, [points]);
-
-  const viewYear = new Date(today.getFullYear(), today.getMonth() + offset, 1).getFullYear();
-  const viewMonth = new Date(today.getFullYear(), today.getMonth() + offset, 1).getMonth();
-
-  const firstDay = new Date(viewYear, viewMonth, 1);
-  const lastDay = new Date(viewYear, viewMonth + 1, 0);
-  const totalDays = lastDay.getDate();
-  const monthName = firstDay.toLocaleString("default", { month: "long" });
-
-  const squares = Array.from({ length: totalDays }, (_, i) => {
-    const date = new Date(viewYear, viewMonth, i + 1);
-    const dateStr = date.toISOString().slice(0, 10);
-    const value = activity.get(dateStr) ?? 0;
-    const isFuture = date > today;
-    const level = isFuture ? -1 : activityToLevel(value, allActivityValues);
-    return { day: i + 1, level, isFuture };
-  });
-
-  const padded = Array(firstDay.getDay())
-    .fill({ day: null, level: -2, isFuture: false })
-    .concat(squares);
-
-  const weeks: typeof padded[] = [];
-  for (let i = 0; i < padded.length; i += 7) weeks.push(padded.slice(i, i + 7));
-
-  return (
-      <div className="w-full flex flex-col overflow-y-auto" style={{ gap: "6px" }}>
-      {/* Month nav */}
-      <div className="flex items-center justify-between px-1">
-        <button
-          onClick={() => setOffset((o) => Math.max(minOffset, o - 1))}
-          disabled={offset <= minOffset}
-          className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-3.5 h-3.5 text-gray-500">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-          </svg>
-        </button>
-        <span className="text-xs font-semibold text-gray-700 tracking-wide">
-          {monthName} {viewYear}
-        </span>
-        <button
-          onClick={() => setOffset((o) => Math.min(0, o + 1))}
-          disabled={offset >= 0}
-          className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-3.5 h-3.5 text-gray-500">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-          </svg>
-        </button>
-      </div>
-
-      {/* Day headers */}
-      <div className="grid grid-cols-7" style={{ gap: "3px" }}>
-        {["Su","Mo","Tu","We","Th","Fr","Sa"].map((d) => (
-          <div key={d} className="text-center text-gray-400 font-semibold" style={{ fontSize: "10px" }}>
-            {d}
-          </div>
-        ))}
-      </div>
-
-      {/* Weeks */}
-      {weeks.map((week, wi) => (
-        <div key={wi} className="grid grid-cols-7" style={{ gap: "3px" }}>
-          {week.map((sq, di) => {
-            if (sq.level === -2) {
-              // padding cell
-              return <div key={di} />;
-            }
-            const colors = sq.isFuture
-              ? { bg: "#f0f0f0", text: "#b0b0b0" }
-              : heatColor(sq.level);
-            return (
-              <div
-                key={di}
-                className="rounded flex items-center justify-center font-medium"
-                style={{
-                  aspectRatio: "1",
-                  backgroundColor: colors.bg,
-                  color: colors.text,
-                  fontSize: "11px",
-                  fontWeight: sq.level > 0 ? 700 : 400,
-                  border: sq.level === 0 && !sq.isFuture ? "1px solid #e1e4e8" : "none",
-                }}
-              >
-                {sq.day ?? ""}
-              </div>
-            );
-          })}
-        </div>
-      ))}
-
-    </div>
-  );
-}
-
-function HeatmapLegend() {
-  return (
-    <div className="flex items-center gap-1">
-      <span style={{ fontSize: "9px" }} className="text-gray-400 mr-0.5">Less</span>
-      {[0, 1, 2, 3].map((l) => (
-        <div
-          key={l}
-          className="rounded-sm"
-          style={{
-            width: 11, height: 11,
-            backgroundColor: heatColor(l).bg,
-            border: l === 0 ? "1px solid #e1e4e8" : "none",
-          }}
-        />
-      ))}
-      <span style={{ fontSize: "9px" }} className="text-gray-400 ml-0.5">More</span>
-    </div>
-  );
-}
-
 // ── Page ────────────────────────────────────────────────────────────────────
 export default function FacebookPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
-  const [rawSeries, setRawSeries] = useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
-  const [ranges, setRanges] = useState<Record<MetricKey, DateRangeId>>(INITIAL_RANGES);
+  const [rawSeries, setRawSeries] =
+    useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
+  const [ranges, setRanges] =
+    useState<Record<MetricKey, DateRangeId>>(INITIAL_RANGES);
 
   useEffect(() => {
     async function loadFacebook() {
@@ -287,7 +175,9 @@ export default function FacebookPage() {
           ),
         );
         const next = { ...INITIAL_SERIES };
-        results.forEach(({ id, rows }) => { next[id] = toLinePoints(rows); });
+        results.forEach(({ id, rows }) => {
+          next[id] = toLinePoints(rows);
+        });
         setRawSeries(next);
       } catch (err) {
         console.error("Error loading Facebook metrics:", err);
@@ -297,11 +187,22 @@ export default function FacebookPage() {
   }, []);
 
   const computed = useMemo(() => {
-    const out = {} as Record<MetricKey, { filtered: LinePoint[]; summary: MetricSummary; bounds: { min: Date | null; max: Date | null } }>;
+    const out = {} as Record<
+      MetricKey,
+      {
+        filtered: LinePoint[];
+        summary: MetricSummary;
+        bounds: { min: Date | null; max: Date | null };
+      }
+    >;
     METRICS.forEach((cfg) => {
       const full = rawSeries[cfg.id] ?? [];
       const filtered = filterByRange(full, ranges[cfg.id] ?? "30d");
-      out[cfg.id] = { filtered, summary: summarizeSeries(filtered), bounds: getBounds(full) };
+      out[cfg.id] = {
+        filtered,
+        summary: summarizeSeries(filtered),
+        bounds: getBounds(full),
+      };
     });
     return out;
   }, [rawSeries, ranges]);
@@ -309,7 +210,11 @@ export default function FacebookPage() {
   const topSmallCards = [
     { title: "Shares", key: "shares" as MetricKey, label: "from last year" },
     { title: "Reactions", key: "likes" as MetricKey, label: "from last year" },
-    { title: "Comments", key: "comments" as MetricKey, label: "from last year" },
+    {
+      title: "Comments",
+      key: "comments" as MetricKey,
+      label: "from last year",
+    },
     { title: "Likes", key: "likes" as MetricKey, label: "from last year" },
   ];
 
@@ -325,15 +230,32 @@ export default function FacebookPage() {
             onClick={() => (window.location.href = "/")}
             className="w-[40px] h-[40px] flex items-center justify-center"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-7 h-7"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
             </svg>
           </button>
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl text-[#4A8CDE]">Facebook</h1>
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl text-[#4A8CDE]">
+            Facebook
+          </h1>
         </div>
         <div className="flex flex-row justify-center items-center mt-2 lg:flex-row lg:mt-0 lg:space-x-2 space-x-4">
-          <a href="https://www.facebook.com/schoolonwheels" target="_blank" rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block">
+          <a
+            href="https://www.facebook.com/schoolonwheels"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
+          >
             Go to Account
           </a>
           <ExportButton onExport={exportByPlatforms} />
@@ -367,7 +289,9 @@ export default function FacebookPage() {
             subtitle={
               <DateDropdown
                 value={ranges.followers}
-                onChange={(r) => setRanges((prev) => ({ ...prev, followers: r }))}
+                onChange={(r) =>
+                  setRanges((prev) => ({ ...prev, followers: r }))
+                }
                 minDate={computed.followers?.bounds.min}
                 maxDate={computed.followers?.bounds.max}
               />
@@ -377,13 +301,20 @@ export default function FacebookPage() {
             metricChange={formatPercentChange(computed.followers?.summary)}
             chart={
               computed.followers?.filtered.length ? (
-                <LineCharts data={computed.followers.filtered} xAxisKey="date" dataKeys={["value"]} showArea />
+                <LineCharts
+                  data={computed.followers.filtered}
+                  xAxisKey="date"
+                  dataKeys={["value"]}
+                  showArea
+                />
               ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">No data available</div>
+                <div className="h-full flex items-center justify-center text-gray-500">
+                  No data available
+                </div>
               )
             }
             displayMode="both"
-            className="h-[460px]"
+            className="h-[360px]"
           />
         </div>
 
@@ -404,9 +335,16 @@ export default function FacebookPage() {
             metricChange={formatPercentChange(computed.views?.summary)}
             chart={
               computed.views?.filtered.length ? (
-                <LineCharts data={computed.views.filtered} xAxisKey="date" dataKeys={["value"]} showArea />
+                <LineCharts
+                  data={computed.views.filtered}
+                  xAxisKey="date"
+                  dataKeys={["value"]}
+                  showArea
+                />
               ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">No data available</div>
+                <div className="h-full flex items-center justify-center text-gray-500">
+                  No data available
+                </div>
               )
             }
             displayMode="both"
@@ -421,11 +359,13 @@ export default function FacebookPage() {
               allPostsPoints.length ? (
                 <CalendarHeatmap points={allPostsPoints} />
               ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">No post activity data</div>
+                <div className="flex items-center justify-center text-gray-500">
+                  No post activity data
+                </div>
               )
             }
             displayMode="chart-only"
-            className="h-[460px]"
+            className="lmd:h-[500px] g:h-[400px] xl:h-[360px]"
           />
         </div>
 
@@ -436,18 +376,25 @@ export default function FacebookPage() {
             recentPosts.length ? (
               <div className="w-full flex flex-col gap-2 pt-2">
                 {recentPosts.map((post) => (
-                  <div key={post.date} className="rounded-lg border border-[#E5E5E5] p-3 font-poppins">
+                  <div
+                    key={post.date}
+                    className="rounded-lg border border-[#E5E5E5] p-3 font-poppins"
+                  >
                     <p className="font-semibold text-sm">{post.date}</p>
-                    <p className="text-sm text-gray-600">{post.value} new post(s)</p>
+                    <p className="text-sm text-gray-600">
+                      {post.value} new post(s)
+                    </p>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">No recent post data</div>
+              <div className="h-full flex items-center justify-center text-gray-500">
+                No recent post data
+              </div>
             )
           }
           displayMode="chart-only"
-          className="h-[835px]"
+          className="xl:h-[736px]"
         />
       </div>
     </div>

@@ -140,7 +140,17 @@ const BigCard: React.FC<BigCardProps> = ({
 
       {/* Chart Display */}
       {shouldShowChart && chart && (
-      <div className="flex h-[300px] lg:min-h-full w-full overflow-hidden">{chart}</div>
+        <div
+          className={`
+            flex 
+            ${
+              title !== "Days Posted"
+                ? "h-[300px] w-full overflow-hidden"
+                : "flex h-full w-full justify-center items-center"
+            }`}
+        >
+          {chart}
+        </div>
       )}
     </div>
   );

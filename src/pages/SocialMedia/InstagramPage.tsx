@@ -340,7 +340,7 @@ export default function InstagramPage() {
                     )
                   }
                   displayMode="both"
-                  className="w-full h-full"
+                  className="w-full h-[360px]"
                 />
               </div>
             );
