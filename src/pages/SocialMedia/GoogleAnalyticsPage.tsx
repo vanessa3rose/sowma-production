@@ -1,27 +1,36 @@
+// drop down menu for home page
+
 import { useEffect, useState } from "react";
 
 // Cards
 import BigCard from "../../components/cards/BigCard";
 import SmallCard from "../../components/cards/SmallCard";
+
 // Charts
 import LineCharts from "../../components/charts/LineCharts";
 import PieCharts from "../../components/charts/PieCharts";
+import BarCharts from "../../components/charts/BarCharts";
+
+import MassachusettsCountyMap, {
+  type CountyId,
+} from "../../components/maps/MassachusettsCountyMap";
+import { toMassachusettsCountyFips } from "../../utils/massachusettsCounties";
+
 // Buttons
-import DateDropdown, {
-  DateRangeId,
-} from "../../components/charts/DateDropdown";
+import DateDropdown, { DateRangeId } from "../../components/charts/DateDropdown";
 import ExportButton from "../../components/export-pdf/ExportButton";
 
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 
-//Types
+// Types
 export type GAMetrics = {
   activeUsers: number;
   screenPageViews: number;
   active7DayUsers: number;
   engagementRate: number;
   newUsers: number;
+  engagementTime: number;
 };
 
 export type TimePoint = {
@@ -30,7 +39,7 @@ export type TimePoint = {
   screenPageViews?: number;
   active7DayUsers?: number;
   newUsers?: number;
-  engagementRate?: number; // ENGAGEMENT
+  engagementRate?: number;
 };
 
 type MetricSummary = {
@@ -43,119 +52,236 @@ type MetricKey =
   | "screenPageViews"
   | "active7DayUsers"
   | "engagementRate"
-  | "newUsers";
+  | "newUsers"
+  | "engagementTime";
 
+type Point = { date: string; value: number };
+
+const provider = "GOOGLE_ANALYTICS";
+const defaultStartDate = "2024-01-01";
+const defaultEndDate = "3000-01-01";
+
+// -----------------------------
+// Today-anchored date helpers
+// -----------------------------
+function todayISO(): string {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+function computeStartEndFromRangeToday(
+  range: DateRangeId,
+  fallbackStartDate = defaultStartDate,
+): { startDate: string; endDate: string } {
+  const endDate = todayISO();
+  if (range === "all") return { startDate: fallbackStartDate, endDate };
+
+  const end = new Date(endDate);
+  const start = new Date(end);
+
+  if (range === "7d") start.setDate(start.getDate() - 6);
+  if (range === "30d") start.setDate(start.getDate() - 29);
+  if (range === "1y") start.setFullYear(start.getFullYear() - 1);
+
+  return { startDate: start.toISOString().slice(0, 10), endDate };
+}
+
+// -----------------------------
+// Helpers for county map
+// -----------------------------
+function aggregateCountyVisitTotals(
+  rows: SocialMediaMetric[],
+): Record<CountyId, number> {
+  const totals: Partial<Record<CountyId, number>> = {};
+
+  for (const row of rows) {
+    if (row.breakdownKey !== "county" || !row.breakdownValue) continue;
+
+    const countyId = toMassachusettsCountyFips(row.breakdownValue);
+    if (!countyId) continue;
+
+    totals[countyId] = (totals[countyId] ?? 0) + row.metricValue;
+  }
+
+  return totals as Record<CountyId, number>;
+}
+
+function aggregateBreakdownTotals(
+  rows: SocialMediaMetric[],
+  breakdownKey: string,
+): Record<string, number> {
+  const totals: Record<string, number> = {};
+  for (const row of rows) {
+    if (row.breakdownKey !== breakdownKey || !row.breakdownValue) continue;
+    totals[row.breakdownValue] = (totals[row.breakdownValue] ?? 0) + row.metricValue;
+  }
+  return totals;
+}
+
+// share-of-total for tooltip/coloring
+function toShareOfTotalIntensity(
+  countyVisits: Record<CountyId, number>,
+): { intensity: Partial<Record<CountyId, number>>; total: number } {
+  const entries = Object.entries(countyVisits) as Array<[CountyId, number]>;
+  const total = entries.reduce((sum, [, v]) => sum + (Number(v) || 0), 0);
+
+  if (total <= 0) return { intensity: {}, total: 0 };
+
+  const intensity = Object.fromEntries(
+    entries.map(([id, v]) => [id, (Number(v) || 0) / total]),
+  ) as Partial<Record<CountyId, number>>;
+
+  return { intensity, total };
+}
+
+// -----------------------------
+// Helpers for time series / cards
+// -----------------------------
+function getBounds(pts: Point[]) {
+  if (!pts.length) return { min: null as Date | null, max: null as Date | null };
+  const dates = pts.map((p) => p.date).slice().sort();
+  return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
+}
+
+function filterByRangeAnchoredToToday(pts: Point[], range: DateRangeId) {
+  if (!pts.length) return pts;
+
+  const { startDate, endDate } = computeStartEndFromRangeToday(range);
+  return pts.filter((p) => p.date >= startDate && p.date <= endDate);
+}
+
+function rangeOptionsWithData(points: Point[]): DateRangeId[] {
+  if (!points.length) return ["all"];
+
+  const options: DateRangeId[] = [];
+  if (filterByRangeAnchoredToToday(points, "7d").length > 0) options.push("7d");
+  if (filterByRangeAnchoredToToday(points, "30d").length > 0)
+    options.push("30d");
+  if (filterByRangeAnchoredToToday(points, "1y").length > 0) options.push("1y");
+  if (filterByRangeAnchoredToToday(points, "all").length > 0) options.push("all");
+
+  return options.length > 0 ? options : ["all"];
+}
+
+function metricRowDateISO(row: SocialMediaMetric): string | null {
+  const raw = row.metricDate ?? row.lastSynced;
+  return raw ? raw.slice(0, 10) : null;
+}
+
+function filterMetricRowsByRangeAnchoredToToday(
+  rows: SocialMediaMetric[],
+  range: DateRangeId,
+) {
+  const { startDate, endDate } = computeStartEndFromRangeToday(
+    range,
+    defaultStartDate,
+  );
+
+  return rows.filter((row) => {
+    const date = metricRowDateISO(row);
+    return date != null && date >= startDate && date <= endDate;
+  });
+}
+
+function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
+  return raw
+    .filter((m) => m.metricDate || m.lastSynced)
+    .slice()
+    .sort((a, b) =>
+      (a.metricDate ?? a.lastSynced)!.localeCompare(
+        (b.metricDate ?? b.lastSynced)!,
+      ),
+    );
+}
+
+function toLinePoints(raw: SocialMediaMetric[]): Point[] {
+  return sortByDate(raw).map((m) => {
+    const timestamp = (m.metricDate ?? m.lastSynced)!;
+    return { date: timestamp.slice(0, 10), value: m.metricValue };
+  });
+}
+
+function summarizeSeries(pts: Point[]): MetricSummary {
+  if (pts.length === 0) return { current: null, prev: null };
+  if (pts.length === 1) return { current: pts[0].value, prev: null };
+  const latest = pts[pts.length - 1].value;
+  const prev = pts[pts.length - 2].value;
+  return { current: latest, prev };
+}
+
+function mergeUsersAnd7Day(active: Point[], active7: Point[]): TimePoint[] {
+  const map: Record<string, TimePoint> = {};
+  active.forEach((p) => {
+    map[p.date] ??= { date: p.date };
+    map[p.date].activeUsers = p.value;
+  });
+  active7.forEach((p) => {
+    map[p.date] ??= { date: p.date };
+    map[p.date].active7DayUsers = p.value;
+  });
+  return Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function formatPercentChange(summary?: MetricSummary | null): string {
+  if (!summary || summary.current == null || summary.prev == null) return "+ 0%";
+  if (summary.prev === 0) return "+ 0%";
+  const pct = ((summary.current - summary.prev) / summary.prev) * 100;
+  const sign = pct >= 0 ? "+" : "";
+  return `${sign}${pct.toFixed(1)}% vs. prev.`;
+}
+
+// -----------------------------
+// Component
+// -----------------------------
 export default function GoogleAnalyticsPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
 
   const [metrics, setMetrics] = useState<GAMetrics | null>(null);
+  const [pageViewsAsOf, setPageViewsAsOf] = useState<string | null>(null);
 
-  // Filtered (displayed) series
+  // charts
   const [usersOverTime, setUsersOverTime] = useState<TimePoint[]>([]);
-  const [engagementOverTime, setEngagementOverTime] = useState<TimePoint[]>([]); // ENGAGEMENT
+  const [engagementOverTime, setEngagementOverTime] = useState<TimePoint[]>([]);
 
-  // Full (unfiltered) series — used ONLY for dropdown bounds/options
+  // bounds-only series
   const [usersOverTimeAll, setUsersOverTimeAll] = useState<TimePoint[]>([]);
-  const [engagementOverTimeAll, setEngagementOverTimeAll] = useState<
-    TimePoint[]
-  >([]); // ENGAGEMENT
+  const [engagementOverTimeAll, setEngagementOverTimeAll] = useState<TimePoint[]>(
+    [],
+  );
 
   const [metricSummaries, setMetricSummaries] = useState<
     Partial<Record<MetricKey, MetricSummary>>
   >({});
 
-  // Localized (per-chart) date ranges
+  // date ranges
   const [activeUsersRange, setActiveUsersRange] = useState<DateRangeId>("30d");
+  const [engagementRange, setEngagementRange] = useState<DateRangeId>("30d");
+  const [countyRange, setCountyRange] = useState<DateRangeId>("30d"); // ✅ map dropdown
+  const [sourceRange, setSourceRange] = useState<DateRangeId>("30d");
+  const [deviceRange, setDeviceRange] = useState<DateRangeId>("30d");
+  const [newVsReturningRange, setNewVsReturningRange] = useState<DateRangeId>("30d");
+
+  // fixed ranges
   const pageviewsRange: DateRangeId = "30d";
   const active7Range: DateRangeId = "30d";
   const newUsersRange: DateRangeId = "30d";
-  const [engagementRange, setEngagementRange] = useState<DateRangeId>("30d"); // ENGAGEMENT
 
-  const provider = "GOOGLE_ANALYTICS";
-  const defaultStartDate = "2024-01-01";
-  const defaultEndDate = "3000-01-01";
+  // -----------------------------
+  // County map state (DB driven)
+  // -----------------------------
+  const [totalSessionsRowsAll, setTotalSessionsRowsAll] = useState<
+    SocialMediaMetric[]
+  >([]);
+  const [sourceRowsAll, setSourceRowsAll] = useState<SocialMediaMetric[]>([]);
+  const [returningVsNewData, setReturningVsNewData] = useState<
+    { label: string; value: number }[]
+  >([
+    { label: "New Users", value: 0 },
+    { label: "Returning Users", value: 0 },
+  ]);
 
-  function getBounds(pts: { date: string; value: number }[]) {
-    if (!pts.length)
-      return { min: null as Date | null, max: null as Date | null };
-    const dates = pts
-      .map((p) => p.date)
-      .slice()
-      .sort();
-    return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
-  }
-
-  function filterByRange(
-    pts: { date: string; value: number }[],
-    range: DateRangeId,
-  ) {
-    if (!pts.length) return pts;
-    if (range === "all") return pts;
-    const end = new Date(pts[pts.length - 1].date);
-    const start = new Date(end);
-    if (range === "7d") start.setDate(start.getDate() - 6);
-    if (range === "30d") start.setDate(start.getDate() - 29);
-    if (range === "1y") start.setFullYear(start.getFullYear() - 1);
-    const startStr = start.toISOString().slice(0, 10);
-    const endStr = end.toISOString().slice(0, 10);
-    return pts.filter((p) => p.date >= startStr && p.date <= endStr);
-  }
-
-  function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
-    return raw
-      .filter((m) => m.metricDate || m.lastSynced)
-      .slice()
-      .sort((a, b) =>
-        (a.metricDate ?? a.lastSynced)!.localeCompare(
-          (b.metricDate ?? b.lastSynced)!,
-        ),
-      );
-  }
-
-  function toLinePoints(
-    raw: SocialMediaMetric[],
-  ): { date: string; value: number }[] {
-    return sortByDate(raw).map((m) => {
-      const timestamp = (m.metricDate ?? m.lastSynced)!;
-      return { date: timestamp.slice(0, 10), value: m.metricValue };
-    });
-  }
-
-  function summarizeSeries(
-    pts: { date: string; value: number }[],
-  ): MetricSummary {
-    if (pts.length === 0) return { current: null, prev: null };
-    if (pts.length === 1) return { current: pts[0].value, prev: null };
-    const latest = pts[pts.length - 1].value;
-    const prev = pts[pts.length - 2].value;
-    return { current: latest, prev };
-  }
-
-  function mergeUsersAnd7Day(
-    active: { date: string; value: number }[],
-    active7: { date: string; value: number }[],
-  ): TimePoint[] {
-    const map: Record<string, TimePoint> = {};
-    active.forEach((p) => {
-      if (!map[p.date]) map[p.date] = { date: p.date };
-      map[p.date].activeUsers = p.value;
-    });
-    active7.forEach((p) => {
-      if (!map[p.date]) map[p.date] = { date: p.date };
-      map[p.date].active7DayUsers = p.value;
-    });
-    return Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
-  }
-
-  function formatPercentChange(summary?: MetricSummary | null): string {
-    if (!summary || summary.current == null || summary.prev == null)
-      return "+ 0%";
-    if (summary.prev === 0) return "+ 0%";
-    const pct = ((summary.current - summary.prev) / summary.prev) * 100;
-    const sign = pct >= 0 ? "+" : "";
-    return `${sign}${pct.toFixed(1)}% vs. prev.`;
-  }
-
+  // ---------------------
+  // Fetch GA metrics
+  // ---------------------
   useEffect(() => {
     async function loadGA() {
       try {
@@ -165,6 +291,7 @@ export default function GoogleAnalyticsPage() {
           active7Raw,
           engagementRaw,
           newUsersRaw,
+          engagementTimeRaw,
         ] = await Promise.all([
           fetchMetrics({
             provider,
@@ -196,40 +323,55 @@ export default function GoogleAnalyticsPage() {
             startDate: defaultStartDate,
             endDate: defaultEndDate,
           }),
+          fetchMetrics({
+            provider,
+            metric: "ENGAGEMENT_TIME",
+            startDate: defaultStartDate,
+            endDate: defaultEndDate,
+          }),
         ]);
 
-        const activeSeriesAll = toLinePoints(activeUsersRaw);
-        const pageviewsSeriesAll = toLinePoints(pageviewsRaw);
-        const active7SeriesAll = toLinePoints(active7Raw);
-        const engagementSeriesAll = toLinePoints(engagementRaw);
-        const newUsersSeriesAll = toLinePoints(newUsersRaw);
+        const activeAll = toLinePoints(activeUsersRaw);
+        const pageviewsAll = toLinePoints(pageviewsRaw);
+        const active7All = toLinePoints(active7Raw);
+        const engagementAll = toLinePoints(engagementRaw);
+        const newUsersAll = toLinePoints(newUsersRaw);
+        const engagementTimeAll = toLinePoints(engagementTimeRaw);
 
-        const activeSeriesFiltered = filterByRange(
-          activeSeriesAll,
+        // FILTER ANCHORED TO TODAY (not last datapoint)
+        const activeFiltered = filterByRangeAnchoredToToday(activeAll, activeUsersRange);
+        const pageviewsFiltered = filterByRangeAnchoredToToday(pageviewsAll, pageviewsRange);
+        const active7Filtered = filterByRangeAnchoredToToday(active7All, active7Range);
+        const engagementFiltered = filterByRangeAnchoredToToday(engagementAll, engagementRange);
+        const newUsersFiltered = filterByRangeAnchoredToToday(newUsersAll, newUsersRange);
+        const engagementTimeFiltered = filterByRangeAnchoredToToday(
+          engagementTimeAll,
           activeUsersRange,
         );
-        const pageviewsSeriesFiltered = filterByRange(
-          pageviewsSeriesAll,
-          pageviewsRange,
-        );
-        const active7SeriesFiltered = filterByRange(
-          active7SeriesAll,
-          active7Range,
-        );
-        const engagementSeriesFiltered = filterByRange(
-          engagementSeriesAll,
-          engagementRange,
-        );
-        const newUsersSeriesFiltered = filterByRange(
-          newUsersSeriesAll,
-          newUsersRange,
-        );
 
-        const activeSummary = summarizeSeries(activeSeriesFiltered);
-        const pageviewsSummary = summarizeSeries(pageviewsSeriesFiltered);
-        const active7Summary = summarizeSeries(active7SeriesFiltered);
-        const engagementSummary = summarizeSeries(engagementSeriesFiltered);
-        const newUsersSummary = summarizeSeries(newUsersSeriesFiltered);
+        const activeSummary = summarizeSeries(activeFiltered);
+        const pageviewsDisplaySeries =
+          pageviewsFiltered.length > 0 ? pageviewsFiltered : pageviewsAll;
+        const pageviewsSummary = summarizeSeries(pageviewsDisplaySeries);
+        const active7Summary = summarizeSeries(
+          active7Filtered.length > 0 ? active7Filtered : active7All,
+        );
+        const engagementSummary = summarizeSeries(engagementFiltered);
+        const newUsersSummary = summarizeSeries(newUsersFiltered);
+        const engagementTimeSummary = summarizeSeries(engagementTimeFiltered);
+        const activeForPie = filterByRangeAnchoredToToday(
+          activeAll,
+          newVsReturningRange,
+        );
+        const newUsersForPie = filterByRangeAnchoredToToday(
+          newUsersAll,
+          newVsReturningRange,
+        );
+        const pieActiveSummary = summarizeSeries(activeForPie);
+        const pieNewUsersSummary = summarizeSeries(newUsersForPie);
+        const pieActiveUsers = pieActiveSummary.current ?? 0;
+        const pieNewUsers = pieNewUsersSummary.current ?? 0;
+        const pieReturningUsers = Math.max(pieActiveUsers - pieNewUsers, 0);
 
         setMetricSummaries({
           activeUsers: activeSummary,
@@ -237,7 +379,9 @@ export default function GoogleAnalyticsPage() {
           active7DayUsers: active7Summary,
           engagementRate: engagementSummary,
           newUsers: newUsersSummary,
+          engagementTime: engagementTimeSummary,
         });
+
         setMetrics({
           activeUsers: activeSummary.current ?? 0,
           screenPageViews: pageviewsSummary.current ?? 0,
@@ -247,23 +391,28 @@ export default function GoogleAnalyticsPage() {
               ? engagementSummary.current / 100
               : 0,
           newUsers: newUsersSummary.current ?? 0,
+          engagementTime: engagementTimeSummary.current ?? 0,
         });
-
-        setUsersOverTimeAll(
-          mergeUsersAnd7Day(activeSeriesAll, active7SeriesAll),
+        setPageViewsAsOf(
+          pageviewsDisplaySeries.length > 0
+            ? pageviewsDisplaySeries[pageviewsDisplaySeries.length - 1].date
+            : null,
         );
+        setReturningVsNewData([
+          { label: "New Users", value: pieNewUsers },
+          { label: "Returning Users", value: pieReturningUsers },
+        ]);
+
+        // all-series for bounds / date pickers
+        setUsersOverTimeAll(mergeUsersAnd7Day(activeAll, active7All));
         setEngagementOverTimeAll(
-          engagementSeriesAll.map((p) => ({
-            date: p.date,
-            engagementRate: p.value,
-          })),
+          engagementAll.map((p) => ({ date: p.date, engagementRate: p.value })),
         );
 
-        setUsersOverTime(
-          mergeUsersAnd7Day(activeSeriesFiltered, active7SeriesFiltered),
-        );
+        // filtered for charts
+        setUsersOverTime(mergeUsersAnd7Day(activeFiltered, active7Filtered));
         setEngagementOverTime(
-          engagementSeriesFiltered.map((p) => ({
+          engagementFiltered.map((p) => ({
             date: p.date,
             engagementRate: p.value,
           })),
@@ -272,27 +421,62 @@ export default function GoogleAnalyticsPage() {
         console.error("Error loading Google Analytics metrics:", err);
       }
     }
+
     loadGA();
   }, [
     activeUsersRange,
+    engagementRange,
     pageviewsRange,
     active7Range,
-    engagementRange,
     newUsersRange,
+    newVsReturningRange,
   ]);
 
+  // ---------------------
+  // Fetch county sessions breakdown + compute % of total
+  // ✅ date dropdown on map, anchored to TODAY
+  // ---------------------
+  useEffect(() => {
+    async function loadBreakdownsAllTime() {
+      try {
+        const [sessionRows, sourceRows] = await Promise.all([
+          fetchMetrics({
+            provider,
+            metric: "TOTAL_SESSIONS",
+            startDate: defaultStartDate,
+            endDate: defaultEndDate,
+          }),
+          fetchMetrics({
+            provider,
+            metric: "SESSIONS_BY_SOURCE",
+            startDate: defaultStartDate,
+            endDate: defaultEndDate,
+          }),
+        ]);
+
+        setTotalSessionsRowsAll(sessionRows);
+        setSourceRowsAll(sourceRows);
+      } catch (err) {
+        console.error("Error loading GA breakdown metrics:", err);
+        setTotalSessionsRowsAll([]);
+        setSourceRowsAll([]);
+      }
+    }
+
+    loadBreakdownsAllTime();
+  }, []);
+
+  // ---------------------
+  // Derived display
+  // ---------------------
   const dMetrics: GAMetrics = metrics ?? {
     activeUsers: 0,
     screenPageViews: 0,
     active7DayUsers: 0,
     engagementRate: 0,
     newUsers: 0,
+    engagementTime: 0,
   };
-  const returningUsers = Math.max(dMetrics.activeUsers - dMetrics.newUsers, 0);
-  const returningVsNew = [
-    { label: "New Users", value: dMetrics.newUsers },
-    { label: "Returning Users", value: returningUsers },
-  ];
 
   const activeUsersBounds = getBounds(
     usersOverTimeAll.map((p) => ({ date: p.date, value: p.activeUsers ?? 0 })),
@@ -304,14 +488,118 @@ export default function GoogleAnalyticsPage() {
     })),
   );
 
+  // Use same bounds for county dropdown so it looks consistent with other cards.
+  // (Even though filtering is anchored to TODAY, this just controls min/max labels.)
+  const countyBounds = activeUsersBounds;
+  const activeUsersOptions = rangeOptionsWithData(
+    usersOverTimeAll
+      .map((p) => ({ date: p.date, value: p.activeUsers }))
+      .filter((p): p is { date: string; value: number } => p.value != null),
+  );
+  const engagementOptions = rangeOptionsWithData(
+    engagementOverTimeAll
+      .map((p) => ({ date: p.date, value: p.engagementRate }))
+      .filter((p): p is { date: string; value: number } => p.value != null),
+  );
+  const filteredCountyRows = filterMetricRowsByRangeAnchoredToToday(
+    totalSessionsRowsAll.filter((row) => row.breakdownKey === "county"),
+    countyRange,
+  );
+  const countyVisits = aggregateCountyVisitTotals(filteredCountyRows);
+  const { intensity: countyIntensity, total: countyTotal } =
+    toShareOfTotalIntensity(countyVisits);
+  const countyOptions = (["7d", "30d", "1y", "all"] as DateRangeId[]).filter(
+    (range) =>
+      aggregateCountyVisitTotals(
+        filterMetricRowsByRangeAnchoredToToday(
+          totalSessionsRowsAll.filter((row) => row.breakdownKey === "county"),
+          range,
+        ),
+      ) &&
+      Object.keys(
+        aggregateCountyVisitTotals(
+          filterMetricRowsByRangeAnchoredToToday(
+            totalSessionsRowsAll.filter((row) => row.breakdownKey === "county"),
+            range,
+          ),
+        ),
+      ).length > 0,
+  );
+  const countyAvailableOptions: DateRangeId[] =
+    countyOptions.length > 0 ? countyOptions : ["all"];
+
+  const filteredSourceRows = filterMetricRowsByRangeAnchoredToToday(
+    sourceRowsAll.filter((row) => row.breakdownKey === "sessionSource"),
+    sourceRange,
+  );
+  const sourceTotals = aggregateBreakdownTotals(filteredSourceRows, "sessionSource");
+  const sourceData = Object.entries(sourceTotals)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([source, sessions]) => ({
+      source,
+      sessions,
+    }));
+  const sourceAvailableOptions: DateRangeId[] = ([
+    "7d",
+    "30d",
+    "1y",
+    "all",
+  ] as DateRangeId[]).filter(
+    (range) =>
+      Object.keys(
+        aggregateBreakdownTotals(
+          filterMetricRowsByRangeAnchoredToToday(
+            sourceRowsAll.filter((row) => row.breakdownKey === "sessionSource"),
+            range,
+          ),
+          "sessionSource",
+        ),
+      ).length > 0,
+  );
+
+  const filteredDeviceRows = filterMetricRowsByRangeAnchoredToToday(
+    totalSessionsRowsAll.filter((row) => row.breakdownKey === "deviceCategory"),
+    deviceRange,
+  );
+  const deviceTotals = aggregateBreakdownTotals(
+    filteredDeviceRows,
+    "deviceCategory",
+  );
+  const deviceData = Object.entries(deviceTotals).map(([label, value]) => ({
+    label:
+      label.length > 0 ? label[0].toUpperCase() + label.slice(1).toLowerCase() : "Unknown",
+    value,
+  }));
+  const deviceAvailableOptions: DateRangeId[] = ([
+    "7d",
+    "30d",
+    "1y",
+    "all",
+  ] as DateRangeId[]).filter(
+    (range) =>
+      Object.keys(
+        aggregateBreakdownTotals(
+          filterMetricRowsByRangeAnchoredToToday(
+            totalSessionsRowsAll.filter((row) => row.breakdownKey === "deviceCategory"),
+            range,
+          ),
+          "deviceCategory",
+        ),
+      ).length > 0,
+  );
+
+  // ---------------------
+  // Render
+  // ---------------------
   return (
-    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 py-2">
+    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
-        <div className="flex items-center space-x-2">
+      <div className="w-full flex items-center justify-between px-4 py-2">
+        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
           <button
             onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px] flex items-center justify-center"
+            className="w-[40px] h-[40px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -329,35 +617,119 @@ export default function GoogleAnalyticsPage() {
             </svg>
           </button>
 
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-wrap">
             Google Analytics
           </h1>
         </div>
-        <div className="flex flex-row justify-center items-center mt-2 lg:flex-row lg:mt-0 lg:space-x-2 space-x-4">
-          <a
-            href="https://analytics.google.com/analytics/web"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
-          >
-            {" "}
-            Go to Account{" "}
-          </a>
-          <ExportButton onExport={exportByPlatforms} />
+
+        <ExportButton onExport={exportByPlatforms} />
+      </div>
+
+      {/* Row 1: Top small cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4">
+        <SmallCard
+          title="Page Views"
+          displayMode="metric-only"
+          className="w-full"
+          metricValue={dMetrics.screenPageViews}
+          metricLabel={pageViewsAsOf ? `views (as of ${pageViewsAsOf})` : "views"}
+          metricChange={formatPercentChange(metricSummaries.screenPageViews)}
+        />
+        <SmallCard
+          title="Active 7-Day Users"
+          displayMode="metric-only"
+          className="w-full"
+          metricValue={dMetrics.active7DayUsers}
+          metricLabel="users (7D)"
+          metricChange={formatPercentChange(metricSummaries.active7DayUsers)}
+        />
+        <SmallCard
+          title="Avg Engagement Time"
+          displayMode="metric-only"
+          className="w-full"
+          metricValue={Math.round(dMetrics.engagementTime)}
+          metricLabel="seconds"
+          metricChange={formatPercentChange(metricSummaries.engagementTime)}
+        />
+      </div>
+
+      {/* Row 2: Map + New vs Returning */}
+      <div className="flex lg:flex-row flex-col gap-4 px-4">
+        <div className="lg:w-3/5 w-full">
+          <BigCard
+            title="Massachusetts Visitors by County"
+            subtitle={
+              <DateDropdown
+                value={countyRange}
+                onChange={setCountyRange}
+                minDate={countyBounds.min}
+                maxDate={countyBounds.max}
+                availableOptions={countyAvailableOptions}
+              />
+            }
+            chart={
+              <MassachusettsCountyMap
+                countyIntensity={countyIntensity}
+                countyValue={countyVisits}
+                totalValue={countyTotal}
+                valueLabel="Visitors"
+                intensityLabel="% of total"
+              />
+            }
+            displayMode="chart-only"
+            className="h-[360px]"
+          />
+        </div>
+        <div className="lg:w-2/5 w-full">
+          <BigCard
+            title="New vs Returning Users"
+            subtitle={
+              <DateDropdown
+                value={newVsReturningRange}
+                onChange={setNewVsReturningRange}
+                minDate={activeUsersBounds.min}
+                maxDate={activeUsersBounds.max}
+                availableOptions={activeUsersOptions}
+              />
+            }
+            chart={<PieCharts data={returningVsNewData} dataKey="value" nameKey="label" />}
+            displayMode="both"
+            className="h-[360px]"
+          />
         </div>
       </div>
-      <div className="flex lg:flex-row flex-col gap-4 px-4 lg:h-full">
-        {/* Left Column */}
-        <div className="flex flex-col gap-4 lg:w-3/5 w-full">
+
+      {/* Row 3: Device category + Active users */}
+      <div className="flex lg:flex-row flex-col gap-4 px-4">
+        <div className="lg:w-2/5 w-full">
+          <BigCard
+            title="Sessions by Device Category"
+            subtitle={
+              <DateDropdown
+                value={deviceRange}
+                onChange={setDeviceRange}
+                minDate={activeUsersBounds.min}
+                maxDate={activeUsersBounds.max}
+                availableOptions={
+                  deviceAvailableOptions.length ? deviceAvailableOptions : ["all"]
+                }
+              />
+            }
+            chart={<PieCharts data={deviceData} dataKey="value" nameKey="label" />}
+            displayMode="both"
+            className="h-[360px]"
+          />
+        </div>
+        <div className="lg:w-3/5 w-full">
           <BigCard
             title="Active Users"
-            titleTooltip="Active means 10+ seconds on the site or viewed 2+ pages"
             subtitle={
               <DateDropdown
                 value={activeUsersRange}
                 onChange={setActiveUsersRange}
                 minDate={activeUsersBounds.min}
                 maxDate={activeUsersBounds.max}
+                availableOptions={activeUsersOptions}
               />
             }
             metricValue={dMetrics.activeUsers}
@@ -374,69 +746,53 @@ export default function GoogleAnalyticsPage() {
             displayMode="both"
             className="h-[360px]"
           />
-
-          <BigCard
-            title="Engagement Rate"
-            titleTooltip="Percent of visitors to the page that stayed for 10+ seconds"
-            subtitle={
-              <DateDropdown
-                value={engagementRange}
-                onChange={setEngagementRange}
-                minDate={engagementBounds.min}
-                maxDate={engagementBounds.max}
-              />
-            }
-            metricValue={Number((dMetrics.engagementRate * 100).toFixed(1))}
-            metricLabel="% engaged"
-            metricChange={formatPercentChange(metricSummaries.engagementRate)}
-            chart={
-              <LineCharts
-                data={engagementOverTime}
-                xAxisKey="date"
-                dataKeys={["engagementRate"]}
-                showArea
-              />
-            }
-            displayMode="both"
-            className="h-[360px]"
-          />
         </div>
+      </div>
 
-        {/* Right Column */}
-        <div className="flex flex-col gap-4 lg:w-2/5 w-full">
-          <BigCard
-            title="New vs Returning Users"
-            titleTooltip="New users have not visited the site in at least a month"
-            chart={
-              <PieCharts
-                data={returningVsNew}
-                dataKey="value"
-                nameKey="label"
-              />
-            }
-            displayMode="both"
-            className="w-full h-full"
-          />
-
-          <SmallCard
-            title="Page Views"
-            titleTooltip="Number of times any page on the website was viewed"
-            displayMode="metric-only"
-            className="w-full h-full"
-            metricValue={dMetrics.screenPageViews}
-            metricLabel="views"
-            metricChange={formatPercentChange(metricSummaries.screenPageViews)}
-          />
-          <SmallCard
-            title="Active 7-Day Users"
-            titleTooltip="Number of unique, engaged users who visited the website in the last 7 days"
-            displayMode="metric-only"
-            className="w-full h-full"
-            metricValue={dMetrics.active7DayUsers}
-            metricLabel="users (7D)"
-            metricChange={formatPercentChange(metricSummaries.active7DayUsers)}
-          />
-        </div>
+      {/* Row 4: Source + Engagement side-by-side equal */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 pb-4">
+        <BigCard
+          title="Traffic Source Breakdown"
+          subtitle={
+            <DateDropdown
+              value={sourceRange}
+              onChange={setSourceRange}
+              minDate={activeUsersBounds.min}
+              maxDate={activeUsersBounds.max}
+              availableOptions={
+                sourceAvailableOptions.length ? sourceAvailableOptions : ["all"]
+              }
+            />
+          }
+          chart={<BarCharts data={sourceData} xAxisKey="source" dataKeys={["sessions"]} />}
+          displayMode="chart-only"
+          className="h-[360px]"
+        />
+        <BigCard
+          title="Engagement Rate"
+          subtitle={
+            <DateDropdown
+              value={engagementRange}
+              onChange={setEngagementRange}
+              minDate={engagementBounds.min}
+              maxDate={engagementBounds.max}
+              availableOptions={engagementOptions}
+            />
+          }
+          metricValue={Number((dMetrics.engagementRate * 100).toFixed(1))}
+          metricLabel="% engaged"
+          metricChange={formatPercentChange(metricSummaries.engagementRate)}
+          chart={
+            <LineCharts
+              data={engagementOverTime}
+              xAxisKey="date"
+              dataKeys={["engagementRate"]}
+              showArea
+            />
+          }
+          displayMode="both"
+          className="h-[360px]"
+        />
       </div>
     </div>
   );
