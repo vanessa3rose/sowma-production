@@ -52,3 +52,8 @@ declare module "react-simple-maps" {
 
   export const Geography: React.FC<GeographyProps>;
 }
+
+declare module "us-atlas/counties-10m.json" {
+  const value: unknown;
+  export default value;
+}

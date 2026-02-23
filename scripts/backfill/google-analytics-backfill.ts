@@ -12,6 +12,10 @@ import {
   Provider,
   Metric,
 } from "../../src/generated/prisma/index.js";
+import {
+  toMassachusettsCountyFips,
+  toMassachusettsCountyFipsFromCity,
+} from "../../src/utils/massachusettsCounties.js";
 
 console.log("[GA] Script loaded");
 
@@ -50,6 +54,51 @@ const auth = new GoogleAuth({
 
 const analyticsDataClient = new BetaAnalyticsDataClient({ auth });
 console.log("[GA] Analytics client initialized");
+
+const RETRYABLE_GA_CODES = new Set([4, 14]);
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function runGAReport(
+  request: Parameters<typeof analyticsDataClient.runReport>[0],
+  label: string,
+  maxAttempts = 3,
+) {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const [response] = await analyticsDataClient.runReport(request, {
+        timeout: 60_000,
+      });
+      return response;
+    } catch (error: unknown) {
+      lastError = error;
+      const code =
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        typeof (error as { code?: unknown }).code === "number"
+          ? (error as { code: number }).code
+          : undefined;
+
+      const retryable = code != null && RETRYABLE_GA_CODES.has(code);
+      if (!retryable || attempt === maxAttempts) {
+        break;
+      }
+
+      const backoffMs = 1000 * 2 ** (attempt - 1);
+      console.warn(
+        `[GA] ${label} timed out/unavailable (attempt ${attempt}/${maxAttempts}), retrying in ${backoffMs}ms`,
+      );
+      await sleep(backoffMs);
+    }
+  }
+
+  throw lastError;
+}
 
 // -------------------------------
 // Helpers
@@ -92,31 +141,37 @@ function getEarliestPossibleDate(): Date {
 async function runReportForDay(date: Date) {
   const isoDate = date.toISOString().slice(0, 10);
 
-  const [response] = await analyticsDataClient.runReport({
-    property: "properties/393011442",
-    dateRanges: [{ startDate: isoDate, endDate: isoDate }],
-    dimensions: [{ name: "date" }],
-    metrics: [
-      { name: "activeUsers" },
-      { name: "screenPageViews" },
-      { name: "engagementRate" },
-      { name: "newUsers" },
-      { name: "bounceRate" },
-      { name: "averageSessionDuration" },
-      { name: "sessions" },
-      { name: "engagedSessions" },
-      { name: "screenPageViewsPerSession" },
-      { name: "userEngagementDuration" },
-    ],
-  });
+  const response = await runGAReport(
+    {
+      property: "properties/393011442",
+      dateRanges: [{ startDate: isoDate, endDate: isoDate }],
+      dimensions: [{ name: "date" }],
+      metrics: [
+        { name: "activeUsers" },
+        { name: "active7DayUsers" },
+        { name: "screenPageViews" },
+        { name: "engagementRate" },
+        { name: "newUsers" },
+        { name: "bounceRate" },
+        { name: "averageSessionDuration" },
+        { name: "sessions" },
+        { name: "engagedSessions" },
+        { name: "screenPageViewsPerSession" },
+        { name: "userEngagementDuration" },
+      ],
+    },
+    "backfill core metrics report",
+  );
 
   if (!response.rows || response.rows.length === 0) {
     console.warn(`[GA] No rows returned for ${isoDate}`);
     return;
   }
 
-  const socialMediaId = await getSocialMediaId();
-  if (!socialMediaId) return;
+  const socialMediaIdMaybe = await getSocialMediaId();
+  if (!socialMediaIdMaybe) return;
+
+  const socialMediaId: string = socialMediaIdMaybe;
 
   const existingMetrics = await getMetricsBySocialMediaId(socialMediaId);
 
@@ -127,40 +182,44 @@ async function runReportForDay(date: Date) {
       metricValue: Number(values[0]?.value ?? 0),
     },
     {
-      metricName: Metric.SCREEN_PAGE_VIEWS,
+      metricName: Metric.ACTIVE_7_DAY_USERS,
       metricValue: Number(values[1]?.value ?? 0),
     },
     {
+      metricName: Metric.SCREEN_PAGE_VIEWS,
+      metricValue: Number(values[2]?.value ?? 0),
+    },
+    {
       metricName: Metric.ENGAGEMENT_RATE,
-      metricValue: Number(values[2]?.value ?? 0) * 100,
+      metricValue: Number(values[3]?.value ?? 0) * 100,
     },
     {
       metricName: Metric.NEW_USERS,
-      metricValue: Number(values[3]?.value ?? 0),
+      metricValue: Number(values[4]?.value ?? 0),
     },
     {
       metricName: Metric.BOUNCE_RATE,
-      metricValue: Number(values[4]?.value ?? 0) * 100,
+      metricValue: Number(values[5]?.value ?? 0) * 100,
     },
     {
       metricName: Metric.AVG_SESSION_DURATION,
-      metricValue: Number(values[5]?.value ?? 0),
-    },
-    {
-      metricName: Metric.TOTAL_SESSIONS,
       metricValue: Number(values[6]?.value ?? 0),
     },
     {
-      metricName: Metric.ENGAGED_SESSIONS,
+      metricName: Metric.TOTAL_SESSIONS,
       metricValue: Number(values[7]?.value ?? 0),
     },
     {
-      metricName: Metric.PAGES_PER_SESSION,
+      metricName: Metric.ENGAGED_SESSIONS,
       metricValue: Number(values[8]?.value ?? 0),
     },
     {
-      metricName: Metric.ENGAGEMENT_TIME,
+      metricName: Metric.PAGES_PER_SESSION,
       metricValue: Number(values[9]?.value ?? 0),
+    },
+    {
+      metricName: Metric.ENGAGEMENT_TIME,
+      metricValue: Number(values[10]?.value ?? 0),
     },
   ];
 
@@ -188,6 +247,198 @@ async function runReportForDay(date: Date) {
         metricDate: date,
         lastSynced: new Date(),
       });
+    }
+  }
+
+  async function upsertBreakdownMetric(
+    metricName: Metric,
+    breakdownKey: string,
+    breakdownValue: string,
+    metricValue: number,
+  ) {
+    const existing = existingMetrics.find(
+      (m: any) =>
+        m.metricName === metricName &&
+        m.metricDate?.getTime() === date.getTime() &&
+        m.breakdownKey === breakdownKey &&
+        m.breakdownValue === breakdownValue,
+    );
+
+    if (existing) {
+      await updateSocialMediaMetric(existing.id, {
+        metricName,
+        metricValue,
+        metricDate: date,
+        breakdownKey,
+        breakdownValue,
+        lastSynced: new Date(),
+      });
+      return;
+    }
+
+    await createSocialMediaMetric({
+      socialMediaId,
+      metricName,
+      metricValue,
+      metricDate: date,
+      breakdownKey,
+      breakdownValue,
+      lastSynced: new Date(),
+    });
+  }
+
+  try {
+    const sourceResponse = await runGAReport(
+      {
+        property: "properties/393011442",
+        dateRanges: [{ startDate: isoDate, endDate: isoDate }],
+        dimensions: [{ name: "sessionSource" }],
+        metrics: [{ name: "sessions" }],
+      },
+      "backfill sessionSource report",
+    );
+
+    for (const row of sourceResponse.rows ?? []) {
+      const source = row.dimensionValues?.[0]?.value ?? "unknown";
+      const sessions = Number(row.metricValues?.[0]?.value ?? 0);
+      await upsertBreakdownMetric(
+        Metric.SESSIONS_BY_SOURCE,
+        "sessionSource",
+        source,
+        sessions,
+      );
+    }
+  } catch {
+    // Keep core backfill running even if this breakdown is unavailable.
+  }
+
+  try {
+    const deviceResponse = await runGAReport(
+      {
+        property: "properties/393011442",
+        dateRanges: [{ startDate: isoDate, endDate: isoDate }],
+        dimensions: [{ name: "deviceCategory" }],
+        metrics: [{ name: "sessions" }],
+      },
+      "backfill deviceCategory report",
+    );
+
+    for (const row of deviceResponse.rows ?? []) {
+      const category = row.dimensionValues?.[0]?.value ?? "unknown";
+      const sessions = Number(row.metricValues?.[0]?.value ?? 0);
+      await upsertBreakdownMetric(
+        Metric.TOTAL_SESSIONS,
+        "deviceCategory",
+        category,
+        sessions,
+      );
+    }
+  } catch {
+    // Keep core backfill running even if this breakdown is unavailable.
+  }
+
+  async function upsertCountySessions(countySessions: Map<string, number>) {
+    for (const [countyFips, sessions] of countySessions.entries()) {
+      const existing = existingMetrics.find(
+        (m: any) =>
+          m.metricName === Metric.TOTAL_SESSIONS &&
+          m.metricDate?.getTime() === date.getTime() &&
+          m.breakdownKey === "county" &&
+          m.breakdownValue === countyFips,
+      );
+
+      if (existing) {
+        await updateSocialMediaMetric(existing.id, {
+          metricName: Metric.TOTAL_SESSIONS,
+          metricValue: sessions,
+          metricDate: date,
+          breakdownKey: "county",
+          breakdownValue: countyFips,
+          lastSynced: new Date(),
+        });
+      } else {
+        await createSocialMediaMetric({
+          socialMediaId,
+          metricName: Metric.TOTAL_SESSIONS,
+          metricValue: sessions,
+          metricDate: date,
+          breakdownKey: "county",
+          breakdownValue: countyFips,
+          lastSynced: new Date(),
+        });
+      }
+    }
+  }
+
+  let countyRowsWritten = 0;
+  try {
+    const isoDate = date.toISOString().slice(0, 10);
+    const countyResponse = await runGAReport(
+      {
+        property: "properties/393011442",
+        dateRanges: [{ startDate: isoDate, endDate: isoDate }],
+        dimensions: [{ name: "customEvent:county" }],
+        metrics: [{ name: "sessions" }],
+      },
+      "backfill custom county report",
+    );
+
+    const countySessions = new Map<string, number>();
+    for (const row of countyResponse.rows ?? []) {
+      const rawCounty = row.dimensionValues?.[0]?.value ?? "";
+      const countyFips = toMassachusettsCountyFips(rawCounty);
+      if (!countyFips) continue;
+
+      const sessions = Number(row.metricValues?.[0]?.value ?? 0);
+      countySessions.set(countyFips, (countySessions.get(countyFips) ?? 0) + sessions);
+    }
+
+    if (countySessions.size > 0) {
+      await upsertCountySessions(countySessions);
+      countyRowsWritten = countySessions.size;
+    }
+  } catch {
+    // Custom county dimension may not exist in GA property yet.
+  }
+
+  if (countyRowsWritten === 0) {
+    let cityResponse;
+    try {
+      cityResponse = await runGAReport(
+        {
+          property: "properties/393011442",
+          dateRanges: [{ startDate: isoDate, endDate: isoDate }],
+          dimensions: [{ name: "country" }, { name: "region" }, { name: "city" }],
+          metrics: [{ name: "sessions" }],
+        },
+        "backfill city fallback report",
+      );
+    } catch (err) {
+      console.warn(`[GA] city fallback report failed for ${isoDate}; skipping.`);
+      if (process.env.DEBUG_METRICS === "1") {
+        console.warn(err);
+      }
+      cityResponse = { rows: [] };
+    }
+
+    const countySessions = new Map<string, number>();
+    for (const row of cityResponse.rows ?? []) {
+      const country = row.dimensionValues?.[0]?.value ?? "";
+      const region = row.dimensionValues?.[1]?.value ?? "";
+      const city = row.dimensionValues?.[2]?.value ?? "";
+      if (country !== "United States" || region !== "Massachusetts") continue;
+
+      const countyFips = toMassachusettsCountyFipsFromCity(city);
+      if (!countyFips) continue;
+
+      const sessions = Number(row.metricValues?.[0]?.value ?? 0);
+      countySessions.set(countyFips, (countySessions.get(countyFips) ?? 0) + sessions);
+    }
+
+    if (countySessions.size > 0) {
+      await upsertCountySessions(countySessions);
+      countyRowsWritten = countySessions.size;
+      console.log(`[GA] County fallback from city mapping wrote ${countyRowsWritten} rows for ${isoDate}`);
     }
   }
 

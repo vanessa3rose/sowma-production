@@ -632,7 +632,7 @@ export default function GoogleAnalyticsPage() {
           displayMode="metric-only"
           className="w-full"
           metricValue={dMetrics.screenPageViews}
-          metricLabel={pageViewsAsOf ? `views (as of ${pageViewsAsOf})` : "views"}
+          metricValueNote={pageViewsAsOf ? `views (as of ${pageViewsAsOf})` : "views"}
           metricChange={formatPercentChange(metricSummaries.screenPageViews)}
         />
         <SmallCard
