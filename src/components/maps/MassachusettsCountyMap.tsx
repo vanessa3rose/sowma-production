@@ -24,6 +24,7 @@ interface MassachusettsCountyMapProps {
   totalValue?: number;
   valueLabel?: string; // "Visitors" / "Sessions"
   intensityLabel?: string; // "% of total"
+  showLegend?: boolean;
 }
 
 type CountyTooltip = {
@@ -64,6 +65,7 @@ export default function MassachusettsCountyMap({
   totalValue,
   valueLabel = "Visitors",
   intensityLabel = "% of total",
+  showLegend = true,
 }: MassachusettsCountyMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [tooltip, setTooltip] = useState<CountyTooltip | null>(null);
@@ -171,16 +173,18 @@ export default function MassachusettsCountyMap({
       </div>
 
       {/* Legend */}
-      <div className="absolute right-2 bottom-2 z-10 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-md">
-        <div className="mb-1 text-[11px] font-[Poppins] font-semibold text-gray-800">
-          Visit Intensity
+      {showLegend ? (
+        <div className="absolute right-2 bottom-2 z-10 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-md">
+          <div className="mb-1 text-[11px] font-[Poppins] font-semibold text-gray-800">
+            Visit Intensity
+          </div>
+          <div className="h-2 w-28 rounded bg-gradient-to-r from-blue-100 to-blue-700" />
+          <div className="mt-1 flex justify-between text-[10px] font-[Poppins] text-gray-600">
+            <span>Low</span>
+            <span>High</span>
+          </div>
         </div>
-        <div className="h-2 w-28 rounded bg-gradient-to-r from-blue-100 to-blue-700" />
-        <div className="mt-1 flex justify-between text-[10px] font-[Poppins] text-gray-600">
-          <span>Low</span>
-          <span>High</span>
-        </div>
-      </div>
+      ) : null}
 
       {/* Tooltip */}
       {tooltip && (

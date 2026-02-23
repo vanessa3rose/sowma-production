@@ -4,6 +4,14 @@ export interface GoogleAnalyticsExportBundle {
     string,
     { current: number | null; prev: number | null }
   >;
+  countyTotals?: Record<string, number>;
+  sourceTotals?: Record<string, number>;
+  deviceTotals?: Record<string, number>;
+  newVsReturning?: {
+    newUsers: number;
+    returningUsers: number;
+  };
+  pageViewsAsOf?: string | null;
 }
 
 // ---------- Social Media ----------

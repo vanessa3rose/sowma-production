@@ -22,13 +22,19 @@ type PieChartsProps = {
   data: any[];
   dataKey: string;
   nameKey: string;
+  disableAnimation?: boolean;
 };
 
 function formatPieLabel({ value, percent }: PieLabelRenderProps) {
   return `${value} (${((percent as number) * 100).toFixed(0)}%)`;
 }
 
-const PieCharts = ({ data, dataKey, nameKey }: PieChartsProps) => {
+const PieCharts = ({
+  data,
+  dataKey,
+  nameKey,
+  disableAnimation = false,
+}: PieChartsProps) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState<{ width: number; height: number }>({
     width: 0,
@@ -71,6 +77,7 @@ const PieCharts = ({ data, dataKey, nameKey }: PieChartsProps) => {
             labelLine={compact ? false : true}
             cx="50%"
             cy="50%"
+            isAnimationActive={!disableAnimation}
           >
             {data.map((_: any, index: number) => (
               <Cell

@@ -2,6 +2,9 @@ import type { ReactNode } from "react";
 import type { DateRangeId } from "../charts/DateDropdown";
 import type { ExportCardSelection } from "../../types/exportTypes";
 import LineCharts from "../charts/LineCharts";
+import PieCharts from "../charts/PieCharts";
+import BarCharts from "../charts/BarCharts";
+import MassachusettsCountyMap from "../maps/MassachusettsCountyMap";
 import {
   EXPORT_PLATFORM_CONFIGS,
   type ExportMetricFormat,
@@ -122,7 +125,7 @@ function ChartBlock({
   dataKeys,
 }: {
   title: string;
-  data: any[];
+  data: Array<Record<string, unknown>>;
   dataKeys: string[];
 }) {
   const hasData = Array.isArray(data) && data.length > 0;
@@ -143,12 +146,13 @@ function ChartBlock({
         {title}
       </div>
       {hasData ? (
-        <div className="flex w-full h-[200px]">
+        <div className="flex w-full h-[200px] min-h-0">
           <LineCharts
             data={data}
             xAxisKey="date"
             dataKeys={dataKeys}
             showArea
+            compact
           />
         </div>
       ) : (
@@ -158,6 +162,96 @@ function ChartBlock({
       )}
     </div>
   );
+}
+
+const PDF_CARD_STYLE: React.CSSProperties = {
+  backgroundColor: "#ffffff",
+  border: "1px solid #E5E5E5",
+  borderBottom: "3px solid #D1D5DB",
+  borderRight: "2px solid #D1D5DB",
+  borderRadius: "12px",
+  padding: "20px",
+  fontFamily: "Poppins, sans-serif",
+};
+
+function GoogleSmallMetricCard({
+  title,
+  value,
+  valueNote,
+  delta,
+}: {
+  title: string;
+  value: string;
+  valueNote?: string;
+  delta: string;
+}) {
+  return (
+    <div style={PDF_CARD_STYLE}>
+      <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+        {title}
+      </div>
+      <div className="mt-1 flex items-baseline gap-2 flex-wrap">
+        <span style={{ fontSize: "32px", fontWeight: 400, color: "#3B82F6" }}>
+          {value}
+        </span>
+        {valueNote ? (
+          <span style={{ fontSize: "14px", color: "#6B7280" }}>{valueNote}</span>
+        ) : null}
+      </div>
+      <div
+        style={{
+          fontSize: "14px",
+          color: delta.includes("+")
+            ? "#10B981"
+            : delta.includes("-")
+              ? "#EF4444"
+              : "#6B7280",
+          marginTop: "4px",
+        }}
+      >
+        {delta}
+      </div>
+    </div>
+  );
+}
+
+function GoogleChartCard({
+  title,
+  subtitle,
+  children,
+  height = 220,
+}: {
+  title: string;
+  subtitle?: string;
+  children: ReactNode;
+  height?: number;
+}) {
+  return (
+    <div
+      className="flex flex-col"
+      style={{ ...PDF_CARD_STYLE, minHeight: `${height}px`, height: `${height}px` }}
+    >
+      <div className="flex items-center justify-between">
+        <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+          {title}
+        </div>
+        {subtitle ? (
+          <div style={{ fontSize: "12px", fontWeight: 500, color: "#4B5563" }}>
+            {subtitle}
+          </div>
+        ) : null}
+      </div>
+      <div className="mt-2 flex-1 min-h-0">{children}</div>
+    </div>
+  );
+}
+
+function toCountyIntensity(countyTotals: Record<string, number>) {
+  const total = Object.values(countyTotals).reduce((sum, value) => sum + value, 0);
+  if (total <= 0) return {};
+  return Object.fromEntries(
+    Object.entries(countyTotals).map(([county, value]) => [county, value / total]),
+  ) as Record<string, number>;
 }
 
 function ExportPage({ children }: { children: ReactNode }) {
@@ -224,10 +318,205 @@ export default function ExportReportView({
   return (
     <div className="bg-white">
       {selections.map((selection, index) => {
-        const platformKey =
-          selection.type === "google"
-            ? "google"
-            : (selection.platform as Platform);
+        if (selection.type === "google") {
+          const metricSummaries = selection.data.metricSummaries;
+          const chartDataMap = selection.data.chartDataMap;
+          const rangeLabel = RANGE_LABELS[range];
+
+          const pageViewsSummary = metricSummaries.SCREEN_PAGE_VIEWS ?? {
+            current: 0,
+            prev: 0,
+          };
+          const active7Summary = metricSummaries.ACTIVE_7_DAY_USERS ?? {
+            current: 0,
+            prev: 0,
+          };
+          const engagementTimeSummary = metricSummaries.ENGAGEMENT_TIME ?? {
+            current: 0,
+            prev: 0,
+          };
+          const countyTotals = selection.data.countyTotals ?? {};
+          const countyIntensity = toCountyIntensity(countyTotals);
+          const countyTotal = Object.values(countyTotals).reduce(
+            (sum, value) => sum + value,
+            0,
+          );
+
+          const newVs = selection.data.newVsReturning ?? {
+            newUsers: 0,
+            returningUsers: 0,
+          };
+          const newVsData = [
+            { label: "New Users", value: newVs.newUsers },
+            { label: "Returning Users", value: newVs.returningUsers },
+          ];
+
+          const deviceData = Object.entries(selection.data.deviceTotals ?? {}).map(
+            ([label, value]) => ({
+              label:
+                label.length > 0
+                  ? label[0].toUpperCase() + label.slice(1).toLowerCase()
+                  : "Unknown",
+              value,
+            }),
+          );
+          const sourceData = Object.entries(selection.data.sourceTotals ?? {})
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 8)
+            .map(([source, sessions]) => ({ source, sessions }));
+
+          return (
+            <div key={`google-${index}`}>
+              <ExportPage>
+                {index === 0 ? (
+                  <div className="mb-6 border-b border-gray-200 pb-4">
+                    <div className="text-2xl font-semibold">
+                      SOWMA Social Media Analytics Report
+                    </div>
+                    <div className="mt-1 text-sm text-gray-600">
+                      Generated {timestamp} - {rangeLabel}
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500">
+                      Note: Metrics are daily values unless explicitly labeled
+                      as cumulative.
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="text-3xl font-bold mb-4">Google Analytics</div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <GoogleSmallMetricCard
+                    title="Page Views"
+                    value={formatValue(pageViewsSummary.current ?? 0, "number")}
+                    valueNote={
+                      selection.data.pageViewsAsOf
+                        ? `views (as of ${selection.data.pageViewsAsOf})`
+                        : "views"
+                    }
+                    delta={formatDelta(
+                      (pageViewsSummary.current ?? 0) - (pageViewsSummary.prev ?? 0),
+                      "number",
+                    )}
+                  />
+                  <GoogleSmallMetricCard
+                    title="Active 7-Day Users"
+                    value={formatValue(active7Summary.current ?? 0, "number")}
+                    valueNote="users (7D)"
+                    delta={formatDelta(
+                      (active7Summary.current ?? 0) - (active7Summary.prev ?? 0),
+                      "number",
+                    )}
+                  />
+                  <GoogleSmallMetricCard
+                    title="Avg Engagement Time"
+                    value={formatValue(engagementTimeSummary.current ?? 0, "seconds")}
+                    valueNote="seconds"
+                    delta={formatDelta(
+                      (engagementTimeSummary.current ?? 0) -
+                        (engagementTimeSummary.prev ?? 0),
+                      "seconds",
+                    )}
+                  />
+                </div>
+
+                <div className="mt-3 flex gap-4">
+                  <div className="w-3/5">
+                    <GoogleChartCard
+                      title="Massachusetts Visitors by County"
+                      subtitle={rangeLabel}
+                      height={255}
+                    >
+                      <MassachusettsCountyMap
+                        countyIntensity={countyIntensity}
+                        countyValue={countyTotals}
+                        totalValue={countyTotal}
+                        valueLabel="Visitors"
+                        intensityLabel="% of total"
+                        showLegend={false}
+                      />
+                    </GoogleChartCard>
+                  </div>
+                  <div className="w-2/5">
+                    <GoogleChartCard
+                      title="New vs Returning Users"
+                      subtitle={rangeLabel}
+                      height={255}
+                    >
+                      <PieCharts
+                        data={newVsData}
+                        dataKey="value"
+                        nameKey="label"
+                        disableAnimation
+                      />
+                    </GoogleChartCard>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex gap-4">
+                  <div className="w-2/5">
+                    <GoogleChartCard
+                      title="Sessions by Device Category"
+                      subtitle={rangeLabel}
+                      height={255}
+                    >
+                      <PieCharts
+                        data={deviceData}
+                        dataKey="value"
+                        nameKey="label"
+                        disableAnimation
+                      />
+                    </GoogleChartCard>
+                  </div>
+                  <div className="w-3/5">
+                    <GoogleChartCard
+                      title="Active Users"
+                      subtitle={rangeLabel}
+                      height={255}
+                    >
+                      <LineCharts
+                        data={chartDataMap.ACTIVE_USERS ?? []}
+                        xAxisKey="date"
+                        dataKeys={["value"]}
+                        showArea
+                        compact
+                      />
+                    </GoogleChartCard>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-4">
+                  <GoogleChartCard
+                    title="Traffic Source Breakdown"
+                    subtitle={rangeLabel}
+                    height={270}
+                  >
+                    <BarCharts
+                      data={sourceData}
+                      xAxisKey="source"
+                      dataKeys={["sessions"]}
+                    />
+                  </GoogleChartCard>
+                  <GoogleChartCard
+                    title="Engagement Rate"
+                    subtitle={rangeLabel}
+                    height={270}
+                  >
+                    <LineCharts
+                      data={chartDataMap.ENGAGEMENT_RATE ?? []}
+                      xAxisKey="date"
+                      dataKeys={["value"]}
+                      showArea
+                      compact
+                    />
+                  </GoogleChartCard>
+                </div>
+              </ExportPage>
+            </div>
+          );
+        }
+
+        const platformKey = selection.platform as Platform;
         const config = EXPORT_PLATFORM_CONFIGS[platformKey];
 
         const metrics = config.metrics.map((metric) => {

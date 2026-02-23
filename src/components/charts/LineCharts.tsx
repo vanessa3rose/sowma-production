@@ -20,6 +20,7 @@ type LineChartProps = {
   dataKeys: string[];
   showArea?: boolean;
   autoAdjustYAxis?: boolean;
+  compact?: boolean;
 };
 
 const LineCharts = ({
@@ -28,6 +29,7 @@ const LineCharts = ({
   dataKeys,
   showArea,
   autoAdjustYAxis = true,
+  compact = false,
 }: LineChartProps) => {
   const values: number[] = [];
   if (autoAdjustYAxis) {
@@ -57,7 +59,11 @@ const LineCharts = ({
       {showArea ? (
         <AreaChart
           data={data}
-          margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
+          margin={
+            compact
+              ? { top: 8, right: 12, left: 4, bottom: 24 }
+              : { top: 20, right: 50, left: 20, bottom: 80 }
+          }
         >
           <defs>
             {dataKeys.map((key, index) => (
@@ -86,12 +92,18 @@ const LineCharts = ({
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey={xAxisKey}
-            tick={{ fontFamily: "Poppins, sans-serif" }}
+            tick={{
+              fontFamily: "Poppins, sans-serif",
+              fontSize: compact ? 10 : 12,
+            }}
             interval="preserveStartEnd"
-            minTickGap={28}
+            minTickGap={compact ? 14 : 28}
           />
           <YAxis
-            tick={{ fontFamily: "Poppins, sans-serif" }}
+            tick={{
+              fontFamily: "Poppins, sans-serif",
+              fontSize: compact ? 10 : 12,
+            }}
             domain={yDomain}
             allowDecimals={false}
           />
@@ -103,7 +115,7 @@ const LineCharts = ({
               type="monotone"
               dataKey={key}
               stroke={COLORS[index % COLORS.length]}
-              strokeWidth={3}
+              strokeWidth={compact ? 2.5 : 3}
               fill={`url(#gradient-${key})`}
               fillOpacity={1}
             />
@@ -112,17 +124,27 @@ const LineCharts = ({
       ) : (
         <LineChart
           data={data}
-          margin={{ top: 20, right: 50, left: 20, bottom: 48 }}
+          margin={
+            compact
+              ? { top: 8, right: 12, left: 4, bottom: 24 }
+              : { top: 20, right: 50, left: 20, bottom: 48 }
+          }
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey={xAxisKey}
-            tick={{ fontFamily: "Poppins, sans-serif" }}
+            tick={{
+              fontFamily: "Poppins, sans-serif",
+              fontSize: compact ? 10 : 12,
+            }}
             interval="preserveStartEnd"
-            minTickGap={28}
+            minTickGap={compact ? 14 : 28}
           />
           <YAxis
-            tick={{ fontFamily: "Poppins, sans-serif" }}
+            tick={{
+              fontFamily: "Poppins, sans-serif",
+              fontSize: compact ? 10 : 12,
+            }}
             domain={yDomain}
             allowDecimals={false}
           />
@@ -133,8 +155,8 @@ const LineCharts = ({
               type="monotone"
               dataKey={key}
               stroke={COLORS[index % COLORS.length]}
-              strokeWidth={3}
-              dot={{ r: 4 }}
+              strokeWidth={compact ? 2.5 : 3}
+              dot={compact ? false : { r: 4 }}
               activeDot={false}
             />
           ))}
