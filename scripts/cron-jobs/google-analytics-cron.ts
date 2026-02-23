@@ -486,7 +486,6 @@ export async function runDailyGoogleAnalyticsSync() {
         dimensions: [{ name: "date" }],
         metrics: [
           { name: "activeUsers" },
-          { name: "active7DayUsers" },
           { name: "screenPageViews" },
           { name: "engagementRate" },
           { name: "newUsers" },
@@ -500,6 +499,15 @@ export async function runDailyGoogleAnalyticsSync() {
       },
       "daily core metrics report",
     );
+    const active7Response = await runGAReport(
+      {
+        property: "properties/393011442",
+        dateRanges: [{ startDate: dateStr, endDate: dateStr }],
+        dimensions: [{ name: "date" }],
+        metrics: [{ name: "active7DayUsers" }],
+      },
+      "daily active7day report",
+    );
 
     if (!response.rows || response.rows.length === 0) {
       console.error(`[GA] no rows returned for ${dateStr}`);
@@ -507,6 +515,7 @@ export async function runDailyGoogleAnalyticsSync() {
     }
 
     const values = response.rows[0].metricValues ?? [];
+    const active7Values = active7Response.rows?.[0]?.metricValues ?? [];
 
     const metricsToSave = [
       {
@@ -515,43 +524,43 @@ export async function runDailyGoogleAnalyticsSync() {
       },
       {
         metricName: Metric.ACTIVE_7_DAY_USERS,
-        metricValue: Number(values[1]?.value ?? 0),
+        metricValue: Number(active7Values[0]?.value ?? 0),
       },
       {
         metricName: Metric.SCREEN_PAGE_VIEWS,
-        metricValue: Number(values[2]?.value ?? 0),
+        metricValue: Number(values[1]?.value ?? 0),
       },
       {
         metricName: Metric.ENGAGEMENT_RATE,
-        metricValue: Number(values[3]?.value ?? 0) * 100,
+        metricValue: Number(values[2]?.value ?? 0) * 100,
       },
       {
         metricName: Metric.NEW_USERS,
-        metricValue: Number(values[4]?.value ?? 0),
+        metricValue: Number(values[3]?.value ?? 0),
       },
       {
         metricName: Metric.BOUNCE_RATE,
-        metricValue: Number(values[5]?.value ?? 0) * 100,
+        metricValue: Number(values[4]?.value ?? 0) * 100,
       },
       {
         metricName: Metric.AVG_SESSION_DURATION,
-        metricValue: Number(values[6]?.value ?? 0),
+        metricValue: Number(values[5]?.value ?? 0),
       },
       {
         metricName: Metric.TOTAL_SESSIONS,
-        metricValue: Number(values[7]?.value ?? 0),
+        metricValue: Number(values[6]?.value ?? 0),
       },
       {
         metricName: Metric.ENGAGED_SESSIONS,
-        metricValue: Number(values[8]?.value ?? 0),
+        metricValue: Number(values[7]?.value ?? 0),
       },
       {
         metricName: Metric.PAGES_PER_SESSION,
-        metricValue: Number(values[9]?.value ?? 0),
+        metricValue: Number(values[8]?.value ?? 0),
       },
       {
         metricName: Metric.ENGAGEMENT_TIME,
-        metricValue: Number(values[10]?.value ?? 0),
+        metricValue: Number(values[9]?.value ?? 0),
       },
     ];
 
