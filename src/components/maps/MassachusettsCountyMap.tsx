@@ -84,6 +84,27 @@ export default function MassachusettsCountyMap({
     }, 0);
   }, [countyValue, totalValue]);
 
+  // Fill shading is relative to the max county value so the largest county is the deepest color.
+  // If values are not available, fall back to caller-provided intensity.
+  const fillIntensityByCounty: Partial<Record<CountyId, number>> = useMemo(() => {
+    if (!countyValue) return countyIntensity ?? {};
+
+    const entries = Object.entries(countyValue)
+      .map(([id, value]) => [id, toFiniteNumber(value)] as const)
+      .filter(([, value]) => value != null && value >= 0) as Array<
+      readonly [string, number]
+    >;
+
+    if (entries.length === 0) return countyIntensity ?? {};
+
+    const maxValue = entries.reduce((max, [, value]) => Math.max(max, value), 0);
+    if (maxValue <= 0) return countyIntensity ?? {};
+
+    return Object.fromEntries(
+      entries.map(([id, value]) => [id, clamp01(value / maxValue)]),
+    ) as Partial<Record<CountyId, number>>;
+  }, [countyIntensity, countyValue]);
+
   return (
     <div
       ref={containerRef}
@@ -119,7 +140,7 @@ export default function MassachusettsCountyMap({
                   .map((geo: GeoFeature) => {
                     const countyId = toCountyId(geo.id);
 
-                    const intensity = countyIntensity?.[countyId];
+                    const intensity = fillIntensityByCounty?.[countyId];
                     const fillColor =
                       intensity == null
                         ? DEFAULT_COUNTY_COLOR
