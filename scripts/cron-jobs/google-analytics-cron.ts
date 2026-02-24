@@ -120,6 +120,12 @@ function getYesterdayUTC(): Date {
   return d;
 }
 
+function isoDateDaysBefore(date: Date, days: number): string {
+  const d = new Date(date);
+  d.setUTCDate(d.getUTCDate() - days);
+  return formatISODate(d);
+}
+
 /**
  * Helper: breakdown for New vs Returning (pie chart)
  */
@@ -499,14 +505,14 @@ export async function runDailyGoogleAnalyticsSync() {
       },
       "daily core metrics report",
     );
+    const active7WindowStart = isoDateDaysBefore(metricDate, 6);
     const active7Response = await runGAReport(
       {
         property: "properties/393011442",
-        dateRanges: [{ startDate: dateStr, endDate: dateStr }],
-        dimensions: [{ name: "date" }],
-        metrics: [{ name: "active7DayUsers" }],
+        dateRanges: [{ startDate: active7WindowStart, endDate: dateStr }],
+        metrics: [{ name: "activeUsers" }],
       },
-      "daily active7day report",
+      "daily rolling-7d active users report",
     );
 
     if (!response.rows || response.rows.length === 0) {
@@ -515,7 +521,10 @@ export async function runDailyGoogleAnalyticsSync() {
     }
 
     const values = response.rows[0].metricValues ?? [];
-    const active7Values = active7Response.rows?.[0]?.metricValues ?? [];
+    const active7Values =
+      active7Response.rows?.[0]?.metricValues ??
+      active7Response.totals?.[0]?.metricValues ??
+      [];
 
     const metricsToSave = [
       {

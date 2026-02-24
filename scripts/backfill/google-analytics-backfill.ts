@@ -135,6 +135,12 @@ function getEarliestPossibleDate(): Date {
   return d;
 }
 
+function isoDateDaysBefore(date: Date, days: number): string {
+  const d = new Date(date);
+  d.setUTCDate(d.getUTCDate() - days);
+  return d.toISOString().slice(0, 10);
+}
+
 // -------------------------------
 // Run GA report for a single day
 // -------------------------------
@@ -161,14 +167,14 @@ async function runReportForDay(date: Date) {
     },
     "backfill core metrics report",
   );
+  const active7WindowStart = isoDateDaysBefore(date, 6);
   const active7Response = await runGAReport(
     {
       property: "properties/393011442",
-      dateRanges: [{ startDate: isoDate, endDate: isoDate }],
-      dimensions: [{ name: "date" }],
-      metrics: [{ name: "active7DayUsers" }],
+      dateRanges: [{ startDate: active7WindowStart, endDate: isoDate }],
+      metrics: [{ name: "activeUsers" }],
     },
-    "backfill active7day report",
+    "backfill rolling-7d active users report",
   );
 
   if (!response.rows || response.rows.length === 0) {
@@ -184,7 +190,10 @@ async function runReportForDay(date: Date) {
   const existingMetrics = await getMetricsBySocialMediaId(socialMediaId);
 
   const values = response.rows[0].metricValues ?? [];
-  const active7Values = active7Response.rows?.[0]?.metricValues ?? [];
+  const active7Values =
+    active7Response.rows?.[0]?.metricValues ??
+    active7Response.totals?.[0]?.metricValues ??
+    [];
   const metricsToSave = [
     {
       metricName: Metric.ACTIVE_USERS,
