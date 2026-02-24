@@ -117,6 +117,42 @@ function aggregateBreakdownTotals(
   return totals;
 }
 
+function toTitleCaseLabel(input: string): string {
+  return input.replace(/[A-Za-z]+/g, (word) => {
+    if (word.length === 0) return word;
+    return word[0].toUpperCase() + word.slice(1).toLowerCase();
+  });
+}
+
+function groupSourceTotals(
+  sourceTotals: Record<string, number>,
+): Array<{ source: string; sessions: number; otherBreakdown?: Array<{ label: string; value: number }> }> {
+  const sorted = Object.entries(sourceTotals)
+    .sort((a, b) => b[1] - a[1])
+    .map(([source, sessions]) => ({
+      source: toTitleCaseLabel(source),
+      sessions,
+    }));
+
+  if (sorted.length <= 5) return sorted;
+
+  const top = sorted.slice(0, 4);
+  const otherItems = sorted.slice(4);
+  const otherTotal = otherItems.reduce((sum, item) => sum + item.sessions, 0);
+
+  return [
+    ...top,
+    {
+      source: "Other",
+      sessions: otherTotal,
+      otherBreakdown: otherItems.map((item) => ({
+        label: item.source,
+        value: item.sessions,
+      })),
+    },
+  ];
+}
+
 // share-of-total for tooltip/coloring
 function toShareOfTotalIntensity(
   countyVisits: Record<CountyId, number>,
@@ -533,13 +569,7 @@ export default function GoogleAnalyticsPage() {
     sourceRange,
   );
   const sourceTotals = aggregateBreakdownTotals(filteredSourceRows, "sessionSource");
-  const sourceData = Object.entries(sourceTotals)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8)
-    .map(([source, sessions]) => ({
-      source,
-      sessions,
-    }));
+  const sourceData = groupSourceTotals(sourceTotals);
   const sourceAvailableOptions: DateRangeId[] = ([
     "7d",
     "30d",
