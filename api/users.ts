@@ -1,6 +1,7 @@
-import { clerkClient } from "@clerk/clerk-sdk-node"; // Clerk for security
+import { clerkClient } from "@clerk/clerk-sdk-node";
+import { PrismaClient } from "../src/generated/prisma";
+const prisma = new PrismaClient();
 
-// Below are the user types, declared in schema.prisma
 export type Role = "ADMIN" | "USER" | "VIEWER";
 
 // Used when creating a brand-new, nonexistent user
@@ -25,17 +26,14 @@ export interface UpdateUserInput {
 
 //------- VALIDATION -------//
 
-// Given a string, determine if it is empty or contains only whitespace
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === "string" && v.trim().length > 0;
 }
 
-// Given a string, determine if it is a valid email (. and @ in the right places)
 function isEmail(v: unknown): v is string {
   return typeof v === "string" && /.+@.+\..+/.test(v);
 }
 
-// Creates error object that is returned if a bad user is created
 function makeBadRequest(message: string) {
   const err: any = new Error(message);
   err.status = 400;
@@ -69,11 +67,10 @@ function validateCreateUser(body: any): CreateUserInput & { role: Role } {
     email: String(body.email).trim(),
     password: String(body.password),
     role: (body?.role as Role) ?? "VIEWER",
-    isWaitlisted: body?.isWaitlisted === true, // Add this - converts to boolean
+    isWaitlisted: body?.isWaitlisted === true,
   };
 }
 
-// Validates the body of updating a user. Assumes any existing users are properly formatted
 function validateUpdateUser(body: any): UpdateUserInput {
   if (!body || typeof body !== "object")
     throw makeBadRequest("Body must be an object");
@@ -107,7 +104,7 @@ function validateUpdateUser(body: any): UpdateUserInput {
       body.role !== "USER" &&
       body.role !== "VIEWER"
     ) {
-      throw makeBadRequest("role must be 'ADMIN', 'USER', or 'VIEWER");
+      throw makeBadRequest("role must be 'ADMIN', 'USER', or 'VIEWER'");
     }
     out.role = body.role;
   }
@@ -120,7 +117,6 @@ function validateUpdateUser(body: any): UpdateUserInput {
 
 //------- HELPER FUNCTIONS -------//
 
-// Takes a Clerk output and reformats to fit our system
 function shapeUser(u: any) {
   const role =
     (u.publicMetadata?.role as "ADMIN" | "USER" | "VIEWER" | undefined) ??
@@ -138,8 +134,6 @@ function shapeUser(u: any) {
   };
 }
 
-// Merges an existing Clerk object with a UpdateUserInput - any empty fields in
-// the UpdateUserInput are filled with the "old" Clerk values.
 function toClerkUpdatePayload(body: UpdateUserInput) {
   const payload: Record<string, any> = {};
 
@@ -148,17 +142,13 @@ function toClerkUpdatePayload(body: UpdateUserInput) {
   if (body.email !== undefined) payload.emailAddress = [body.email];
   if (body.password !== undefined) payload.password = body.password;
 
-  // updates role and waitlisted using payload info
   if (body.role !== undefined || body.isWaitlisted !== undefined) {
     payload.publicMetadata = {
       ...(payload.publicMetadata ?? {}),
     };
-    if (body.role !== undefined) {
-      payload.publicMetadata.role = body.role;
-    }
-    if (body.isWaitlisted !== undefined) {
+    if (body.role !== undefined) payload.publicMetadata.role = body.role;
+    if (body.isWaitlisted !== undefined)
       payload.publicMetadata.isWaitlisted = body.isWaitlisted;
-    }
   }
 
   if (body.role !== undefined) payload.publicMetadata.role = body.role;
@@ -172,6 +162,8 @@ function toClerkUpdatePayload(body: UpdateUserInput) {
 
 export async function createUser(input: CreateUserInput) {
   const parsed = validateCreateUser(input);
+
+  // Create in Clerk
   const user = await clerkClient.users.createUser({
     firstName: parsed.firstName,
     lastName: parsed.lastName,
@@ -182,6 +174,21 @@ export async function createUser(input: CreateUserInput) {
       isWaitlisted: parsed.isWaitlisted,
     },
   });
+
+  await prisma.user.create({
+    data: {
+      clerkId: user.id,
+      firstName: parsed.firstName,
+      lastName: parsed.lastName,
+      email: parsed.email,
+      role: parsed.role,
+      isWaitlisted: parsed.isWaitlisted,
+      username: "",
+      password: parsed.password,
+      phone: "",
+    },
+  });
+
   return shapeUser(user);
 }
 
@@ -196,26 +203,48 @@ export async function getUsers(filter?: { email?: string }) {
 
 export async function updateUser(userId: string, updates: UpdateUserInput) {
   const parsed = validateUpdateUser(updates);
+
+  // Update in Clerk
   const updated = await clerkClient.users.updateUser(
     userId,
     toClerkUpdatePayload(parsed),
   );
+
+  // Update in Neon/Prisma
+  await prisma.user.update({
+    where: { clerkId: userId },
+    data: {
+      ...(parsed.firstName !== undefined && { firstName: parsed.firstName }),
+      ...(parsed.lastName !== undefined && { lastName: parsed.lastName }),
+      ...(parsed.email !== undefined && { email: parsed.email }),
+      ...(parsed.role !== undefined && { role: parsed.role }),
+      ...(parsed.isWaitlisted !== undefined && {
+        isWaitlisted: parsed.isWaitlisted,
+      }),
+    },
+  });
+
   return shapeUser(updated);
 }
 
 export async function deleteUser(userId: string) {
+  // Delete from Neon/Prisma first (before Clerk, so clerkId still exists)
+  await prisma.user.delete({
+    where: { clerkId: userId },
+  });
+
+  // Then delete from Clerk
   await clerkClient.users.deleteUser(userId);
+
   return { id: userId, deleted: true };
 }
 
 //------- VERCEL SERVERLESS ENDPOINT -------//
 
 export default async function handler(req: any, res: any) {
-  // Extract user ID if present (for PUT/DELETE)
   const userId = req.query.id as string | undefined;
 
   try {
-    // GET /api/users?email=...
     if (req.method === "GET") {
       const email =
         typeof req.query.email === "string" ? req.query.email : undefined;
@@ -224,28 +253,24 @@ export default async function handler(req: any, res: any) {
       return res.status(200).json({ ok: true, data: users });
     }
 
-    // POST /api/users
     if (req.method === "POST") {
       const created = await createUser(req.body);
       res.setHeader("Access-Control-Allow-Origin", "*");
       return res.status(201).json({ ok: true, data: created });
     }
 
-    // PUT /api/users/:id
     if (req.method === "PUT" && userId) {
       const updated = await updateUser(userId, req.body);
       res.setHeader("Access-Control-Allow-Origin", "*");
       return res.status(200).json({ ok: true, data: updated });
     }
 
-    // DELETE /api/users/:id
     if (req.method === "DELETE" && userId) {
       const result = await deleteUser(userId);
       res.setHeader("Access-Control-Allow-Origin", "*");
       return res.status(200).json({ ok: true, data: result });
     }
 
-    // If method not allowed
     res.setHeader("Allow", "GET,POST,PUT,DELETE");
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   } catch (err: any) {

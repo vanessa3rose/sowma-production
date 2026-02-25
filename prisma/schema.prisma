@@ -61,6 +61,7 @@ model DatabaseReportCount {
 
 model User {
   email        String  @id
+  clerkId      String?  @unique
   firstName    String
   lastName     String
   username     String  @unique
