@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import InstagramEmbed from "../../components/InstagramEmbed";
+
 
 // Cards
 import BigCard from "../../components/cards/BigCard";
@@ -31,7 +33,6 @@ type MetricConfig = {
   title: string;
   metric: string;
   metricLabel?: string;
-  description: string;
 };
 
 const PROVIDER = "INSTAGRAM";
@@ -39,41 +40,16 @@ const DEFAULT_START_DATE = "2024-01-01";
 const DEFAULT_END_DATE = "3000-01-01";
 
 const METRICS: MetricConfig[] = [
-  {
-    id: "impressions",
-    title: "Impressions",
-    metric: "VIEWS",
-    metricLabel: "",
-    description: "Number of users who see your website",
-  },
-  {
-    id: "followers",
-    title: "Followers",
-    metric: "FOLLOWERS",
-    metricLabel: "",
-    description: "Cumulative count",
-  },
-  {
-    id: "likes",
-    title: "Total Likes",
-    metric: "LIKES",
-    metricLabel: "",
-    description: "Cumulative count",
-  },
+  { id: "impressions", title: "Impressions", metric: "VIEWS", metricLabel: "" },
+  { id: "followers", title: "Followers", metric: "FOLLOWERS", metricLabel: "" },
+  { id: "likes", title: "Total Likes", metric: "LIKES", metricLabel: "" },
   {
     id: "comments",
     title: "Total Comments",
     metric: "COMMENTS",
     metricLabel: "",
-    description: "Cumulative count",
   },
-  {
-    id: "posts",
-    title: "Posts",
-    metric: "POSTS",
-    metricLabel: "",
-    description: "Cumulative count",
-  },
+  { id: "posts", title: "Posts", metric: "POSTS", metricLabel: "" },
 ];
 
 /* ---------- helpers ---------- */
@@ -217,15 +193,14 @@ export default function InstagramPage() {
     { label: "Comments", value: commentsNow },
     { label: "Posts", value: postsNow },
   ];
-
   return (
-    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 py-2">
+    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
-        <div className="flex items-center space-x-2">
+      <div className="w-full flex items-center px-4 py-2">
+        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
           <button
             onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px] flex items-center justify-center"
+            className="w-[40px] h-[40px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -243,20 +218,12 @@ export default function InstagramPage() {
             </svg>
           </button>
 
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
             Instagram
           </h1>
         </div>
-        <div className="flex flex-row justify-center items-center mt-2 lg:flex-row lg:mt-0 lg:space-x-2 space-x-4">
-          <a
-            href="https://www.instagram.com/schoolonwheelsma/?hl=en"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
-          >
-            {" "}
-            Go to Account{" "}
-          </a>
+
+        <div className="ml-auto">
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
@@ -274,7 +241,6 @@ export default function InstagramPage() {
                 <SmallCard
                   key={id}
                   title={cfg.title}
-                  titleTooltip={cfg.description}
                   displayMode="metric-only"
                   className="w-full h-full"
                   metricValue={s?.current ?? 0}
@@ -289,7 +255,6 @@ export default function InstagramPage() {
           <div className="lg:col-span-1">
             <BigCard
               title="Engagement Mix"
-              titleTooltip="Spread of interactions between Posts, Comments, and Likes"
               chart={
                 <div className="w-full h-64">
                   <PieCharts
@@ -305,56 +270,71 @@ export default function InstagramPage() {
           </div>
         </div>
 
-        {/* Only Likes BigCard */}
-        <div className="w-full grid grid-cols-1 gap-4 lg:h-full">
-          {METRICS.filter((cfg) => cfg.id === "likes").map((cfg) => {
-            const item = computed[cfg.id];
-            const filtered = item?.filtered ?? [];
-            const bounds = item?.bounds ?? { min: null, max: null };
-            const summary = item?.summary ?? { current: 0, prev: null };
+{/* Likes + Instagram Feed */}
+<div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 lg:h-full">
 
-            return (
-              <div key={cfg.id}>
-                <BigCard
-                  title={cfg.title}
-                  titleTooltip={cfg.description}
-                  subtitle={
-                    <DateDropdown
-                      value={ranges[cfg.id] ?? "30d"}
-                      onChange={(r) =>
-                        setRanges((prev) => ({ ...prev, [cfg.id]: r }))
-                      }
-                      minDate={bounds.min}
-                      maxDate={bounds.max}
-                    />
-                  }
-                  metricValue={summary.current ?? 0}
-                  metricLabel="total"
-                  metricChange={formatPercentChange(summary)}
-                  chart={
-                    filtered.length ? (
-                      <div className="w-full h-full">
-                        <LineCharts
-                          data={filtered}
-                          xAxisKey="date"
-                          dataKeys={["value"]}
-                          showArea
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center text-gray-500">
-                        No data available
-                      </div>
-                    )
-                  }
-                  displayMode="both"
-                  className="w-full h-[360px]"
-                />
-              </div>
-            );
-          })}
-        </div>
+  {/* Likes BigCard */}
+  {METRICS.filter((cfg) => cfg.id === "likes").map((cfg) => {
+    const item = computed[cfg.id];
+    const filtered = item?.filtered ?? [];
+    const bounds = item?.bounds ?? { min: null, max: null };
+    const summary = item?.summary ?? { current: 0, prev: null };
+
+    return (
+      <BigCard
+        key={cfg.id}
+        title={cfg.title}
+        subtitle={
+          <DateDropdown
+            value={ranges[cfg.id] ?? "30d"}
+            onChange={(r) =>
+              setRanges((prev) => ({ ...prev, [cfg.id]: r }))
+            }
+            minDate={bounds.min}
+            maxDate={bounds.max}
+          />
+        }
+        metricValue={summary.current ?? 0}
+        metricLabel="total"
+        metricChange={formatPercentChange(summary)}
+        chart={
+          filtered.length ? (
+            <div className="w-full h-64">
+              <LineCharts
+                data={filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                showArea
+              />
+            </div>
+          ) : (
+            <div className="h-64 flex items-center justify-center text-gray-500">
+              No data available
+            </div>
+          )
+        }
+        displayMode="both"
+        className="w-full h-full"
+      />
+    );
+  })}
+
+  {/* Instagram Feed */}
+  <BigCard
+    title="Recent Posts"
+    chart={
+      <div className="flex justify-center items-start w-full">
+        <InstagramEmbed />
       </div>
-    </div>
+    }
+    displayMode="chart-only"
+    className="w-full !h-auto"
+  />
+
+</div>
+</div>
+
+        </div>
+
   );
 }
