@@ -623,7 +623,7 @@ export default function GoogleAnalyticsPage() {
   // Render
   // ---------------------
   return (
-    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
+    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4 pt-4 lg:pt-6">
       {/* Header */}
       <div className="w-full flex items-center justify-between px-4 py-2">
         <div className="flex items-center space-x-2 mr-2 lg:mr-0">
@@ -652,7 +652,17 @@ export default function GoogleAnalyticsPage() {
           </h1>
         </div>
 
-        <ExportButton onExport={exportByPlatforms} />
+        <div className="flex flex-row justify-center items-center mt-2 lg:mt-0 lg:space-x-2 space-x-4">
+          <a
+            href="https://analytics.google.com/analytics/web/#/p393011442/reports/intelligenthome"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
+          >
+            Go to Account
+          </a>
+          <ExportButton onExport={exportByPlatforms} />
+        </div>
       </div>
 
       {/* Row 1: Top small cards */}
