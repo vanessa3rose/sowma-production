@@ -11,7 +11,7 @@ import PieCharts from "../../components/charts/PieCharts";
 // Buttons
 import DateDropdown, {
   DateRangeId,
-} from "../../components/charts/DateDropdown";
+} from "../../components/charts/DateButton";
 import ExportButton from "../../components/export-pdf/ExportButton";
 
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";

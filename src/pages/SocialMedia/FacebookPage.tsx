@@ -8,7 +8,7 @@ import SmallCard from "../../components/cards/SmallCard";
 import LineCharts from "../../components/charts/LineCharts";
 import DateDropdown, {
   DateRangeId,
-} from "../../components/charts/DateDropdown";
+} from "../../components/charts/DateButton";
 import ExportButton from "../../components/export-pdf/ExportButton";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";

@@ -3,7 +3,7 @@ import { GoogleAnalyticsExportBundle } from "../../src/types/exportTypes";
 import {
   computeRangeDates,
   type DateRangeId,
-} from "../../src/components/charts/DateDropdown";
+} from "../../src/components/charts/DateButton";
 import { EXPORT_PLATFORM_CONFIGS } from "./exportMetricsConfig";
 
 // ---------- Helpers ----------

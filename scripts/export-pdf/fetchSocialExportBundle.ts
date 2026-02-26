@@ -4,7 +4,7 @@ import { fetchMetrics, SocialMediaMetric } from "../../src/utils/fetchMetrics";
 import {
   computeRangeDates,
   type DateRangeId,
-} from "../../src/components/charts/DateDropdown";
+} from "../../src/components/charts/DateButton";
 import { EXPORT_PLATFORM_CONFIGS } from "./exportMetricsConfig";
 
 type SocialPlatform = Exclude<Platform, "google">;

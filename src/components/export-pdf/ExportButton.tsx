@@ -3,7 +3,7 @@ import { useUser } from "@clerk/clerk-react";
 
 import ExportModal from "./ExportModal";
 import type { Platform } from "../../config/chartConfigs";
-import type { DateRangeId } from "../charts/DateDropdown";
+import type { DateRangeId } from "../charts/DateButton";
 
 type Role = "ADMIN" | "USER" | "VIEWER";
 

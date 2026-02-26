@@ -1,7 +1,7 @@
 import { useState } from "react";
 import CheckboxTitle from "./CheckboxTitle";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import DateDropdown, { DateRangeId } from "../charts/DateDropdown";
+import DateDropdown, { DateRangeId } from "../charts/DateButton";
 import { Platform, PLATFORM_LABELS } from "../../config/chartConfigs";
 import LoadingAnimation from "../LoadingAnimation";
 

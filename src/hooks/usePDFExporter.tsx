@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 import type { ExportCardSelection } from "../types/exportTypes";
-import type { DateRangeId } from "../components/charts/DateDropdown";
+import type { DateRangeId } from "../components/charts/DateButton";
 import ExportReportView from "../components/export-pdf/ExportReportView";
 import { exportPDF } from "../utils/exportPDF";
 

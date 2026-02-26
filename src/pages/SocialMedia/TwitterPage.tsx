@@ -3,7 +3,7 @@ import BigCard from "../../components/cards/BigCard";
 import LineCharts from "../../components/charts/LineCharts";
 import DateDropdown, {
   DateRangeId,
-} from "../../components/charts/DateDropdown";
+} from "../../components/charts/DateButton";
 import ExportButton from "../../components/export-pdf/ExportButton";
 import { fetchMetrics, SocialMediaMetric } from "../..//utils/fetchMetrics";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";

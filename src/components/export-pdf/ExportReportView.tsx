@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { DateRangeId } from "../charts/DateDropdown";
+import type { DateRangeId } from "../charts/DateButton.js";
 import type { ExportCardSelection } from "../../types/exportTypes";
 import LineCharts from "../charts/LineCharts";
 import PieCharts from "../charts/PieCharts";
@@ -21,6 +21,7 @@ const RANGE_LABELS: Record<DateRangeId, string> = {
   "30d": "Last month",
   "1y": "Last year",
   all: "All time",
+  "custom": "Custom Range" 
 };
 
 function formatNumber(value: number, digits = 0) {

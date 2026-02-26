@@ -6,7 +6,7 @@ import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExport
 import LineCharts from "../components/charts/LineCharts";
 import BigCard from "../components/cards/BigCard";
 import PlatformMetricCard from "../components/cards/PlatformMetricCard";
-import DateDropdown, { DateRangeId } from "../components/charts/DateDropdown";
+import DateDropdown, { DateRangeId } from "../components/charts/DateButton";
 
 type ImpressionsPoint = { date: string; impressions: number };
 type DaysPostedPoint = { date: string; posts: number };
