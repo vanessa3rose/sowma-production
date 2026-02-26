@@ -16,7 +16,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="p-5 ml-6">
+    <div className="ml-6 px-5 pb-5 pt-8 lg:pt-10">
       <div className="flex items-center space-x-2">
         <button
           onClick={() => (window.location.href = "/")}
