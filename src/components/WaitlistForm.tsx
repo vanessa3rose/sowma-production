@@ -8,6 +8,8 @@ interface FormStatus {
 
 export default function WaitlistForm() {
   const [, setLocation] = useLocation();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<FormStatus>({
@@ -25,6 +27,13 @@ export default function WaitlistForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!firstName.trim() || !lastName.trim()) {
+      setStatus({
+        type: "error",
+        message: "Please enter your first and last name",
+      });
+      return;
+    }
 
     if (!isValidEmail(email)) {
       setStatus({
@@ -38,13 +47,27 @@ export default function WaitlistForm() {
     setStatus({ type: "idle", message: "" });
 
     try {
-      // Temporary success simulation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          email: email.trim().toLowerCase(),
+        }),
+      });
+      const body = await response.json();
+
+      if (!response.ok) {
+        throw new Error(body?.error || "Unable to join waitlist");
+      }
 
       setStatus({
         type: "success",
         message: "You've been added to the waitlist!",
       });
+      setFirstName("");
+      setLastName("");
       setEmail("");
     } catch (error) {
       setStatus({
@@ -80,6 +103,34 @@ export default function WaitlistForm() {
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              First name:
+            </label>
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="Jane"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sowma-blue focus:border-transparent outline-none transition-all"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Last name:
+            </label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Doe"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sowma-blue focus:border-transparent outline-none transition-all"
+              required
+            />
+          </div>
+        </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Email:

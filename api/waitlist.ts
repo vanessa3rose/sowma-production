@@ -35,7 +35,11 @@ function getSmtpEnv(): SmtpEnv | null {
   return { host, port, user, pass, from, secure };
 }
 
-async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
+async function sendWaitlistAdminEmail(
+  newUserEmail: string,
+  firstName: string,
+  lastName: string,
+): Promise<void> {
   console.log("[waitlist-email] called for:", newUserEmail);
 
   const smtp = getSmtpEnv();
@@ -88,10 +92,11 @@ async function sendWaitlistAdminEmail(newUserEmail: string): Promise<void> {
   const dashboardUrl =
     process.env.ADMIN_DASHBOARD_URL || "[ADMIN DASHBOARD PLACEHOLDER URL]";
 
-  const subject = `New waitlist signup: ${newUserEmail}`;
+  const subject = `New waitlist signup: ${firstName} ${lastName} (${newUserEmail})`;
   const text = [
     "A new user has joined the waitlist.",
     "",
+    `Name: ${firstName} ${lastName}`,
     `Email: ${newUserEmail}`,
     "",
     `Review: ${dashboardUrl}/admin`,
@@ -116,15 +121,34 @@ export default async function handler(req: any, res: any) {
   console.log("req.body:", req.body);
   const method = req.method;
 
-  if (method === "POST") {
+  if (method === "GET") {
+    try {
+      const entries = await prisma.waitlist.findMany({
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          createdAt: true,
+        },
+      });
+      return res.status(200).json(entries);
+    } catch (error: any) {
+      console.error("Error fetching waitlist users:", error);
+      return res.status(500).json({ error: "Failed to fetch waitlist users" });
+    }
+  } else if (method === "POST") {
     // ---------------- ADD TO WAITLIST ----------------
     try {
-      const { email } = req.body;
+      const rawFirstName = String(req.body?.firstName ?? "").trim();
+      const rawLastName = String(req.body?.lastName ?? "").trim();
+      const email = String(req.body?.email ?? "").trim().toLowerCase();
       console.log("Checking Clerk API for email:", email);
 
-      if (!email) {
+      if (!rawFirstName || !rawLastName || !email) {
         return res.status(400).json({
-          error: "Email is required",
+          error: "First name, last name, and email are required",
         });
       }
 
@@ -153,18 +177,22 @@ export default async function handler(req: any, res: any) {
 
       // Creates a new entry and adds it to the db
       const newEntry = await prisma.waitlist.create({
-        data: { email },
+        data: { email, firstName: rawFirstName, lastName: rawLastName },
       });
 
       try {
-        await sendWaitlistAdminEmail(newEntry.email);
+        await sendWaitlistAdminEmail(newEntry.email, rawFirstName, rawLastName);
       } catch (err) {
         console.error("[waitlist-email] Failed to send admin email:", err);
       }
 
       return res.status(201).json({
         message: "Successfully added to waitlist",
-        data: { email: newEntry.email },
+        data: {
+          email: newEntry.email,
+          firstName: newEntry.firstName,
+          lastName: newEntry.lastName,
+        },
       });
     } catch (error: any) {
       console.error("Error creating waitlist user:", error);
