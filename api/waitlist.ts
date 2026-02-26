@@ -1,7 +1,21 @@
 import { clerkClient } from "@clerk/express";
 import { PrismaClient } from "../src/generated/prisma/index.js";
 import nodemailer from "nodemailer";
-const prisma = new PrismaClient();
+
+function hasValidDatabaseUrl() {
+  const url = process.env.DATABASE_URL;
+  return !!url && /^(postgresql|postgres):\/\//i.test(url);
+}
+
+const prisma = new PrismaClient(
+  hasValidDatabaseUrl()
+    ? {
+        datasources: {
+          db: { url: process.env.DATABASE_URL as string },
+        },
+      }
+    : undefined,
+);
 
 // checks if an email is of the right format
 function isValidEmail(email: string): boolean {
@@ -35,20 +49,38 @@ function getSmtpEnv(): SmtpEnv | null {
   return { host, port, user, pass, from, secure };
 }
 
+function getInviteRedirectUrl(req?: any): string {
+  const origin = String(req?.headers?.origin ?? "").trim();
+  if (origin) return `${origin.replace(/\/+$/, "")}/accept-invite`;
+
+  const forwardedProto = String(req?.headers?.["x-forwarded-proto"] ?? "").trim();
+  const forwardedHost = String(req?.headers?.["x-forwarded-host"] ?? "").trim();
+  if (forwardedProto && forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}/accept-invite`;
+  }
+
+  const host = String(req?.headers?.host ?? "").trim();
+  if (host) return `http://${host}/accept-invite`;
+
+  const frontend = process.env.FRONTEND_URL;
+  if (frontend) return `${frontend.replace(/\/+$/, "")}/accept-invite`;
+
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl) return `https://${vercelUrl.replace(/\/+$/, "")}/accept-invite`;
+
+  return "http://localhost:5173/accept-invite";
+}
+
 async function sendWaitlistAdminEmail(
   newUserEmail: string,
   firstName: string,
   lastName: string,
 ): Promise<void> {
-  console.log("[waitlist-email] called for:", newUserEmail);
-
   const smtp = getSmtpEnv();
   if (!smtp) {
     console.error("[waitlist-email] Missing/invalid SMTP env vars.");
     return;
   }
-
-  console.log("[waitlist-email] querying admins from Clerk...");
 
   // Fetch users (returns PaginatedResourceResponse<User[]>)
   const allUsers = await clerkClient.users.getUserList({ limit: 100 });
@@ -74,11 +106,6 @@ async function sendWaitlistAdminEmail(
     return;
   }
 
-  console.log(
-    `[waitlist-email] Sending email to ${recipients.length} admin(s):`,
-    recipients,
-  );
-
   const transporter = nodemailer.createTransport({
     host: smtp.host,
     port: smtp.port,
@@ -102,24 +129,23 @@ async function sendWaitlistAdminEmail(
     `Review: ${dashboardUrl}/admin`,
   ].join("\n");
 
-  console.log("[waitlist-email] sending via nodemailer...");
-  const info = await transporter.sendMail({
+  await transporter.sendMail({
     from: smtp.from,
     to: recipients,
     subject,
     text,
   });
-
-  console.log(
-    "[waitlist-email] Email successfully sent. messageId:",
-    info.messageId,
-  );
 }
 
 export default async function handler(req: any, res: any) {
-  console.log("req.method:", req.method);
-  console.log("req.body:", req.body);
   const method = req.method;
+
+  if (!hasValidDatabaseUrl()) {
+    return res.status(500).json({
+      error:
+        "DATABASE_URL missing or invalid in API runtime (must start with postgres:// or postgresql://).",
+    });
+  }
 
   if (method === "GET") {
     try {
@@ -144,7 +170,6 @@ export default async function handler(req: any, res: any) {
       const rawFirstName = String(req.body?.firstName ?? "").trim();
       const rawLastName = String(req.body?.lastName ?? "").trim();
       const email = String(req.body?.email ?? "").trim().toLowerCase();
-      console.log("Checking Clerk API for email:", email);
 
       if (!rawFirstName || !rawLastName || !email) {
         return res.status(400).json({
@@ -199,6 +224,128 @@ export default async function handler(req: any, res: any) {
 
       return res.status(500).json({
         error: "Failed to add user to waitlist",
+      });
+    }
+  } else if (method === "PATCH") {
+    // ---------------- APPROVE / DENY WAITLIST ENTRY ----------------
+    try {
+      const action = String(req.body?.action ?? "").trim().toLowerCase();
+      const email = String(req.body?.email ?? "").trim().toLowerCase();
+
+      if (!action || !email) {
+        return res
+          .status(400)
+          .json({ error: "Action and email are required" });
+      }
+
+      if (action !== "approve" && action !== "deny") {
+        return res
+          .status(400)
+          .json({ error: "Action must be either 'approve' or 'deny'" });
+      }
+
+      const existingWaitlist = await prisma.waitlist.findUnique({
+        where: { email },
+      });
+
+      if (!existingWaitlist) {
+        return res.status(404).json({
+          error: "This email is not on the waitlist",
+        });
+      }
+
+      if (action === "approve") {
+        if (!process.env.CLERK_SECRET_KEY) {
+          console.error("CLERK_SECRET_KEY is not set in environment variables");
+          return res.status(500).json({ error: "Server misconfiguration" });
+        }
+
+        const existingClerkUsers = await clerkClient.users.getUserList({
+          emailAddress: [email],
+        });
+
+        if (existingClerkUsers.data.length > 0) {
+          return res.status(409).json({
+            error: "Failed: User email already in use",
+            code: "CLERK_DUPLICATE",
+          });
+        }
+
+        const pendingInvitations = await clerkClient.invitations.getInvitationList({
+          status: "pending",
+          query: email,
+          limit: 100,
+        });
+
+        const matchingPendingInvites = (pendingInvitations?.data ?? []).filter(
+          (invite: any) =>
+            String(invite?.emailAddress ?? "").toLowerCase() === email,
+        );
+
+        let revokedCount = 0;
+        for (const invite of matchingPendingInvites) {
+          if (!invite?.id) continue;
+          await clerkClient.invitations.revokeInvitation(invite.id);
+          revokedCount += 1;
+        }
+
+        let invitation: Awaited<
+          ReturnType<typeof clerkClient.invitations.createInvitation>
+        >;
+        try {
+          invitation = await clerkClient.invitations.createInvitation({
+            emailAddress: email,
+            redirectUrl: getInviteRedirectUrl(req),
+            notify: true,
+          });
+        } catch (inviteError: any) {
+          const inviteErrors = Array.isArray(inviteError?.errors)
+            ? inviteError.errors
+            : [];
+          const hasDuplicateInvitation = inviteErrors.some(
+            (err: any) =>
+              err?.code === "duplicate_record" &&
+              typeof err?.message === "string" &&
+              err.message.toLowerCase().includes("duplicate invitation"),
+          );
+
+          if (hasDuplicateInvitation) {
+            return res.status(409).json({
+              error: "Failed: Invitation already sent",
+              code: "CLERK_INVITATION_PENDING",
+            });
+          }
+
+          throw inviteError;
+        }
+        // Reflect successful approval in Neon by removing from waitlist.
+        await prisma.waitlist.delete({ where: { email } });
+
+        return res.status(200).json({
+          message:
+            revokedCount > 0
+              ? `Resent invitation to ${email}`
+              : `Approved and invited ${email}`,
+          data: {
+            email,
+            action,
+            resent: revokedCount > 0,
+            invitationUrl: invitation?.url ?? null,
+          },
+        });
+      }
+
+      // Reflect action in Neon by removing from waitlist.
+      await prisma.waitlist.delete({ where: { email } });
+
+      return res.status(200).json({
+        message: `Denied ${email}`,
+        data: { email, action },
+      });
+    } catch (error: any) {
+      console.error("Error updating waitlist user:", error);
+      return res.status(500).json({
+        error: "Failed to update waitlist user",
       });
     }
   } else if (method === "DELETE") {

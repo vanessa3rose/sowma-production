@@ -32,7 +32,10 @@ export default function Waitlist() {
     loadWaitlist();
   }, []);
 
-  async function handleWaitlistAction(email: string, action: "approve" | "deny") {
+  async function handleWaitlistAction(
+    email: string,
+    action: "approve" | "deny",
+  ) {
     try {
       setBusyEmail(email);
       setStatusMessage("");
@@ -49,7 +52,10 @@ export default function Waitlist() {
         if (response.status === 409 && body?.code === "CLERK_DUPLICATE") {
           throw new Error("Failed: User email already in use");
         }
-        if (response.status === 409 && body?.code === "CLERK_INVITATION_PENDING") {
+        if (
+          response.status === 409 &&
+          body?.code === "CLERK_INVITATION_PENDING"
+        ) {
           throw new Error("Failed: Invitation already sent");
         }
         throw new Error(body?.error || "Failed to update waitlist entry");
@@ -92,9 +98,13 @@ export default function Waitlist() {
           </div>
         ) : null}
         {loading ? (
-          <div className="py-6 text-center text-gray-500 font-poppins">Loading waitlist...</div>
+          <div className="py-6 text-center text-gray-500 font-poppins">
+            Loading waitlist...
+          </div>
         ) : users.length === 0 ? (
-          <div className="py-6 text-center text-gray-500 font-poppins">No waitlist entries yet.</div>
+          <div className="py-6 text-center text-gray-500 font-poppins">
+            No waitlist entries yet.
+          </div>
         ) : (
           users.map((user) => {
             const { localPart, domainPart } = splitEmail(user.email);
@@ -118,7 +128,9 @@ export default function Waitlist() {
                     onClick={() => handleWaitlistAction(user.email, "approve")}
                     disabled={busyEmail === user.email}
                   >
-                    <span className={busyEmail === user.email ? "opacity-0" : ""}>Approve</span>
+                    <span className={busyEmail === user.email ? "opacity-0" : ""}>
+                      Approve
+                    </span>
                     {busyEmail === user.email ? (
                       <span className="absolute inset-0 flex items-center justify-center">
                         <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
@@ -130,7 +142,9 @@ export default function Waitlist() {
                     onClick={() => handleWaitlistAction(user.email, "deny")}
                     disabled={busyEmail === user.email}
                   >
-                    <span className={busyEmail === user.email ? "opacity-0" : ""}>Deny</span>
+                    <span className={busyEmail === user.email ? "opacity-0" : ""}>
+                      Deny
+                    </span>
                     {busyEmail === user.email ? (
                       <span className="absolute inset-0 flex items-center justify-center">
                         <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
