@@ -70,12 +70,12 @@ export default function DateDropdown({
     }
     if (!minDate || !maxDate) return ALL_OPTIONS; // if unknown, show all
     const spanDays = daysBetween(minDate, maxDate) + 1;
-
+  
     return ALL_OPTIONS.filter((opt) => {
       if (opt.id === "all") return true;
-      if (opt.id === "7d") return spanDays >= 7;
-      if (opt.id === "30d") return spanDays >= 30;
-      if (opt.id === "1y") return spanDays >= 365;
+      if (opt.id === "7d") return spanDays >= 2;
+      if (opt.id === "30d") return spanDays >= 7;
+      if (opt.id === "1y") return spanDays >= 30;
       return true;
     });
   }, [minDate, maxDate, availableOptions]);

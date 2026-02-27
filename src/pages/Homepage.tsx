@@ -5,6 +5,7 @@ import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExport
 
 import LineCharts from "../components/charts/LineCharts";
 import BigCard from "../components/cards/BigCard";
+import PlatformMetricCard from "../components/cards/PlatformMetricCard";
 import DateDropdown, { DateRangeId } from "../components/charts/DateDropdown";
 
 type ImpressionsPoint = { date: string; impressions: number };
@@ -34,18 +35,23 @@ export default function Homepage() {
   const defaultStartDate = "2024-01-01";
   const defaultEndDate = "3000-01-01";
 
+  const formatSinceDate = (date: string | null, range: DateRangeId): string | null => {
+    if (!date) return null;
+    const d = new Date(date);
+    if (range === "7d" || range === "30d") {
+      return d.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit" });
+    }
+    return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  };
+
   function getSortedMetrics(raw: SocialMediaMetric[]): SocialMediaMetric[] {
-    return raw
-      .slice()
-      .sort((a, b) =>
-        (a.metricDate ?? a.lastSynced ?? "").localeCompare(
-          b.metricDate ?? b.lastSynced ?? "",
-        ),
-      );
+    return raw.slice().sort((a, b) =>
+      (a.metricDate ?? a.lastSynced ?? "").localeCompare(b.metricDate ?? b.lastSynced ?? "")
+    );
   }
 
   function mapToImpressionsPoints(raw: SocialMediaMetric[]): ImpressionsPoint[] {
-    return getSortedMetrics(raw).map((m) => {
+    return getSortedMetrics(raw).map(m => {
       const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
       return { date: timestamp.slice(0, 10), impressions: m.metricValue };
     });
@@ -55,20 +61,20 @@ export default function Homepage() {
     const sorted = getSortedMetrics(raw);
     if (daysPostedProvider === "FACEBOOK") {
       let runningTotal = 0;
-      return sorted.map((m) => {
+      return sorted.map(m => {
         const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
         runningTotal += m.metricValue;
         return { date: timestamp.slice(0, 10), posts: runningTotal };
       });
     }
-    return sorted.map((m) => {
+    return sorted.map(m => {
       const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
       return { date: timestamp.slice(0, 10), posts: m.metricValue };
     });
   }
 
   function mapToWebsiteSessionsPoints(raw: SocialMediaMetric[]): WebsiteSessionsPoint[] {
-    return getSortedMetrics(raw).map((m) => {
+    return getSortedMetrics(raw).map(m => {
       const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
       return { date: timestamp.slice(0, 10), sessions: m.metricValue };
     });
@@ -77,10 +83,7 @@ export default function Homepage() {
   function getBounds(dates: string[]) {
     if (!dates.length) return { min: null as Date | null, max: null as Date | null };
     const sorted = dates.slice().sort();
-    return {
-      min: new Date(sorted[0]),
-      max: new Date(sorted[sorted.length - 1]),
-    };
+    return { min: new Date(sorted[0]), max: new Date(sorted[sorted.length - 1]) };
   }
 
   function filterByRange<T extends { date: string }>(pts: T[], range: DateRangeId) {
@@ -98,61 +101,40 @@ export default function Homepage() {
     const startStr = start.toISOString().slice(0, 10);
     const endStr = end.toISOString().slice(0, 10);
 
-    return pts.filter((p) => p.date >= startStr && p.date <= endStr);
+    return pts.filter(p => p.date >= startStr && p.date <= endStr);
   }
 
   async function loadImpressions() {
     try {
-      const impressionsRaw = await fetchMetrics({
-        provider: impressionsProvider,
-        metric: "VIEWS",
-        startDate: defaultStartDate,
-        endDate: defaultEndDate,
-      });
-      setImpressionsData(mapToImpressionsPoints(impressionsRaw));
-    } catch (error) {
-      console.error("Error fetching impressions metrics:", error);
-    }
+      const raw = await fetchMetrics({ provider: impressionsProvider, metric: "VIEWS", startDate: defaultStartDate, endDate: defaultEndDate });
+      setImpressionsData(mapToImpressionsPoints(raw));
+    } catch (err) { console.error(err); }
   }
 
   async function loadDaysPosted() {
     try {
-      const daysPostedRaw = await fetchMetrics({
-        provider: daysPostedProvider,
-        metric: "POSTS",
-        startDate: defaultStartDate,
-        endDate: defaultEndDate,
-      });
-      setDaysPostedData(mapToDaysPostedPoints(daysPostedRaw));
-    } catch (error) {
-      console.error("Error fetching days posted metrics:", error);
-    }
+      const raw = await fetchMetrics({ provider: daysPostedProvider, metric: "POSTS", startDate: defaultStartDate, endDate: defaultEndDate });
+      setDaysPostedData(mapToDaysPostedPoints(raw));
+    } catch (err) { console.error(err); }
   }
 
   async function loadWebsiteSessions() {
     try {
-      const websiteSessionsRaw = await fetchMetrics({
-        provider: googleAnalyticsProvider,
-        metric: "SCREEN_PAGE_VIEWS",
-        startDate: defaultStartDate,
-        endDate: defaultEndDate,
-      });
-      setWebsiteSessionsData(mapToWebsiteSessionsPoints(websiteSessionsRaw));
-    } catch (error) {
-      console.error("Error fetching website sessions metrics:", error);
-    }
+      const raw = await fetchMetrics({ provider: googleAnalyticsProvider, metric: "SCREEN_PAGE_VIEWS", startDate: defaultStartDate, endDate: defaultEndDate });
+      setWebsiteSessionsData(mapToWebsiteSessionsPoints(raw));
+    } catch (err) { console.error(err); }
   }
 
   async function loadFollowers() {
     try {
-      const [facebookRaw, instagramRaw, twitterRaw] = await Promise.all([
+      const [fbRaw, igRaw, twRaw] = await Promise.all([
         fetchMetrics({ provider: "FACEBOOK", metric: "FOLLOWERS", startDate: defaultStartDate, endDate: defaultEndDate }),
         fetchMetrics({ provider: "INSTAGRAM", metric: "FOLLOWERS", startDate: defaultStartDate, endDate: defaultEndDate }),
         fetchMetrics({ provider: "TWITTER", metric: "FOLLOWERS", startDate: defaultStartDate, endDate: defaultEndDate }),
       ]);
-  
+
       const mergedMap = new Map<string, { facebook: number | null; instagram: number | null; twitter: number | null }>();
-  
+
       const addToMap = (raw: SocialMediaMetric[], key: "facebook" | "instagram" | "twitter") => {
         for (const m of raw) {
           const date = (m.metricDate ?? m.lastSynced ?? new Date().toISOString()).slice(0, 10);
@@ -160,53 +142,80 @@ export default function Homepage() {
           mergedMap.set(date, { ...existing, [key]: m.metricValue });
         }
       };
-  
-      addToMap(facebookRaw, "facebook");
-      addToMap(instagramRaw, "instagram");
-      addToMap(twitterRaw, "twitter");
-  
+
+      addToMap(fbRaw, "facebook");
+      addToMap(igRaw, "instagram");
+      addToMap(twRaw, "twitter");
+
       const merged = Array.from(mergedMap.entries())
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([date, values]) => ({ date, ...values }));
-  
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, values]) => ({ date, ...values }));
+    
+    setFollowerCountData(merged);
+
       setFollowerCountData(merged);
-    } catch (error) {
-      console.error("Error fetching follower metrics:", error);
-    }
+    } catch (err) { console.error(err); }
   }
 
-  useEffect(() => {
-    loadImpressions();
-  }, [impressionsProvider]);
+  useEffect(() => { loadImpressions(); }, [impressionsProvider]);
+  useEffect(() => { loadDaysPosted(); }, [daysPostedProvider]);
+  useEffect(() => { loadWebsiteSessions(); }, []);
+  useEffect(() => { loadFollowers(); }, []);
 
-  useEffect(() => {
-    loadDaysPosted();
-  }, [daysPostedProvider]);
-
-  useEffect(() => {
-    loadFollowers();
-  }, []);
-
-  useEffect(() => {
-    loadWebsiteSessions();
-  }, []);
-
-  const impressionsBounds = useMemo(() => getBounds(impressionsData.map((p) => p.date)), [impressionsData]);
-  const daysPostedBounds = useMemo(() => getBounds(daysPostedData.map((p) => p.date)), [daysPostedData]);
-  const sessionsBounds = useMemo(() => getBounds(websiteSessionsData.map((p) => p.date)), [websiteSessionsData]);
-  const followersBounds = useMemo(() => getBounds(followerCountData.map((p) => p.date)), [followerCountData]);
+  const impressionsBounds = useMemo(() => getBounds(impressionsData.map(p => p.date)), [impressionsData]);
+  const daysPostedBounds = useMemo(() => getBounds(daysPostedData.map(p => p.date)), [daysPostedData]);
+  const sessionsBounds = useMemo(() => getBounds(websiteSessionsData.map(p => p.date)), [websiteSessionsData]);
+  const followersBounds = useMemo(() => getBounds(followerCountData.map(p => p.date)), [followerCountData]);
 
   const impressionsFiltered = useMemo(() => filterByRange(impressionsData, impressionsRange), [impressionsData, impressionsRange]);
   const daysPostedFiltered = useMemo(() => filterByRange(daysPostedData, daysPostedRange), [daysPostedData, daysPostedRange]);
   const sessionsFiltered = useMemo(() => filterByRange(websiteSessionsData, sessionsRange), [websiteSessionsData, sessionsRange]);
   const followersFiltered = useMemo(() => filterByRange(followerCountData, followersRange), [followerCountData, followersRange]);
 
+  const followerChange = useMemo(() => {
+    if (!followersFiltered.length) return {
+      facebook: null, instagram: null, twitter: null,
+      fbChange: null, igChange: null, twChange: null,
+      fbSince: null, igSince: null, twSince: null,
+    };
+  
+    const getFirstPoint = (key: "facebook" | "instagram" | "twitter") => {
+      for (let i = 0; i < followersFiltered.length; i++) {
+        if (followersFiltered[i][key] !== null) return followersFiltered[i];
+      }
+      return null;
+    };
+  
+    const getLastValue = (key: "facebook" | "instagram" | "twitter") => {
+      for (let i = followersFiltered.length - 1; i >= 0; i--) {
+        if (followersFiltered[i][key] !== null) return followersFiltered[i][key];
+      }
+      return null;
+    };
+  
+    const fbFirst = getFirstPoint("facebook");
+    const igFirst = getFirstPoint("instagram");
+    const twFirst = getFirstPoint("twitter");
+  
+    const fbLast = getLastValue("facebook");
+    const igLast = getLastValue("instagram");
+    const twLast = getLastValue("twitter");
+  
+    return {
+      facebook: fbLast,
+      instagram: igLast,
+      twitter: twLast,
+      fbChange: fbFirst && fbLast !== null ? fbLast - (fbFirst.facebook ?? 0) : null,
+      igChange: igFirst && igLast !== null ? igLast - (igFirst.instagram ?? 0) : null,
+      twChange: twFirst && twLast !== null ? twLast - (twFirst.twitter ?? 0) : null,
+      fbSince: fbFirst?.date ?? null,
+      igSince: igFirst?.date ?? null,
+      twSince: twFirst?.date ?? null,
+    };
+  }, [followersFiltered]);
+
   const ProviderSelect = ({ value, onChange }: { value: SocialProvider; onChange: (v: SocialProvider) => void }) => (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value as SocialProvider)}
-      className="border rounded-md px-2 py-1 text-xs bg-white text-gray-700"
-    >
+    <select value={value} onChange={(e) => onChange(e.target.value as SocialProvider)} className="border rounded-md px-2 py-1 text-xs bg-white text-gray-700">
       <option value="FACEBOOK">Facebook</option>
       <option value="INSTAGRAM">Instagram</option>
       <option value="TWITTER">Twitter</option>
@@ -225,6 +234,8 @@ export default function Homepage() {
           title="Impressions"
           titleTooltip="Number of users who see your website"
           subtitle=""
+          displayMode="both"
+          className="flex-1 w-full max-h-[320px]"
           dropdown={
             <div className="flex h-full items-center gap-2">
               <ProviderSelect value={impressionsProvider} onChange={setImpressionsProvider} />
@@ -240,14 +251,14 @@ export default function Homepage() {
               <div className="w-full flex items-center justify-center text-sm text-gray-500">No impressions data available.</div>
             )
           }
-          displayMode="both"
-          className="flex-1 w-full max-h-[320px]"
         />
 
         <BigCard
           title="Total Posts"
           titleTooltip="Cumulative count"
           subtitle=""
+          displayMode="both"
+          className="flex-1 w-full max-h-[320px]"
           dropdown={
             <div className="flex items-center gap-2">
               <ProviderSelect value={daysPostedProvider} onChange={setDaysPostedProvider} />
@@ -257,20 +268,20 @@ export default function Homepage() {
           chart={
             daysPostedFiltered.length > 0 ? (
               <div className="w-full h-full">
-                <LineCharts data={daysPostedFiltered} xAxisKey="date" dataKeys={["posts"]} autoAdjustYAxis showArea />
+                <LineCharts data={daysPostedFiltered} xAxisKey="date" dataKeys={["posts"]} showArea autoAdjustYAxis />
               </div>
             ) : (
               <div className="w-full flex items-center justify-center text-sm text-gray-500">No days posted data available.</div>
             )
           }
-          displayMode="both"
-          className="flex-1 w-full max-h-[320px]"
         />
 
         <BigCard
           title="Google Analytics Website Sessions"
           titleTooltip="A session is all the actions a user takes during one visit"
           subtitle=""
+          displayMode="both"
+          className="flex-1 w-full max-h-[320px]"
           dropdown={
             <div className="flex items-center gap-2">
               <DateDropdown value={sessionsRange} onChange={setSessionsRange} minDate={sessionsBounds.min} maxDate={sessionsBounds.max} />
@@ -285,42 +296,38 @@ export default function Homepage() {
               <div className="w-full flex items-center justify-center text-sm text-gray-500">No website sessions data available.</div>
             )
           }
-          displayMode="both"
-          className="flex-1 w-full max-h-[320px]"
         />
       </div>
 
       <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
-        <BigCard
-          title="Follower Count"
-          titleTooltip="Follower count across all platforms"
-          subtitle=""
-          dropdown={
-            <div className="flex items-center gap-2">
-              <DateDropdown value={followersRange} onChange={setFollowersRange} minDate={followersBounds.min} maxDate={followersBounds.max} />
-            </div>
-          }
-          chart={
-            followersFiltered.length > 0 ? (
-              <div className="w-full h-full">
-                <LineCharts data={followersFiltered} xAxisKey="date" dataKeys={["facebook", "instagram", "twitter"]} autoAdjustYAxis showArea />
-              </div>
-            ) : (
-              <div className="w-full flex items-center justify-center text-sm text-gray-500">No follower count data available.</div>
-            )
-          }
-          displayMode="both"
-          className="flex-1 w-full max-h-[320px]"
+          <PlatformMetricCard
+      title="Follower Count"
+      titleTooltip="Follower count across all platforms"
+      className="flex-1 w-full max-h-[320px]"
+      dropdown={
+        <DateDropdown
+          value={followersRange}
+          onChange={setFollowersRange}
+          minDate={followersBounds.min}
+          maxDate={followersBounds.max}
         />
+      }
+      /*const COLORS = ["#7987FF", "#F765A3", "#FFA9D0", "#A155B9"]; */
+      metrics={[
+        { label: "Facebook", value: followerChange.facebook, change: followerChange.fbChange, color: "#A155B9", sinceDate: formatSinceDate(followerChange.fbSince, followersRange) },
+        { label: "Instagram", value: followerChange.instagram, change: followerChange.igChange, color: "#7987FF", sinceDate: formatSinceDate(followerChange.igSince, followersRange) },
+        { label: "Twitter", value: followerChange.twitter, change: followerChange.twChange, color: "#F765A3", sinceDate: formatSinceDate(followerChange.twSince, followersRange) },
+      ]}
+    />
 
         <BigCard
           title="How did you hear about us?"
           subtitle=""
+          displayMode="both"
+          className="flex-1 w-full max-h-[320px]"
           chart={
             <div className="w-full flex items-center justify-center text-sm text-gray-500">No data available.</div>
           }
-          displayMode="both"
-          className="flex-1 w-full max-h-[320px]"
         />
       </div>
     </div>
