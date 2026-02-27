@@ -3,15 +3,14 @@ import {
   PrismaClient,
   Metric,
   Provider,
-} from "../src/generated/prisma/index.js";
-import fetch from "node-fetch";
+} from "../../src/generated/prisma/index.js";
 import "dotenv/config";
+import fetch from "node-fetch";
 import {
   startOfDay,
   formatISODate,
   metricsExistForDay,
-} from "../src/utils/dates";
-import { ensureConstantContactAccessToken } from "./token-refresh";
+} from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client
@@ -88,6 +87,33 @@ function isSameDay(dateStr: string, target: Date): boolean {
   );
 }
 
+// to deal with rate limiting
+async function fetchCampaignsSentOnWithRetry(
+  accessToken: string,
+  targetDate: Date,
+  retries = 5,
+  delayMs = 1000,
+): Promise<CampaignSummary[]> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fetchCampaignsSentOn(accessToken, targetDate);
+    } catch (err: any) {
+      if (err.message.includes("429")) {
+        console.warn(
+          `[CC] Rate limited on ${formatISODate(targetDate)}, attempt ${attempt}/${retries}. Waiting ${delayMs}ms...`,
+        );
+        await new Promise((r) => setTimeout(r, delayMs));
+        delayMs *= 2; // exponential backoff
+      } else {
+        throw err;
+      }
+    }
+  }
+  throw new Error(
+    `[CC] Failed to fetch campaigns for ${formatISODate(targetDate)} after retries`,
+  );
+}
+
 async function fetchCampaignsSentOn(
   accessToken: string,
   targetDate: Date,
@@ -116,7 +142,7 @@ async function fetchCampaignsSentOn(
       }
     }
 
-    // Results are sorted desc by last_sent_date -- stop if we've gone past target
+    // Results are sorted desc by last_sent_date — stop if we've gone past target
     const last = data.bulk_email_campaign_summaries.at(-1);
     if (last && new Date(last.last_sent_date) < startOfDay(targetDate)) {
       break;
@@ -167,16 +193,10 @@ async function backfillConstantContact() {
   let refreshToken = account.SocialMediaAuth?.refreshToken ?? null;
   let expiresAt = account.SocialMediaAuth?.expiresAt ?? null;
 
-  const refreshed = await ensureConstantContactAccessToken({
-    socialMediaId: account.id,
-    auth: account.SocialMediaAuth,
-    fallbackRefreshToken: process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
-    forceRefresh: true,
-  });
-  authId = refreshed.authId;
-  accessToken = refreshed.accessToken;
-  refreshToken = refreshed.refreshToken;
-  expiresAt = refreshed.expiresAt;
+  if (!accessToken) {
+    throw new Error("[CC] No access token available after refresh.");
+  }
+  const validAccessToken: string = accessToken;
 
   const current = new Date(rangeStart);
   while (current <= rangeEnd) {
@@ -190,7 +210,10 @@ async function backfillConstantContact() {
     }
 
     try {
-      const campaigns = await fetchCampaignsSentOn(accessToken, metricDate);
+      const campaigns = await fetchCampaignsSentOnWithRetry(
+        validAccessToken,
+        metricDate,
+      );
 
       if (campaigns.length === 0) {
         console.log(`  ${dateStr} -- no campaigns sent`);
@@ -230,25 +253,11 @@ async function backfillConstantContact() {
       );
     } catch (err: any) {
       if (err?.message?.includes("401")) {
-        console.warn(`  ${dateStr} -- 401, refreshing token and retrying...`);
-        const retry = await ensureConstantContactAccessToken({
-          socialMediaId: account.id,
-          auth: {
-            id: authId ?? undefined,
-            accessToken,
-            refreshToken,
-            expiresAt,
-            lastRefreshed: new Date(),
-          },
-          fallbackRefreshToken:
-            process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
-          forceRefresh: true,
-        });
-        authId = retry.authId;
-        accessToken = retry.accessToken;
-        refreshToken = retry.refreshToken;
-        expiresAt = retry.expiresAt;
-        continue; // retry same day
+        console.warn(
+          `  ${dateStr} -- 401 Unauthorized. Access token may be expired. Skipping this day.`,
+        );
+        current.setUTCDate(current.getUTCDate() + 1);
+        continue;
       }
       console.error(`  ${dateStr} -- failed:`, err);
     }

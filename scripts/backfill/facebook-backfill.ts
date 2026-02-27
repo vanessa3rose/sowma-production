@@ -1,4 +1,5 @@
-import { PrismaClient, Metric } from "../src/generated/prisma/index.js";
+import { PrismaClient, Metric } from "../../src/generated/prisma/index.js";
+import { getAuthBySocialMediaId } from "../../db/social-media-auth.js";
 import fetch from "node-fetch";
 import "dotenv/config";
 import {
@@ -6,7 +7,7 @@ import {
   endOfDay,
   toUnixTimestamp,
   formatISODate,
-} from "../src/utils/dates";
+} from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma setup (serverless-friendly)
@@ -18,7 +19,6 @@ if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
    Constants
 -------------------------------------------------- */
 const FACEBOOK_PAGE_ID = process.env.FACEBOOK_PAGE_ID!;
-const ACCESS_TOKEN = process.env.FACEBOOK_PAGE_TOKEN!;
 const FB_API_VERSION = "v24.0";
 const MAX_LOOKBACK_DAYS = 730;
 
@@ -38,16 +38,6 @@ async function metricsExistForDay(
   return existing !== null;
 }
 
-async function getEarliestStoredDate(
-  socialMediaId: string,
-): Promise<Date | null> {
-  const row = await prisma.socialMediaMetrics.findFirst({
-    where: { socialMediaId },
-    orderBy: { metricDate: "asc" },
-  });
-  return row?.metricDate ?? null;
-}
-
 function getEarliestPossibleDate(): Date {
   const d = new Date();
   d.setDate(d.getDate() - MAX_LOOKBACK_DAYS);
@@ -62,7 +52,7 @@ type FBInsightResponse = {
   data?: { values?: { value?: number }[]; name?: string }[];
 };
 
-async function fetchDailyInsights(date: Date) {
+async function fetchDailyInsights(date: Date, accessToken: string) {
   const since = toUnixTimestamp(startOfDay(date));
   const until = toUnixTimestamp(endOfDay(date));
   const metrics = [
@@ -76,7 +66,7 @@ async function fetchDailyInsights(date: Date) {
     const url =
       `https://graph.facebook.com/${FB_API_VERSION}/${FACEBOOK_PAGE_ID}/insights` +
       `?metric=${metric}&period=day&since=${since}&until=${until}` +
-      `&access_token=${ACCESS_TOKEN}`;
+      `&access_token=${accessToken}`;
     const res = await fetch(url);
     if (!res.ok) {
       out[metric] = 0;
@@ -103,11 +93,11 @@ type FBPostsResponse = {
   paging?: { next?: string };
 };
 
-async function fetchDailyPostMetrics(date: Date) {
+async function fetchDailyPostMetrics(date: Date, accessToken: string) {
   const since = toUnixTimestamp(startOfDay(date));
   const until = toUnixTimestamp(endOfDay(date));
   let url: string | null =
-    `https://graph.facebook.com/${FB_API_VERSION}/${FACEBOOK_PAGE_ID}/posts?fields=shares,comments.summary(true),created_time&since=${since}&until=${until}&access_token=${ACCESS_TOKEN}`;
+    `https://graph.facebook.com/${FB_API_VERSION}/${FACEBOOK_PAGE_ID}/posts?fields=shares,comments.summary(true),created_time&since=${since}&until=${until}&access_token=${accessToken}`;
   let posts: FBPostsResponse["data"] = [];
 
   while (url) {
@@ -143,6 +133,15 @@ export async function runDailyFacebookSync() {
     return;
   }
 
+  // gets FACEBOOK_PAGE_TOKEN
+  const fbAuth = await getAuthBySocialMediaId(account.id);
+  if (!fbAuth || !fbAuth.accessToken) {
+    console.error("[FB] No access token found in DB for this Facebook account");
+    return;
+  }
+
+  const ACCESS_TOKEN = fbAuth.accessToken;
+
   const today = startOfDay(new Date());
   const earliestPossible = getEarliestPossibleDate();
 
@@ -161,8 +160,8 @@ export async function runDailyFacebookSync() {
     }
 
     try {
-      const insights = await fetchDailyInsights(currentDate);
-      const posts = await fetchDailyPostMetrics(currentDate);
+      const insights = await fetchDailyInsights(currentDate, ACCESS_TOKEN);
+      const posts = await fetchDailyPostMetrics(currentDate, ACCESS_TOKEN);
 
       await prisma.socialMediaMetrics.createMany({
         data: [

@@ -21,6 +21,11 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "index.js"],
+  "include": [
+    "src",
+    "index.js",
+    "scripts/export-pdf/fetchExportData.ts",
+    "scripts/export-pdf/fetchSocialExportBundle.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

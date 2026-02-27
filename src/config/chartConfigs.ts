@@ -118,6 +118,39 @@ export const CHART_CONFIGS: Record<string, ChartConfig[]> = {
     },
     { id: "newUsers", title: "New Users", type: "line", metric: "NEW_USERS" },
   ],
+
+  constantcontact: [
+    {
+      id: "emails_sent",
+      title: "Emails Sent",
+      type: "line",
+      metric: "EMAILS_SENT",
+    },
+    {
+      id: "emails_delivered",
+      title: "Emails Delivered",
+      type: "line",
+      metric: "EMAILS_DELIVERED",
+    },
+    {
+      id: "email_opened",
+      title: "Emails Opened",
+      type: "line",
+      metric: "EMAIL_OPENED",
+    },
+    {
+      id: "emails_clicked",
+      title: "Emails Clicked",
+      type: "line",
+      metric: "EMAILS_CLICKED",
+    },
+    {
+      id: "emails_unsubscribed",
+      title: "Unsubscribed",
+      type: "line",
+      metric: "EMAILS_UNSUBSCRIBED",
+    },
+  ],
 };
 
 /**
@@ -130,6 +163,7 @@ export const PLATFORM_LABELS: Record<Platform, string> = {
   twitter: "Twitter",
   facebook: "Facebook",
   google: "Google Analytics",
+  constantcontact: "Constant Contact",
 };
 
 export const buildChartDomId = (platform: Platform, chartId: string) =>

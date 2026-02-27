@@ -51,6 +51,9 @@ export default function LoginPage() {
         body: JSON.stringify({ email }),
       });
 
+      // Parse JSON body
+      const responseBody = await response.json();
+
       if (!response.ok) {
         let errorMessage = "";
 
@@ -61,7 +64,11 @@ export default function LoginPage() {
             break;
 
           case 409:
-            errorMessage = "You're already on the waitlist!";
+            if (responseBody.code === "CLERK_DUPLICATE") {
+              errorMessage = "You already have an account!";
+            } else if (responseBody.code === "WAITLIST_DUPLICATE") {
+              errorMessage = "You're already on the waitlist!";
+            }
             break;
 
           case 429:

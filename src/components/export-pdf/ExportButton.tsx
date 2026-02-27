@@ -1,14 +1,32 @@
 import { useState } from "react";
+import { useUser } from "@clerk/clerk-react";
+
 import ExportModal from "./ExportModal";
 import type { Platform } from "../../config/chartConfigs";
 import type { DateRangeId } from "../charts/DateDropdown";
+
+type Role = "ADMIN" | "USER" | "VIEWER";
 
 interface ExportButtonProps {
   onExport: (platforms: Platform[], range: DateRangeId) => Promise<void> | void;
 }
 
 export default function ExportButton({ onExport }: ExportButtonProps) {
+  const { user, isLoaded, isSignedIn } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // gets role directly from Clerk
+  const role = (user?.publicMetadata?.role as Role | undefined) ?? "VIEWER";
+
+  // don't render until auth is ready
+  if (!isLoaded || !isSignedIn) {
+    return null;
+  }
+
+  // VIEWER cannot export
+  if (role === "VIEWER") {
+    return null;
+  }
 
   return (
     <>
@@ -23,7 +41,7 @@ export default function ExportButton({ onExport }: ExportButtonProps) {
         <ExportModal
           isOpen={isModalOpen}
           setIsOpen={setIsModalOpen}
-          onExport={onExport} // ✔ just pass through
+          onExport={onExport}
         />
       )}
     </>

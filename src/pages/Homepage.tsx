@@ -66,7 +66,17 @@ export default function Homepage() {
   }
 
   function mapToDaysPostedPoints(raw: SocialMediaMetric[]): DaysPostedPoint[] {
-    return getSortedMetrics(raw).map((m) => {
+    const sorted = getSortedMetrics(raw);
+    if (daysPostedProvider === "FACEBOOK") {
+      let runningTotal = 0;
+      return sorted.map((m) => {
+        const timestamp =
+          m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+        runningTotal += m.metricValue;
+        return { date: timestamp.slice(0, 10), posts: runningTotal };
+      });
+    }
+    return sorted.map((m) => {
       const timestamp =
         m.metricDate ?? m.lastSynced ?? new Date().toISOString();
       return { date: timestamp.slice(0, 10), posts: m.metricValue };
@@ -266,9 +276,10 @@ export default function Homepage() {
       <div className="flex flex-col flex-wrap gap-4 w-full lg:flex-row">
         <BigCard
           title="Impressions"
+          titleTooltip="Number of users who see your website"
           subtitle=""
           dropdown={
-            <div className="flex items-center gap-2">
+            <div className="flex h-full items-center gap-2">
               <ProviderSelect
                 value={impressionsProvider}
                 onChange={setImpressionsProvider}
@@ -283,7 +294,7 @@ export default function Homepage() {
           }
           chart={
             impressionsFiltered.length > 0 ? (
-              <div className="w-full h-64">
+              <div className="w-full h-full">
                 <LineCharts
                   data={impressionsFiltered}
                   xAxisKey="date"
@@ -293,17 +304,18 @@ export default function Homepage() {
                 />
               </div>
             ) : (
-              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">
                 No impressions data available.
               </div>
             )
           }
           displayMode="both"
-          className="flex-1 w-full"
+          className="flex-1 w-full max-h-[320px]"
         />
 
         <BigCard
-          title="Days Posted"
+          title="Total Posts"
+          titleTooltip="Cumulative count"
           subtitle=""
           dropdown={
             <div className="flex items-center gap-2">
@@ -321,26 +333,28 @@ export default function Homepage() {
           }
           chart={
             daysPostedFiltered.length > 0 ? (
-              <div className="w-full h-64">
+              <div className="w-full h-full">
                 <LineCharts
                   data={daysPostedFiltered}
                   xAxisKey="date"
                   dataKeys={["posts"]}
                   autoAdjustYAxis
+                  showArea
                 />
               </div>
             ) : (
-              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">
                 No days posted data available.
               </div>
             )
           }
           displayMode="both"
-          className="flex-1 w-full"
+          className="flex-1 w-full max-h-[320px]"
         />
 
         <BigCard
           title="Google Analytics Website Sessions"
+          titleTooltip="A session is all the actions a user takes during one visit"
           subtitle=""
           dropdown={
             <div className="flex items-center gap-2">
@@ -354,7 +368,7 @@ export default function Homepage() {
           }
           chart={
             sessionsFiltered.length > 0 ? (
-              <div className="w-full h-64">
+              <div className="w-full h-full">
                 <LineCharts
                   data={sessionsFiltered}
                   xAxisKey="date"
@@ -364,19 +378,20 @@ export default function Homepage() {
                 />
               </div>
             ) : (
-              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">
                 No website sessions data available.
               </div>
             )
           }
           displayMode="both"
-          className="flex-1 w-full"
+          className="flex-1 w-full max-h-[320px]"
         />
       </div>
 
       <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
         <BigCard
           title="Follower Count"
+          titleTooltip="Cumulative count"
           subtitle=""
           dropdown={
             <div className="flex items-center gap-2">
@@ -394,34 +409,35 @@ export default function Homepage() {
           }
           chart={
             followersFiltered.length > 0 ? (
-              <div className="w-full h-64">
+              <div className="w-full h-full">
                 <LineCharts
                   data={followersFiltered}
                   xAxisKey="date"
                   dataKeys={["followers"]}
                   autoAdjustYAxis
+                  showArea
                 />
               </div>
             ) : (
-              <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">
                 No follower count data available.
               </div>
             )
           }
           displayMode="both"
-          className="flex-1 w-full"
+          className="flex-1 w-full max-h-[320px]"
         />
 
         <BigCard
           title="How did you hear about us?"
           subtitle=""
           chart={
-            <div className="w-full h-64 flex items-center justify-center text-sm text-gray-500">
+            <div className="w-full flex items-center justify-center text-sm text-gray-500">
               No data available.
             </div>
           }
           displayMode="both"
-          className="flex-1 w-full"
+          className="flex-1 w-full max-h-[320px]"
         />
       </div>
     </div>

@@ -28,6 +28,7 @@ const EXPORTABLE_PLATFORMS: Platform[] = [
   "twitter",
   "facebook",
   "google",
+  "constantcontact",
 ];
 
 type CheckedState = Record<string, boolean>;

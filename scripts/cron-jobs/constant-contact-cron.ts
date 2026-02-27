@@ -2,11 +2,10 @@ import {
   PrismaClient,
   Metric,
   Provider,
-} from "../src/generated/prisma/index.js";
+} from "../../src/generated/prisma/index.js";
 import fetch from "node-fetch";
 import "dotenv/config";
-import { startOfDay, endOfDay, formatISODate } from "../src/utils/dates";
-import { ensureConstantContactAccessToken } from "./token-refresh";
+import { startOfDay, endOfDay, formatISODate } from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma Client
@@ -132,11 +131,13 @@ export async function runDailyConstantContactSync() {
     );
 
     const account = await getConstantContactAccountOrThrow();
-    const { accessToken } = await ensureConstantContactAccessToken({
-      socialMediaId: account.id,
-      auth: account.SocialMediaAuth,
-      fallbackRefreshToken: process.env.CONSTANT_CONTACT_REFRESH_TOKEN ?? null,
-    });
+    const auth = account.SocialMediaAuth;
+
+    if (!auth?.accessToken) {
+      throw new Error("[CC] Missing access token. Run token-refresh.");
+    }
+
+    const accessToken = auth.accessToken;
 
     console.log(
       `[CC] Syncing ${account.username} (${formatISODate(metricDate)})`,
@@ -206,4 +207,7 @@ export async function runDailyConstantContactSync() {
   }
 }
 
+/* -------------------------------------------------
+   Entrypoint
+-------------------------------------------------- */
 runDailyConstantContactSync().catch(console.error);

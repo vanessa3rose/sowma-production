@@ -5,7 +5,7 @@ import LineCharts from "../charts/LineCharts";
 import {
   EXPORT_PLATFORM_CONFIGS,
   type ExportMetricFormat,
-} from "./exportMetricsConfig";
+} from "../../../scripts/export-pdf/exportMetricsConfig.js";
 import type { Platform } from "../../config/chartConfigs";
 
 export type ExportReportViewProps = {
@@ -70,19 +70,46 @@ function MetricRow({
   items: { label: string; value: string; delta: string }[];
 }) {
   return (
-    <div className="flex flex-wrap gap-4">
+    <div className="grid grid-cols-5 gap-4 w-full">
       {items.map((item) => (
         <div
           key={item.label}
-          className="min-w-[170px] rounded-lg border border-gray-200 bg-white px-4 py-3"
+          style={{
+            backgroundColor: "#ffffff",
+            border: "1px solid #E5E5E5",
+            borderBottom: "3px solid #D1D5DB",
+            borderRight: "2px solid #D1D5DB",
+            borderRadius: "12px",
+            padding: "20px",
+            fontFamily: "Poppins, sans-serif",
+          }}
         >
-          <div className="text-xs uppercase tracking-wide text-gray-500">
+          <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
             {item.label}
           </div>
-          <div className="mt-1 text-lg font-semibold text-gray-900">
+          <div
+            style={{
+              fontSize: "32px",
+              fontWeight: 400,
+              color: "#3B82F6",
+              marginTop: "4px",
+            }}
+          >
             {item.value}
           </div>
-          <div className="text-xs text-gray-500">Delta {item.delta}</div>
+          <div
+            style={{
+              fontSize: "14px",
+              color: item.delta.includes("+")
+                ? "#10B981"
+                : item.delta.includes("-")
+                  ? "#EF4444"
+                  : "#6B7280",
+              marginTop: "4px",
+            }}
+          >
+            {item.delta}
+          </div>
         </div>
       ))}
     </div>
@@ -100,22 +127,35 @@ function ChartBlock({
 }) {
   const hasData = Array.isArray(data) && data.length > 0;
   return (
-    <div className="mt-4">
-      <div className="text-sm font-semibold text-gray-800">{title}</div>
-      <div className="mt-2 h-48 w-full rounded-md border border-gray-200 p-3">
-        {hasData ? (
+    <div
+      className="flex flex-col h-[200px]"
+      style={{
+        backgroundColor: "#ffffff",
+        border: "1px solid #E5E5E5",
+        borderBottom: "3px solid #D1D5DB",
+        borderRight: "2px solid #D1D5DB",
+        borderRadius: "12px",
+        padding: "20px",
+        fontFamily: "Poppins, sans-serif",
+      }}
+    >
+      <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+        {title}
+      </div>
+      {hasData ? (
+        <div className="flex w-full h-[200px]">
           <LineCharts
             data={data}
             xAxisKey="date"
             dataKeys={dataKeys}
             showArea
           />
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-gray-500">
-            No data in range
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="flex h-full items-center justify-center text-sm text-gray-500">
+          No data in range
+        </div>
+      )}
     </div>
   );
 }
@@ -223,7 +263,7 @@ export default function ExportReportView({
                   </div>
                 ) : null}
 
-                <div className="text-xl font-semibold">{config.label}</div>
+                <div className="text-3xl font-bold mb-6">{config.label}</div>
                 {chunk.includeMetrics ? (
                   <div className="mt-4">
                     <MetricRow items={metrics} />

@@ -1,19 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 
 // Cards
-import BigCard from "../components/cards/BigCard";
-import SmallCard from "../components/cards/SmallCard";
+import BigCard from "../../components/cards/BigCard";
+import SmallCard from "../../components/cards/SmallCard";
 
 // Charts
-import LineCharts from "../components/charts/LineCharts";
-import PieCharts from "../components/charts/PieCharts";
+import LineCharts from "../../components/charts/LineCharts";
+import PieCharts from "../../components/charts/PieCharts";
 
 // Buttons
-import DateDropdown, { DateRangeId } from "../components/charts/DateDropdown";
-import ExportButton from "../components/export-pdf/ExportButton";
+import DateDropdown, {
+  DateRangeId,
+} from "../../components/charts/DateDropdown";
+import ExportButton from "../../components/export-pdf/ExportButton";
 
-import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
-import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExportProvider";
+import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 
 /* ---------- types ---------- */
 
@@ -29,6 +31,7 @@ type MetricConfig = {
   title: string;
   metric: string;
   metricLabel?: string;
+  description: string;
 };
 
 const PROVIDER = "INSTAGRAM";
@@ -36,16 +39,41 @@ const DEFAULT_START_DATE = "2024-01-01";
 const DEFAULT_END_DATE = "3000-01-01";
 
 const METRICS: MetricConfig[] = [
-  { id: "impressions", title: "Impressions", metric: "VIEWS", metricLabel: "" },
-  { id: "followers", title: "Followers", metric: "FOLLOWERS", metricLabel: "" },
-  { id: "likes", title: "Total Likes", metric: "LIKES", metricLabel: "" },
+  {
+    id: "impressions",
+    title: "Impressions",
+    metric: "VIEWS",
+    metricLabel: "",
+    description: "Number of users who see your website",
+  },
+  {
+    id: "followers",
+    title: "Followers",
+    metric: "FOLLOWERS",
+    metricLabel: "",
+    description: "Cumulative count",
+  },
+  {
+    id: "likes",
+    title: "Total Likes",
+    metric: "LIKES",
+    metricLabel: "",
+    description: "Cumulative count",
+  },
   {
     id: "comments",
     title: "Total Comments",
     metric: "COMMENTS",
     metricLabel: "",
+    description: "Cumulative count",
   },
-  { id: "posts", title: "Posts", metric: "POSTS", metricLabel: "" },
+  {
+    id: "posts",
+    title: "Posts",
+    metric: "POSTS",
+    metricLabel: "",
+    description: "Cumulative count",
+  },
 ];
 
 /* ---------- helpers ---------- */
@@ -96,7 +124,7 @@ function getBounds(pts: LinePoint[]) {
   const dates = pts
     .map((p) => p.date)
     .slice()
-    .sort(); // YYYY-MM-DD sorts correctly
+    .sort();
   return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
 }
 
@@ -104,10 +132,8 @@ function filterByRange(pts: LinePoint[], range: DateRangeId) {
   if (!pts.length) return pts;
   if (range === "all") return pts;
 
-  // ✅ Calendar-based ranges anchored to TODAY
   const end = new Date();
   end.setHours(0, 0, 0, 0);
-
   const start = new Date(end);
 
   if (range === "7d") start.setDate(start.getDate() - 6);
@@ -181,7 +207,7 @@ export default function InstagramPage() {
     );
   }, [rawSeries, ranges]);
 
-  // Pie data (top-right card) — uses current (filtered) values
+  // Pie data
   const likesNow = computed["likes"]?.summary.current ?? 0;
   const commentsNow = computed["comments"]?.summary.current ?? 0;
   const postsNow = computed["posts"]?.summary.current ?? 0;
@@ -193,13 +219,13 @@ export default function InstagramPage() {
   ];
 
   return (
-    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
-      {/* Header (GA style) */}
-      <div className="w-full flex flex-col lg:flex-row justify-between items-center px-4 py-2">
+    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 py-2">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
         <div className="flex items-center space-x-2">
           <button
             onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px]"
+            className="w-[40px] h-[40px] flex items-center justify-center"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -216,23 +242,31 @@ export default function InstagramPage() {
               />
             </svg>
           </button>
+
           <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
             Instagram
           </h1>
         </div>
-
-        <div className="flex space-x-2 mt-2 lg:mt-0">
+        <div className="flex flex-row justify-center items-center mt-2 lg:flex-row lg:mt-0 lg:space-x-2 space-x-4">
+          <a
+            href="https://www.instagram.com/schoolonwheelsma/?hl=en"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
+          >
+            {" "}
+            Go to Account{" "}
+          </a>
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
 
       {/* Content */}
       <div className="flex flex-col gap-4 px-4 lg:h-full">
-        {/* Top band: 2x2 small cards (left) + pie card (right) */}
+        {/* Top band: 2x2 small cards + pie chart */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Upper-left: 2x2 grid */}
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {["impressions", "followers", "likes", "comments"].map((id) => {
+            {["impressions", "followers", "posts", "comments"].map((id) => {
               const cfg = METRICS.find((m) => m.id === id)!;
               const s = computed[id]?.summary;
 
@@ -240,6 +274,7 @@ export default function InstagramPage() {
                 <SmallCard
                   key={id}
                   title={cfg.title}
+                  titleTooltip={cfg.description}
                   displayMode="metric-only"
                   className="w-full h-full"
                   metricValue={s?.current ?? 0}
@@ -250,10 +285,11 @@ export default function InstagramPage() {
             })}
           </div>
 
-          {/* Upper-right: pie */}
+          {/* Pie chart */}
           <div className="lg:col-span-1">
             <BigCard
               title="Engagement Mix"
+              titleTooltip="Spread of interactions between Posts, Comments, and Likes"
               chart={
                 <div className="w-full h-64">
                   <PieCharts
@@ -269,9 +305,9 @@ export default function InstagramPage() {
           </div>
         </div>
 
-        {/* Main charts below */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 lg:h-full">
-          {METRICS.map((cfg) => {
+        {/* Only Likes BigCard */}
+        <div className="w-full grid grid-cols-1 gap-4 lg:h-full">
+          {METRICS.filter((cfg) => cfg.id === "likes").map((cfg) => {
             const item = computed[cfg.id];
             const filtered = item?.filtered ?? [];
             const bounds = item?.bounds ?? { min: null, max: null };
@@ -281,6 +317,7 @@ export default function InstagramPage() {
               <div key={cfg.id}>
                 <BigCard
                   title={cfg.title}
+                  titleTooltip={cfg.description}
                   subtitle={
                     <DateDropdown
                       value={ranges[cfg.id] ?? "30d"}
@@ -296,7 +333,7 @@ export default function InstagramPage() {
                   metricChange={formatPercentChange(summary)}
                   chart={
                     filtered.length ? (
-                      <div className="w-full h-64">
+                      <div className="w-full h-full">
                         <LineCharts
                           data={filtered}
                           xAxisKey="date"
@@ -305,13 +342,13 @@ export default function InstagramPage() {
                         />
                       </div>
                     ) : (
-                      <div className="h-64 flex items-center justify-center text-gray-500">
+                      <div className="flex items-center justify-center text-gray-500">
                         No data available
                       </div>
                     )
                   }
                   displayMode="both"
-                  className="w-full h-full"
+                  className="w-full h-[360px]"
                 />
               </div>
             );
