@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import InstagramEmbed from "../../components/InstagramEmbed";
 
-
 // Cards
 import BigCard from "../../components/cards/BigCard";
 import SmallCard from "../../components/cards/SmallCard";
@@ -193,6 +192,7 @@ export default function InstagramPage() {
     { label: "Comments", value: commentsNow },
     { label: "Posts", value: postsNow },
   ];
+
   return (
     <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
       {/* Header */}
@@ -232,7 +232,7 @@ export default function InstagramPage() {
       <div className="flex flex-col gap-4 px-4 lg:h-full">
         {/* Top band: 2x2 small cards + pie chart */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="lg:col-span-2 grid grid-cols-2 gap-4">
             {["impressions", "followers", "posts", "comments"].map((id) => {
               const cfg = METRICS.find((m) => m.id === id)!;
               const s = computed[id]?.summary;
@@ -270,71 +270,67 @@ export default function InstagramPage() {
           </div>
         </div>
 
-{/* Likes + Instagram Feed */}
-<div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 lg:h-full">
+        {/* Likes + Instagram Feed */}
+        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 lg:h-full">
+          {/* Likes BigCard */}
+          {METRICS.filter((cfg) => cfg.id === "likes").map((cfg) => {
+            const item = computed[cfg.id];
+            const filtered = item?.filtered ?? [];
+            const bounds = item?.bounds ?? { min: null, max: null };
+            const summary = item?.summary ?? { current: 0, prev: null };
 
-  {/* Likes BigCard */}
-  {METRICS.filter((cfg) => cfg.id === "likes").map((cfg) => {
-    const item = computed[cfg.id];
-    const filtered = item?.filtered ?? [];
-    const bounds = item?.bounds ?? { min: null, max: null };
-    const summary = item?.summary ?? { current: 0, prev: null };
-
-    return (
-      <BigCard
-        key={cfg.id}
-        title={cfg.title}
-        subtitle={
-          <DateDropdown
-            value={ranges[cfg.id] ?? "30d"}
-            onChange={(r) =>
-              setRanges((prev) => ({ ...prev, [cfg.id]: r }))
-            }
-            minDate={bounds.min}
-            maxDate={bounds.max}
-          />
-        }
-        metricValue={summary.current ?? 0}
-        metricLabel="total"
-        metricChange={formatPercentChange(summary)}
-        chart={
-          filtered.length ? (
-            <div className="w-full h-64">
-              <LineCharts
-                data={filtered}
-                xAxisKey="date"
-                dataKeys={["value"]}
-                showArea
+            return (
+              <BigCard
+                key={cfg.id}
+                title={cfg.title}
+                subtitle={
+                  <DateDropdown
+                    value={ranges[cfg.id] ?? "30d"}
+                    onChange={(r) =>
+                      setRanges((prev) => ({ ...prev, [cfg.id]: r }))
+                    }
+                    minDate={bounds.min}
+                    maxDate={bounds.max}
+                  />
+                }
+                metricValue={summary.current ?? 0}
+                metricLabel="total"
+                metricChange={formatPercentChange(summary)}
+                chart={
+                  filtered.length ? (
+                    <div className="w-full">
+                      <LineCharts
+                        data={filtered}
+                        xAxisKey="date"
+                        dataKeys={["value"]}
+                        showArea
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex w-full h-3/4 items-center justify-center text-gray-500">
+                      No data available
+                    </div>
+                  )
+                }
+                displayMode="both"
+                className="w-full h-[360px] md:h-[370px]"
               />
-            </div>
-          ) : (
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              No data available
-            </div>
-          )
-        }
-        displayMode="both"
-        className="w-full h-full"
-      />
-    );
-  })}
+            );
+          })}
 
-  {/* Instagram Feed */}
-  <BigCard
-    title="Recent Posts"
-    chart={
-      <div className="flex justify-center items-start w-full">
-        <InstagramEmbed />
-      </div>
-    }
-    displayMode="chart-only"
-    className="w-full !h-auto"
-  />
-
-</div>
-</div>
-
+          {/* Instagram Feed */}
+          <BigCard
+            title="Recent Posts"
+            chart={
+              <div className="flex justify-center items-start w-full">
+                <InstagramEmbed />
+              </div>
+            }
+            displayMode="chart-only"
+            className="w-full h-[360px] md:h-[370px]"
+          />
         </div>
-
+      </div>
+    </div>
   );
 }

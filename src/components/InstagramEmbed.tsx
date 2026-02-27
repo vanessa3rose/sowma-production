@@ -21,16 +21,10 @@ export default function InstagramEmbed() {
   return (
     <div className="w-full flex justify-center">
       <blockquote
-        className="instagram-media"
+        className="instagram-media w-full"
         data-instgrm-permalink="https://www.instagram.com/schoolonwheelsma/"
         data-instgrm-version="14"
-        style={{
-          width: "100%",
-          maxWidth: "540px",
-          minWidth: "300px",
-          margin: "0 auto",
-        }}
-      ></blockquote>
+      />
     </div>
   );
 }
