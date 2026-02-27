@@ -201,7 +201,15 @@ export default function DateDropdown({
           </div>
 
           {/* Calendar */}
+          <div className="flex justify-center">
           <DatePicker
+            renderCustomHeader={({ date, decreaseMonth, increaseMonth }) => (
+                  <div className="flex items-center justify-between px-4">
+                  <button onClick={decreaseMonth}>←</button>
+                  <span>{format(date, "MMMM yyyy")}</span>
+                  <button onClick={increaseMonth}>→</button>
+                  </div>
+            )}
             selected={startDate}
             onChange={handleCalendarChange}
             startDate={startDate}
@@ -212,6 +220,7 @@ export default function DateDropdown({
             inline
             calendarClassName="!font-[Poppins] !border-none !shadow-none"
           />
+          </div>
         </div>
       )}
     </div>
