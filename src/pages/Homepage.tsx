@@ -10,32 +10,21 @@ import DateDropdown, { DateRangeId } from "../components/charts/DateDropdown";
 type ImpressionsPoint = { date: string; impressions: number };
 type DaysPostedPoint = { date: string; posts: number };
 type WebsiteSessionsPoint = { date: string; sessions: number };
-type FollowerPoint = { date: string; followers: number };
+type FollowerPoint = { date: string; facebook: number | null; instagram: number | null; twitter: number | null };
 
 type SocialProvider = "FACEBOOK" | "INSTAGRAM" | "TWITTER";
 
 export default function Homepage() {
   const { exportByPlatforms } = useGlobalPageExporter();
 
-  const [impressionsData, setImpressionsData] = useState<ImpressionsPoint[]>(
-    [],
-  );
+  const [impressionsData, setImpressionsData] = useState<ImpressionsPoint[]>([]);
   const [daysPostedData, setDaysPostedData] = useState<DaysPostedPoint[]>([]);
-  const [websiteSessionsData, setWebsiteSessionsData] = useState<
-    WebsiteSessionsPoint[]
-  >([]);
-  const [followerCountData, setFollowerCountData] = useState<FollowerPoint[]>(
-    [],
-  );
+  const [websiteSessionsData, setWebsiteSessionsData] = useState<WebsiteSessionsPoint[]>([]);
+  const [followerCountData, setFollowerCountData] = useState<FollowerPoint[]>([]);
 
-  const [impressionsProvider, setImpressionsProvider] =
-    useState<SocialProvider>("FACEBOOK");
-  const [daysPostedProvider, setDaysPostedProvider] =
-    useState<SocialProvider>("FACEBOOK");
-  const [followersProvider, setFollowersProvider] =
-    useState<SocialProvider>("FACEBOOK");
+  const [impressionsProvider, setImpressionsProvider] = useState<SocialProvider>("FACEBOOK");
+  const [daysPostedProvider, setDaysPostedProvider] = useState<SocialProvider>("FACEBOOK");
 
-  // Per-card date ranges
   const [impressionsRange, setImpressionsRange] = useState<DateRangeId>("30d");
   const [daysPostedRange, setDaysPostedRange] = useState<DateRangeId>("30d");
   const [sessionsRange, setSessionsRange] = useState<DateRangeId>("30d");
@@ -55,12 +44,9 @@ export default function Homepage() {
       );
   }
 
-  function mapToImpressionsPoints(
-    raw: SocialMediaMetric[],
-  ): ImpressionsPoint[] {
+  function mapToImpressionsPoints(raw: SocialMediaMetric[]): ImpressionsPoint[] {
     return getSortedMetrics(raw).map((m) => {
-      const timestamp =
-        m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+      const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
       return { date: timestamp.slice(0, 10), impressions: m.metricValue };
     });
   }
@@ -70,41 +56,26 @@ export default function Homepage() {
     if (daysPostedProvider === "FACEBOOK") {
       let runningTotal = 0;
       return sorted.map((m) => {
-        const timestamp =
-          m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+        const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
         runningTotal += m.metricValue;
         return { date: timestamp.slice(0, 10), posts: runningTotal };
       });
     }
     return sorted.map((m) => {
-      const timestamp =
-        m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+      const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
       return { date: timestamp.slice(0, 10), posts: m.metricValue };
     });
   }
 
-  function mapToWebsiteSessionsPoints(
-    raw: SocialMediaMetric[],
-  ): WebsiteSessionsPoint[] {
+  function mapToWebsiteSessionsPoints(raw: SocialMediaMetric[]): WebsiteSessionsPoint[] {
     return getSortedMetrics(raw).map((m) => {
-      const timestamp =
-        m.metricDate ?? m.lastSynced ?? new Date().toISOString();
+      const timestamp = m.metricDate ?? m.lastSynced ?? new Date().toISOString();
       return { date: timestamp.slice(0, 10), sessions: m.metricValue };
     });
   }
 
-  function mapToFollowerPoints(raw: SocialMediaMetric[]): FollowerPoint[] {
-    return getSortedMetrics(raw).map((m) => {
-      const timestamp =
-        m.metricDate ?? m.lastSynced ?? new Date().toISOString();
-      return { date: timestamp.slice(0, 10), followers: m.metricValue };
-    });
-  }
-
-  // Bounds + filtering helpers (TODAY-anchored)
   function getBounds(dates: string[]) {
-    if (!dates.length)
-      return { min: null as Date | null, max: null as Date | null };
+    if (!dates.length) return { min: null as Date | null, max: null as Date | null };
     const sorted = dates.slice().sort();
     return {
       min: new Date(sorted[0]),
@@ -112,10 +83,7 @@ export default function Homepage() {
     };
   }
 
-  function filterByRange<T extends { date: string }>(
-    pts: T[],
-    range: DateRangeId,
-  ) {
+  function filterByRange<T extends { date: string }>(pts: T[], range: DateRangeId) {
     if (!pts.length) return pts;
     if (range === "all") return pts;
 
@@ -133,7 +101,6 @@ export default function Homepage() {
     return pts.filter((p) => p.date >= startStr && p.date <= endStr);
   }
 
-  // ---- FETCHERS ----
   async function loadImpressions() {
     try {
       const impressionsRaw = await fetchMetrics({
@@ -178,19 +145,36 @@ export default function Homepage() {
 
   async function loadFollowers() {
     try {
-      const followerCountRaw = await fetchMetrics({
-        provider: followersProvider,
-        metric: "FOLLOWERS",
-        startDate: defaultStartDate,
-        endDate: defaultEndDate,
-      });
-      setFollowerCountData(mapToFollowerPoints(followerCountRaw));
+      const [facebookRaw, instagramRaw, twitterRaw] = await Promise.all([
+        fetchMetrics({ provider: "FACEBOOK", metric: "FOLLOWERS", startDate: defaultStartDate, endDate: defaultEndDate }),
+        fetchMetrics({ provider: "INSTAGRAM", metric: "FOLLOWERS", startDate: defaultStartDate, endDate: defaultEndDate }),
+        fetchMetrics({ provider: "TWITTER", metric: "FOLLOWERS", startDate: defaultStartDate, endDate: defaultEndDate }),
+      ]);
+  
+      const mergedMap = new Map<string, { facebook: number | null; instagram: number | null; twitter: number | null }>();
+  
+      const addToMap = (raw: SocialMediaMetric[], key: "facebook" | "instagram" | "twitter") => {
+        for (const m of raw) {
+          const date = (m.metricDate ?? m.lastSynced ?? new Date().toISOString()).slice(0, 10);
+          const existing = mergedMap.get(date) ?? { facebook: null, instagram: null, twitter: null };
+          mergedMap.set(date, { ...existing, [key]: m.metricValue });
+        }
+      };
+  
+      addToMap(facebookRaw, "facebook");
+      addToMap(instagramRaw, "instagram");
+      addToMap(twitterRaw, "twitter");
+  
+      const merged = Array.from(mergedMap.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, values]) => ({ date, ...values }));
+  
+      setFollowerCountData(merged);
     } catch (error) {
       console.error("Error fetching follower metrics:", error);
     }
   }
 
-  // ---- EFFECTS ----
   useEffect(() => {
     loadImpressions();
   }, [impressionsProvider]);
@@ -201,55 +185,23 @@ export default function Homepage() {
 
   useEffect(() => {
     loadFollowers();
-  }, [followersProvider]);
+  }, []);
 
   useEffect(() => {
     loadWebsiteSessions();
   }, []);
 
-  // Compute bounds from full (unfiltered) series
-  const impressionsBounds = useMemo(
-    () => getBounds(impressionsData.map((p) => p.date)),
-    [impressionsData],
-  );
-  const daysPostedBounds = useMemo(
-    () => getBounds(daysPostedData.map((p) => p.date)),
-    [daysPostedData],
-  );
-  const sessionsBounds = useMemo(
-    () => getBounds(websiteSessionsData.map((p) => p.date)),
-    [websiteSessionsData],
-  );
-  const followersBounds = useMemo(
-    () => getBounds(followerCountData.map((p) => p.date)),
-    [followerCountData],
-  );
+  const impressionsBounds = useMemo(() => getBounds(impressionsData.map((p) => p.date)), [impressionsData]);
+  const daysPostedBounds = useMemo(() => getBounds(daysPostedData.map((p) => p.date)), [daysPostedData]);
+  const sessionsBounds = useMemo(() => getBounds(websiteSessionsData.map((p) => p.date)), [websiteSessionsData]);
+  const followersBounds = useMemo(() => getBounds(followerCountData.map((p) => p.date)), [followerCountData]);
 
-  // Filtered (displayed) series
-  const impressionsFiltered = useMemo(
-    () => filterByRange(impressionsData, impressionsRange),
-    [impressionsData, impressionsRange],
-  );
-  const daysPostedFiltered = useMemo(
-    () => filterByRange(daysPostedData, daysPostedRange),
-    [daysPostedData, daysPostedRange],
-  );
-  const sessionsFiltered = useMemo(
-    () => filterByRange(websiteSessionsData, sessionsRange),
-    [websiteSessionsData, sessionsRange],
-  );
-  const followersFiltered = useMemo(
-    () => filterByRange(followerCountData, followersRange),
-    [followerCountData, followersRange],
-  );
+  const impressionsFiltered = useMemo(() => filterByRange(impressionsData, impressionsRange), [impressionsData, impressionsRange]);
+  const daysPostedFiltered = useMemo(() => filterByRange(daysPostedData, daysPostedRange), [daysPostedData, daysPostedRange]);
+  const sessionsFiltered = useMemo(() => filterByRange(websiteSessionsData, sessionsRange), [websiteSessionsData, sessionsRange]);
+  const followersFiltered = useMemo(() => filterByRange(followerCountData, followersRange), [followerCountData, followersRange]);
 
-  const ProviderSelect = ({
-    value,
-    onChange,
-  }: {
-    value: SocialProvider;
-    onChange: (v: SocialProvider) => void;
-  }) => (
+  const ProviderSelect = ({ value, onChange }: { value: SocialProvider; onChange: (v: SocialProvider) => void }) => (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value as SocialProvider)}
@@ -263,16 +215,11 @@ export default function Homepage() {
 
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
-      {/* Header row */}
       <div className="flex flex-wrap w-full justify-between items-center gap-4">
-        <h1 className="font-poppins text-[#4781C2] text-2xl font-semibold">
-          Dashboard
-        </h1>
-
+        <h1 className="font-poppins text-[#4781C2] text-2xl font-semibold">Dashboard</h1>
         <ExportButton onExport={exportByPlatforms} />
       </div>
 
-      {/* Main charts row */}
       <div className="flex flex-col flex-wrap gap-4 w-full lg:flex-row">
         <BigCard
           title="Impressions"
@@ -280,33 +227,17 @@ export default function Homepage() {
           subtitle=""
           dropdown={
             <div className="flex h-full items-center gap-2">
-              <ProviderSelect
-                value={impressionsProvider}
-                onChange={setImpressionsProvider}
-              />
-              <DateDropdown
-                value={impressionsRange}
-                onChange={setImpressionsRange}
-                minDate={impressionsBounds.min}
-                maxDate={impressionsBounds.max}
-              />
+              <ProviderSelect value={impressionsProvider} onChange={setImpressionsProvider} />
+              <DateDropdown value={impressionsRange} onChange={setImpressionsRange} minDate={impressionsBounds.min} maxDate={impressionsBounds.max} />
             </div>
           }
           chart={
             impressionsFiltered.length > 0 ? (
               <div className="w-full h-full">
-                <LineCharts
-                  data={impressionsFiltered}
-                  xAxisKey="date"
-                  dataKeys={["impressions"]}
-                  showArea
-                  autoAdjustYAxis
-                />
+                <LineCharts data={impressionsFiltered} xAxisKey="date" dataKeys={["impressions"]} showArea autoAdjustYAxis />
               </div>
             ) : (
-              <div className="w-full flex items-center justify-center text-sm text-gray-500">
-                No impressions data available.
-              </div>
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">No impressions data available.</div>
             )
           }
           displayMode="both"
@@ -319,33 +250,17 @@ export default function Homepage() {
           subtitle=""
           dropdown={
             <div className="flex items-center gap-2">
-              <ProviderSelect
-                value={daysPostedProvider}
-                onChange={setDaysPostedProvider}
-              />
-              <DateDropdown
-                value={daysPostedRange}
-                onChange={setDaysPostedRange}
-                minDate={daysPostedBounds.min}
-                maxDate={daysPostedBounds.max}
-              />
+              <ProviderSelect value={daysPostedProvider} onChange={setDaysPostedProvider} />
+              <DateDropdown value={daysPostedRange} onChange={setDaysPostedRange} minDate={daysPostedBounds.min} maxDate={daysPostedBounds.max} />
             </div>
           }
           chart={
             daysPostedFiltered.length > 0 ? (
               <div className="w-full h-full">
-                <LineCharts
-                  data={daysPostedFiltered}
-                  xAxisKey="date"
-                  dataKeys={["posts"]}
-                  autoAdjustYAxis
-                  showArea
-                />
+                <LineCharts data={daysPostedFiltered} xAxisKey="date" dataKeys={["posts"]} autoAdjustYAxis showArea />
               </div>
             ) : (
-              <div className="w-full flex items-center justify-center text-sm text-gray-500">
-                No days posted data available.
-              </div>
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">No days posted data available.</div>
             )
           }
           displayMode="both"
@@ -358,29 +273,16 @@ export default function Homepage() {
           subtitle=""
           dropdown={
             <div className="flex items-center gap-2">
-              <DateDropdown
-                value={sessionsRange}
-                onChange={setSessionsRange}
-                minDate={sessionsBounds.min}
-                maxDate={sessionsBounds.max}
-              />
+              <DateDropdown value={sessionsRange} onChange={setSessionsRange} minDate={sessionsBounds.min} maxDate={sessionsBounds.max} />
             </div>
           }
           chart={
             sessionsFiltered.length > 0 ? (
               <div className="w-full h-full">
-                <LineCharts
-                  data={sessionsFiltered}
-                  xAxisKey="date"
-                  dataKeys={["sessions"]}
-                  showArea
-                  autoAdjustYAxis
-                />
+                <LineCharts data={sessionsFiltered} xAxisKey="date" dataKeys={["sessions"]} showArea autoAdjustYAxis />
               </div>
             ) : (
-              <div className="w-full flex items-center justify-center text-sm text-gray-500">
-                No website sessions data available.
-              </div>
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">No website sessions data available.</div>
             )
           }
           displayMode="both"
@@ -391,37 +293,20 @@ export default function Homepage() {
       <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
         <BigCard
           title="Follower Count"
-          titleTooltip="Cumulative count"
+          titleTooltip="Follower count across all platforms"
           subtitle=""
           dropdown={
             <div className="flex items-center gap-2">
-              <ProviderSelect
-                value={followersProvider}
-                onChange={setFollowersProvider}
-              />
-              <DateDropdown
-                value={followersRange}
-                onChange={setFollowersRange}
-                minDate={followersBounds.min}
-                maxDate={followersBounds.max}
-              />
+              <DateDropdown value={followersRange} onChange={setFollowersRange} minDate={followersBounds.min} maxDate={followersBounds.max} />
             </div>
           }
           chart={
             followersFiltered.length > 0 ? (
               <div className="w-full h-full">
-                <LineCharts
-                  data={followersFiltered}
-                  xAxisKey="date"
-                  dataKeys={["followers"]}
-                  autoAdjustYAxis
-                  showArea
-                />
+                <LineCharts data={followersFiltered} xAxisKey="date" dataKeys={["facebook", "instagram", "twitter"]} autoAdjustYAxis showArea />
               </div>
             ) : (
-              <div className="w-full flex items-center justify-center text-sm text-gray-500">
-                No follower count data available.
-              </div>
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">No follower count data available.</div>
             )
           }
           displayMode="both"
@@ -432,9 +317,7 @@ export default function Homepage() {
           title="How did you hear about us?"
           subtitle=""
           chart={
-            <div className="w-full flex items-center justify-center text-sm text-gray-500">
-              No data available.
-            </div>
+            <div className="w-full flex items-center justify-center text-sm text-gray-500">No data available.</div>
           }
           displayMode="both"
           className="flex-1 w-full max-h-[320px]"
