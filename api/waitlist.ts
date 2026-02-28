@@ -1,9 +1,19 @@
 import { clerkClient } from "@clerk/express";
 import { PrismaClient } from "../src/generated/prisma/index.js";
 import nodemailer from "nodemailer";
+import { randomUUID } from "node:crypto";
+
+function getDatabaseUrl(): string | null {
+  const raw = String(process.env.DATABASE_URL ?? "").trim();
+  if (!raw) return null;
+
+  // Vercel/local env loaders can preserve wrapping quotes in some setups.
+  const unwrapped = raw.replace(/^['"]|['"]$/g, "");
+  return unwrapped || null;
+}
 
 function hasValidDatabaseUrl() {
-  const url = process.env.DATABASE_URL;
+  const url = getDatabaseUrl();
   return !!url && /^(postgresql|postgres):\/\//i.test(url);
 }
 
@@ -11,11 +21,89 @@ const prisma = new PrismaClient(
   hasValidDatabaseUrl()
     ? {
         datasources: {
-          db: { url: process.env.DATABASE_URL as string },
+          db: { url: getDatabaseUrl() as string },
         },
       }
     : undefined,
 );
+
+type WaitlistEntry = {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  createdAt: Date;
+};
+
+async function getWaitlistEntries(): Promise<WaitlistEntry[]> {
+  return prisma.$queryRawUnsafe<WaitlistEntry[]>(
+    `
+      SELECT
+        id,
+        email,
+        "firstName",
+        "lastName",
+        "createdAt"
+      FROM "Waitlist"
+      ORDER BY "createdAt" DESC
+    `,
+  );
+}
+
+async function getWaitlistByEmail(email: string): Promise<{
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+} | null> {
+  const rows = await prisma.$queryRawUnsafe<
+    Array<{ id: string; email: string; firstName: string | null; lastName: string | null }>
+  >(
+    `
+      SELECT
+        id,
+        email,
+        "firstName" AS "firstName",
+        "lastName" AS "lastName"
+      FROM "Waitlist"
+      WHERE email = $1
+      LIMIT 1
+    `,
+    email,
+  );
+  return rows[0] ?? null;
+}
+
+async function createWaitlistEntry(
+  email: string,
+  firstName: string,
+  lastName: string,
+): Promise<
+  | { created: true; email: string; firstName: string | null; lastName: string | null }
+  | { created: false }
+> {
+  const id = randomUUID();
+  const rows = await prisma.$queryRawUnsafe<
+    Array<{ email: string; firstName: string | null; lastName: string | null }>
+  >(
+    `
+      INSERT INTO "Waitlist" (id, email, "firstName", "lastName")
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (email) DO NOTHING
+      RETURNING email, "firstName" AS "firstName", "lastName" AS "lastName"
+    `,
+    id,
+    email,
+    firstName,
+    lastName,
+  );
+  if (rows[0]) return { created: true, ...rows[0] };
+  return { created: false };
+}
+
+async function deleteWaitlistByEmail(email: string): Promise<void> {
+  await prisma.$executeRawUnsafe(`DELETE FROM "Waitlist" WHERE email = $1`, email);
+}
 
 // checks if an email is of the right format
 function isValidEmail(email: string): boolean {
@@ -82,19 +170,12 @@ async function sendWaitlistAdminEmail(
     return;
   }
 
-  // Fetch users (returns PaginatedResourceResponse<User[]>)
   const allUsers = await clerkClient.users.getUserList({ limit: 100 });
-
-  // Access the actual array
   const userArray = allUsers.data;
-
-  // Filter for admins based on publicMetadata.role
   const admins = userArray.filter(
     (u: any) =>
       u.publicMetadata?.role === "ADMIN" && u.emailAddresses.length > 0,
   );
-
-  // Map to email addresses
   const recipients = admins
     .map((u: any) => u.emailAddresses[0].emailAddress)
     .filter((e: any): e is string => !!e);
@@ -137,6 +218,80 @@ async function sendWaitlistAdminEmail(
   });
 }
 
+async function sendWaitlistInviteEmail(
+  email: string,
+  firstName: string | null,
+  inviteUrl: string,
+): Promise<void> {
+  const smtp = getSmtpEnv();
+  if (!smtp) {
+    throw new Error("Missing/invalid SMTP env vars.");
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: smtp.host,
+    port: smtp.port,
+    secure: smtp.secure,
+    auth: {
+      user: smtp.user,
+      pass: smtp.pass,
+    },
+  });
+
+  const name = firstName?.trim() || "there";
+  const subject = "Your School on Wheels Analytics invite";
+  const text = [
+    `Hi ${name},`,
+    "",
+    "Your waitlist request to join the SOWMA Analytics Dashboard has been approved.",
+    "Please use the link below to accept your invitation and set your password:",
+    "",
+    inviteUrl,
+    "",
+    "If you were not expecting this email, you can ignore it.",
+  ].join("\n");
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.5; max-width: 560px;">
+      <p style="margin: 0 0 16px;">Hi ${name},</p>
+      <p style="margin: 0 0 16px;">Your waitlist request has been approved.</p>
+      <p style="margin: 0 0 20px;">Use the button below to accept your invitation and set your password:</p>
+      <p style="margin: 0 0 20px;">
+        <a
+          href="${inviteUrl}"
+          style="
+            display: inline-block;
+            padding: 10px 16px;
+            background: #4f46e5;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+          "
+        >
+          Accept Your Invitation
+        </a>
+      </p>
+      <p style="margin: 0 0 8px; color: #6b7280; font-size: 13px;">
+        If the button doesn't work, copy and paste this URL into your browser:
+      </p>
+      <p style="margin: 0 0 16px; font-size: 13px; word-break: break-all;">
+        <a href="${inviteUrl}" style="color: #4f46e5;">${inviteUrl}</a>
+      </p>
+      <p style="margin: 0; color: #6b7280; font-size: 13px;">
+        If you were not expecting this email, you can ignore it.
+      </p>
+    </div>
+  `;
+
+  await transporter.sendMail({
+    from: smtp.from,
+    to: email,
+    subject,
+    text,
+    html,
+  });
+}
+
 export default async function handler(req: any, res: any) {
   const method = req.method;
 
@@ -149,16 +304,7 @@ export default async function handler(req: any, res: any) {
 
   if (method === "GET") {
     try {
-      const entries = await prisma.waitlist.findMany({
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          createdAt: true,
-        },
-      });
+      const entries = await getWaitlistEntries();
       return res.status(200).json(entries);
     } catch (error: any) {
       console.error("Error fetching waitlist users:", error);
@@ -183,27 +329,29 @@ export default async function handler(req: any, res: any) {
       }
 
       // Checks if user already exists on Waitlist or in Clerk
-      const [existingWaitlist, existingClerkUsers] = await Promise.all([
-        prisma.waitlist.findUnique({ where: { email } }),
-        clerkClient.users.getUserList({ emailAddress: [email] }),
-      ]);
+      const existingClerkUsers = await clerkClient.users.getUserList({
+        emailAddress: [email],
+      });
 
       if (existingClerkUsers.data.length > 0) {
         return res.status(409).json({
           error: "An account with this email already exists",
           code: "CLERK_DUPLICATE",
         });
-      } else if (existingWaitlist) {
+      }
+
+      // Creates a new entry and adds it to the db
+      const newEntry = await createWaitlistEntry(
+        email,
+        rawFirstName,
+        rawLastName,
+      );
+      if (!newEntry.created) {
         return res.status(409).json({
           error: "This email is already on the waitlist",
           code: "WAITLIST_DUPLICATE",
         });
       }
-
-      // Creates a new entry and adds it to the db
-      const newEntry = await prisma.waitlist.create({
-        data: { email, firstName: rawFirstName, lastName: rawLastName },
-      });
 
       try {
         await sendWaitlistAdminEmail(newEntry.email, rawFirstName, rawLastName);
@@ -215,8 +363,8 @@ export default async function handler(req: any, res: any) {
         message: "Successfully added to waitlist",
         data: {
           email: newEntry.email,
-          firstName: newEntry.firstName,
-          lastName: newEntry.lastName,
+          firstName: newEntry.firstName ?? rawFirstName,
+          lastName: newEntry.lastName ?? rawLastName,
         },
       });
     } catch (error: any) {
@@ -244,9 +392,7 @@ export default async function handler(req: any, res: any) {
           .json({ error: "Action must be either 'approve' or 'deny'" });
       }
 
-      const existingWaitlist = await prisma.waitlist.findUnique({
-        where: { email },
-      });
+      const existingWaitlist = await getWaitlistByEmail(email);
 
       if (!existingWaitlist) {
         return res.status(404).json({
@@ -296,7 +442,7 @@ export default async function handler(req: any, res: any) {
           invitation = await clerkClient.invitations.createInvitation({
             emailAddress: email,
             redirectUrl: getInviteRedirectUrl(req),
-            notify: true,
+            notify: false,
           });
         } catch (inviteError: any) {
           const inviteErrors = Array.isArray(inviteError?.errors)
@@ -318,8 +464,27 @@ export default async function handler(req: any, res: any) {
 
           throw inviteError;
         }
-        // Reflect successful approval in Neon by removing from waitlist.
-        await prisma.waitlist.delete({ where: { email } });
+
+        const invitationUrl = invitation?.url ?? "";
+        if (!invitationUrl) {
+          throw new Error("Failed to generate invitation URL");
+        }
+
+        try {
+          await sendWaitlistInviteEmail(
+            email,
+            existingWaitlist.firstName,
+            invitationUrl,
+          );
+        } catch (emailError) {
+          // Avoid leaving a pending invite if custom email delivery fails.
+          if (invitation?.id) {
+            await clerkClient.invitations.revokeInvitation(invitation.id);
+          }
+          throw emailError;
+        }
+
+        await deleteWaitlistByEmail(email);
 
         return res.status(200).json({
           message:
@@ -330,13 +495,12 @@ export default async function handler(req: any, res: any) {
             email,
             action,
             resent: revokedCount > 0,
-            invitationUrl: invitation?.url ?? null,
+            invitationUrl,
           },
         });
       }
 
-      // Reflect action in Neon by removing from waitlist.
-      await prisma.waitlist.delete({ where: { email } });
+      await deleteWaitlistByEmail(email);
 
       return res.status(200).json({
         message: `Denied ${email}`,
@@ -357,9 +521,7 @@ export default async function handler(req: any, res: any) {
         return res.status(400).json({ error: "Email is required" });
       }
 
-      const existingWaitlist = await prisma.waitlist.findUnique({
-        where: { email },
-      });
+      const existingWaitlist = await getWaitlistByEmail(email);
 
       if (!existingWaitlist) {
         return res.status(404).json({
@@ -367,7 +529,7 @@ export default async function handler(req: any, res: any) {
         });
       }
 
-      await prisma.waitlist.delete({ where: { email } });
+      await deleteWaitlistByEmail(email);
 
       return res.status(200).json({
         message: "Successfully removed from waitlist",
