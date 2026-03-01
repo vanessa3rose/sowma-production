@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { mockUsers } from "./mockUsers";
 
 type WaitlistUser = {
   id: string | number;
@@ -11,24 +10,28 @@ type WaitlistUser = {
 export default function Waitlist() {
   const [users, setUsers] = useState<WaitlistUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string>("");
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [busyEmail, setBusyEmail] = useState<string | null>(null);
 
-  // Load live data first; keep a fallback for local/dev API failures.
-  useEffect(() => {
-    async function loadWaitlist() {
-      try {
-        const response = await fetch("/api/waitlist");
-        if (!response.ok) throw new Error("Failed to fetch waitlist");
-        const data = (await response.json()) as WaitlistUser[];
-        setUsers(data);
-      } catch {
-        setUsers(mockUsers);
-      } finally {
-        setLoading(false);
-      }
+  async function loadWaitlist() {
+    try {
+      setLoadError("");
+      setLoading(true);
+      const response = await fetch("/api/waitlist");
+      if (!response.ok) throw new Error("Failed to fetch waitlist");
+      const data = (await response.json()) as WaitlistUser[];
+      setUsers(data);
+    } catch {
+      setUsers([]);
+      setLoadError("Failed to fetch waitlist.");
+    } finally {
+      setLoading(false);
     }
+  }
 
+  useEffect(() => {
+    // Load waitlist entries for admin review.
     loadWaitlist();
   }, []);
 
@@ -97,6 +100,18 @@ export default function Waitlist() {
       </div>
 
       <div className="divide-y divide-gray-300">
+        {loadError ? (
+          <div className="py-4 text-center text-sm text-red-600 font-poppins">
+            {loadError}{" "}
+            <button
+              type="button"
+              onClick={loadWaitlist}
+              className="underline underline-offset-2"
+            >
+              Retry
+            </button>
+          </div>
+        ) : null}
         {statusMessage ? (
           <div className="py-3 text-center text-sm text-gray-600 font-poppins">
             {statusMessage}
