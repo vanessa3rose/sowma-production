@@ -1,8 +1,14 @@
 import login from "../assets/login-picture.png";
-import { SignOutButton, SignUp, useUser } from "@clerk/clerk-react";
+import { SignUp, useClerk, useUser } from "@clerk/clerk-react";
 
 export default function AcceptInvitePage() {
   const { isLoaded, isSignedIn } = useUser();
+  const { signOut } = useClerk();
+
+  const handleSignOutAndContinue = async () => {
+    const redirectUrl = window.location.href;
+    await signOut({ redirectUrl });
+  };
 
   return (
     <section className="flex flex-col lg:flex-row h-screen items-center justify-center bg-white -mr-6">
@@ -32,14 +38,13 @@ export default function AcceptInvitePage() {
                   You are already signed in. To accept an invitation for a
                   different account, sign out first and reopen the invite link.
                 </p>
-                <SignOutButton>
-                  <button
-                    type="button"
-                    className="w-full px-6 py-3 bg-sowma-blue text-white font-medium rounded-lg hover:bg-opacity-90 transition-all"
-                  >
-                    Sign out and continue
-                  </button>
-                </SignOutButton>
+                <button
+                  type="button"
+                  onClick={handleSignOutAndContinue}
+                  className="w-full px-6 py-3 bg-sowma-blue text-white font-medium rounded-lg hover:bg-opacity-90 transition-all"
+                >
+                  Sign out and continue
+                </button>
               </div>
             ) : (
               <SignUp
