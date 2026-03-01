@@ -31,6 +31,7 @@ const App = () => {
 
   const currentPath = location.toLowerCase();
   const hideLayoutRoutes = ["/signup", "/login", "/accept-invite"];
+  // Auth/public flows should render without dashboard chrome.
   const hideLayout =
     hideLayoutRoutes.some(
       (route) => currentPath === route || currentPath.startsWith(`${route}/`),

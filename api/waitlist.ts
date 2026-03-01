@@ -3,6 +3,7 @@ import { PrismaClient } from "../src/generated/prisma/index.js";
 import nodemailer from "nodemailer";
 import { randomUUID } from "node:crypto";
 
+// ---------------- Runtime and DB configuration ----------------
 function getDatabaseUrl(): string | null {
   const raw = String(process.env.DATABASE_URL ?? "").trim();
   if (!raw) return null;
@@ -27,6 +28,7 @@ const prisma = new PrismaClient(
     : undefined,
 );
 
+// ---------------- Waitlist persistence helpers ----------------
 type WaitlistEntry = {
   id: string;
   email: string;
@@ -34,6 +36,10 @@ type WaitlistEntry = {
   lastName: string | null;
   createdAt: Date;
 };
+
+function normalizeEmail(value: unknown): string {
+  return String(value ?? "").trim().toLowerCase();
+}
 
 async function getWaitlistEntries(): Promise<WaitlistEntry[]> {
   return prisma.$queryRawUnsafe<WaitlistEntry[]>(
@@ -105,12 +111,13 @@ async function deleteWaitlistByEmail(email: string): Promise<void> {
   await prisma.$executeRawUnsafe(`DELETE FROM "Waitlist" WHERE email = $1`, email);
 }
 
-// checks if an email is of the right format
+// Basic email format validation for waitlist submissions.
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
+// ---------------- Email helpers ----------------
 type SmtpEnv = {
   host: string;
   port: number;
@@ -137,6 +144,18 @@ function getSmtpEnv(): SmtpEnv | null {
   return { host, port, user, pass, from, secure };
 }
 
+function createSmtpTransporter(smtp: SmtpEnv) {
+  return nodemailer.createTransport({
+    host: smtp.host,
+    port: smtp.port,
+    secure: smtp.secure,
+    auth: {
+      user: smtp.user,
+      pass: smtp.pass,
+    },
+  });
+}
+
 function getInviteRedirectUrl(req?: any): string {
   const origin = String(req?.headers?.origin ?? "").trim();
   if (origin) return `${origin.replace(/\/+$/, "")}/accept-invite`;
@@ -156,7 +175,7 @@ function getInviteRedirectUrl(req?: any): string {
   const vercelUrl = process.env.VERCEL_URL;
   if (vercelUrl) return `https://${vercelUrl.replace(/\/+$/, "")}/accept-invite`;
 
-  return "http://localhost:5173/accept-invite";
+  return "http://localhost:4000/accept-invite";
 }
 
 async function sendWaitlistAdminEmail(
@@ -187,15 +206,7 @@ async function sendWaitlistAdminEmail(
     return;
   }
 
-  const transporter = nodemailer.createTransport({
-    host: smtp.host,
-    port: smtp.port,
-    secure: smtp.secure,
-    auth: {
-      user: smtp.user,
-      pass: smtp.pass,
-    },
-  });
+  const transporter = createSmtpTransporter(smtp);
 
   const dashboardUrl =
     process.env.ADMIN_DASHBOARD_URL || "[ADMIN DASHBOARD PLACEHOLDER URL]";
@@ -228,15 +239,7 @@ async function sendWaitlistInviteEmail(
     throw new Error("Missing/invalid SMTP env vars.");
   }
 
-  const transporter = nodemailer.createTransport({
-    host: smtp.host,
-    port: smtp.port,
-    secure: smtp.secure,
-    auth: {
-      user: smtp.user,
-      pass: smtp.pass,
-    },
-  });
+  const transporter = createSmtpTransporter(smtp);
 
   const name = firstName?.trim() || "there";
   const subject = "Your School on Wheels Analytics invite";
@@ -303,6 +306,7 @@ export default async function handler(req: any, res: any) {
   }
 
   if (method === "GET") {
+    // Return the full queue for the admin waitlist table.
     try {
       const entries = await getWaitlistEntries();
       return res.status(200).json(entries);
@@ -311,11 +315,11 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ error: "Failed to fetch waitlist users" });
     }
   } else if (method === "POST") {
-    // ---------------- ADD TO WAITLIST ----------------
+    // Create a waitlist entry and notify admins.
     try {
       const rawFirstName = String(req.body?.firstName ?? "").trim();
       const rawLastName = String(req.body?.lastName ?? "").trim();
-      const email = String(req.body?.email ?? "").trim().toLowerCase();
+      const email = normalizeEmail(req.body?.email);
 
       if (!rawFirstName || !rawLastName || !email) {
         return res.status(400).json({
@@ -323,12 +327,10 @@ export default async function handler(req: any, res: any) {
         });
       }
 
-      // Validate email format
       if (!isValidEmail(email)) {
         return res.status(400).json({ error: "Invalid email format" });
       }
 
-      // Checks if user already exists on Waitlist or in Clerk
       const existingClerkUsers = await clerkClient.users.getUserList({
         emailAddress: [email],
       });
@@ -340,7 +342,6 @@ export default async function handler(req: any, res: any) {
         });
       }
 
-      // Creates a new entry and adds it to the db
       const newEntry = await createWaitlistEntry(
         email,
         rawFirstName,
@@ -375,10 +376,10 @@ export default async function handler(req: any, res: any) {
       });
     }
   } else if (method === "PATCH") {
-    // ---------------- APPROVE / DENY WAITLIST ENTRY ----------------
+    // Approve or deny a waitlist user from the admin tab.
     try {
       const action = String(req.body?.action ?? "").trim().toLowerCase();
-      const email = String(req.body?.email ?? "").trim().toLowerCase();
+      const email = normalizeEmail(req.body?.email);
 
       if (!action || !email) {
         return res
@@ -428,6 +429,7 @@ export default async function handler(req: any, res: any) {
             String(invite?.emailAddress ?? "").toLowerCase() === email,
         );
 
+        // Ensure only one active invitation exists per email.
         let revokedCount = 0;
         for (const invite of matchingPendingInvites) {
           if (!invite?.id) continue;
@@ -513,9 +515,9 @@ export default async function handler(req: any, res: any) {
       });
     }
   } else if (method === "DELETE") {
-    // ---------------- REMOVE FROM WAITLIST ----------------
+    // Remove a waitlist user directly from the admin tab.
     try {
-      const email: string = String(req.body.email).trim().toLowerCase();
+      const email: string = normalizeEmail(req.body?.email);
 
       if (!email) {
         return res.status(400).json({ error: "Email is required" });
@@ -554,7 +556,6 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ error: "Failed to fetch waitlist users" });
     }
   } else {
-    // Method not allowed
     return res.status(405).json({ error: "Method not allowed" });
   }
 }

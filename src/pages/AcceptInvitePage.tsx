@@ -5,6 +5,7 @@ export default function AcceptInvitePage() {
   const { isLoaded, isSignedIn } = useUser();
   const { signOut } = useClerk();
 
+  // Keep invite ticket/query params intact across sign-out.
   const handleSignOutAndContinue = async () => {
     const redirectUrl = window.location.href;
     await signOut({ redirectUrl });
@@ -33,6 +34,7 @@ export default function AcceptInvitePage() {
 
           <div className="w-full max-w-md flex flex-col items-center">
             {!isLoaded ? null : isSignedIn ? (
+              // Signing out first avoids Clerk treating the active session as the invite target.
               <div className="w-full rounded-xl border border-gray-200 p-5 bg-white">
                 <p className="text-gray-800 text-sm mb-3">
                   You are already signed in. To accept an invitation for a
@@ -47,6 +49,7 @@ export default function AcceptInvitePage() {
                 </button>
               </div>
             ) : (
+              // Clerk consumes the invitation ticket and shows the password/account setup UI.
               <SignUp
                 routing="path"
                 path="/accept-invite"

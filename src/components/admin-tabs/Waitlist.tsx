@@ -16,6 +16,7 @@ export default function Waitlist() {
 
   // Load live data first; keep a fallback for local/dev API failures.
   useEffect(() => {
+    // Load live data first; keep a fallback for local/dev API failures.
     async function loadWaitlist() {
       try {
         const response = await fetch("/api/waitlist");
