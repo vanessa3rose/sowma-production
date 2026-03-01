@@ -67,7 +67,6 @@
   },
   "overrides": {
     "prisma": "6.19.1",
-    "@prisma/client": "6.19.1",
     "picomatch": "^4.0.3"
   }
 }
