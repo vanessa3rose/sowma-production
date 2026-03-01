@@ -1,7 +1,7 @@
 import { useState } from "react";
 import CheckboxTitle from "./CheckboxTitle";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import DateDropdown, { DateRangeId } from "../charts/DateButton";
+import DateDropdown, { DateRangeValue } from "../charts/DateButton";
 import { Platform, PLATFORM_LABELS } from "../../config/chartConfigs";
 import LoadingAnimation from "../LoadingAnimation";
 
@@ -12,7 +12,10 @@ interface ModalProps {
    * Called when the user clicks "Download PDF" with the platforms
    * they have selected.
    */
-  onExport: (platforms: Platform[], range: DateRangeId) => Promise<void> | void;
+  onExport: (
+    platforms: Platform[],
+    range: DateRangeValue,
+  ) => Promise<void> | void;
 }
 
 // Label for the "select everything" option at the top of the list.
@@ -47,7 +50,7 @@ export default function ExportModal({
     });
     return base;
   });
-  const [range, setRange] = useState<DateRangeId>("30d");
+  const [range, setRange] = useState<DateRangeValue>({ id: "30d" });
 
   /**
    * Handle checkbox changes for either:

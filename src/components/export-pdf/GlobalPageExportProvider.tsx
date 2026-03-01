@@ -4,7 +4,7 @@ import {
   SocialExportBundle,
   GoogleAnalyticsExportBundle,
 } from "../../types/exportTypes";
-import type { DateRangeId } from "../charts/DateButton.js";
+import type { DateRangeValue } from "../charts/DateButton.js";
 
 import { fetchGoogleExportBundle } from "../../../scripts/export-pdf/fetchExportData.js";
 import { fetchSocialExportBundle } from "../../../scripts/export-pdf/fetchSocialExportBundle.js";
@@ -15,7 +15,7 @@ import { usePDFExporter } from "../../hooks/usePDFExporter";
 interface ExportContextValue {
   exportByPlatforms: (
     platforms: Platform[],
-    range: DateRangeId,
+    range: DateRangeValue,
   ) => Promise<void>;
 }
 
@@ -28,7 +28,10 @@ export function GlobalPageExportProvider({
 }) {
   const { exportCardsToPDF } = usePDFExporter();
 
-  async function exportByPlatforms(platforms: Platform[], range: DateRangeId) {
+  async function exportByPlatforms(
+    platforms: Platform[],
+    range: DateRangeValue,
+  ) {
     const selections: ExportCardSelection[] = [];
 
     for (const platform of platforms) {

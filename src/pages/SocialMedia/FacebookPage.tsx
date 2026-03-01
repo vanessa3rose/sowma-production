@@ -7,7 +7,7 @@ import BigCard from "../../components/cards/BigCard";
 import SmallCard from "../../components/cards/SmallCard";
 import LineCharts from "../../components/charts/LineCharts";
 import DateDropdown, {
-  DateRangeId,
+  DateRangeValue,
 } from "../../components/charts/DateButton";
 import ExportButton from "../../components/export-pdf/ExportButton";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
@@ -56,13 +56,14 @@ const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
   posts: [],
   shares: [],
 };
-const INITIAL_RANGES: Record<MetricKey, DateRangeId> = {
-  followers: "30d",
-  likes: "30d",
-  views: "30d",
-  comments: "30d",
-  posts: "30d",
-  shares: "30d",
+
+const INITIAL_RANGES: Record<MetricKey, DateRangeValue> = {
+  followers: { id: "30d" },
+  likes: { id: "30d" },
+  views: { id: "30d" },
+  comments: { id: "30d" },
+  posts: { id: "30d" },
+  shares: { id: "30d" },
 };
 const METRIC_DESCRIPTIONS: Record<MetricKey, string> = {
   followers: "Cumulative count",
@@ -122,18 +123,6 @@ function getBounds(pts: LinePoint[]) {
   return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
 }
 
-function filterByRange(pts: LinePoint[], range: DateRangeId) {
-  if (!pts.length || range === "all") return pts;
-  const end = new Date(pts[pts.length - 1].date);
-  const start = new Date(end);
-  if (range === "7d") start.setDate(start.getDate() - 6);
-  if (range === "30d") start.setDate(start.getDate() - 29);
-  if (range === "1y") start.setFullYear(start.getFullYear() - 1);
-  const startStr = start.toISOString().slice(0, 10);
-  const endStr = end.toISOString().slice(0, 10);
-  return pts.filter((p) => p.date >= startStr && p.date <= endStr);
-}
-
 function buildPostingActivity(points: LinePoint[]): Map<string, number> {
   if (points.length < 2) return new Map();
   const activity = new Map<string, number>();
@@ -159,7 +148,7 @@ export default function FacebookPage() {
   const [rawSeries, setRawSeries] =
     useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
   const [ranges, setRanges] =
-    useState<Record<MetricKey, DateRangeId>>(INITIAL_RANGES);
+    useState<Record<MetricKey, DateRangeValue>>(INITIAL_RANGES);
 
   useEffect(() => {
     async function loadFacebook() {
@@ -186,6 +175,23 @@ export default function FacebookPage() {
     loadFacebook();
   }, []);
 
+  function filterByRange(pts: LinePoint[], range: DateRangeValue) {
+    if (!pts.length || range.id === "all") return pts;
+    if (range.id === "custom" && range.start && range.end) {
+      const startStr = range.start.toISOString().slice(0, 10);
+      const endStr = range.end.toISOString().slice(0, 10);
+      return pts.filter((p) => p.date >= startStr && p.date <= endStr);
+    }
+    const end = new Date(pts[pts.length - 1].date);
+    const start = new Date(end);
+    if (range.id === "7d") start.setDate(start.getDate() - 6);
+    if (range.id === "30d") start.setDate(start.getDate() - 29);
+    if (range.id === "1y") start.setFullYear(start.getFullYear() - 1);
+    const startStr = start.toISOString().slice(0, 10);
+    const endStr = end.toISOString().slice(0, 10);
+    return pts.filter((p) => p.date >= startStr && p.date <= endStr);
+  }
+
   const computed = useMemo(() => {
     const out = {} as Record<
       MetricKey,
@@ -197,7 +203,7 @@ export default function FacebookPage() {
     >;
     METRICS.forEach((cfg) => {
       const full = rawSeries[cfg.id] ?? [];
-      const filtered = filterByRange(full, ranges[cfg.id] ?? "30d");
+      const filtered = filterByRange(full, ranges[cfg.id] ?? { id: "30d" });
       out[cfg.id] = {
         filtered,
         summary: summarizeSeries(filtered),

@@ -56,13 +56,20 @@ function detectPreset(
   if (days === 6) return "7d";
   if (days === 29) return "30d";
   const oneYearAgo = subYears(end, 1);
-  if (format(start, "yyyy-MM-dd") === format(oneYearAgo, "yyyy-MM-dd")) return "1y";
+  if (format(start, "yyyy-MM-dd") === format(oneYearAgo, "yyyy-MM-dd"))
+    return "1y";
   return null;
 }
 
+export type DateRangeValue = {
+  id: DateRangeId;
+  start?: Date | null;
+  end?: Date | null;
+};
+
 type DateDropdownProps = {
-  value: DateRangeId;
-  onChange: (v: DateRangeId) => void;
+  value: DateRangeValue;
+  onChange: (v: DateRangeValue) => void;
   minDate?: Date | null;
   maxDate?: Date | null;
   disabled?: boolean;
@@ -78,9 +85,9 @@ export default function DateDropdown({
   className,
 }: DateDropdownProps) {
   const [open, setOpen] = useState(false);
-  const [activePreset, setActivePreset] = useState<DateRangeId>(value);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [activePreset, setActivePreset] = useState<DateRangeId>(value.id);
+  const [startDate, setStartDate] = useState<Date | null>(value.start ?? null);
+  const [endDate, setEndDate] = useState<Date | null>(value.end ?? null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const effectiveMax = maxDate ?? new Date();
@@ -88,7 +95,10 @@ export default function DateDropdown({
   // Close on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     }
@@ -99,19 +109,21 @@ export default function DateDropdown({
   // When a preset button is clicked
   function handlePreset(id: Exclude<DateRangeId, "custom">) {
     setActivePreset(id);
+    let start: Date | null = null;
+    let end: Date | null = null;
     if (id === "all") {
       setStartDate(null);
       setEndDate(null);
     } else {
-      const end = new Date(effectiveMax);
-      const start = new Date(end);
+      end = new Date(effectiveMax);
+      start = new Date(end);
       if (id === "7d") start.setDate(start.getDate() - 6);
       if (id === "30d") start.setDate(start.getDate() - 29);
       if (id === "1y") start.setFullYear(start.getFullYear() - 1);
       setStartDate(start);
       setEndDate(end);
     }
-    onChange(id);
+    onChange({ id, start, end });
     setOpen(false);
   }
 
@@ -125,10 +137,10 @@ export default function DateDropdown({
       const matched = detectPreset(start, end, effectiveMax);
       if (matched) {
         setActivePreset(matched);
-        onChange(matched);
+        onChange({ id: matched, start, end });
       } else {
         setActivePreset("custom");
-        onChange("custom");
+        onChange({ id: "custom", start, end });
       }
       setOpen(false);
     } else {
@@ -140,7 +152,9 @@ export default function DateDropdown({
   // Button label
   const buttonLabel = useMemo(() => {
     if (activePreset !== "custom") {
-      return PRESETS.find((p) => p.id === activePreset)?.shortLabel ?? "Select range";
+      return (
+        PRESETS.find((p) => p.id === activePreset)?.shortLabel ?? "Select range"
+      );
     }
     if (startDate && endDate) {
       return `${format(startDate, "MMM d, yyyy")} – ${format(endDate, "MMM d, yyyy")}`;
@@ -161,7 +175,10 @@ export default function DateDropdown({
   }, [minDate, maxDate]);
 
   return (
-    <div ref={containerRef} className={["relative inline-block", className ?? ""].join(" ")}>
+    <div
+      ref={containerRef}
+      className={["relative inline-block", className ?? ""].join(" ")}
+    >
       {/* Trigger button */}
       <button
         type="button"
@@ -202,24 +219,24 @@ export default function DateDropdown({
 
           {/* Calendar */}
           <div className="flex justify-center">
-          <DatePicker
-            renderCustomHeader={({ date, decreaseMonth, increaseMonth }) => (
-                  <div className="flex items-center justify-between px-4">
+            <DatePicker
+              renderCustomHeader={({ date, decreaseMonth, increaseMonth }) => (
+                <div className="flex items-center justify-between px-4">
                   <button onClick={decreaseMonth}>←</button>
                   <span>{format(date, "MMMM yyyy")}</span>
                   <button onClick={increaseMonth}>→</button>
-                  </div>
-            )}
-            selected={startDate}
-            onChange={handleCalendarChange}
-            startDate={startDate}
-            endDate={endDate}
-            minDate={minDate ?? undefined}
-            maxDate={effectiveMax}
-            selectsRange
-            inline
-            calendarClassName="!font-[Poppins] !border-none !shadow-none"
-          />
+                </div>
+              )}
+              selected={startDate}
+              onChange={handleCalendarChange}
+              startDate={startDate}
+              endDate={endDate}
+              minDate={minDate ?? undefined}
+              maxDate={effectiveMax}
+              selectsRange
+              inline
+              calendarClassName="!font-[Poppins] !border-none !shadow-none"
+            />
           </div>
         </div>
       )}
