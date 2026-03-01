@@ -195,7 +195,9 @@ function GoogleSmallMetricCard({
           {value}
         </span>
         {valueNote ? (
-          <span style={{ fontSize: "14px", color: "#6B7280" }}>{valueNote}</span>
+          <span style={{ fontSize: "14px", color: "#6B7280" }}>
+            {valueNote}
+          </span>
         ) : null}
       </div>
       <div
@@ -229,7 +231,11 @@ function GoogleChartCard({
   return (
     <div
       className="flex flex-col"
-      style={{ ...PDF_CARD_STYLE, minHeight: `${height}px`, height: `${height}px` }}
+      style={{
+        ...PDF_CARD_STYLE,
+        minHeight: `${height}px`,
+        height: `${height}px`,
+      }}
     >
       <div className="flex items-center justify-between">
         <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
@@ -247,10 +253,16 @@ function GoogleChartCard({
 }
 
 function toCountyIntensity(countyTotals: Record<string, number>) {
-  const total = Object.values(countyTotals).reduce((sum, value) => sum + value, 0);
+  const total = Object.values(countyTotals).reduce(
+    (sum, value) => sum + value,
+    0,
+  );
   if (total <= 0) return {};
   return Object.fromEntries(
-    Object.entries(countyTotals).map(([county, value]) => [county, value / total]),
+    Object.entries(countyTotals).map(([county, value]) => [
+      county,
+      value / total,
+    ]),
   ) as Record<string, number>;
 }
 
@@ -263,7 +275,11 @@ function toTitleCaseLabel(input: string): string {
 
 function groupSourceTotals(
   sourceTotals: Record<string, number>,
-): Array<{ source: string; sessions: number; otherBreakdown?: Array<{ label: string; value: number }> }> {
+): Array<{
+  source: string;
+  sessions: number;
+  otherBreakdown?: Array<{ label: string; value: number }>;
+}> {
   const sorted = Object.entries(sourceTotals)
     .sort((a, b) => b[1] - a[1])
     .map(([source, sessions]) => ({
@@ -387,16 +403,18 @@ export default function ExportReportView({
             { label: "Returning Users", value: newVs.returningUsers },
           ];
 
-          const deviceData = Object.entries(selection.data.deviceTotals ?? {}).map(
-            ([label, value]) => ({
-              label:
-                label.length > 0
-                  ? label[0].toUpperCase() + label.slice(1).toLowerCase()
-                  : "Unknown",
-              value,
-            }),
+          const deviceData = Object.entries(
+            selection.data.deviceTotals ?? {},
+          ).map(([label, value]) => ({
+            label:
+              label.length > 0
+                ? label[0].toUpperCase() + label.slice(1).toLowerCase()
+                : "Unknown",
+            value,
+          }));
+          const sourceData = groupSourceTotals(
+            selection.data.sourceTotals ?? {},
           );
-          const sourceData = groupSourceTotals(selection.data.sourceTotals ?? {});
 
           return (
             <div key={`google-${index}`}>
@@ -428,7 +446,8 @@ export default function ExportReportView({
                         : "views"
                     }
                     delta={formatDelta(
-                      (pageViewsSummary.current ?? 0) - (pageViewsSummary.prev ?? 0),
+                      (pageViewsSummary.current ?? 0) -
+                        (pageViewsSummary.prev ?? 0),
                       "number",
                     )}
                   />
@@ -437,13 +456,17 @@ export default function ExportReportView({
                     value={formatValue(active7Summary.current ?? 0, "number")}
                     valueNote="users (7D)"
                     delta={formatDelta(
-                      (active7Summary.current ?? 0) - (active7Summary.prev ?? 0),
+                      (active7Summary.current ?? 0) -
+                        (active7Summary.prev ?? 0),
                       "number",
                     )}
                   />
                   <GoogleSmallMetricCard
                     title="Avg Engagement Time"
-                    value={formatValue(engagementTimeSummary.current ?? 0, "seconds")}
+                    value={formatValue(
+                      engagementTimeSummary.current ?? 0,
+                      "seconds",
+                    )}
                     valueNote="seconds"
                     delta={formatDelta(
                       (engagementTimeSummary.current ?? 0) -

@@ -89,7 +89,9 @@ const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
 
     return (
       <div className="min-w-[180px] rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-md font-[Poppins] text-sm">
-        <div className="mb-2 text-xs font-semibold text-gray-800">{String(label)}</div>
+        <div className="mb-2 text-xs font-semibold text-gray-800">
+          {String(label)}
+        </div>
         <div className="mb-2 text-xs text-gray-700">
           Total:{" "}
           <span className="font-semibold text-gray-900">
@@ -102,8 +104,13 @@ const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
           </div>
           <div className="flex max-h-40 flex-col gap-1 overflow-y-auto">
             {otherBreakdown.map((item) => (
-              <div key={item.label} className="flex items-center justify-between gap-3">
-                <span className="truncate text-xs text-gray-700">{item.label}</span>
+              <div
+                key={item.label}
+                className="flex items-center justify-between gap-3"
+              >
+                <span className="truncate text-xs text-gray-700">
+                  {item.label}
+                </span>
                 <span className="shrink-0 text-xs font-semibold text-gray-900">
                   {item.value.toLocaleString()}
                 </span>
@@ -123,10 +130,7 @@ const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
         margin={{ top: 20, right: 24, left: leftMargin, bottom: 20 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis
-          type="number"
-          tick={{ fontFamily: "Poppins, sans-serif" }}
-        />
+        <XAxis type="number" tick={{ fontFamily: "Poppins, sans-serif" }} />
         <YAxis
           type="category"
           dataKey={xAxisKey}

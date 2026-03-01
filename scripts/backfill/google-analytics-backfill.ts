@@ -408,7 +408,10 @@ async function runReportForDay(date: Date) {
       if (!countyFips) continue;
 
       const sessions = Number(row.metricValues?.[0]?.value ?? 0);
-      countySessions.set(countyFips, (countySessions.get(countyFips) ?? 0) + sessions);
+      countySessions.set(
+        countyFips,
+        (countySessions.get(countyFips) ?? 0) + sessions,
+      );
     }
 
     if (countySessions.size > 0) {
@@ -426,13 +429,19 @@ async function runReportForDay(date: Date) {
         {
           property: "properties/393011442",
           dateRanges: [{ startDate: isoDate, endDate: isoDate }],
-          dimensions: [{ name: "country" }, { name: "region" }, { name: "city" }],
+          dimensions: [
+            { name: "country" },
+            { name: "region" },
+            { name: "city" },
+          ],
           metrics: [{ name: "sessions" }],
         },
         "backfill city fallback report",
       );
     } catch (err) {
-      console.warn(`[GA] city fallback report failed for ${isoDate}; skipping.`);
+      console.warn(
+        `[GA] city fallback report failed for ${isoDate}; skipping.`,
+      );
       if (process.env.DEBUG_METRICS === "1") {
         console.warn(err);
       }
@@ -450,13 +459,18 @@ async function runReportForDay(date: Date) {
       if (!countyFips) continue;
 
       const sessions = Number(row.metricValues?.[0]?.value ?? 0);
-      countySessions.set(countyFips, (countySessions.get(countyFips) ?? 0) + sessions);
+      countySessions.set(
+        countyFips,
+        (countySessions.get(countyFips) ?? 0) + sessions,
+      );
     }
 
     if (countySessions.size > 0) {
       await upsertCountySessions(countySessions);
       countyRowsWritten = countySessions.size;
-      console.log(`[GA] County fallback from city mapping wrote ${countyRowsWritten} rows for ${isoDate}`);
+      console.log(
+        `[GA] County fallback from city mapping wrote ${countyRowsWritten} rows for ${isoDate}`,
+      );
     }
   }
 

@@ -180,7 +180,10 @@ export function toMassachusettsCountyFips(
   const trimmed = raw.trim();
   if (!trimmed) return null;
 
-  if (/^\d{5}$/.test(trimmed) && MA_FIPS_SET.has(trimmed as MassachusettsCountyId)) {
+  if (
+    /^\d{5}$/.test(trimmed) &&
+    MA_FIPS_SET.has(trimmed as MassachusettsCountyId)
+  ) {
     return trimmed as MassachusettsCountyId;
   }
 

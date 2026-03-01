@@ -400,11 +400,19 @@ async function syncSessionsByCountyBreakdown(
       if (!countyFips) continue;
 
       const sessions = Number(row.metricValues?.[0]?.value ?? 0);
-      countySessions.set(countyFips, (countySessions.get(countyFips) ?? 0) + sessions);
+      countySessions.set(
+        countyFips,
+        (countySessions.get(countyFips) ?? 0) + sessions,
+      );
     }
 
     if (countySessions.size === 0) return 0;
-    await upsertCountySessions(metricDate, socialMediaId, existingMetrics, countySessions);
+    await upsertCountySessions(
+      metricDate,
+      socialMediaId,
+      existingMetrics,
+      countySessions,
+    );
     return countySessions.size;
   } catch (err) {
     console.warn(
@@ -455,11 +463,19 @@ async function syncSessionsByCityFallback(
     if (!countyFips) continue;
 
     const sessions = Number(row.metricValues?.[0]?.value ?? 0);
-    countySessions.set(countyFips, (countySessions.get(countyFips) ?? 0) + sessions);
+    countySessions.set(
+      countyFips,
+      (countySessions.get(countyFips) ?? 0) + sessions,
+    );
   }
 
   if (countySessions.size === 0) return 0;
-  await upsertCountySessions(metricDate, socialMediaId, existingMetrics, countySessions);
+  await upsertCountySessions(
+    metricDate,
+    socialMediaId,
+    existingMetrics,
+    countySessions,
+  );
   return countySessions.size;
 }
 
@@ -634,3 +650,8 @@ export async function runDailyGoogleAnalyticsSync() {
     await prisma.$disconnect();
   }
 }
+
+/* -------------------------------------------------
+   Entrypoint
+-------------------------------------------------- */
+runDailyGoogleAnalyticsSync().catch(console.error);

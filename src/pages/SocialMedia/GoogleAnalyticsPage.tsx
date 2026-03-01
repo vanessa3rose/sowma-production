@@ -17,7 +17,9 @@ import MassachusettsCountyMap, {
 import { toMassachusettsCountyFips } from "../../utils/massachusettsCounties";
 
 // Buttons
-import DateDropdown, { DateRangeId } from "../../components/charts/DateDropdown";
+import DateDropdown, {
+  DateRangeId,
+} from "../../components/charts/DateDropdown";
 import ExportButton from "../../components/export-pdf/ExportButton";
 
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
@@ -112,7 +114,8 @@ function aggregateBreakdownTotals(
   const totals: Record<string, number> = {};
   for (const row of rows) {
     if (row.breakdownKey !== breakdownKey || !row.breakdownValue) continue;
-    totals[row.breakdownValue] = (totals[row.breakdownValue] ?? 0) + row.metricValue;
+    totals[row.breakdownValue] =
+      (totals[row.breakdownValue] ?? 0) + row.metricValue;
   }
   return totals;
 }
@@ -126,7 +129,11 @@ function toTitleCaseLabel(input: string): string {
 
 function groupSourceTotals(
   sourceTotals: Record<string, number>,
-): Array<{ source: string; sessions: number; otherBreakdown?: Array<{ label: string; value: number }> }> {
+): Array<{
+  source: string;
+  sessions: number;
+  otherBreakdown?: Array<{ label: string; value: number }>;
+}> {
   const sorted = Object.entries(sourceTotals)
     .sort((a, b) => b[1] - a[1])
     .map(([source, sessions]) => ({
@@ -154,9 +161,10 @@ function groupSourceTotals(
 }
 
 // share-of-total for tooltip/coloring
-function toShareOfTotalIntensity(
-  countyVisits: Record<CountyId, number>,
-): { intensity: Partial<Record<CountyId, number>>; total: number } {
+function toShareOfTotalIntensity(countyVisits: Record<CountyId, number>): {
+  intensity: Partial<Record<CountyId, number>>;
+  total: number;
+} {
   const entries = Object.entries(countyVisits) as Array<[CountyId, number]>;
   const total = entries.reduce((sum, [, v]) => sum + (Number(v) || 0), 0);
 
@@ -173,8 +181,12 @@ function toShareOfTotalIntensity(
 // Helpers for time series / cards
 // -----------------------------
 function getBounds(pts: Point[]) {
-  if (!pts.length) return { min: null as Date | null, max: null as Date | null };
-  const dates = pts.map((p) => p.date).slice().sort();
+  if (!pts.length)
+    return { min: null as Date | null, max: null as Date | null };
+  const dates = pts
+    .map((p) => p.date)
+    .slice()
+    .sort();
   return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
 }
 
@@ -193,7 +205,8 @@ function rangeOptionsWithData(points: Point[]): DateRangeId[] {
   if (filterByRangeAnchoredToToday(points, "30d").length > 0)
     options.push("30d");
   if (filterByRangeAnchoredToToday(points, "1y").length > 0) options.push("1y");
-  if (filterByRangeAnchoredToToday(points, "all").length > 0) options.push("all");
+  if (filterByRangeAnchoredToToday(points, "all").length > 0)
+    options.push("all");
 
   return options.length > 0 ? options : ["all"];
 }
@@ -258,7 +271,8 @@ function mergeUsersAnd7Day(active: Point[], active7: Point[]): TimePoint[] {
 }
 
 function formatPercentChange(summary?: MetricSummary | null): string {
-  if (!summary || summary.current == null || summary.prev == null) return "+ 0%";
+  if (!summary || summary.current == null || summary.prev == null)
+    return "+ 0%";
   if (summary.prev === 0) return "+ 0%";
   const pct = ((summary.current - summary.prev) / summary.prev) * 100;
   const sign = pct >= 0 ? "+" : "";
@@ -280,9 +294,9 @@ export default function GoogleAnalyticsPage() {
 
   // bounds-only series
   const [usersOverTimeAll, setUsersOverTimeAll] = useState<TimePoint[]>([]);
-  const [engagementOverTimeAll, setEngagementOverTimeAll] = useState<TimePoint[]>(
-    [],
-  );
+  const [engagementOverTimeAll, setEngagementOverTimeAll] = useState<
+    TimePoint[]
+  >([]);
 
   const [metricSummaries, setMetricSummaries] = useState<
     Partial<Record<MetricKey, MetricSummary>>
@@ -294,7 +308,8 @@ export default function GoogleAnalyticsPage() {
   const [countyRange, setCountyRange] = useState<DateRangeId>("30d"); // ✅ map dropdown
   const [sourceRange, setSourceRange] = useState<DateRangeId>("30d");
   const [deviceRange, setDeviceRange] = useState<DateRangeId>("30d");
-  const [newVsReturningRange, setNewVsReturningRange] = useState<DateRangeId>("30d");
+  const [newVsReturningRange, setNewVsReturningRange] =
+    useState<DateRangeId>("30d");
 
   // fixed ranges
   const pageviewsRange: DateRangeId = "30d";
@@ -375,11 +390,26 @@ export default function GoogleAnalyticsPage() {
         const engagementTimeAll = toLinePoints(engagementTimeRaw);
 
         // FILTER ANCHORED TO TODAY (not last datapoint)
-        const activeFiltered = filterByRangeAnchoredToToday(activeAll, activeUsersRange);
-        const pageviewsFiltered = filterByRangeAnchoredToToday(pageviewsAll, pageviewsRange);
-        const active7Filtered = filterByRangeAnchoredToToday(active7All, active7Range);
-        const engagementFiltered = filterByRangeAnchoredToToday(engagementAll, engagementRange);
-        const newUsersFiltered = filterByRangeAnchoredToToday(newUsersAll, newUsersRange);
+        const activeFiltered = filterByRangeAnchoredToToday(
+          activeAll,
+          activeUsersRange,
+        );
+        const pageviewsFiltered = filterByRangeAnchoredToToday(
+          pageviewsAll,
+          pageviewsRange,
+        );
+        const active7Filtered = filterByRangeAnchoredToToday(
+          active7All,
+          active7Range,
+        );
+        const engagementFiltered = filterByRangeAnchoredToToday(
+          engagementAll,
+          engagementRange,
+        );
+        const newUsersFiltered = filterByRangeAnchoredToToday(
+          newUsersAll,
+          newUsersRange,
+        );
         const engagementTimeFiltered = filterByRangeAnchoredToToday(
           engagementTimeAll,
           activeUsersRange,
@@ -568,14 +598,14 @@ export default function GoogleAnalyticsPage() {
     sourceRowsAll.filter((row) => row.breakdownKey === "sessionSource"),
     sourceRange,
   );
-  const sourceTotals = aggregateBreakdownTotals(filteredSourceRows, "sessionSource");
+  const sourceTotals = aggregateBreakdownTotals(
+    filteredSourceRows,
+    "sessionSource",
+  );
   const sourceData = groupSourceTotals(sourceTotals);
-  const sourceAvailableOptions: DateRangeId[] = ([
-    "7d",
-    "30d",
-    "1y",
-    "all",
-  ] as DateRangeId[]).filter(
+  const sourceAvailableOptions: DateRangeId[] = (
+    ["7d", "30d", "1y", "all"] as DateRangeId[]
+  ).filter(
     (range) =>
       Object.keys(
         aggregateBreakdownTotals(
@@ -598,20 +628,21 @@ export default function GoogleAnalyticsPage() {
   );
   const deviceData = Object.entries(deviceTotals).map(([label, value]) => ({
     label:
-      label.length > 0 ? label[0].toUpperCase() + label.slice(1).toLowerCase() : "Unknown",
+      label.length > 0
+        ? label[0].toUpperCase() + label.slice(1).toLowerCase()
+        : "Unknown",
     value,
   }));
-  const deviceAvailableOptions: DateRangeId[] = ([
-    "7d",
-    "30d",
-    "1y",
-    "all",
-  ] as DateRangeId[]).filter(
+  const deviceAvailableOptions: DateRangeId[] = (
+    ["7d", "30d", "1y", "all"] as DateRangeId[]
+  ).filter(
     (range) =>
       Object.keys(
         aggregateBreakdownTotals(
           filterMetricRowsByRangeAnchoredToToday(
-            totalSessionsRowsAll.filter((row) => row.breakdownKey === "deviceCategory"),
+            totalSessionsRowsAll.filter(
+              (row) => row.breakdownKey === "deviceCategory",
+            ),
             range,
           ),
           "deviceCategory",
@@ -672,7 +703,9 @@ export default function GoogleAnalyticsPage() {
           displayMode="metric-only"
           className="w-full"
           metricValue={dMetrics.screenPageViews}
-          metricValueNote={pageViewsAsOf ? `views (as of ${pageViewsAsOf})` : "views"}
+          metricValueNote={
+            pageViewsAsOf ? `views (as of ${pageViewsAsOf})` : "views"
+          }
           metricChange={formatPercentChange(metricSummaries.screenPageViews)}
         />
         <SmallCard
@@ -732,7 +765,13 @@ export default function GoogleAnalyticsPage() {
                 availableOptions={activeUsersOptions}
               />
             }
-            chart={<PieCharts data={returningVsNewData} dataKey="value" nameKey="label" />}
+            chart={
+              <PieCharts
+                data={returningVsNewData}
+                dataKey="value"
+                nameKey="label"
+              />
+            }
             displayMode="both"
             className="h-[360px]"
           />
@@ -751,11 +790,15 @@ export default function GoogleAnalyticsPage() {
                 minDate={activeUsersBounds.min}
                 maxDate={activeUsersBounds.max}
                 availableOptions={
-                  deviceAvailableOptions.length ? deviceAvailableOptions : ["all"]
+                  deviceAvailableOptions.length
+                    ? deviceAvailableOptions
+                    : ["all"]
                 }
               />
             }
-            chart={<PieCharts data={deviceData} dataKey="value" nameKey="label" />}
+            chart={
+              <PieCharts data={deviceData} dataKey="value" nameKey="label" />
+            }
             displayMode="both"
             className="h-[360px]"
           />
@@ -804,7 +847,13 @@ export default function GoogleAnalyticsPage() {
               }
             />
           }
-          chart={<BarCharts data={sourceData} xAxisKey="source" dataKeys={["sessions"]} />}
+          chart={
+            <BarCharts
+              data={sourceData}
+              xAxisKey="source"
+              dataKeys={["sessions"]}
+            />
+          }
           displayMode="chart-only"
           className="h-[360px]"
         />

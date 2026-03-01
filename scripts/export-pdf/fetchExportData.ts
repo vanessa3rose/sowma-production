@@ -39,7 +39,8 @@ function aggregateBreakdownTotals(
   const totals: Record<string, number> = {};
   for (const row of rows) {
     if (row.breakdownKey !== breakdownKey || !row.breakdownValue) continue;
-    totals[row.breakdownValue] = (totals[row.breakdownValue] ?? 0) + row.metricValue;
+    totals[row.breakdownValue] =
+      (totals[row.breakdownValue] ?? 0) + row.metricValue;
   }
   return totals;
 }
