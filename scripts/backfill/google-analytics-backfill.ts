@@ -20,6 +20,23 @@ import {
 console.log("[GA] Script loaded");
 
 // -------------------------------
+// List of Metrics
+// -------------------------------
+const REQUIRED_CORE_METRICS: Metric[] = [
+  Metric.ACTIVE_USERS,
+  Metric.ACTIVE_7_DAY_USERS,
+  Metric.SCREEN_PAGE_VIEWS,
+  Metric.ENGAGEMENT_RATE,
+  Metric.NEW_USERS,
+  Metric.BOUNCE_RATE,
+  Metric.AVG_SESSION_DURATION,
+  Metric.TOTAL_SESSIONS,
+  Metric.ENGAGED_SESSIONS,
+  Metric.PAGES_PER_SESSION,
+  Metric.ENGAGEMENT_TIME,
+];
+
+// -------------------------------
 // Prisma setup (serverless-friendly)
 // -------------------------------
 const prisma = (globalThis as any).prisma ?? new PrismaClient();
@@ -118,14 +135,27 @@ async function getSocialMediaId(): Promise<string | null> {
 }
 
 // Check if metrics exist for a day
-async function metricsExistForDay(socialMediaId: string, date: Date) {
-  const existing = await prisma.socialMediaMetrics.findFirst({
+async function allMetricsStoredForDay(socialMediaId: string, date: Date) {
+  const start = startOfDay(date);
+  const end = endOfDay(date);
+
+  const metricsForDay = await prisma.socialMediaMetrics.findMany({
     where: {
       socialMediaId,
-      metricDate: { gte: startOfDay(date), lt: endOfDay(date) },
+      metricDate: { gte: start, lt: end },
+      breakdownKey: null,
+      breakdownValue: null,
     },
+    select: { metricName: true },
   });
-  return existing !== null;
+
+  const existingMetricNames = new Set(
+    metricsForDay.map((m: any) => m.metricName),
+  );
+
+  return REQUIRED_CORE_METRICS.every((metric) =>
+    existingMetricNames.has(metric),
+  );
 }
 
 // Earliest possible date (2 years back)
@@ -493,7 +523,7 @@ export async function runDailyGASync() {
   );
 
   while (currentDate <= today) {
-    if (!(await metricsExistForDay(socialMediaId, currentDate))) {
+    if (!(await allMetricsStoredForDay(socialMediaId, currentDate))) {
       await runReportForDay(currentDate);
     }
 

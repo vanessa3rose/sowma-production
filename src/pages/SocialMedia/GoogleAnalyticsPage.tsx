@@ -127,9 +127,7 @@ function toTitleCaseLabel(input: string): string {
   });
 }
 
-function groupSourceTotals(
-  sourceTotals: Record<string, number>,
-): Array<{
+function groupSourceTotals(sourceTotals: Record<string, number>): Array<{
   source: string;
   sessions: number;
   otherBreakdown?: Array<{ label: string; value: number }>;
