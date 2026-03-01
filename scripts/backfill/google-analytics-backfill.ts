@@ -20,7 +20,7 @@ import {
 console.log("[GA] Script loaded");
 
 // -------------------------------
-// List of Metrics
+// Constants
 // -------------------------------
 const REQUIRED_CORE_METRICS: Metric[] = [
   Metric.ACTIVE_USERS,
