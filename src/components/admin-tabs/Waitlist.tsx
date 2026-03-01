@@ -72,14 +72,19 @@ export default function Waitlist() {
       );
     } catch (error) {
       setStatusMessage(
-        error instanceof Error ? error.message : "Failed to update waitlist entry",
+        error instanceof Error
+          ? error.message
+          : "Failed to update waitlist entry",
       );
     } finally {
       setBusyEmail(null);
     }
   }
 
-  function splitEmail(email: string): { localPart: string; domainPart: string } {
+  function splitEmail(email: string): {
+    localPart: string;
+    domainPart: string;
+  } {
     const [localPart, domainPart = ""] = email.split("@");
     return { localPart, domainPart };
   }
@@ -115,7 +120,8 @@ export default function Waitlist() {
                 className="flex w-full justify-center text-center items-center font-poppins text-xs md:text-lg leading-[48px] py-3"
               >
                 <div className="w-1/3 text-gray-800">
-                  {[user.firstName, user.lastName].filter(Boolean).join(" ") || "—"}
+                  {[user.firstName, user.lastName].filter(Boolean).join(" ") ||
+                    "—"}
                 </div>
 
                 <div className="flex w-1/2 lg:flex-row flex-col justify-center items-center leading-4 lg:leading-8 text-gray-800">
@@ -129,7 +135,9 @@ export default function Waitlist() {
                     onClick={() => handleWaitlistAction(user.email, "approve")}
                     disabled={busyEmail === user.email}
                   >
-                    <span className={busyEmail === user.email ? "opacity-0" : ""}>
+                    <span
+                      className={busyEmail === user.email ? "opacity-0" : ""}
+                    >
                       Approve
                     </span>
                     {busyEmail === user.email ? (
@@ -143,7 +151,9 @@ export default function Waitlist() {
                     onClick={() => handleWaitlistAction(user.email, "deny")}
                     disabled={busyEmail === user.email}
                   >
-                    <span className={busyEmail === user.email ? "opacity-0" : ""}>
+                    <span
+                      className={busyEmail === user.email ? "opacity-0" : ""}
+                    >
                       Deny
                     </span>
                     {busyEmail === user.email ? (

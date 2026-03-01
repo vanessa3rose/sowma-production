@@ -35,7 +35,9 @@ const App = () => {
   const hideLayout =
     hideLayoutRoutes.some(
       (route) => currentPath === route || currentPath.startsWith(`${route}/`),
-    ) || !isLoaded || !isSignedIn;
+    ) ||
+    !isLoaded ||
+    !isSignedIn;
 
   const [isCollapsed, setCollapsed] = useState(false);
   const [isMobile, setisMobile] = useState(false);

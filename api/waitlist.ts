@@ -38,7 +38,9 @@ type WaitlistEntry = {
 };
 
 function normalizeEmail(value: unknown): string {
-  return String(value ?? "").trim().toLowerCase();
+  return String(value ?? "")
+    .trim()
+    .toLowerCase();
 }
 
 async function getWaitlistEntries(): Promise<WaitlistEntry[]> {
@@ -63,7 +65,12 @@ async function getWaitlistByEmail(email: string): Promise<{
   lastName: string | null;
 } | null> {
   const rows = await prisma.$queryRawUnsafe<
-    Array<{ id: string; email: string; firstName: string | null; lastName: string | null }>
+    Array<{
+      id: string;
+      email: string;
+      firstName: string | null;
+      lastName: string | null;
+    }>
   >(
     `
       SELECT
@@ -85,7 +92,12 @@ async function createWaitlistEntry(
   firstName: string,
   lastName: string,
 ): Promise<
-  | { created: true; email: string; firstName: string | null; lastName: string | null }
+  | {
+      created: true;
+      email: string;
+      firstName: string | null;
+      lastName: string | null;
+    }
   | { created: false }
 > {
   const id = randomUUID();
@@ -108,7 +120,10 @@ async function createWaitlistEntry(
 }
 
 async function deleteWaitlistByEmail(email: string): Promise<void> {
-  await prisma.$executeRawUnsafe(`DELETE FROM "Waitlist" WHERE email = $1`, email);
+  await prisma.$executeRawUnsafe(
+    `DELETE FROM "Waitlist" WHERE email = $1`,
+    email,
+  );
 }
 
 // Basic email format validation for waitlist submissions.
@@ -160,7 +175,9 @@ function getInviteRedirectUrl(req?: any): string {
   const origin = String(req?.headers?.origin ?? "").trim();
   if (origin) return `${origin.replace(/\/+$/, "")}/accept-invite`;
 
-  const forwardedProto = String(req?.headers?.["x-forwarded-proto"] ?? "").trim();
+  const forwardedProto = String(
+    req?.headers?.["x-forwarded-proto"] ?? "",
+  ).trim();
   const forwardedHost = String(req?.headers?.["x-forwarded-host"] ?? "").trim();
   if (forwardedProto && forwardedHost) {
     return `${forwardedProto}://${forwardedHost}/accept-invite`;
@@ -173,7 +190,8 @@ function getInviteRedirectUrl(req?: any): string {
   if (frontend) return `${frontend.replace(/\/+$/, "")}/accept-invite`;
 
   const vercelUrl = process.env.VERCEL_URL;
-  if (vercelUrl) return `https://${vercelUrl.replace(/\/+$/, "")}/accept-invite`;
+  if (vercelUrl)
+    return `https://${vercelUrl.replace(/\/+$/, "")}/accept-invite`;
 
   return "http://localhost:4000/accept-invite";
 }
@@ -378,13 +396,13 @@ export default async function handler(req: any, res: any) {
   } else if (method === "PATCH") {
     // Approve or deny a waitlist user from the admin tab.
     try {
-      const action = String(req.body?.action ?? "").trim().toLowerCase();
+      const action = String(req.body?.action ?? "")
+        .trim()
+        .toLowerCase();
       const email = normalizeEmail(req.body?.email);
 
       if (!action || !email) {
-        return res
-          .status(400)
-          .json({ error: "Action and email are required" });
+        return res.status(400).json({ error: "Action and email are required" });
       }
 
       if (action !== "approve" && action !== "deny") {
@@ -418,11 +436,12 @@ export default async function handler(req: any, res: any) {
           });
         }
 
-        const pendingInvitations = await clerkClient.invitations.getInvitationList({
-          status: "pending",
-          query: email,
-          limit: 100,
-        });
+        const pendingInvitations =
+          await clerkClient.invitations.getInvitationList({
+            status: "pending",
+            query: email,
+            limit: 100,
+          });
 
         const matchingPendingInvites = (pendingInvitations?.data ?? []).filter(
           (invite: any) =>
