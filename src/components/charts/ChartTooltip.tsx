@@ -18,7 +18,7 @@ type RechartsTooltipItem = {
 
 export type ChartTooltipProps = {
   active?: boolean;
-  payload?: RechartsTooltipItem[];
+  payload?: ReadonlyArray<RechartsTooltipItem>;
   label?: unknown;
 
   /** Optional title override; if omitted uses formatted label */

@@ -6,11 +6,18 @@ import {
 } from "../../src/generated/prisma/index.js";
 import "dotenv/config";
 import fetch from "node-fetch";
-import {
-  startOfDay,
-  formatISODate,
-  metricsExistForDay,
-} from "../../src/utils/dates.js";
+import { startOfDay, formatISODate } from "../../src/utils/dates.js";
+
+/* -------------------------------------------------
+   Constants
+-------------------------------------------------- */
+const REQUIRED_CC_METRICS: Metric[] = [
+  Metric.EMAILS_SENT,
+  Metric.EMAILS_DELIVERED,
+  Metric.EMAIL_OPENED,
+  Metric.EMAILS_CLICKED,
+  Metric.EMAILS_UNSUBSCRIBED,
+];
 
 /* -------------------------------------------------
    Prisma Client
@@ -44,6 +51,30 @@ type SummaryResponse = {
 /* -------------------------------------------------
    Helpers
 -------------------------------------------------- */
+async function allMetricsStoredForDay(
+  socialMediaId: string,
+  date: Date,
+): Promise<boolean> {
+  const metricsForDay = await prisma.socialMediaMetrics.findMany({
+    where: {
+      socialMediaId,
+      metricDate: {
+        gte: startOfDay(date),
+        lt: new Date(startOfDay(date).getTime() + 86400000),
+      },
+      breakdownKey: null,
+      breakdownValue: null,
+    },
+    select: { metricName: true },
+  });
+
+  const existingMetricNames = new Set(
+    metricsForDay.map((m: any) => m.metricName),
+  );
+
+  return REQUIRED_CC_METRICS.every((metric) => existingMetricNames.has(metric));
+}
+
 async function getConstantContactAccountOrThrow() {
   const count = await prisma.socialMedia.count({
     where: { provider: Provider.CONSTANT_CONTACT },
@@ -203,7 +234,7 @@ async function backfillConstantContact() {
     const metricDate = startOfDay(current);
     const dateStr = formatISODate(metricDate);
 
-    if (await metricsExistForDay(account.id, metricDate)) {
+    if (await allMetricsStoredForDay(account.id, metricDate)) {
       console.log(`  ${dateStr} -- already exists, skipping`);
       current.setUTCDate(current.getUTCDate() + 1);
       continue;
@@ -234,19 +265,34 @@ async function backfillConstantContact() {
         },
       ] as const;
 
-      await prisma.$transaction(
-        metricsToInsert.map((m) =>
-          prisma.socialMediaMetrics.create({
+      for (const m of metricsToInsert) {
+        const existing = await prisma.socialMediaMetrics.findFirst({
+          where: {
+            socialMediaId: account.id,
+            metricName: m.metricName,
+            metricDate: {
+              gte: startOfDay(metricDate),
+              lt: new Date(startOfDay(metricDate).getTime() + 86400000),
+            },
+            breakdownKey: null,
+            breakdownValue: null,
+          },
+        });
+
+        if (!existing) {
+          await prisma.socialMediaMetrics.create({
             data: {
               socialMediaId: account.id,
               metricName: m.metricName,
               metricValue: m.metricValue,
               metricDate,
               lastSynced: new Date(),
+              breakdownKey: null,
+              breakdownValue: null,
             },
-          }),
-        ),
-      );
+          });
+        }
+      }
 
       console.log(
         `  ${dateStr} -- ${campaigns.length} campaign(s): sent=${totals.sends} opened=${totals.opens} clicked=${totals.clicks} unsub=${totals.unsubscribes}`,
