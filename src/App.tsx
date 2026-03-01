@@ -6,6 +6,7 @@ import LeftSidebar from "./components/LeftSidebar";
 
 import Homepage from "./pages/Homepage";
 import LoginPage from "./pages/LoginPage";
+import AcceptInvitePage from "./pages/AcceptInvitePage";
 
 import GoogleAnalyticsPage from "./pages/SocialMedia/GoogleAnalyticsPage";
 import TwitterPage from "./pages/SocialMedia/TwitterPage";
@@ -29,9 +30,11 @@ const App = () => {
   const [location] = useLocation();
 
   const currentPath = location.toLowerCase();
-  const hideLayoutRoutes = ["/signup", "/login"];
+  const hideLayoutRoutes = ["/signup", "/login", "/accept-invite"];
   const hideLayout =
-    hideLayoutRoutes.includes(currentPath) || !isLoaded || !isSignedIn;
+    hideLayoutRoutes.some(
+      (route) => currentPath === route || currentPath.startsWith(`${route}/`),
+    ) || !isLoaded || !isSignedIn;
 
   const [isCollapsed, setCollapsed] = useState(false);
   const [isMobile, setisMobile] = useState(false);
@@ -132,6 +135,8 @@ const App = () => {
 
             {/* Public */}
             <Route path="/login" component={LoginPage} />
+            <Route path="/accept-invite" component={AcceptInvitePage} />
+            <Route path="/accept-invite/:rest*" component={AcceptInvitePage} />
 
             <Route>
               <p className="p-4 text-black">404: Page Not Found</p>
