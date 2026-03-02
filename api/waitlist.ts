@@ -464,6 +464,7 @@ export default async function handler(req: any, res: any) {
             emailAddress: email,
             redirectUrl: getInviteRedirectUrl(req),
             notify: false,
+            publicMetadata: { role: "VIEWER" },
           });
         } catch (inviteError: any) {
           const inviteErrors = Array.isArray(inviteError?.errors)

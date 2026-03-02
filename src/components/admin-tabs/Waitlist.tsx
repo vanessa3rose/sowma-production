@@ -95,6 +95,24 @@ export default function Waitlist() {
 
   return (
     <div className="lg:px-6 px-2 lg:py-6 py-4">
+      {loadError ? (
+        <div className="py-4 text-center text-sm text-red-600 font-poppins">
+          {loadError}{" "}
+          <button
+            type="button"
+            onClick={loadWaitlist}
+            className="underline underline-offset-2"
+          >
+            Retry
+          </button>
+        </div>
+      ) : null}
+      {statusMessage ? (
+        <div className="py-3 text-center text-sm text-gray-600 font-poppins">
+          {statusMessage}
+        </div>
+      ) : null}
+
       {showHeader ? (
         <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center text-center font-poppins text-md md:text-2xl font-normal leading-[48px] text-gray-500 border-b border-gray-300 pb-2">
           <div>Name</div>
@@ -104,23 +122,6 @@ export default function Waitlist() {
       ) : null}
 
       <div className="divide-y divide-gray-300">
-        {loadError ? (
-          <div className="py-4 text-center text-sm text-red-600 font-poppins">
-            {loadError}{" "}
-            <button
-              type="button"
-              onClick={loadWaitlist}
-              className="underline underline-offset-2"
-            >
-              Retry
-            </button>
-          </div>
-        ) : null}
-        {statusMessage ? (
-          <div className="py-3 text-center text-sm text-gray-600 font-poppins">
-            {statusMessage}
-          </div>
-        ) : null}
         {loading ? (
           <div className="py-6 text-center text-gray-500 font-poppins">
             Loading waitlist...
