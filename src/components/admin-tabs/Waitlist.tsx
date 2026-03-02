@@ -91,13 +91,17 @@ export default function Waitlist() {
     return { localPart, domainPart };
   }
 
+  const showHeader = !loading && users.length > 0;
+
   return (
     <div className="lg:px-6 px-2 lg:py-6 py-4">
-      <div className="flex items-center text-center font-poppins text-md md:text-2xl font-normal leading-[48px] text-gray-500 border-b border-gray-300 pb-2">
-        <div className="w-1/3">Name</div>
-        <div className="w-1/2">Email</div>
-        <div className="w-1/6" />
-      </div>
+      {showHeader ? (
+        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center text-center font-poppins text-md md:text-2xl font-normal leading-[48px] text-gray-500 border-b border-gray-300 pb-2">
+          <div>Name</div>
+          <div>Email</div>
+          <div className="justify-self-end w-[204px]" />
+        </div>
+      ) : null}
 
       <div className="divide-y divide-gray-300">
         {loadError ? (
@@ -131,21 +135,21 @@ export default function Waitlist() {
             return (
               <div
                 key={user.id}
-                className="flex w-full justify-center text-center items-center font-poppins text-xs md:text-lg leading-[48px] py-3"
+                className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-2 md:gap-4 text-center font-poppins text-xs md:text-lg leading-[48px] py-3"
               >
-                <div className="w-1/3 text-gray-800">
+                <div className="text-gray-800">
                   {[user.firstName, user.lastName].filter(Boolean).join(" ") ||
                     "—"}
                 </div>
 
-                <div className="flex w-1/2 lg:flex-row flex-col justify-center items-center leading-4 lg:leading-8 text-gray-800">
+                <div className="flex lg:flex-row flex-col justify-center items-center leading-4 lg:leading-8 text-gray-800">
                   <div>{localPart}</div>
                   <div>{`@${domainPart}`}</div>
                 </div>
 
-                <div className="w-1/6 px-1 lg:px-4 flex gap-2 lg:gap-4 lg:flex-row flex-col">
+                <div className="justify-self-end flex gap-2 lg:gap-4 lg:flex-row flex-col">
                   <button
-                    className="relative flex flex-1 justify-center items-center rounded-full bg-[#4e8bcc] text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base disabled:opacity-80"
+                    className="relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full bg-[#4e8bcc] text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base disabled:opacity-80"
                     onClick={() => handleWaitlistAction(user.email, "approve")}
                     disabled={busyEmail === user.email}
                   >
@@ -161,7 +165,7 @@ export default function Waitlist() {
                     ) : null}
                   </button>
                   <button
-                    className="relative flex flex-1 justify-center items-center rounded-full bg-[#ad3a3b] text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base disabled:opacity-80"
+                    className="relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full bg-[#ad3a3b] text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base disabled:opacity-80"
                     onClick={() => handleWaitlistAction(user.email, "deny")}
                     disabled={busyEmail === user.email}
                   >
