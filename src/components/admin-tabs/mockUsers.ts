@@ -1,4 +1,4 @@
-// mockUsers.js
+// Development fallback data for the admin waitlist table.
 export const mockUsers = [
   {
     id: 1,
