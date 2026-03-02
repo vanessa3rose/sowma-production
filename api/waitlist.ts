@@ -3,6 +3,8 @@ import { PrismaClient } from "../src/generated/prisma/index.js";
 import nodemailer from "nodemailer";
 import { randomUUID } from "node:crypto";
 
+const SOWMA_BLUE = "#2872b0";
+
 // ---------------- Runtime and DB configuration ----------------
 function getDatabaseUrl(): string | null {
   const raw = String(process.env.DATABASE_URL ?? "").trim();
@@ -282,7 +284,7 @@ async function sendWaitlistInviteEmail(
           style="
             display: inline-block;
             padding: 10px 16px;
-            background: #4f46e5;
+            background: ${SOWMA_BLUE};
             color: #ffffff;
             text-decoration: none;
             border-radius: 8px;
@@ -296,7 +298,7 @@ async function sendWaitlistInviteEmail(
         If the button doesn't work, copy and paste this URL into your browser:
       </p>
       <p style="margin: 0 0 16px; font-size: 13px; word-break: break-all;">
-        <a href="${inviteUrl}" style="color: #4f46e5;">${inviteUrl}</a>
+        <a href="${inviteUrl}" style="color: ${SOWMA_BLUE};">${inviteUrl}</a>
       </p>
       <p style="margin: 0; color: #6b7280; font-size: 13px;">
         If you were not expecting this email, you can ignore it.
@@ -459,12 +461,18 @@ export default async function handler(req: any, res: any) {
         let invitation: Awaited<
           ReturnType<typeof clerkClient.invitations.createInvitation>
         >;
+        const inviteFirstName = existingWaitlist.firstName?.trim() || "";
+        const inviteLastName = existingWaitlist.lastName?.trim() || "";
         try {
           invitation = await clerkClient.invitations.createInvitation({
             emailAddress: email,
             redirectUrl: getInviteRedirectUrl(req),
             notify: false,
-            publicMetadata: { role: "VIEWER" },
+            publicMetadata: {
+              role: "VIEWER",
+              waitlistFirstName: inviteFirstName,
+              waitlistLastName: inviteLastName,
+            },
           });
         } catch (inviteError: any) {
           const inviteErrors = Array.isArray(inviteError?.errors)
