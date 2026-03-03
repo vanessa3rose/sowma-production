@@ -34,8 +34,10 @@ export const ProtectedRoute = ({
 
     void user
       .update({
-        firstName: needsFirst ? waitlistFirstName : user.firstName ?? undefined,
-        lastName: needsLast ? waitlistLastName : user.lastName ?? undefined,
+        firstName: needsFirst
+          ? waitlistFirstName
+          : (user.firstName ?? undefined),
+        lastName: needsLast ? waitlistLastName : (user.lastName ?? undefined),
       })
       .catch((err) => {
         console.error("Failed to sync waitlist name into Clerk profile:", err);
