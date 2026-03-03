@@ -48,42 +48,42 @@ export default async function handler(req: any, res: any) {
       );
     }
 
-        // New filtering logic: prioritize metricDate, fallback to lastSynced only if metricDate is missing
-        const metrics = await prisma.socialMediaMetrics.findMany({
-          where: {
-            metricName: metric as Metric,
-            SocialMedia: { provider: provider as Provider },
-            OR: [
-              {
-                metricDate: { gte: start, lte: end },
-              },
-              {
-                metricDate: null,
-                lastSynced: { gte: start, lte: end },
-              },
-            ],
+    // New filtering logic: prioritize metricDate, fallback to lastSynced only if metricDate is missing
+    const metrics = await prisma.socialMediaMetrics.findMany({
+      where: {
+        metricName: metric as Metric,
+        SocialMedia: { provider: provider as Provider },
+        OR: [
+          {
+            metricDate: { gte: start, lte: end },
           },
-          include: { SocialMedia: true },
-        });
+          {
+            metricDate: null,
+            lastSynced: { gte: start, lte: end },
+          },
+        ],
+      },
+      include: { SocialMedia: true },
+    });
 
-        // Filter out records where metricDate exists but is outside the range
-        const filteredMetrics = metrics.filter((m: any) => {
-          if (m.metricDate) {
-            const d = new Date(m.metricDate);
-            return d >= start && d <= end;
-          }
-          // Only fallback to lastSynced if metricDate is missing
-          if (!m.metricDate && m.lastSynced) {
-            const d = new Date(m.lastSynced);
-            return d >= start && d <= end;
-          }
-          return false;
-        });
+    // Filter out records where metricDate exists but is outside the range
+    const filteredMetrics = metrics.filter((m: any) => {
+      if (m.metricDate) {
+        const d = new Date(m.metricDate);
+        return d >= start && d <= end;
+      }
+      // Only fallback to lastSynced if metricDate is missing
+      if (!m.metricDate && m.lastSynced) {
+        const d = new Date(m.lastSynced);
+        return d >= start && d <= end;
+      }
+      return false;
+    });
 
-        if (debug) console.log("[/api/metrics] rows:", filteredMetrics.length);
+    if (debug) console.log("[/api/metrics] rows:", filteredMetrics.length);
 
-        res.setHeader("Access-Control-Allow-Origin", "*"); // allow frontend requests
-        res.status(200).json(filteredMetrics);
+    res.setHeader("Access-Control-Allow-Origin", "*"); // allow frontend requests
+    res.status(200).json(filteredMetrics);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
