@@ -291,7 +291,7 @@ export default function FacebookPage() {
           </div>
 
           <BigCard
-            title="Followers"
+            title="Follsowers"
             titleTooltip={METRIC_DESCRIPTIONS.followers}
             subtitle={
               <DateDropdown
