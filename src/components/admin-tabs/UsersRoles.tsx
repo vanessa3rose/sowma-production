@@ -71,7 +71,11 @@ export default function UsersRoles() {
   };
 
   if (loading) {
-    return <div className="p-6 text-xl">Loading users...</div>;
+    return (
+      <div className="py-6 text-center text-gray-500 font-poppins">
+        Loading users...
+      </div>
+    );
   }
 
   return (
