@@ -59,6 +59,8 @@ async function fetchDailyInsights(date: Date, accessToken: string) {
     "page_follows",
     "page_actions_post_reactions_like_total",
     "page_media_view",
+    "page_video_views",
+    "page_website_clicks", 
   ];
   const out: Record<string, number> = {};
 
@@ -199,6 +201,19 @@ export async function runDailyFacebookSync() {
             socialMediaId: account.id,
             metricName: Metric.COMMENTS,
             metricValue: posts.comments,
+            metricDate: currentDate,
+          },
+
+          {
+            socialMediaId: account.id,
+            metricName: Metric.VIDEO_VIEWS,
+            metricValue: insights.page_video_views ?? 0,
+            metricDate: currentDate,
+          },
+          {
+            socialMediaId: account.id,
+            metricName: Metric.WEBSITE_CLICKS,
+            metricValue: insights.page_website_clicks ?? 0,
             metricDate: currentDate,
           },
         ],

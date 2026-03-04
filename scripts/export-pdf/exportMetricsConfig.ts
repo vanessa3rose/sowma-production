@@ -49,6 +49,8 @@ const FACEBOOK_METRICS: ExportMetricDefinition[] = [
   { id: "VIEWS", label: "Views" },
   { id: "TOTAL_INTERACTIONS", label: "Total Interactions" },
   { id: "FOLLOWERS", label: "Followers" },
+  { id: "VIDEO_VIEWS", label: "Video Views" },
+  { id: "WEBSITE_CLICKS", label: "Website Clicks" },
 ];
 
 const TWITTER_METRICS: ExportMetricDefinition[] = [

@@ -19,7 +19,9 @@ type MetricKey =
   | "views"
   | "comments"
   | "posts"
-  | "shares";
+  | "shares"
+  | "videoViews"  
+  | "websiteClicks";
 
 type LinePoint = { date: string; value: number };
 type MetricSummary = { current: number | null; prev: number | null };
@@ -46,6 +48,8 @@ const METRICS: MetricConfig[] = [
   { id: "comments", metric: "COMMENTS", title: "Comments", label: "comments" },
   { id: "posts", metric: "POSTS", title: "Posts", label: "posts" },
   { id: "shares", metric: "SHARES", title: "Shares", label: "shares" },
+  { id: "videoViews", metric: "VIDEO_VIEWS", title: "Video Views", label: "video views" },
+  { id: "websiteClicks", metric: "WEBSITE_CLICKS", title: "Website Clicks", label: "website clicks" },
 ];
 
 const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
@@ -55,6 +59,8 @@ const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
   comments: [],
   posts: [],
   shares: [],
+  videoViews: [],
+  websiteClicks: [],
 };
 const INITIAL_RANGES: Record<MetricKey, DateRangeId> = {
   followers: "30d",
@@ -63,6 +69,8 @@ const INITIAL_RANGES: Record<MetricKey, DateRangeId> = {
   comments: "30d",
   posts: "30d",
   shares: "30d",
+  videoViews: "30d",
+  websiteClicks: "30d",
 };
 const METRIC_DESCRIPTIONS: Record<MetricKey, string> = {
   followers: "Cumulative count",
@@ -71,6 +79,8 @@ const METRIC_DESCRIPTIONS: Record<MetricKey, string> = {
   comments: "Cumulative count",
   posts: "Green squares indicate days with posts",
   shares: "Cumulative count",
+  videoViews: "Cumulative count of video views",
+  websiteClicks: "Cumulative count of clicks to the website from Facebook",
 };
 
 function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
@@ -396,6 +406,72 @@ export default function FacebookPage() {
           }
           displayMode="chart-only"
           className="xl:h-[736px]"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <BigCard
+          title="Video Views"
+          titleTooltip={METRIC_DESCRIPTIONS.videoViews}
+          subtitle={
+            <DateDropdown
+              value={ranges.videoViews}
+              onChange={(r) => setRanges((prev) => ({ ...prev, videoViews: r }))}
+              minDate={computed.videoViews?.bounds.min}
+              maxDate={computed.videoViews?.bounds.max}
+            />
+          }
+          metricValue={computed.videoViews?.summary.current ?? 0}
+          metricLabel="video views"
+          metricChange={formatPercentChange(computed.videoViews?.summary)}
+          chart={
+            computed.videoViews?.filtered.length ? (
+              <LineCharts
+                data={computed.videoViews.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                showArea
+              />
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-500">
+                No data available
+              </div>
+            )
+          }
+          displayMode="both"
+          className="h-[360px]"
+        />
+
+        <BigCard
+          title="Website Clicks"
+          titleTooltip={METRIC_DESCRIPTIONS.websiteClicks}
+          subtitle={
+            <DateDropdown
+              value={ranges.websiteClicks}
+              onChange={(r) => setRanges((prev) => ({ ...prev, websiteClicks: r }))}
+              minDate={computed.websiteClicks?.bounds.min}
+              maxDate={computed.websiteClicks?.bounds.max}
+            />
+          }
+          metricValue={computed.websiteClicks?.summary.current ?? 0}
+          metricLabel="website clicks"
+          metricChange={formatPercentChange(computed.websiteClicks?.summary)}
+          chart={
+            computed.websiteClicks?.filtered.length ? (
+              <LineCharts
+                data={computed.websiteClicks.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                showArea
+              />
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-500">
+                No data available
+              </div>
+            )
+          }
+          displayMode="both"
+          className="h-[360px]"
         />
       </div>
     </div>
