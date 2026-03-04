@@ -441,6 +441,9 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       Note: Metrics are daily values unless explicitly labeled
                       as cumulative.
                     </div>
+                    <div style={{ marginTop: "4px", fontSize: "12px", color: "#6B7280" }}>
+                      Delta values compare the latest point in range to the previous available point (not always the previous calendar day).
+                    </div>
                   </div>
                 ) : null}
 
@@ -614,6 +617,9 @@ export default function e({ selections, range }: ExportReportViewProps) {
                     <div className="mt-2 text-xs text-gray-500">
                       Note: Metrics are daily values unless explicitly labeled
                       as cumulative.
+                    </div>
+                    <div style={{ marginTop: "4px", fontSize: "12px", color: "#6B7280" }}>
+                      Delta values compare the latest point in range to the previous available point (not always the previous calendar day).
                     </div>
                   </div>
                 ) : null}
