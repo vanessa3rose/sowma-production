@@ -24,10 +24,13 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const start = startDate
-      ? new Date(startDate as string)
-      : new Date("2000-01-01");
-    const end = endDate ? new Date(endDate as string) : new Date("3000-01-01");
+    const startDay = startDate
+      ? String(startDate).slice(0, 10)
+      : "2000-01-01";
+    const endDay = endDate ? String(endDate).slice(0, 10) : "3000-01-01";
+
+    const start = new Date(`${startDay}T00:00:00.000Z`);
+    const end = new Date(`${endDay}T23:59:59.999Z`);
 
     if (debug) {
       const dbHost = process.env.DATABASE_URL?.split("@")?.[1]?.split("?")?.[0];
@@ -66,16 +69,19 @@ export default async function handler(req: any, res: any) {
       include: { SocialMedia: true },
     });
 
-    // Filter out records where metricDate exists but is outside the range
+    const toIsoDay = (value: Date | string) =>
+      new Date(value).toISOString().slice(0, 10);
+
+    // Final day-level filter to avoid timezone edge cases on custom ranges.
     const filteredMetrics = metrics.filter((m: any) => {
       if (m.metricDate) {
-        const d = new Date(m.metricDate);
-        return d >= start && d <= end;
+        const day = toIsoDay(m.metricDate);
+        return day >= startDay && day <= endDay;
       }
       // Only fallback to lastSynced if metricDate is missing
       if (!m.metricDate && m.lastSynced) {
-        const d = new Date(m.lastSynced);
-        return d >= start && d <= end;
+        const day = toIsoDay(m.lastSynced);
+        return day >= startDay && day <= endDay;
       }
       return false;
     });

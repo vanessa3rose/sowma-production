@@ -1,7 +1,9 @@
 import { fetchMetrics, SocialMediaMetric } from "../../src/utils/fetchMetrics";
 import { GoogleAnalyticsExportBundle } from "../../src/types/exportTypes";
-import { type DateRangeValue } from "../../src/components/charts/DateButton";
-import { format } from "date-fns";
+import {
+  computeRangeDates,
+  type DateRangeValue,
+} from "../../src/components/charts/DateButton";
 
 import { EXPORT_PLATFORM_CONFIGS } from "./exportMetricsConfig";
 
@@ -61,9 +63,14 @@ export async function fetchGoogleExportBundle(
   range: DateRangeValue,
 ): Promise<GoogleAnalyticsExportBundle> {
   const provider = "GOOGLE_ANALYTICS";
-
-  const startDate = range.start ? format(range.start, "yyyy-MM-dd") : undefined;
-  const endDate = range.end ? format(range.end, "yyyy-MM-dd") : undefined;
+  const maxDate = new Date();
+  maxDate.setHours(0, 0, 0, 0);
+  const { startDate, endDate } = computeRangeDates(
+    range.id,
+    maxDate,
+    range.start,
+    range.end,
+  );
 
   const metrics = EXPORT_PLATFORM_CONFIGS.google.metrics;
 

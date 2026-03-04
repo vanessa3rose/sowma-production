@@ -4,7 +4,7 @@ import {
   SocialExportBundle,
   GoogleAnalyticsExportBundle,
 } from "../../types/exportTypes";
-import type { DateRangeValue } from "../charts/DateButton.js";
+import type { DateRangeValue } from "../charts/DateButton";
 
 import { fetchGoogleExportBundle } from "../../../scripts/export-pdf/fetchExportData.js";
 import { fetchSocialExportBundle } from "../../../scripts/export-pdf/fetchSocialExportBundle.js";
