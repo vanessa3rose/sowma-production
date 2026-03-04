@@ -24,9 +24,7 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const startDay = startDate
-      ? String(startDate).slice(0, 10)
-      : "2000-01-01";
+    const startDay = startDate ? String(startDate).slice(0, 10) : "2000-01-01";
     const endDay = endDate ? String(endDate).slice(0, 10) : "3000-01-01";
 
     const start = new Date(`${startDay}T00:00:00.000Z`);
