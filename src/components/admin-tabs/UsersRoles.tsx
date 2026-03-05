@@ -13,6 +13,7 @@ interface User {
 export default function UsersRoles() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const adminCount = users.filter((user) => user.role === "ADMIN").length;
 
   // ---------------- FETCH USERS ----------------
   useEffect(() => {
@@ -56,6 +57,9 @@ export default function UsersRoles() {
 
   // ---------------- DELETE USER ----------------
   const removeUser = async (userId: string) => {
+    const target = users.find((u) => u.id === userId);
+    if (target?.role === "ADMIN" && adminCount === 1) return;
+
     try {
       const res = await fetch(`/api/users?id=${userId}`, {
         method: "DELETE",
@@ -85,13 +89,14 @@ export default function UsersRoles() {
         <div className="w-[30%]">Name</div>
         <div className="w-[30%]">Email</div>
         <div className="w-[20%]">Role</div>
-        <div className="w-[20%]">Remove</div>
+        <div className="w-[20%]" />
       </div>
 
       {/* Rows */}
       <div className="divide-y divide-gray-300">
         {users.map((user) => {
           const [localPart, domain] = user.email.split("@");
+          const isLastAdmin = user.role === "ADMIN" && adminCount === 1;
 
           return (
             <div
@@ -125,13 +130,29 @@ export default function UsersRoles() {
 
               {/* Remove */}
               <div className="flex w-[20%] justify-center">
-                <button
-                  aria-label={`Remove ${user.firstName} ${user.lastName}`}
-                  className="flex w-1/2 pt-0.5 items-center justify-center rounded-full bg-[#ad3a3b] text-white text-2xl leading-none"
-                  onClick={() => removeUser(user.id)}
-                >
-                  ×
-                </button>
+                {isLastAdmin ? null : (
+                  <button
+                    aria-label={`Remove ${user.firstName} ${user.lastName}`}
+                    className="flex h-10 w-10 items-center justify-center rounded-md bg-[#ad3a3b] text-white"
+                    onClick={() => removeUser(user.id)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      aria-hidden="true"
+                      className="h-6 w-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 7.5h12m-9.75 0V6a1.5 1.5 0 0 1 1.5-1.5h4.5a1.5 1.5 0 0 1 1.5 1.5v1.5m-8.25 0v10.5A1.5 1.5 0 0 0 9 19.5h6a1.5 1.5 0 0 0 1.5-1.5V7.5m-6 3v6m3-6v6"
+                      />
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
           );
