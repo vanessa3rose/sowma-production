@@ -67,11 +67,14 @@ const GA_CARD_TOOLTIPS = {
   active7DayUsers: "Users active in the last 7 days.",
   avgEngagementTime: "Average engagement time per user (seconds).",
   countyVisitors: "Total site visitors by Massachusetts county.",
-  newVsReturning: "Users who have never been to the site vs. users who are returning.",
+  newVsReturning:
+    "Users who have never been to the site vs. users who are returning.",
   sessionsByDevice: "Types of devices accessing the site.",
-  activeUsers: "Users who were on the site for more than 10 seconds, or visited multiple pages.",
+  activeUsers:
+    "Users who were on the site for more than 10 seconds, or visited multiple pages.",
   trafficSources: "How each user got to the site.",
-  engagementRate: "Percent of sessions that lasted more than 10 seconds, or visited 2+ pages.",
+  engagementRate:
+    "Percent of sessions that lasted more than 10 seconds, or visited 2+ pages.",
 } as const;
 
 // -----------------------------

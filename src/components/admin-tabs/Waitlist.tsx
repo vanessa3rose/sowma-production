@@ -158,7 +158,8 @@ export default function Waitlist() {
             users.map((user) => {
               const { localPart, domainPart } = splitEmail(user.email);
               const isRowBusy = busyState?.email === user.email;
-              const isApproveBusy = isRowBusy && busyState?.action === "approve";
+              const isApproveBusy =
+                isRowBusy && busyState?.action === "approve";
               const isDenyBusy = isRowBusy && busyState?.action === "deny";
               return (
                 <div
@@ -166,8 +167,9 @@ export default function Waitlist() {
                   className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-2 md:gap-4 text-center font-poppins text-xs md:text-lg leading-[48px] py-3"
                 >
                   <div className="text-gray-800">
-                    {[user.firstName, user.lastName].filter(Boolean).join(" ") ||
-                      "—"}
+                    {[user.firstName, user.lastName]
+                      .filter(Boolean)
+                      .join(" ") || "—"}
                   </div>
 
                   <div className="flex lg:flex-row flex-col justify-center items-center leading-4 lg:leading-8 text-gray-800">
@@ -182,7 +184,9 @@ export default function Waitlist() {
                           ? "bg-[#9dbada] text-white/80"
                           : "bg-[#4e8bcc]"
                       } disabled:opacity-100`}
-                      onClick={() => handleWaitlistAction(user.email, "approve")}
+                      onClick={() =>
+                        handleWaitlistAction(user.email, "approve")
+                      }
                       disabled={isRowBusy}
                     >
                       <span className={isApproveBusy ? "opacity-0" : ""}>
@@ -203,7 +207,9 @@ export default function Waitlist() {
                       onClick={() => handleWaitlistAction(user.email, "deny")}
                       disabled={isRowBusy}
                     >
-                      <span className={isDenyBusy ? "opacity-0" : ""}>Deny</span>
+                      <span className={isDenyBusy ? "opacity-0" : ""}>
+                        Deny
+                      </span>
                       {isDenyBusy ? (
                         <span className="absolute inset-0 flex items-center justify-center">
                           <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />

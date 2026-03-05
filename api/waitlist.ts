@@ -67,7 +67,9 @@ async function getWaitlistEntries(): Promise<WaitlistEntry[]> {
   );
 }
 
-function extractPendingWaitlistInvites(invitations: any[]): PendingInviteEntry[] {
+function extractPendingWaitlistInvites(
+  invitations: any[],
+): PendingInviteEntry[] {
   return invitations
     .filter((invite: any) => {
       const metadata = invite?.publicMetadata;
