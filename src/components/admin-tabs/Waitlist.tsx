@@ -7,12 +7,28 @@ type WaitlistUser = {
   email: string;
 };
 
+type PendingInviteUser = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+};
+
+type WaitlistResponse = {
+  waitlist: WaitlistUser[];
+  pendingInvites: PendingInviteUser[];
+};
+
 export default function Waitlist() {
   const [users, setUsers] = useState<WaitlistUser[]>([]);
+  const [pendingInvites, setPendingInvites] = useState<PendingInviteUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string>("");
   const [statusMessage, setStatusMessage] = useState<string>("");
-  const [busyEmail, setBusyEmail] = useState<string | null>(null);
+  const [busyState, setBusyState] = useState<{
+    email: string;
+    action: "approve" | "deny";
+  } | null>(null);
 
   async function loadWaitlist() {
     try {
@@ -20,10 +36,14 @@ export default function Waitlist() {
       setLoading(true);
       const response = await fetch("/api/waitlist");
       if (!response.ok) throw new Error("Failed to fetch waitlist");
-      const data = (await response.json()) as WaitlistUser[];
-      setUsers(data);
+      const data = (await response.json()) as WaitlistResponse;
+      setUsers(Array.isArray(data.waitlist) ? data.waitlist : []);
+      setPendingInvites(
+        Array.isArray(data.pendingInvites) ? data.pendingInvites : [],
+      );
     } catch {
       setUsers([]);
+      setPendingInvites([]);
       setLoadError("Failed to fetch waitlist.");
     } finally {
       setLoading(false);
@@ -40,7 +60,7 @@ export default function Waitlist() {
     action: "approve" | "deny",
   ) {
     try {
-      setBusyEmail(email);
+      setBusyState({ email, action });
       setStatusMessage("");
 
       const response = await fetch("/api/waitlist", {
@@ -65,6 +85,7 @@ export default function Waitlist() {
       }
 
       setUsers((prev) => prev.filter((u) => u.email !== email));
+      loadWaitlist();
       setStatusMessage(
         typeof body?.message === "string"
           ? body.message
@@ -79,7 +100,7 @@ export default function Waitlist() {
           : "Failed to update waitlist entry",
       );
     } finally {
-      setBusyEmail(null);
+      setBusyState(null);
     }
   }
 
@@ -90,8 +111,6 @@ export default function Waitlist() {
     const [localPart, domainPart = ""] = email.split("@");
     return { localPart, domainPart };
   }
-
-  const showHeader = !loading && users.length > 0;
 
   return (
     <div className="lg:px-6 px-2 lg:py-6 py-4">
@@ -113,80 +132,143 @@ export default function Waitlist() {
         </div>
       ) : null}
 
-      {showHeader ? (
-        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center text-center font-poppins text-md md:text-2xl font-normal leading-[48px] text-gray-500 border-b border-gray-300 pb-2">
-          <div>Name</div>
-          <div>Email</div>
-          <div className="justify-self-end w-[204px]" />
+      <section>
+        <h2 className="font-poppins text-xl md:text-2xl text-gray-700 mb-2">
+          Waitlist
+        </h2>
+
+        {!loading && users.length > 0 ? (
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center text-center font-poppins text-md md:text-2xl font-normal leading-[48px] text-gray-500 border-b border-gray-300 pb-2">
+            <div>Name</div>
+            <div>Email</div>
+            <div className="justify-self-end w-[204px]" />
+          </div>
+        ) : null}
+
+        <div className="divide-y divide-gray-300">
+          {loading ? (
+            <div className="py-6 text-center text-gray-500 font-poppins">
+              Loading waitlist...
+            </div>
+          ) : users.length === 0 ? (
+            <div className="py-6 text-center text-gray-500 font-poppins">
+              No waitlist entries yet.
+            </div>
+          ) : (
+            users.map((user) => {
+              const { localPart, domainPart } = splitEmail(user.email);
+              const isRowBusy = busyState?.email === user.email;
+              const isApproveBusy =
+                isRowBusy && busyState?.action === "approve";
+              const isDenyBusy = isRowBusy && busyState?.action === "deny";
+              return (
+                <div
+                  key={user.id}
+                  className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-2 md:gap-4 text-center font-poppins text-xs md:text-lg leading-[48px] py-3"
+                >
+                  <div className="text-gray-800">
+                    {[user.firstName, user.lastName]
+                      .filter(Boolean)
+                      .join(" ") || "—"}
+                  </div>
+
+                  <div className="flex lg:flex-row flex-col justify-center items-center leading-4 lg:leading-8 text-gray-800">
+                    <div>{localPart}</div>
+                    <div>{`@${domainPart}`}</div>
+                  </div>
+
+                  <div className="justify-self-end flex gap-2 lg:gap-4 lg:flex-row flex-col">
+                    <button
+                      className={`relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base transition ${
+                        isRowBusy && !isApproveBusy
+                          ? "bg-[#9dbada] text-white/80"
+                          : "bg-[#4e8bcc]"
+                      } disabled:opacity-100`}
+                      onClick={() =>
+                        handleWaitlistAction(user.email, "approve")
+                      }
+                      disabled={isRowBusy}
+                    >
+                      <span className={isApproveBusy ? "opacity-0" : ""}>
+                        Approve
+                      </span>
+                      {isApproveBusy ? (
+                        <span className="absolute inset-0 flex items-center justify-center">
+                          <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                        </span>
+                      ) : null}
+                    </button>
+                    <button
+                      className={`relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base transition ${
+                        isRowBusy && !isDenyBusy
+                          ? "bg-[#c88f90] text-white/80"
+                          : "bg-[#ad3a3b]"
+                      } disabled:opacity-100`}
+                      onClick={() => handleWaitlistAction(user.email, "deny")}
+                      disabled={isRowBusy}
+                    >
+                      <span className={isDenyBusy ? "opacity-0" : ""}>
+                        Deny
+                      </span>
+                      {isDenyBusy ? (
+                        <span className="absolute inset-0 flex items-center justify-center">
+                          <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                        </span>
+                      ) : null}
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
-      ) : null}
+      </section>
 
-      <div className="divide-y divide-gray-300">
-        {loading ? (
-          <div className="py-6 text-center text-gray-500 font-poppins">
-            Loading waitlist...
+      <section className="mt-8">
+        <h2 className="font-poppins text-xl md:text-2xl text-gray-700 mb-2">
+          Pending Invites
+        </h2>
+
+        {!loading && pendingInvites.length > 0 ? (
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center text-center font-poppins text-md md:text-2xl font-normal leading-[48px] text-gray-500 border-b border-gray-300 pb-2">
+            <div>Name</div>
+            <div>Email</div>
           </div>
-        ) : users.length === 0 ? (
-          <div className="py-6 text-center text-gray-500 font-poppins">
-            No waitlist entries yet.
-          </div>
-        ) : (
-          users.map((user) => {
-            const { localPart, domainPart } = splitEmail(user.email);
-            return (
-              <div
-                key={user.id}
-                className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-2 md:gap-4 text-center font-poppins text-xs md:text-lg leading-[48px] py-3"
-              >
-                <div className="text-gray-800">
-                  {[user.firstName, user.lastName].filter(Boolean).join(" ") ||
-                    "—"}
-                </div>
+        ) : null}
 
-                <div className="flex lg:flex-row flex-col justify-center items-center leading-4 lg:leading-8 text-gray-800">
-                  <div>{localPart}</div>
-                  <div>{`@${domainPart}`}</div>
-                </div>
+        <div className="divide-y divide-gray-300">
+          {loading ? (
+            <div className="py-6 text-center text-gray-500 font-poppins">
+              Loading pending invites...
+            </div>
+          ) : pendingInvites.length === 0 ? (
+            <div className="py-6 text-center text-gray-500 font-poppins">
+              No pending invites yet.
+            </div>
+          ) : (
+            pendingInvites.map((invite) => {
+              const { localPart, domainPart } = splitEmail(invite.email);
+              return (
+                <div
+                  key={invite.id}
+                  className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 md:gap-4 text-center font-poppins text-xs md:text-lg leading-[48px] py-3"
+                >
+                  <div className="text-gray-800">
+                    {[invite.firstName, invite.lastName]
+                      .filter(Boolean)
+                      .join(" ") || "—"}
+                  </div>
 
-                <div className="justify-self-end flex gap-2 lg:gap-4 lg:flex-row flex-col">
-                  <button
-                    className="relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full bg-[#4e8bcc] text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base disabled:opacity-80"
-                    onClick={() => handleWaitlistAction(user.email, "approve")}
-                    disabled={busyEmail === user.email}
-                  >
-                    <span
-                      className={busyEmail === user.email ? "opacity-0" : ""}
-                    >
-                      Approve
-                    </span>
-                    {busyEmail === user.email ? (
-                      <span className="absolute inset-0 flex items-center justify-center">
-                        <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                      </span>
-                    ) : null}
-                  </button>
-                  <button
-                    className="relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full bg-[#ad3a3b] text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base disabled:opacity-80"
-                    onClick={() => handleWaitlistAction(user.email, "deny")}
-                    disabled={busyEmail === user.email}
-                  >
-                    <span
-                      className={busyEmail === user.email ? "opacity-0" : ""}
-                    >
-                      Deny
-                    </span>
-                    {busyEmail === user.email ? (
-                      <span className="absolute inset-0 flex items-center justify-center">
-                        <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                      </span>
-                    ) : null}
-                  </button>
+                  <div className="flex lg:flex-row flex-col justify-center items-center leading-4 lg:leading-8 text-gray-800">
+                    <div>{localPart}</div>
+                    <div>{`@${domainPart}`}</div>
+                  </div>
                 </div>
-              </div>
-            );
-          })
-        )}
-      </div>
+              );
+            })
+          )}
+        </div>
+      </section>
     </div>
   );
 }

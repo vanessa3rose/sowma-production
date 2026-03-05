@@ -62,6 +62,20 @@ type Point = { date: string; value: number };
 const provider = "GOOGLE_ANALYTICS";
 const defaultStartDate = "2024-01-01";
 const defaultEndDate = "3000-01-01";
+const GA_CARD_TOOLTIPS = {
+  pageViews: "Total page and screen views.",
+  active7DayUsers: "Users active in the last 7 days.",
+  avgEngagementTime: "Average engagement time per user (seconds).",
+  countyVisitors: "Total site visitors by Massachusetts county.",
+  newVsReturning:
+    "Users who have never been to the site vs. users who are returning.",
+  sessionsByDevice: "Types of devices accessing the site.",
+  activeUsers:
+    "Users who were on the site for more than 10 seconds, or visited multiple pages.",
+  trafficSources: "How each user got to the site.",
+  engagementRate:
+    "Percent of sessions that lasted more than 10 seconds, or visited 2+ pages.",
+} as const;
 
 // -----------------------------
 // Today-anchored date helpers
@@ -698,6 +712,7 @@ export default function GoogleAnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4">
         <SmallCard
           title="Page Views"
+          titleTooltip={GA_CARD_TOOLTIPS.pageViews}
           displayMode="metric-only"
           className="w-full"
           metricValue={dMetrics.screenPageViews}
@@ -708,6 +723,7 @@ export default function GoogleAnalyticsPage() {
         />
         <SmallCard
           title="Active 7-Day Users"
+          titleTooltip={GA_CARD_TOOLTIPS.active7DayUsers}
           displayMode="metric-only"
           className="w-full"
           metricValue={dMetrics.active7DayUsers}
@@ -716,6 +732,7 @@ export default function GoogleAnalyticsPage() {
         />
         <SmallCard
           title="Avg Engagement Time"
+          titleTooltip={GA_CARD_TOOLTIPS.avgEngagementTime}
           displayMode="metric-only"
           className="w-full"
           metricValue={Math.round(dMetrics.engagementTime)}
@@ -729,6 +746,7 @@ export default function GoogleAnalyticsPage() {
         <div className="lg:w-3/5 w-full">
           <BigCard
             title="Massachusetts Visitors by County"
+            titleTooltip={GA_CARD_TOOLTIPS.countyVisitors}
             subtitle={
               <DateDropdown
                 value={countyRange}
@@ -754,6 +772,7 @@ export default function GoogleAnalyticsPage() {
         <div className="lg:w-2/5 w-full">
           <BigCard
             title="New vs Returning Users"
+            titleTooltip={GA_CARD_TOOLTIPS.newVsReturning}
             subtitle={
               <DateDropdown
                 value={newVsReturningRange}
@@ -781,6 +800,7 @@ export default function GoogleAnalyticsPage() {
         <div className="lg:w-2/5 w-full">
           <BigCard
             title="Sessions by Device Category"
+            titleTooltip={GA_CARD_TOOLTIPS.sessionsByDevice}
             subtitle={
               <DateDropdown
                 value={deviceRange}
@@ -804,6 +824,7 @@ export default function GoogleAnalyticsPage() {
         <div className="lg:w-3/5 w-full">
           <BigCard
             title="Active Users"
+            titleTooltip={GA_CARD_TOOLTIPS.activeUsers}
             subtitle={
               <DateDropdown
                 value={activeUsersRange}
@@ -834,6 +855,7 @@ export default function GoogleAnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 pb-4">
         <BigCard
           title="Traffic Source Breakdown"
+          titleTooltip={GA_CARD_TOOLTIPS.trafficSources}
           subtitle={
             <DateDropdown
               value={sourceRange}
@@ -857,6 +879,7 @@ export default function GoogleAnalyticsPage() {
         />
         <BigCard
           title="Engagement Rate"
+          titleTooltip={GA_CARD_TOOLTIPS.engagementRate}
           subtitle={
             <DateDropdown
               value={engagementRange}

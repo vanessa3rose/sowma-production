@@ -39,6 +39,13 @@ type WaitlistEntry = {
   createdAt: Date;
 };
 
+type PendingInviteEntry = {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+};
+
 function normalizeEmail(value: unknown): string {
   return String(value ?? "")
     .trim()
@@ -58,6 +65,36 @@ async function getWaitlistEntries(): Promise<WaitlistEntry[]> {
       ORDER BY "createdAt" DESC
     `,
   );
+}
+
+function extractPendingWaitlistInvites(
+  invitations: any[],
+): PendingInviteEntry[] {
+  return invitations
+    .filter((invite: any) => {
+      const metadata = invite?.publicMetadata;
+      if (!metadata || typeof metadata !== "object") return false;
+      return (
+        Object.prototype.hasOwnProperty.call(metadata, "waitlistFirstName") ||
+        Object.prototype.hasOwnProperty.call(metadata, "waitlistLastName")
+      );
+    })
+    .map((invite: any) => {
+      const metadata = invite?.publicMetadata ?? {};
+      return {
+        id: String(invite?.id ?? ""),
+        email: String(invite?.emailAddress ?? "").toLowerCase(),
+        firstName:
+          typeof metadata.waitlistFirstName === "string"
+            ? metadata.waitlistFirstName.trim() || null
+            : null,
+        lastName:
+          typeof metadata.waitlistLastName === "string"
+            ? metadata.waitlistLastName.trim() || null
+            : null,
+      };
+    })
+    .filter((invite) => invite.id && invite.email);
 }
 
 async function getWaitlistByEmail(email: string): Promise<{
@@ -328,8 +365,20 @@ export default async function handler(req: any, res: any) {
   if (method === "GET") {
     // Return the full queue for the admin waitlist table.
     try {
-      const entries = await getWaitlistEntries();
-      return res.status(200).json(entries);
+      const [entries, invitations] = await Promise.all([
+        getWaitlistEntries(),
+        clerkClient.invitations.getInvitationList({
+          status: "pending",
+          limit: 500,
+        }),
+      ]);
+      const pendingInvites = extractPendingWaitlistInvites(
+        invitations?.data ?? [],
+      );
+      return res.status(200).json({
+        waitlist: entries,
+        pendingInvites,
+      });
     } catch (error: any) {
       console.error("Error fetching waitlist users:", error);
       return res.status(500).json({ error: "Failed to fetch waitlist users" });
@@ -570,18 +619,6 @@ export default async function handler(req: any, res: any) {
       return res
         .status(500)
         .json({ error: "Failed to remove user from waitlist" });
-    }
-  } else if (method === "GET") {
-    // ---------------- GET WAITLIST USERS ----------------
-    try {
-      const users = await prisma.waitlist.findMany({
-        orderBy: { createdAt: "desc" },
-      });
-
-      return res.status(200).json({ data: users });
-    } catch (error) {
-      console.error("Error fetching waitlist users:", error);
-      return res.status(500).json({ error: "Failed to fetch waitlist users" });
     }
   } else {
     return res.status(405).json({ error: "Method not allowed" });
