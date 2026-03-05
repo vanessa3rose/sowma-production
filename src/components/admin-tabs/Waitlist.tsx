@@ -12,7 +12,10 @@ export default function Waitlist() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string>("");
   const [statusMessage, setStatusMessage] = useState<string>("");
-  const [busyEmail, setBusyEmail] = useState<string | null>(null);
+  const [busyState, setBusyState] = useState<{
+    email: string;
+    action: "approve" | "deny";
+  } | null>(null);
 
   async function loadWaitlist() {
     try {
@@ -40,7 +43,7 @@ export default function Waitlist() {
     action: "approve" | "deny",
   ) {
     try {
-      setBusyEmail(email);
+      setBusyState({ email, action });
       setStatusMessage("");
 
       const response = await fetch("/api/waitlist", {
@@ -79,7 +82,7 @@ export default function Waitlist() {
           : "Failed to update waitlist entry",
       );
     } finally {
-      setBusyEmail(null);
+      setBusyState(null);
     }
   }
 
@@ -133,6 +136,9 @@ export default function Waitlist() {
         ) : (
           users.map((user) => {
             const { localPart, domainPart } = splitEmail(user.email);
+            const isRowBusy = busyState?.email === user.email;
+            const isApproveBusy = isRowBusy && busyState?.action === "approve";
+            const isDenyBusy = isRowBusy && busyState?.action === "deny";
             return (
               <div
                 key={user.id}
@@ -150,32 +156,36 @@ export default function Waitlist() {
 
                 <div className="justify-self-end flex gap-2 lg:gap-4 lg:flex-row flex-col">
                   <button
-                    className="relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full bg-[#4e8bcc] text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base disabled:opacity-80"
+                    className={`relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base transition ${
+                      isRowBusy && !isApproveBusy
+                        ? "bg-[#9dbada] text-white/80"
+                        : "bg-[#4e8bcc]"
+                    } disabled:opacity-100`}
                     onClick={() => handleWaitlistAction(user.email, "approve")}
-                    disabled={busyEmail === user.email}
+                    disabled={isRowBusy}
                   >
-                    <span
-                      className={busyEmail === user.email ? "opacity-0" : ""}
-                    >
+                    <span className={isApproveBusy ? "opacity-0" : ""}>
                       Approve
                     </span>
-                    {busyEmail === user.email ? (
+                    {isApproveBusy ? (
                       <span className="absolute inset-0 flex items-center justify-center">
                         <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
                       </span>
                     ) : null}
                   </button>
                   <button
-                    className="relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full bg-[#ad3a3b] text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base disabled:opacity-80"
+                    className={`relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base transition ${
+                      isRowBusy && !isDenyBusy
+                        ? "bg-[#c88f90] text-white/80"
+                        : "bg-[#ad3a3b]"
+                    } disabled:opacity-100`}
                     onClick={() => handleWaitlistAction(user.email, "deny")}
-                    disabled={busyEmail === user.email}
+                    disabled={isRowBusy}
                   >
-                    <span
-                      className={busyEmail === user.email ? "opacity-0" : ""}
-                    >
+                    <span className={isDenyBusy ? "opacity-0" : ""}>
                       Deny
                     </span>
-                    {busyEmail === user.email ? (
+                    {isDenyBusy ? (
                       <span className="absolute inset-0 flex items-center justify-center">
                         <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
                       </span>
