@@ -132,9 +132,9 @@ export default function Homepage() {
         fetchMetrics({ provider: "INSTAGRAM", metric: "FOLLOWERS", startDate: defaultStartDate, endDate: defaultEndDate }),
         fetchMetrics({ provider: "TWITTER", metric: "FOLLOWERS", startDate: defaultStartDate, endDate: defaultEndDate }),
       ]);
-
+  
       const mergedMap = new Map<string, { facebook: number | null; instagram: number | null; twitter: number | null }>();
-
+  
       const addToMap = (raw: SocialMediaMetric[], key: "facebook" | "instagram" | "twitter") => {
         for (const m of raw) {
           const date = (m.metricDate ?? m.lastSynced ?? new Date().toISOString()).slice(0, 10);
@@ -142,17 +142,15 @@ export default function Homepage() {
           mergedMap.set(date, { ...existing, [key]: m.metricValue });
         }
       };
-
+  
       addToMap(fbRaw, "facebook");
       addToMap(igRaw, "instagram");
       addToMap(twRaw, "twitter");
-
+  
       const merged = Array.from(mergedMap.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, values]) => ({ date, ...values }));
-    
-    setFollowerCountData(merged);
-
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, values]) => ({ date, ...values }));
+  
       setFollowerCountData(merged);
     } catch (err) { console.error(err); }
   }
@@ -221,7 +219,7 @@ export default function Homepage() {
       <option value="TWITTER">Twitter</option>
     </select>
   );
-
+  
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
       <div className="flex flex-wrap w-full justify-between items-center gap-4">
@@ -312,7 +310,6 @@ export default function Homepage() {
           maxDate={followersBounds.max}
         />
       }
-      /*const COLORS = ["#7987FF", "#F765A3", "#FFA9D0", "#A155B9"]; */
       metrics={[
         { label: "Facebook", value: followerChange.facebook, change: followerChange.fbChange, color: "#A155B9", sinceDate: formatSinceDate(followerChange.fbSince, followersRange) },
         { label: "Instagram", value: followerChange.instagram, change: followerChange.igChange, color: "#7987FF", sinceDate: formatSinceDate(followerChange.igSince, followersRange) },

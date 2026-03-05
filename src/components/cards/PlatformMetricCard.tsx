@@ -35,7 +35,6 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
         padding: "24px 28px",
       }}
     >
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-1">
           <h3
@@ -53,13 +52,10 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
         {dropdown && <div className="flex items-center">{dropdown}</div>}
       </div>
 
-      {/* Metrics list */}
       <div className="flex flex-col gap-4">
         {metrics.map(({ label, value, change, color, sinceDate }, index) => (
           <div key={label}>
-            {/* Row: label+value on left, change+date on right */}
             <div className="flex items-center justify-between">
-              {/* Left: label + value */}
               <div className="flex items-center gap-3">
                 <span
                   style={{
@@ -78,7 +74,8 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                   style={{
                     fontFamily: "Poppins, sans-serif",
                     fontSize: "28px",
-                    color,
+                    // FIX: Removed the condition that turned the number gray when change === 0
+                    color: value === null ? "#9CA3AF" : color,
                     fontWeight: 600,
                     lineHeight: "1",
                   }}
@@ -86,8 +83,6 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                   {value !== null ? value.toLocaleString() : "—"}
                 </span>
               </div>
-
-              {/* Right: change + since date */}
               <div className="flex flex-col items-end gap-0.5">
                 {change !== null && (
                   <div className="flex items-center gap-1">
@@ -96,27 +91,45 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                         fontFamily: "Poppins, sans-serif",
                         fontSize: "13px",
                         fontWeight: 500,
-                        color: change >= 0 ? "#10B981" : "#EF4444",
+                        color: change > 0 ? "#10B981" : change < 0 ? "#EF4444" : "#9CA3AF",
                       }}
                     >
-                      {change >= 0 ? "+" : ""}
+                      {change > 0 ? "+" : ""}
                       {change.toLocaleString()}
                     </span>
-                    <svg
-                      width="11"
-                      height="11"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      style={{ transform: change >= 0 ? "rotate(-45deg)" : "rotate(45deg)" }}
-                    >
-                      <path
-                        d="M2 8L14 8M14 8L8 2M14 8L8 14"
-                        stroke={change >= 0 ? "#10B981" : "#EF4444"}
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    {change === 0 ? (
+                      /* FIX: Smaller font size and fixed width to match the SVG arrow scale */
+                      <span
+                        style={{
+                          fontSize: "10px", 
+                          fontWeight: 800,
+                          color: "#9CA3AF",
+                          lineHeight: "1",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "11px" 
+                        }}
+                      >
+                        —
+                      </span>
+                    ) : (
+                      <svg
+                        width="11"
+                        height="11"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        style={{ transform: change > 0 ? "rotate(-45deg)" : "rotate(45deg)" }}
+                      >
+                        <path
+                          d="M2 8L14 8M14 8L8 2M14 8L8 14"
+                          stroke={change > 0 ? "#10B981" : "#EF4444"}
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
                   </div>
                 )}
                 {sinceDate && (
@@ -133,7 +146,6 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
               </div>
             </div>
 
-            {/* Divider between rows */}
             {index < metrics.length - 1 && (
               <div
                 style={{
