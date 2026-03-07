@@ -5,8 +5,8 @@ import { HeatmapLegend } from "../../components/charts/CalendarHeatmap";
 import { LinkedInCalendarHeatmap } from "../../components/charts/LinkedInCalendarHeatmap";
 import LineCharts from "../../components/charts/LineCharts";
 import DateDropdown, {
-  DateRangeId,
-} from "../../components/charts/DateDropdown";
+  DateRangeValue,
+} from "../../components/charts/DateButton";
 import ExportButton from "../../components/export-pdf/ExportButton";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
@@ -65,13 +65,13 @@ const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
   interactions: [],
 };
 
-const INITIAL_RANGES: Record<MetricKey, DateRangeId> = {
-  followers: "30d",
-  views: "30d",
-  likes: "30d",
-  comments: "30d",
-  shares: "30d",
-  interactions: "30d",
+const INITIAL_RANGES: Record<MetricKey, DateRangeValue> = {
+  followers: { id: "30d" },
+  views: { id: "30d" },
+  likes: { id: "30d" },
+  comments: { id: "30d" },
+  shares: { id: "30d" },
+  interactions: { id: "30d" },
 };
 
 const METRIC_DESCRIPTIONS: Record<MetricKey, string> = {
@@ -140,15 +140,21 @@ function getBounds(pts: LinePoint[]) {
   };
 }
 
-function filterByRange(pts: LinePoint[], range: DateRangeId) {
-  if (!pts.length || range === "all") return pts;
+function filterByRange(pts: LinePoint[], range: DateRangeValue) {
+  if (!pts.length || range.id === "all") return pts;
+
+  if (range.id === "custom" && range.start && range.end) {
+    const startStr = range.start.toISOString().slice(0, 10);
+    const endStr = range.end.toISOString().slice(0, 10);
+    return pts.filter((p) => p.date >= startStr && p.date <= endStr);
+  }
 
   const end = new Date(pts[pts.length - 1].date);
   const start = new Date(end);
 
-  if (range === "7d") start.setDate(start.getDate() - 6);
-  if (range === "30d") start.setDate(start.getDate() - 29);
-  if (range === "1y") start.setFullYear(start.getFullYear() - 1);
+  if (range.id === "7d") start.setDate(start.getDate() - 6);
+  if (range.id === "30d") start.setDate(start.getDate() - 29);
+  if (range.id === "1y") start.setFullYear(start.getFullYear() - 1);
 
   const startStr = start.toISOString().slice(0, 10);
   const endStr = end.toISOString().slice(0, 10);
@@ -172,7 +178,7 @@ export default function LinkedInPage() {
   const [rawSeries, setRawSeries] =
     useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
   const [ranges, setRanges] =
-    useState<Record<MetricKey, DateRangeId>>(INITIAL_RANGES);
+    useState<Record<MetricKey, DateRangeValue>>(INITIAL_RANGES);
 
   useEffect(() => {
     async function loadLinkedIn() {
@@ -215,7 +221,7 @@ export default function LinkedInPage() {
 
     METRICS.forEach((cfg) => {
       const full = rawSeries[cfg.id] ?? [];
-      const filtered = filterByRange(full, ranges[cfg.id] ?? "30d");
+      const filtered = filterByRange(full, ranges[cfg.id] ?? { id: "30d" });
       out[cfg.id] = {
         filtered,
         summary: summarizeSeries(filtered),
@@ -309,7 +315,9 @@ export default function LinkedInPage() {
             subtitle={
               <DateDropdown
                 value={ranges.followers}
-                onChange={(r) => setRanges((prev) => ({ ...prev, followers: r }))}
+                onChange={(r: DateRangeValue) =>
+                  setRanges((prev) => ({ ...prev, followers: r }))
+                }
                 minDate={computed.followers?.bounds.min}
                 maxDate={computed.followers?.bounds.max}
               />
@@ -341,7 +349,9 @@ export default function LinkedInPage() {
             subtitle={
               <DateDropdown
                 value={ranges.views}
-                onChange={(r) => setRanges((prev) => ({ ...prev, views: r }))}
+                onChange={(r: DateRangeValue) =>
+                  setRanges((prev) => ({ ...prev, views: r }))
+                }
                 minDate={computed.views?.bounds.min}
                 maxDate={computed.views?.bounds.max}
               />
@@ -375,7 +385,7 @@ export default function LinkedInPage() {
             subtitle={
               <DateDropdown
                 value={ranges.interactions}
-                onChange={(r) =>
+                onChange={(r: DateRangeValue) =>
                   setRanges((prev) => ({ ...prev, interactions: r }))
                 }
                 minDate={computed.interactions?.bounds.min}

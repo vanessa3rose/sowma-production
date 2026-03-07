@@ -4,23 +4,28 @@ import { useLocation, Link } from "wouter";
 
 import logo from "../assets/logo-cropped.png";
 import facebook from "../assets/facebook.jpg";
-import google from "../assets/google.jpg";
+import googleAnalytics from "../assets/google-analytics.png";
 import instagram from "../assets/instagram.jpg";
 import linkedin from "../assets/linkedin.jpg";
 import twitter from "../assets/twitter.jpg";
-import tiktok from "../assets/tiktok.jpg";
-import newsletter from "../assets/newsletter.jpg";
+// import tiktok from "../assets/tiktok.jpg";
+import constantContact from "../assets/newsletter.jpg";
 
 type Role = "ADMIN" | "USER" | "VIEWER";
 
 const socialLinks = [
-  { slug: "google-analytics", label: "Google", icon: google },
+  {
+    slug: "google-analytics",
+    label: "Google Analytics",
+    icon: googleAnalytics,
+  },
   { slug: "instagram", label: "Instagram", icon: instagram },
   { slug: "facebook", label: "Facebook", icon: facebook },
-  { slug: "tiktok", label: "TikTok", icon: tiktok },
+  // Temporary: hide TikTok from the navbar.
+  // { slug: "tiktok", label: "TikTok", icon: tiktok },
   { slug: "linkedin", label: "LinkedIn", icon: linkedin },
   { slug: "twitter", label: "Twitter/X", icon: twitter },
-  { slug: "constant-contact", label: "Newsletter", icon: newsletter },
+  { slug: "constant-contact", label: "Constant Contact", icon: constantContact },
 ];
 
 const exceptionRoutes: Record<string, string> = {

@@ -23,6 +23,19 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
+  const providerValue = String(provider).toUpperCase();
+  const metricValue = String(metric).toUpperCase();
+
+  if (!Object.values(Provider).includes(providerValue as Provider)) {
+    res.status(400).json({ error: `Invalid provider: ${provider}` });
+    return;
+  }
+
+  if (!Object.values(Metric).includes(metricValue as Metric)) {
+    res.status(400).json({ error: `Invalid metric: ${metric}` });
+    return;
+  }
+
   try {
     const startDay = startDate ? String(startDate).slice(0, 10) : "2000-01-01";
     const endDay = endDate ? String(endDate).slice(0, 10) : "3000-01-01";
@@ -34,17 +47,17 @@ export default async function handler(req: any, res: any) {
       const dbHost = process.env.DATABASE_URL?.split("@")?.[1]?.split("?")?.[0];
       console.log("[/api/metrics] DB host:", dbHost);
       console.log("[/api/metrics] query:", {
-        provider,
-        metric,
+        provider: providerValue,
+        metric: metricValue,
         start: start.toISOString(),
         end: end.toISOString(),
       });
       const smCount = await prisma.socialMedia.count({
-        where: { provider: provider as Provider },
+        where: { provider: providerValue as Provider },
       });
       console.log(
         "[/api/metrics] socialMedia count for provider:",
-        provider,
+        providerValue,
         smCount,
       );
     }
@@ -52,8 +65,8 @@ export default async function handler(req: any, res: any) {
     // New filtering logic: prioritize metricDate, fallback to lastSynced only if metricDate is missing
     const metrics = await prisma.socialMediaMetrics.findMany({
       where: {
-        metricName: metric as Metric,
-        SocialMedia: { provider: provider as Provider },
+        metricName: metricValue as Metric,
+        SocialMedia: { provider: providerValue as Provider },
         OR: [
           {
             metricDate: { gte: start, lte: end },

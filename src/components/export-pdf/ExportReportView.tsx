@@ -607,7 +607,6 @@ export default function e({ selections, range }: ExportReportViewProps) {
 
         const platformKey = selection.platform as Platform;
         const config = EXPORT_PLATFORM_CONFIGS[platformKey];
-        const rangeLabel = RANGE_LABELS[range];
 
         if (platformKey === "linkedin") {
           // LinkedIn has a custom layout in PDF so it matches the live page:
