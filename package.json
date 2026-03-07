@@ -23,6 +23,7 @@
     "@mui/material": "^7.3.5",
     "@prisma/client": "^6.19.1",
     "cron": "^4.3.3",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "fdir": "^6.5.0",
     "git-filter-repo": "^0.0.30",

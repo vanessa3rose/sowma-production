@@ -1,54 +1,38 @@
 import { useEffect, useState } from "react";
+import { DateRangeValue } from "../../components/charts/DateButton";
+import DateDropdown from "../../components/charts/DateButton";
 import BigCard from "../../components/cards/BigCard";
 import LineCharts from "../../components/charts/LineCharts";
-import DateDropdown, {
-  DateRangeId,
-} from "../../components/charts/DateDropdown";
-import ExportButton from "../../components/export-pdf/ExportButton";
-import { fetchMetrics, SocialMediaMetric } from "../..//utils/fetchMetrics";
-import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
+import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 
-type TwitterMetrics = {
-  followers: number;
-  tweets: number;
-};
-
-type TimePoint = {
-  date: string;
-  followers?: number;
-  tweets?: number;
-};
-
-type MetricSummary = {
-  current: number | null;
-  prev: number | null;
-};
+type MetricSummary = { current: number | null; prev: number | null };
+type TwitterMetrics = { followers: number; tweets: number };
+type TimePoint = { date: string; followers?: number; tweets?: number };
 
 export default function TwitterPage() {
-  const { exportByPlatforms } = useGlobalPageExporter();
-
-  const [metrics, setMetrics] = useState<TwitterMetrics | null>(null);
-
+  const [followersOverTimeAll, setFollowersOverTimeAll] = useState<
+    { date: string; value: number }[]
+  >([]);
+  const [tweetsOverTimeAll, setTweetsOverTimeAll] = useState<
+    { date: string; value: number }[]
+  >([]);
   const [followersOverTime, setFollowersOverTime] = useState<TimePoint[]>([]);
   const [tweetsOverTime, setTweetsOverTime] = useState<TimePoint[]>([]);
-
-  const [followersOverTimeAll, setFollowersOverTimeAll] = useState<TimePoint[]>(
-    [],
-  );
-  const [tweetsOverTimeAll, setTweetsOverTimeAll] = useState<TimePoint[]>([]);
-
+  const [metrics, setMetrics] = useState<TwitterMetrics | null>(null);
   const [metricSummaries, setMetricSummaries] = useState<
     Partial<Record<keyof TwitterMetrics, MetricSummary>>
   >({});
-
-  const [followersRange, setFollowersRange] = useState<DateRangeId>("30d");
-  const [tweetsRange, setTweetsRange] = useState<DateRangeId>("30d");
+  const [followersRange, setFollowersRange] = useState<DateRangeValue>({
+    id: "30d",
+  });
+  const [tweetsRange, setTweetsRange] = useState<DateRangeValue>({ id: "30d" });
 
   const provider = "TWITTER";
   const defaultStartDate = "2024-01-01";
   const defaultEndDate = "3000-01-01";
 
   // ---------- Helpers ----------
+
   function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     return raw
       .filter((m) => m.metricDate || m.lastSynced)
@@ -82,14 +66,19 @@ export default function TwitterPage() {
 
   function filterByRange(
     pts: { date: string; value: number }[],
-    range: DateRangeId,
+    range: DateRangeValue,
   ) {
-    if (!pts.length || range === "all") return pts;
+    if (!pts.length || range.id === "all") return pts;
+    if (range.id === "custom" && range.start && range.end) {
+      const startStr = range.start.toISOString().slice(0, 10);
+      const endStr = range.end.toISOString().slice(0, 10);
+      return pts.filter((p) => p.date >= startStr && p.date <= endStr);
+    }
     const end = new Date(pts[pts.length - 1].date);
     const start = new Date(end);
-    if (range === "7d") start.setDate(start.getDate() - 6);
-    if (range === "30d") start.setDate(start.getDate() - 29);
-    if (range === "1y") start.setFullYear(start.getFullYear() - 1);
+    if (range.id === "7d") start.setDate(start.getDate() - 6);
+    if (range.id === "30d") start.setDate(start.getDate() - 29);
+    if (range.id === "1y") start.setFullYear(start.getFullYear() - 1);
     const startStr = start.toISOString().slice(0, 10);
     const endStr = end.toISOString().slice(0, 10);
     return pts.filter((p) => p.date >= startStr && p.date <= endStr);
@@ -114,6 +103,7 @@ export default function TwitterPage() {
   }
 
   // ---------- Load Metrics ----------
+
   useEffect(() => {
     async function loadTwitter() {
       try {
@@ -135,8 +125,18 @@ export default function TwitterPage() {
         const followersAll = toLinePoints(followersRaw);
         const tweetsAll = toLinePoints(tweetsRaw);
 
+        setFollowersOverTimeAll(followersAll);
+        setTweetsOverTimeAll(tweetsAll);
+
         const followersFiltered = filterByRange(followersAll, followersRange);
         const tweetsFiltered = filterByRange(tweetsAll, tweetsRange);
+
+        setFollowersOverTime(
+          followersFiltered.map((p) => ({ date: p.date, followers: p.value })),
+        );
+        setTweetsOverTime(
+          tweetsFiltered.map((p) => ({ date: p.date, tweets: p.value })),
+        );
 
         setMetricSummaries({
           followers: summarizeSeries(followersFiltered),
@@ -147,16 +147,6 @@ export default function TwitterPage() {
           followers: summarizeSeries(followersFiltered).current ?? 0,
           tweets: summarizeSeries(tweetsFiltered).current ?? 0,
         });
-
-        setFollowersOverTimeAll(followersAll);
-        setTweetsOverTimeAll(tweetsAll);
-
-        setFollowersOverTime(
-          followersFiltered.map((p) => ({ date: p.date, followers: p.value })),
-        );
-        setTweetsOverTime(
-          tweetsFiltered.map((p) => ({ date: p.date, tweets: p.value })),
-        );
       } catch (err) {
         console.error("Error loading Twitter metrics:", err);
       }
@@ -165,16 +155,8 @@ export default function TwitterPage() {
   }, [followersRange, tweetsRange]);
 
   const dMetrics: TwitterMetrics = metrics ?? { followers: 0, tweets: 0 };
-
-  const followersBounds = getBounds(
-    followersOverTimeAll.map((p) => ({
-      date: p.date,
-      value: p.followers ?? 0,
-    })),
-  );
-  const tweetsBounds = getBounds(
-    tweetsOverTimeAll.map((p) => ({ date: p.date, value: p.tweets ?? 0 })),
-  );
+  const followersBounds = getBounds(followersOverTimeAll);
+  const tweetsBounds = getBounds(tweetsOverTimeAll);
 
   // ---------- Render ----------
   return (
@@ -206,18 +188,7 @@ export default function TwitterPage() {
             Twitter
           </h1>
         </div>
-        <div className="flex flex-row justify-center items-center mt-2 lg:flex-row lg:mt-0 lg:space-x-2 space-x-4">
-          <a
-            href="https://x.com/sowma"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
-          >
-            {" "}
-            Go to Account{" "}
-          </a>
-          <ExportButton onExport={exportByPlatforms} />
-        </div>
+        {/* Add export button if needed */}
       </div>
 
       <div className="flex flex-col gap-4 px-4 lg:h-full">
@@ -282,4 +253,5 @@ export default function TwitterPage() {
       </div>
     </div>
   );
+  // ...existing code...
 }

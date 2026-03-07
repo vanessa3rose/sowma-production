@@ -6,7 +6,7 @@ import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExport
 import LineCharts from "../components/charts/LineCharts";
 import BigCard from "../components/cards/BigCard";
 import PlatformMetricCard from "../components/cards/PlatformMetricCard";
-import DateDropdown, { DateRangeId } from "../components/charts/DateDropdown";
+import DateDropdown, { DateRangeValue } from "../components/charts/DateButton";
 
 type ImpressionsPoint = { date: string; impressions: number };
 type DaysPostedPoint = { date: string; posts: number };
@@ -26,19 +26,31 @@ export default function Homepage() {
   const [impressionsProvider, setImpressionsProvider] = useState<SocialProvider>("FACEBOOK");
   const [daysPostedProvider, setDaysPostedProvider] = useState<SocialProvider>("FACEBOOK");
 
-  const [impressionsRange, setImpressionsRange] = useState<DateRangeId>("30d");
-  const [daysPostedRange, setDaysPostedRange] = useState<DateRangeId>("30d");
-  const [sessionsRange, setSessionsRange] = useState<DateRangeId>("30d");
-  const [followersRange, setFollowersRange] = useState<DateRangeId>("30d");
+  // Per-card date ranges (now using DateRangeValue)
+  const [impressionsRange, setImpressionsRange] = useState<DateRangeValue>({
+    id: "30d",
+  });
+  const [daysPostedRange, setDaysPostedRange] = useState<DateRangeValue>({
+    id: "30d",
+  });
+  const [sessionsRange, setSessionsRange] = useState<DateRangeValue>({
+    id: "30d",
+  });
+  const [followersRange, setFollowersRange] = useState<DateRangeValue>({
+    id: "30d",
+  });
 
   const googleAnalyticsProvider = "GOOGLE_ANALYTICS";
   const defaultStartDate = "2024-01-01";
   const defaultEndDate = "3000-01-01";
 
-  const formatSinceDate = (date: string | null, range: DateRangeId): string | null => {
+  const formatSinceDate = (
+    date: string | null,
+    range: DateRangeValue,
+  ): string | null => {
     if (!date) return null;
     const d = new Date(date);
-    if (range === "7d" || range === "30d") {
+    if (range.id === "7d" || range.id === "30d") {
       return d.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit" });
     }
     return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
@@ -86,22 +98,26 @@ export default function Homepage() {
     return { min: new Date(sorted[0]), max: new Date(sorted[sorted.length - 1]) };
   }
 
-  function filterByRange<T extends { date: string }>(pts: T[], range: DateRangeId) {
+  function filterByRange<T extends { date: string }>(
+    pts: T[],
+    range: DateRangeValue,
+  ) {
     if (!pts.length) return pts;
-    if (range === "all") return pts;
-
+    if (range.id === "all") return pts;
+    if (range.id === "custom" && range.start && range.end) {
+      const startStr = range.start.toISOString().slice(0, 10);
+      const endStr = range.end.toISOString().slice(0, 10);
+      return pts.filter((p) => p.date >= startStr && p.date <= endStr);
+    }
     const end = new Date();
     end.setHours(0, 0, 0, 0);
     const start = new Date(end);
-
-    if (range === "7d") start.setDate(start.getDate() - 6);
-    if (range === "30d") start.setDate(start.getDate() - 29);
-    if (range === "1y") start.setFullYear(start.getFullYear() - 1);
-
+    if (range.id === "7d") start.setDate(start.getDate() - 6);
+    if (range.id === "30d") start.setDate(start.getDate() - 29);
+    if (range.id === "1y") start.setFullYear(start.getFullYear() - 1);
     const startStr = start.toISOString().slice(0, 10);
     const endStr = end.toISOString().slice(0, 10);
-
-    return pts.filter(p => p.date >= startStr && p.date <= endStr);
+    return pts.filter((p) => p.date >= startStr && p.date <= endStr);
   }
 
   async function loadImpressions() {

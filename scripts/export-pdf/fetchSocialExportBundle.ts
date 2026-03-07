@@ -3,8 +3,9 @@ import { type Platform } from "../../src/config/chartConfigs";
 import { fetchMetrics, SocialMediaMetric } from "../../src/utils/fetchMetrics";
 import {
   computeRangeDates,
-  type DateRangeId,
-} from "../../src/components/charts/DateDropdown";
+  type DateRangeValue,
+} from "../../src/components/charts/DateButton";
+
 import { EXPORT_PLATFORM_CONFIGS } from "./exportMetricsConfig";
 
 type SocialPlatform = Exclude<Platform, "google">;
@@ -52,7 +53,7 @@ function summarizeSeries(points: { value: number }[]): {
 
 export async function fetchSocialExportBundle(
   platform: Platform,
-  range: DateRangeId,
+  range: DateRangeValue,
 ): Promise<SocialExportBundle> {
   if (platform === "google") {
     throw new Error(
@@ -72,8 +73,12 @@ export async function fetchSocialExportBundle(
 
   const maxDate = new Date();
   maxDate.setHours(0, 0, 0, 0);
-  const { startDate, endDate } = computeRangeDates(range, maxDate);
-
+  const { startDate, endDate } = computeRangeDates(
+    range.id,
+    maxDate,
+    range.start,
+    range.end,
+  );
   const results = await Promise.all(
     config.metrics.map((metric) =>
       fetchMetrics({

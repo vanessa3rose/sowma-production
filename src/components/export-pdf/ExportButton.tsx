@@ -3,12 +3,15 @@ import { useUser } from "@clerk/clerk-react";
 
 import ExportModal from "./ExportModal";
 import type { Platform } from "../../config/chartConfigs";
-import type { DateRangeId } from "../charts/DateDropdown";
+import type { DateRangeValue } from "../charts/DateButton";
 
 type Role = "ADMIN" | "USER" | "VIEWER";
 
 interface ExportButtonProps {
-  onExport: (platforms: Platform[], range: DateRangeId) => Promise<void> | void;
+  onExport: (
+    platforms: Platform[],
+    range: DateRangeValue,
+  ) => Promise<void> | void;
 }
 
 export default function ExportButton({ onExport }: ExportButtonProps) {

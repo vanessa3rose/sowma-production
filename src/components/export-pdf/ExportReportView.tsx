@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { DateRangeId } from "../charts/DateDropdown";
+import type { DateRangeValue } from "../charts/DateButton.js";
 import type { ExportCardSelection } from "../../types/exportTypes";
 import LineCharts from "../charts/LineCharts";
 import PieCharts from "../charts/PieCharts";
@@ -13,15 +13,30 @@ import type { Platform } from "../../config/chartConfigs";
 
 export type ExportReportViewProps = {
   selections: ExportCardSelection[];
-  range: DateRangeId;
+  range: DateRangeValue;
 };
 
-const RANGE_LABELS: Record<DateRangeId, string> = {
-  "7d": "Last week",
-  "30d": "Last month",
-  "1y": "Last year",
-  all: "All time",
-};
+function getRangeLabel(range: DateRangeValue) {
+  switch (range.id) {
+    case "7d":
+      return "Last week";
+    case "30d":
+      return "Last month";
+    case "1y":
+      return "Last year";
+    case "all":
+      return "All time";
+    case "custom":
+      if (range.start && range.end) {
+        const fmt = (d: Date) =>
+          `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
+        return `Custom: ${fmt(range.start)} - ${fmt(range.end)}`;
+      }
+      return "Custom Range";
+    default:
+      return "";
+  }
+}
 
 function formatNumber(value: number, digits = 0) {
   if (!Number.isFinite(value)) return "0";
@@ -359,11 +374,9 @@ function buildChartPages<T>(
   return pages;
 }
 
-export default function ExportReportView({
-  selections,
-  range,
-}: ExportReportViewProps) {
+export default function e({ selections, range }: ExportReportViewProps) {
   const timestamp = new Date().toLocaleString();
+  const rangeLabel = getRangeLabel(range);
 
   return (
     <div className="bg-white">
@@ -371,7 +384,6 @@ export default function ExportReportView({
         if (selection.type === "google") {
           const metricSummaries = selection.data.metricSummaries;
           const chartDataMap = selection.data.chartDataMap;
-          const rangeLabel = RANGE_LABELS[range];
 
           const pageViewsSummary = metricSummaries.SCREEN_PAGE_VIEWS ?? {
             current: 0,
@@ -428,6 +440,12 @@ export default function ExportReportView({
                     <div className="mt-2 text-xs text-gray-500">
                       Note: Metrics are daily values unless explicitly labeled
                       as cumulative.
+                    </div>
+                    <div style={{ marginTop: "4px", fontSize: "12px", color: "#6B7280" }}>
+                      Delta values compare the latest point in range to the previous available point (not always the previous calendar day).
+                    </div>
+                    <div style={{ marginTop: "4px", fontSize: "12px", color: "#6B7280" }}>
+                      Delta values compare the latest point in range to the previous available point (not always the previous calendar day).
                     </div>
                   </div>
                 ) : null}
@@ -597,11 +615,17 @@ export default function ExportReportView({
                       SOWMA Social Media Analytics Report
                     </div>
                     <div className="mt-1 text-sm text-gray-600">
-                      Generated {timestamp} - {RANGE_LABELS[range]}
+                      Generated {timestamp} - {getRangeLabel(range)}
                     </div>
                     <div className="mt-2 text-xs text-gray-500">
                       Note: Metrics are daily values unless explicitly labeled
                       as cumulative.
+                    </div>
+                    <div style={{ marginTop: "4px", fontSize: "12px", color: "#6B7280" }}>
+                      Delta values compare the latest point in range to the previous available point (not always the previous calendar day).
+                    </div>
+                    <div style={{ marginTop: "4px", fontSize: "12px", color: "#6B7280" }}>
+                      Delta values compare the latest point in range to the previous available point (not always the previous calendar day).
                     </div>
                   </div>
                 ) : null}

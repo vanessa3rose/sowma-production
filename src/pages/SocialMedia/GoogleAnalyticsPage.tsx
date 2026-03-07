@@ -19,7 +19,8 @@ import { toMassachusettsCountyFips } from "../../utils/massachusettsCounties";
 // Buttons
 import DateDropdown, {
   DateRangeId,
-} from "../../components/charts/DateDropdown";
+  DateRangeValue,
+} from "../../components/charts/DateButton";
 import ExportButton from "../../components/export-pdf/ExportButton";
 
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
@@ -749,8 +750,8 @@ export default function GoogleAnalyticsPage() {
             titleTooltip={GA_CARD_TOOLTIPS.countyVisitors}
             subtitle={
               <DateDropdown
-                value={countyRange}
-                onChange={setCountyRange}
+                value={{ id: countyRange }}
+                onChange={(v: DateRangeValue) => setCountyRange(v.id)}
                 minDate={countyBounds.min}
                 maxDate={countyBounds.max}
                 availableOptions={countyAvailableOptions}
@@ -775,8 +776,8 @@ export default function GoogleAnalyticsPage() {
             titleTooltip={GA_CARD_TOOLTIPS.newVsReturning}
             subtitle={
               <DateDropdown
-                value={newVsReturningRange}
-                onChange={setNewVsReturningRange}
+                value={{ id: newVsReturningRange }}
+                onChange={(v: DateRangeValue) => setNewVsReturningRange(v.id)}
                 minDate={activeUsersBounds.min}
                 maxDate={activeUsersBounds.max}
                 availableOptions={activeUsersOptions}
@@ -803,8 +804,8 @@ export default function GoogleAnalyticsPage() {
             titleTooltip={GA_CARD_TOOLTIPS.sessionsByDevice}
             subtitle={
               <DateDropdown
-                value={deviceRange}
-                onChange={setDeviceRange}
+                value={{ id: deviceRange }}
+                onChange={(v: DateRangeValue) => setDeviceRange(v.id)}
                 minDate={activeUsersBounds.min}
                 maxDate={activeUsersBounds.max}
                 availableOptions={
@@ -827,8 +828,8 @@ export default function GoogleAnalyticsPage() {
             titleTooltip={GA_CARD_TOOLTIPS.activeUsers}
             subtitle={
               <DateDropdown
-                value={activeUsersRange}
-                onChange={setActiveUsersRange}
+                value={{ id: activeUsersRange }}
+                onChange={(v: DateRangeValue) => setActiveUsersRange(v.id)}
                 minDate={activeUsersBounds.min}
                 maxDate={activeUsersBounds.max}
                 availableOptions={activeUsersOptions}
@@ -858,8 +859,8 @@ export default function GoogleAnalyticsPage() {
           titleTooltip={GA_CARD_TOOLTIPS.trafficSources}
           subtitle={
             <DateDropdown
-              value={sourceRange}
-              onChange={setSourceRange}
+              value={{ id: sourceRange }}
+              onChange={(v: DateRangeValue) => setSourceRange(v.id)}
               minDate={activeUsersBounds.min}
               maxDate={activeUsersBounds.max}
               availableOptions={
@@ -882,8 +883,8 @@ export default function GoogleAnalyticsPage() {
           titleTooltip={GA_CARD_TOOLTIPS.engagementRate}
           subtitle={
             <DateDropdown
-              value={engagementRange}
-              onChange={setEngagementRange}
+              value={{ id: engagementRange }}
+              onChange={(v: DateRangeValue) => setEngagementRange(v.id)}
               minDate={engagementBounds.min}
               maxDate={engagementBounds.max}
               availableOptions={engagementOptions}

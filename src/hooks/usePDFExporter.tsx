@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 import type { ExportCardSelection } from "../types/exportTypes";
-import type { DateRangeId } from "../components/charts/DateDropdown";
+import type { DateRangeValue } from "../components/charts/DateButton";
 import ExportReportView from "../components/export-pdf/ExportReportView";
 import { exportPDF } from "../utils/exportPDF";
 
@@ -51,7 +51,7 @@ async function waitForFullRender(container: HTMLElement) {
 
 export async function exportCardsToPDF(
   selections: ExportCardSelection[],
-  range: DateRangeId,
+  range: DateRangeValue,
   filename = "metrics.pdf",
 ) {
   const containerId = "export-root";
