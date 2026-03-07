@@ -13,6 +13,7 @@ import TwitterPage from "./pages/SocialMedia/TwitterPage";
 import FacebookPage from "./pages/SocialMedia/FacebookPage";
 import InstagramPage from "./pages/SocialMedia/InstagramPage";
 import ConstantContactPage from "./pages/SocialMedia/ConstantContactPage";
+import LinkedInPage from "./pages/SocialMedia/LinkedInPage";
 import AdminPage from "./pages/AdminPage";
 import AdminRejection from "./pages/AdminRejection";
 
@@ -112,6 +113,10 @@ const App = () => {
               component={() => (
                 <ProtectedRoute component={ConstantContactPage} />
               )}
+            />
+            <Route
+              path="/social/linkedin"
+              component={() => <ProtectedRoute component={LinkedInPage} />}
             />
             <Route
               path="/newsletter"

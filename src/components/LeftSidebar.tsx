@@ -24,7 +24,6 @@ const socialLinks = [
 ];
 
 const exceptionRoutes: Record<string, string> = {
-  linkedin: "/error/linkedin",
   tiktok: "/error/tiktok",
 };
 

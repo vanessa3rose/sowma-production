@@ -51,6 +51,15 @@ const FACEBOOK_METRICS: ExportMetricDefinition[] = [
   { id: "FOLLOWERS", label: "Followers" },
 ];
 
+const LINKEDIN_METRICS: ExportMetricDefinition[] = [
+  { id: "FOLLOWERS", label: "New Followers" },
+  { id: "VIEWS", label: "Views" },
+  { id: "LIKES", label: "Reactions" },
+  { id: "COMMENTS", label: "Comments" },
+  { id: "SHARES", label: "Reposts" },
+  { id: "TOTAL_INTERACTIONS", label: "Total Interactions" },
+];
+
 const TWITTER_METRICS: ExportMetricDefinition[] = [
   { id: "FOLLOWERS", label: "Followers" },
   { id: "POSTS", label: "Posts" },
@@ -91,6 +100,17 @@ export const EXPORT_PLATFORM_CONFIGS: Record<Platform, ExportPlatformConfig> = {
       metricId: metric.id,
       title: metric.label,
     })),
+  },
+  linkedin: {
+    platform: "linkedin",
+    label: PLATFORM_LABELS.linkedin,
+    metrics: LINKEDIN_METRICS,
+    // Keep chart count/order aligned to the LinkedIn page (not one chart per KPI).
+    charts: [
+      { metricId: "FOLLOWERS", title: "New Followers" },
+      { metricId: "VIEWS", title: "Views" },
+      { metricId: "TOTAL_INTERACTIONS", title: "Total Interactions" },
+    ],
   },
   twitter: {
     platform: "twitter",

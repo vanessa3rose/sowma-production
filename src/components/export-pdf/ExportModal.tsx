@@ -30,6 +30,7 @@ const EXPORTABLE_PLATFORMS: Platform[] = [
   "instagram",
   "twitter",
   "facebook",
+  "linkedin",
   "google",
   "constantcontact",
 ];

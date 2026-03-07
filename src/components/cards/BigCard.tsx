@@ -31,6 +31,10 @@ const BigCard: React.FC<BigCardProps> = ({
   const shouldShowChart =
     displayMode === "both" || displayMode === "chart-only";
   const shouldShowMetric = displayMode === "both";
+  const useFullChartHeight =
+    displayMode === "chart-only" ||
+    title === "Days Posted" ||
+    title === "Engagement Calendar";
 
   return (
     <div
@@ -145,7 +149,7 @@ const BigCard: React.FC<BigCardProps> = ({
           className={`
             flex 
             ${
-              title !== "Days Posted"
+              !useFullChartHeight
                 ? "h-[300px] w-full overflow-hidden"
                 : "flex h-full w-full justify-center items-center"
             }`}

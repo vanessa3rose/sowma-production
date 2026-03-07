@@ -82,6 +82,17 @@ function formatDelta(delta: number, format?: ExportMetricFormat) {
   return formatSigned(delta, 0);
 }
 
+function latestPointDate(
+  chartDataMap: Record<string, { date: string; value: number }[]>,
+) {
+  const dates = Object.values(chartDataMap)
+    .flat()
+    .map((point) => point.date)
+    .filter(Boolean)
+    .sort();
+  return dates.length ? dates[dates.length - 1] : null;
+}
+
 function MetricRow({
   items,
 }: {
@@ -341,6 +352,12 @@ const PLATFORM_HEADER_HEIGHT_PX = 60;
 const KPI_BLOCK_HEIGHT_PX = 140;
 const CHARTS_PER_ROW = 2;
 const CHART_ROW_HEIGHT_PX = 220;
+const LINKEDIN_SMALL_KPIS = [
+  { id: "LIKES", title: "Reactions" },
+  { id: "COMMENTS", title: "Comments" },
+  { id: "SHARES", title: "Reposts" },
+  { id: "TOTAL_INTERACTIONS", title: "Total Interactions" },
+];
 
 function buildChartPages<T>(
   charts: T[],
@@ -590,6 +607,103 @@ export default function e({ selections, range }: ExportReportViewProps) {
 
         const platformKey = selection.platform as Platform;
         const config = EXPORT_PLATFORM_CONFIGS[platformKey];
+        const rangeLabel = RANGE_LABELS[range];
+
+        if (platformKey === "linkedin") {
+          // LinkedIn has a custom layout in PDF so it matches the live page:
+          // 2x2 small KPI grid (top-left), one top-right chart, and two charts below.
+          const chartDataMap = selection.data.chartDataMap;
+          const metricSummaries = selection.data.metricSummaries;
+          const latestDate = latestPointDate(chartDataMap);
+
+          return (
+            <div key={`${selection.type}-${index}`}>
+              <ExportPage>
+                {index === 0 ? (
+                  <div className="mb-6 border-b border-gray-200 pb-4">
+                    <div className="text-2xl font-semibold">
+                      SOWMA Social Media Analytics Report
+                    </div>
+                    <div className="mt-1 text-sm text-gray-600">
+                      Generated {timestamp} - {rangeLabel}
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500">
+                      Note: Metrics are daily values unless explicitly labeled
+                      as cumulative.
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="text-3xl font-bold mb-2">LinkedIn</div>
+                <div className="text-sm text-gray-600 mb-4">
+                  Last updated: {latestDate ?? "No imported data"}
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    {LINKEDIN_SMALL_KPIS.map((card) => {
+                      const summary = metricSummaries[card.id] ?? {
+                        current: 0,
+                        prev: 0,
+                      };
+                      const delta =
+                        (summary.current ?? 0) - (summary.prev ?? 0);
+                      return (
+                        <GoogleSmallMetricCard
+                          key={card.id}
+                          title={card.title}
+                          value={formatValue(summary.current ?? 0, "number")}
+                          delta={formatDelta(delta, "number")}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  <GoogleChartCard
+                    title="Total Interactions"
+                    subtitle={rangeLabel}
+                    height={290}
+                  >
+                    <LineCharts
+                      data={chartDataMap.TOTAL_INTERACTIONS ?? []}
+                      xAxisKey="date"
+                      dataKeys={["value"]}
+                      showArea
+                      compact
+                    />
+                  </GoogleChartCard>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-4">
+                  <GoogleChartCard
+                    title="New Followers"
+                    subtitle={rangeLabel}
+                    height={220}
+                  >
+                    <LineCharts
+                      data={chartDataMap.FOLLOWERS ?? []}
+                      xAxisKey="date"
+                      dataKeys={["value"]}
+                      showArea
+                      compact
+                    />
+                  </GoogleChartCard>
+
+                  <GoogleChartCard title="Views" subtitle={rangeLabel} height={220}>
+                    <LineCharts
+                      data={chartDataMap.VIEWS ?? []}
+                      xAxisKey="date"
+                      dataKeys={["value"]}
+                      showArea
+                      compact
+                    />
+                  </GoogleChartCard>
+                </div>
+
+              </ExportPage>
+            </div>
+          );
+        }
 
         const metrics = config.metrics.map((metric) => {
           const summary = selection.data.metricSummaries[metric.id];
@@ -615,7 +729,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       SOWMA Social Media Analytics Report
                     </div>
                     <div className="mt-1 text-sm text-gray-600">
-                      Generated {timestamp} - {getRangeLabel(range)}
+                      Generated {timestamp} - {rangeLabel}
                     </div>
                     <div className="mt-2 text-xs text-gray-500">
                       Note: Metrics are daily values unless explicitly labeled

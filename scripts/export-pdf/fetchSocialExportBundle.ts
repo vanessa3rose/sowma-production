@@ -14,6 +14,9 @@ const PROVIDER_MAP: Record<SocialPlatform, string> = {
   instagram: "INSTAGRAM",
   twitter: "TWITTER",
   facebook: "FACEBOOK",
+  // LinkedIn metrics are imported via CSV and stored in SocialMediaMetrics
+  // with provider LINKEDIN, so export uses the same fetch pipeline.
+  linkedin: "LINKEDIN",
   constantcontact: "CONSTANT_CONTACT",
 };
 
