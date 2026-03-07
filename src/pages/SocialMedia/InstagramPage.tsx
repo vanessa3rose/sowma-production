@@ -21,7 +21,7 @@ type MetricConfig = {
 type LinePoint = { date: string; value: number };
 type MetricSummary = { current: number | null; prev: number | null };
 const PROVIDER = "INSTAGRAM";
-const DEFAULT_START_DATE = "2024-01-01";
+const DEFAULT_START_DATE = "2016-08-15";
 const DEFAULT_END_DATE = "3000-01-01";
 
 const METRICS: MetricConfig[] = [
@@ -211,7 +211,6 @@ export default function InstagramPage() {
     { label: "Likes", value: getActivityInRange("likes", engagementRange) },
     { label: "Posts", value: getActivityInRange("posts", engagementRange) },
   ];
-
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
@@ -335,7 +334,7 @@ export default function InstagramPage() {
                   metricChange={formatPercentChange(summary)}
                   chart={
                     filtered.length ? (
-                      <div className="w-full h-full">
+                      <div className="w-full h-64">
                         <LineCharts
                           data={filtered}
                           xAxisKey="date"
