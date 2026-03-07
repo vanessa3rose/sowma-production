@@ -12,7 +12,12 @@ import {
 
 import ChartTooltip from "./ChartTooltip";
 
-const COLORS = ["#7987FF", "#F765A3", "#FFA9D0", "#A155B9"];
+const PLATFORM_COLORS: Record<string, string> = {
+  facebook: "#F765A3",
+  instagram: "#E4405F",
+  twitter: "#FFA9D0",
+  tiktok: "#A155B9",
+};
 
 type LineChartProps = {
   data: any[];
@@ -66,7 +71,9 @@ const LineCharts = ({
           }
         >
           <defs>
-            {dataKeys.map((key, index) => (
+            {dataKeys.map((key) => {
+              const color = PLATFORM_COLORS[key.toLowerCase()] || "#7987FF";
+              return (
               <linearGradient
                 key={key}
                 id={`gradient-${key}`}
@@ -77,16 +84,17 @@ const LineCharts = ({
               >
                 <stop
                   offset="5%"
-                  stopColor={COLORS[index % COLORS.length]}
+                  stopColor={color}
                   stopOpacity={0.4}
                 />
                 <stop
                   offset="95%"
-                  stopColor={COLORS[index % COLORS.length]}
+                  stopColor={color}
                   stopOpacity={0.05}
                 />
               </linearGradient>
-            ))}
+              );
+            })}
           </defs>
 
           <CartesianGrid strokeDasharray="3 3" />
@@ -109,15 +117,16 @@ const LineCharts = ({
           />
           <Tooltip content={<ChartTooltip />} />
 
-          {dataKeys.map((key, index) => (
+          {dataKeys.map((key) => (
             <Area
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={COLORS[index % COLORS.length]}
+              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#7987FF"}
               strokeWidth={compact ? 2.5 : 3}
               fill={`url(#gradient-${key})`}
               fillOpacity={1}
+              connectNulls={false}
             />
           ))}
         </AreaChart>
@@ -149,15 +158,16 @@ const LineCharts = ({
             allowDecimals={false}
           />
           <Tooltip content={<ChartTooltip />} />
-          {dataKeys.map((key, index) => (
+          {dataKeys.map((key) => (
             <Line
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={COLORS[index % COLORS.length]}
+              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#7987FF"}
               strokeWidth={compact ? 2.5 : 3}
               dot={compact ? false : { r: 4 }}
               activeDot={false}
+              connectNulls={false}
             />
           ))}
         </LineChart>

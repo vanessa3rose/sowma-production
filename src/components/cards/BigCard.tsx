@@ -87,13 +87,14 @@ const BigCard: React.FC<BigCardProps> = ({
         <div className="mb-4">
           <div className="flex items-baseline gap-2 flex-wrap opacity-100">
             <span
-              className="text-blue-600"
+              className=""
               style={{
                 fontFamily: "Poppins, sans-serif",
                 fontWeight: 400,
                 fontSize: "32px",
                 lineHeight: "100%",
                 letterSpacing: "-3.75%",
+                color: "#4781C2",
               }}
             >
               {metricValue}
