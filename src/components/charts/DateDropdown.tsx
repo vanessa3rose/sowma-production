@@ -49,6 +49,8 @@ type DateDropdownProps = {
   /** Optional: if true, disables interaction */
   disabled?: boolean;
   className?: string;
+  /** Optional explicit range allow-list based on datapoint availability */
+  availableOptions?: DateRangeId[];
 };
 
 export default function DateDropdown({
@@ -58,13 +60,17 @@ export default function DateDropdown({
   maxDate,
   disabled,
   className,
+  availableOptions,
 }: DateDropdownProps) {
   const [open, setOpen] = useState(false);
 
   const validOptions = useMemo(() => {
+    if (availableOptions && availableOptions.length > 0) {
+      return ALL_OPTIONS.filter((opt) => availableOptions.includes(opt.id));
+    }
     if (!minDate || !maxDate) return ALL_OPTIONS; // if unknown, show all
     const spanDays = daysBetween(minDate, maxDate) + 1;
-
+  
     return ALL_OPTIONS.filter((opt) => {
       if (opt.id === "all") return true;
       if (opt.id === "7d") return spanDays >= 7;
@@ -72,7 +78,7 @@ export default function DateDropdown({
       if (opt.id === "1y") return spanDays >= 365;
       return true;
     });
-  }, [minDate, maxDate]);
+  }, [minDate, maxDate, availableOptions]);
 
   const selected = validOptions.find((o) => o.id === value) ?? ALL_OPTIONS[1]; // default 30d
 

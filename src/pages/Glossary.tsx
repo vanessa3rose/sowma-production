@@ -41,7 +41,7 @@ export default function GlossaryPage() {
   };
 
   return (
-    <div className="w-full min-h-screen gap-4 px-4 bg-white flex flex-col py-2 font-poppins">
+    <div className="w-full min-h-screen gap-4 px-4 bg-white flex flex-col pb-2 pt-4 lg:pt-6 font-poppins">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between lg:items-center">
         <div className="flex items-center space-x-2">

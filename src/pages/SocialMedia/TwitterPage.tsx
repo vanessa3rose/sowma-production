@@ -178,7 +178,7 @@ export default function TwitterPage() {
 
   // ---------- Render ----------
   return (
-    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 py-2">
+    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between lg:items-center">
         <div className="flex items-center space-x-2">

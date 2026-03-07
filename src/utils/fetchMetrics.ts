@@ -11,6 +11,8 @@ export type SocialMediaMetric = {
   metricValue: number;
   lastSynced?: string;
   metricDate?: string;
+  breakdownKey?: string | null;
+  breakdownValue?: string | null;
 };
 
 export async function fetchMetrics(params: MetricsParams) {

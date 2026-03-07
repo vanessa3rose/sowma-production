@@ -22,20 +22,37 @@ const FACEBOOK_PAGE_ID = process.env.FACEBOOK_PAGE_ID!;
 const FB_API_VERSION = "v24.0";
 const MAX_LOOKBACK_DAYS = 730;
 
+const REQUIRED_FB_METRICS: Metric[] = [
+  Metric.FOLLOWERS,
+  Metric.LIKES,
+  Metric.VIEWS,
+  Metric.POSTS,
+  Metric.SHARES,
+  Metric.COMMENTS,
+];
+
 /* -------------------------------------------------
    Helpers
 -------------------------------------------------- */
-async function metricsExistForDay(
+async function allMetricsStoredForDay(
   socialMediaId: string,
   date: Date,
 ): Promise<boolean> {
-  const existing = await prisma.socialMediaMetrics.findFirst({
+  const metricsForDay = await prisma.socialMediaMetrics.findMany({
     where: {
       socialMediaId,
       metricDate: { gte: startOfDay(date), lt: endOfDay(date) },
+      breakdownKey: null,
+      breakdownValue: null,
     },
+    select: { metricName: true },
   });
-  return existing !== null;
+
+  const existingMetricNames = new Set(
+    metricsForDay.map((m: any) => m.metricName),
+  );
+
+  return REQUIRED_FB_METRICS.every((metric) => existingMetricNames.has(metric));
 }
 
 function getEarliestPossibleDate(): Date {
@@ -156,7 +173,7 @@ export async function runDailyFacebookSync() {
     const dateStr = formatISODate(currentDate);
     console.log(`[FB] Processing ${dateStr}`);
 
-    if (await metricsExistForDay(account.id, currentDate)) {
+    if (await allMetricsStoredForDay(account.id, currentDate)) {
       currentDate.setDate(currentDate.getDate() + 1);
       continue;
     }
@@ -165,43 +182,35 @@ export async function runDailyFacebookSync() {
       const insights = await fetchDailyInsights(currentDate, ACCESS_TOKEN);
       const posts = await fetchDailyPostMetrics(currentDate, ACCESS_TOKEN);
 
-      await prisma.socialMediaMetrics.createMany({
-        data: [
-          {
+      const metricsToInsert = [
+        {
+          metricName: Metric.FOLLOWERS,
+          metricValue: insights.page_follows ?? 0,
+        },
+        {
+          metricName: Metric.LIKES,
+          metricValue: insights.page_actions_post_reactions_like_total ?? 0,
+        },
+        {
+          metricName: Metric.VIEWS,
+          metricValue: insights.page_media_view ?? 0,
+        },
+        { metricName: Metric.POSTS, metricValue: posts.posts },
+        { metricName: Metric.SHARES, metricValue: posts.shares },
+        { metricName: Metric.COMMENTS, metricValue: posts.comments },
+      ];
+
+      for (const m of metricsToInsert) {
+        const existing = await prisma.socialMediaMetrics.findFirst({
+          where: {
             socialMediaId: account.id,
-            metricName: Metric.FOLLOWERS,
-            metricValue: insights.page_follows ?? 0,
-            metricDate: currentDate,
-          },
-          {
-            socialMediaId: account.id,
-            metricName: Metric.LIKES,
-            metricValue: insights.page_actions_post_reactions_like_total ?? 0,
-            metricDate: currentDate,
-          },
-          {
-            socialMediaId: account.id,
-            metricName: Metric.VIEWS,
-            metricValue: insights.page_media_view ?? 0,
-            metricDate: currentDate,
-          },
-          {
-            socialMediaId: account.id,
-            metricName: Metric.POSTS,
-            metricValue: posts.posts,
-            metricDate: currentDate,
-          },
-          {
-            socialMediaId: account.id,
-            metricName: Metric.SHARES,
-            metricValue: posts.shares,
-            metricDate: currentDate,
-          },
-          {
-            socialMediaId: account.id,
-            metricName: Metric.COMMENTS,
-            metricValue: posts.comments,
-            metricDate: currentDate,
+            metricName: m.metricName,
+            metricDate: {
+              gte: startOfDay(currentDate),
+              lt: endOfDay(currentDate),
+            },
+            breakdownKey: null,
+            breakdownValue: null,
           },
 
           {
@@ -218,6 +227,19 @@ export async function runDailyFacebookSync() {
           },
         ],
       });
+        });
+
+        if (!existing) {
+          await prisma.socialMediaMetrics.create({
+            data: {
+              socialMediaId: account.id,
+              metricName: m.metricName,
+              metricValue: m.metricValue,
+              metricDate: currentDate,
+            },
+          });
+        }
+      }
     } catch (err) {
       console.error(`[FB] Failed for ${dateStr}`, err);
     }

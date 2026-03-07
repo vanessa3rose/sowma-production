@@ -9,6 +9,7 @@ interface SmallCardProps {
   subtitle?: string;
   chart?: React.ReactNode;
   metricValue?: number;
+  metricValueNote?: string;
   metricLabel?: string;
   metricChange?: string;
   displayMode: DisplayMode;
@@ -22,6 +23,7 @@ const SmallCard: React.FC<SmallCardProps> = ({
   subtitle,
   chart,
   metricValue,
+  metricValueNote,
   metricLabel,
   metricChange,
   displayMode = "metric-only",
@@ -104,19 +106,37 @@ const SmallCard: React.FC<SmallCardProps> = ({
         {shouldShowMetric && metricValue !== undefined && (
           <div className="flex flex-col">
             {/* Main metric value */}
-            <span
-              style={{
-                fontFamily: "Poppins, sans-serif",
-                fontWeight: 400,
-                fontSize: "32px",
-                lineHeight: "100%",
-                letterSpacing: "-1%",
-                color: "#3B82F6",
-                marginBottom: "4px",
-              }}
+            <div
+              className="flex items-baseline gap-2 flex-wrap"
+              style={{ marginBottom: "4px" }}
             >
-              {metricValue}
-            </span>
+              <span
+                style={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: 400,
+                  fontSize: "32px",
+                  lineHeight: "100%",
+                  letterSpacing: "-1%",
+                  color: "#3B82F6",
+                }}
+              >
+                {metricValue}
+              </span>
+              {metricValueNote && (
+                <span
+                  style={{
+                    fontFamily: "Poppins, sans-serif",
+                    fontWeight: 400,
+                    fontSize: "14px",
+                    lineHeight: "100%",
+                    letterSpacing: "0%",
+                    color: "#6B7280",
+                  }}
+                >
+                  {metricValueNote}
+                </span>
+              )}
+            </div>
 
             {/* Metric change and label on same line with wrapping */}
             <div

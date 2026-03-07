@@ -6,12 +6,13 @@ import LeftSidebar from "./components/LeftSidebar";
 
 import Homepage from "./pages/Homepage";
 import LoginPage from "./pages/LoginPage";
+import AcceptInvitePage from "./pages/AcceptInvitePage";
 
 import GoogleAnalyticsPage from "./pages/SocialMedia/GoogleAnalyticsPage";
 import TwitterPage from "./pages/SocialMedia/TwitterPage";
 import FacebookPage from "./pages/SocialMedia/FacebookPage";
 import InstagramPage from "./pages/SocialMedia/InstagramPage";
-
+import ConstantContactPage from "./pages/SocialMedia/ConstantContactPage";
 import AdminPage from "./pages/AdminPage";
 import AdminRejection from "./pages/AdminRejection";
 
@@ -29,9 +30,14 @@ const App = () => {
   const [location] = useLocation();
 
   const currentPath = location.toLowerCase();
-  const hideLayoutRoutes = ["/signup", "/login"];
+  const hideLayoutRoutes = ["/signup", "/login", "/accept-invite"];
+  // Auth/public flows should render without dashboard chrome.
   const hideLayout =
-    hideLayoutRoutes.includes(currentPath) || !isLoaded || !isSignedIn;
+    hideLayoutRoutes.some(
+      (route) => currentPath === route || currentPath.startsWith(`${route}/`),
+    ) ||
+    !isLoaded ||
+    !isSignedIn;
 
   const [isCollapsed, setCollapsed] = useState(false);
   const [isMobile, setisMobile] = useState(false);
@@ -102,6 +108,12 @@ const App = () => {
               )}
             />
             <Route
+              path="/social/constant-contact"
+              component={() => (
+                <ProtectedRoute component={ConstantContactPage} />
+              )}
+            />
+            <Route
               path="/newsletter"
               component={() => <ProtectedRoute component={Newsletter} />}
             />
@@ -132,6 +144,8 @@ const App = () => {
 
             {/* Public */}
             <Route path="/login" component={LoginPage} />
+            <Route path="/accept-invite" component={AcceptInvitePage} />
+            <Route path="/accept-invite/:rest*" component={AcceptInvitePage} />
 
             <Route>
               <p className="p-4 text-black">404: Page Not Found</p>
