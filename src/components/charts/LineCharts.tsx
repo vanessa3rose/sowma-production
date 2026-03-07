@@ -71,7 +71,9 @@ const LineCharts = ({
           }
         >
           <defs>
-            {dataKeys.map((key, index) => (
+            {dataKeys.map((key) => {
+              const color = PLATFORM_COLORS[key.toLowerCase()] || "#7987FF";
+              return (
               <linearGradient
                 key={key}
                 id={`gradient-${key}`}
@@ -82,16 +84,17 @@ const LineCharts = ({
               >
                 <stop
                   offset="5%"
-                  stopColor={COLORS[index % COLORS.length]}
+                  stopColor={color}
                   stopOpacity={0.4}
                 />
                 <stop
                   offset="95%"
-                  stopColor={COLORS[index % COLORS.length]}
+                  stopColor={color}
                   stopOpacity={0.05}
                 />
               </linearGradient>
-            ))}
+              );
+            })}
           </defs>
 
           <CartesianGrid strokeDasharray="3 3" />
