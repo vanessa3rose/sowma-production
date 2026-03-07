@@ -194,15 +194,22 @@ export default function InstagramPage() {
     );
   }, [rawSeries, ranges]);
 
-  // Pie data
-  const likesNow = computed["likes"]?.summary.current ?? 0;
-  const commentsNow = computed["comments"]?.summary.current ?? 0;
-  const postsNow = computed["posts"]?.summary.current ?? 0;
+  // Engagement Mix: add date range selector and cumulative calculation
+  const [engagementRange, setEngagementRange] = useState<DateRangeValue>({ id: "30d" });
+
+  // Helper to get activity in range (difference between first and last value)
+  function getActivityInRange(metricId: string, range: DateRangeValue) {
+    const points = filterByRange(rawSeries[metricId] ?? [], range);
+    if (!points.length) return 0;
+    if (points.length === 1) return points[0].value;
+    return points[points.length - 1].value - points[0].value;
+  }
 
   const engagementMix = [
-    { label: "Likes", value: likesNow },
-    { label: "Comments", value: commentsNow },
-    { label: "Posts", value: postsNow },
+    { label: "Comments", value: getActivityInRange("comments", engagementRange) },
+    { label: "Impressions", value: getActivityInRange("impressions", engagementRange) },
+    { label: "Likes", value: getActivityInRange("likes", engagementRange) },
+    { label: "Posts", value: getActivityInRange("posts", engagementRange) },
   ];
 
   return (
@@ -272,11 +279,19 @@ export default function InstagramPage() {
             })}
           </div>
 
-          {/* Pie chart */}
+          {/* Pie chart with date range selector */}
           <div className="lg:col-span-1">
             <BigCard
               title="Engagement Mix"
-              titleTooltip="Spread of interactions between Posts, Comments, and Likes"
+              titleTooltip="Spread of interactions between Comments, Impressions, Likes, and Posts"
+              subtitle={
+                <DateDropdown
+                  value={engagementRange}
+                  onChange={setEngagementRange}
+                  minDate={computed["impressions"]?.bounds.min}
+                  maxDate={computed["impressions"]?.bounds.max}
+                />
+              }
               chart={
                 <div className="w-full h-64">
                   <PieCharts
