@@ -72,6 +72,7 @@ type DateDropdownProps = {
   onChange: (v: DateRangeValue) => void;
   minDate?: Date | null;
   maxDate?: Date | null;
+  availableOptions?: DateRangeId[];
   disabled?: boolean;
   className?: string;
 };
@@ -81,6 +82,7 @@ export default function DateDropdown({
   onChange,
   minDate,
   maxDate,
+  availableOptions,
   disabled,
   className,
 }: DateDropdownProps) {
@@ -163,16 +165,24 @@ export default function DateDropdown({
   }, [activePreset, startDate, endDate]);
 
   const validPresets = useMemo(() => {
-    if (!minDate || !maxDate) return PRESETS;
+    const allowed = new Set<DateRangeId>(
+      availableOptions ?? PRESETS.map((preset) => preset.id),
+    );
+
+    if (!minDate || !maxDate) {
+      return PRESETS.filter((preset) => allowed.has(preset.id));
+    }
+
     const spanDays = differenceInDays(maxDate, minDate) + 1;
     return PRESETS.filter((p) => {
+      if (!allowed.has(p.id)) return false;
       if (p.id === "all") return true;
       if (p.id === "7d") return spanDays >= 7;
       if (p.id === "30d") return spanDays >= 30;
       if (p.id === "1y") return spanDays >= 365;
       return true;
     });
-  }, [minDate, maxDate]);
+  }, [minDate, maxDate, availableOptions]);
 
   return (
     <div

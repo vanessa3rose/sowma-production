@@ -30,7 +30,7 @@ function getRangeLabel(range: DateRangeValue) {
       if (range.start && range.end) {
         const fmt = (d: Date) =>
           `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
-        return `Custom: ${fmt(range.start)} – ${fmt(range.end)}`;
+        return `Custom: ${fmt(range.start)} - ${fmt(range.end)}`;
       }
       return "Custom Range";
     default:
@@ -376,6 +376,7 @@ function buildChartPages<T>(
 
 export default function e({ selections, range }: ExportReportViewProps) {
   const timestamp = new Date().toLocaleString();
+  const rangeLabel = getRangeLabel(range);
 
   return (
     <div className="bg-white">
@@ -383,7 +384,6 @@ export default function e({ selections, range }: ExportReportViewProps) {
         if (selection.type === "google") {
           const metricSummaries = selection.data.metricSummaries;
           const chartDataMap = selection.data.chartDataMap;
-          const rangeLabel = RANGE_LABELS[range];
 
           const pageViewsSummary = metricSummaries.SCREEN_PAGE_VIEWS ?? {
             current: 0,

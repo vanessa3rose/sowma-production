@@ -26,7 +26,6 @@ export default function Homepage() {
   const [impressionsProvider, setImpressionsProvider] = useState<SocialProvider>("FACEBOOK");
   const [daysPostedProvider, setDaysPostedProvider] = useState<SocialProvider>("FACEBOOK");
 
-<<<<<<< HEAD
   // Per-card date ranges (now using DateRangeValue)
   const [impressionsRange, setImpressionsRange] = useState<DateRangeValue>({
     id: "30d",
