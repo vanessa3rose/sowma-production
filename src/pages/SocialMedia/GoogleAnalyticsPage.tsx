@@ -724,7 +724,7 @@ export default function GoogleAnalyticsPage() {
   // Render
   // ---------------------
   return (
-    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4 pt-4 lg:pt-6">
+    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
       <div className="w-full flex items-center justify-between px-4 py-2">
         <div className="flex items-center space-x-2 mr-2 lg:mr-0">

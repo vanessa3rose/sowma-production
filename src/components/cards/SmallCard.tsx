@@ -41,7 +41,7 @@ const SmallCard: React.FC<SmallCardProps> = ({
 
   return (
     <div
-      className={className}
+      className={`h-full flex flex-col ${className}`}
       style={{
         backgroundColor: "#ffffff",
         border: "1px solid #E5E5E5",
@@ -105,11 +105,11 @@ const SmallCard: React.FC<SmallCardProps> = ({
 
       {/* Content area - flexible layout based on displayMode */}
       <div
-        className={shouldShowChart ? "flex items-start justify-between" : ""}
+        className={`flex-1 ${shouldShowChart ? "flex h-full items-start justify-between" : ""}`}
       >
         {/* Left side - Metric Display */}
         {shouldShowMetric && metricValue !== undefined && (
-          <div className="flex flex-col">
+          <div className="flex flex-col h-full justify-between">
             {/* Main metric value */}
             <div
               className="flex items-baseline gap-2 flex-wrap"

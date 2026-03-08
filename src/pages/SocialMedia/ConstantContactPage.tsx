@@ -177,7 +177,9 @@ export default function ConstantContactPage() {
         for (const { cfg, rows } of results) {
           nextRaw[cfg.id] = toLinePoints(rows);
         }
-        setLastUpdated(getLatestImportedDate(results.map(({ rows }) => rows).flat()));
+        setLastUpdated(
+          getLatestImportedDate(results.map(({ rows }) => rows).flat()),
+        );
         setRawSeries(nextRaw);
       } catch (err) {
         console.error("Error loading Constant Contact metrics:", err);
@@ -233,7 +235,7 @@ export default function ConstantContactPage() {
     { id: "unsubscribed" },
   ] as const;
   return (
-    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
+    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
       <div className="w-full flex items-center px-4 py-2">
         <div className="flex items-center space-x-2 mr-2 lg:mr-0">
@@ -276,21 +278,21 @@ export default function ConstantContactPage() {
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {topSmallCards.map(({ id }) => {
-                const cfg = METRICS.find((m) => m.id === id)!;
-                const s = computed[id]?.fullSummary;
+              const cfg = METRICS.find((m) => m.id === id)!;
+              const s = computed[id]?.fullSummary;
 
-                return (
-                  <SmallCard
-                    key={id}
-                    title={cfg.title}
-                    displayMode="metric-only"
-                    className="w-full h-full"
-                    metricValue={s?.current ?? 0}
-                    metricLabel={getSmallCardSinceLabel(computed[id]?.full)}
-                    metricChange={formatAbsoluteChange(s)}
-                  />
-                );
-              })}
+              return (
+                <SmallCard
+                  key={id}
+                  title={cfg.title}
+                  displayMode="metric-only"
+                  className="w-full h-full"
+                  metricValue={s?.current ?? 0}
+                  metricLabel={getSmallCardSinceLabel(computed[id]?.full)}
+                  metricChange={formatAbsoluteChange(s)}
+                />
+              );
+            })}
           </div>
 
           {/* Pie chart */}

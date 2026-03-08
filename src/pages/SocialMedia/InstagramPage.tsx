@@ -150,7 +150,9 @@ export default function InstagramPage() {
         for (const { cfg, rows } of results) {
           nextRaw[cfg.id] = toLinePoints(rows);
         }
-        setLastUpdated(getLatestImportedDate(results.map(({ rows }) => rows).flat()));
+        setLastUpdated(
+          getLatestImportedDate(results.map(({ rows }) => rows).flat()),
+        );
         setRawSeries(nextRaw);
       } catch (err) {
         console.error("Error loading Instagram metrics:", err);
@@ -281,7 +283,7 @@ export default function InstagramPage() {
       </div>
 
       {/* Content */}
-      <div className="flex flex-col gap-4 px-4 lg:h-full">
+      <div className="flex flex-col gap-4 lg:h-full">
         {/* Top band: 2x2 small cards + pie chart */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">

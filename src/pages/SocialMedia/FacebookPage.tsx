@@ -173,7 +173,9 @@ export default function FacebookPage() {
         results.forEach(({ id, rows }) => {
           next[id] = toLinePoints(rows);
         });
-        setLastUpdated(getLatestImportedDate(results.map(({ rows }) => rows).flat()));
+        setLastUpdated(
+          getLatestImportedDate(results.map(({ rows }) => rows).flat()),
+        );
         setRawSeries(next);
       } catch (err) {
         console.error("Error loading Facebook metrics:", err);

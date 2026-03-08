@@ -197,9 +197,8 @@ export default function TwitterPage() {
         Last updated: {lastUpdated ?? "No imported data yet"}
       </div>
 
-      <div className="flex flex-col gap-4 px-4 lg:h-full">
+      <div className="flex flex-col gap-4 lg:h-full">
         <div className="w-full flex flex-col lg:flex-row gap-4">
-          {/* Right Column */}
           <div className="flex flex-col gap-4 w-full">
             <BigCard
               title="Tweets"
@@ -259,5 +258,4 @@ export default function TwitterPage() {
       </div>
     </div>
   );
-  // ...existing code...
 }
