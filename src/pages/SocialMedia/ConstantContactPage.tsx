@@ -16,6 +16,11 @@ import ExportButton from "../../components/export-pdf/ExportButton";
 
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
+import { getLatestImportedDate } from "../../utils/latestImportedDate";
+import {
+  formatAbsoluteChange,
+  getSmallCardSinceLabel,
+} from "../../utils/metricChange";
 
 /* ---------- types ---------- */
 
@@ -147,6 +152,7 @@ export default function ConstantContactPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
 
   const [rawSeries, setRawSeries] = useState<Record<string, LinePoint[]>>({});
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [ranges, setRanges] = useState<Record<string, DateRangeValue>>(() => {
     const init: Record<string, DateRangeValue> = {};
     METRICS.forEach((m) => (init[m.id] = { id: "30d" }));
@@ -171,6 +177,9 @@ export default function ConstantContactPage() {
         for (const { cfg, rows } of results) {
           nextRaw[cfg.id] = toLinePoints(rows);
         }
+        setLastUpdated(
+          getLatestImportedDate(results.map(({ rows }) => rows).flat()),
+        );
         setRawSeries(nextRaw);
       } catch (err) {
         console.error("Error loading Constant Contact metrics:", err);
@@ -186,8 +195,9 @@ export default function ConstantContactPage() {
         const full = rawSeries[cfg.id] ?? [];
         const filtered = filterByRange(full, ranges[cfg.id] ?? { id: "30d" });
         const summary = summarizeSeries(filtered);
+        const fullSummary = summarizeSeries(full);
         const bounds = getBounds(full);
-        acc[cfg.id] = { full, filtered, summary, bounds };
+        acc[cfg.id] = { full, filtered, fullSummary, summary, bounds };
         return acc;
       },
       {} as Record<
@@ -195,6 +205,7 @@ export default function ConstantContactPage() {
         {
           full: LinePoint[];
           filtered: LinePoint[];
+          fullSummary: MetricSummary;
           summary: MetricSummary;
           bounds: { min: Date | null; max: Date | null };
         }
@@ -216,8 +227,15 @@ export default function ConstantContactPage() {
     { label: "Clicked", value: clickedNow },
     { label: "Unsubscribed", value: unsubscribedNow },
   ];
+  const topSmallCards = [
+    { id: "sent" },
+    { id: "delivered" },
+    { id: "opened" },
+    { id: "clicked" },
+    { id: "unsubscribed" },
+  ] as const;
   return (
-    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
+    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
       <div className="w-full flex items-center px-4 py-2">
         <div className="flex items-center space-x-2 mr-2 lg:mr-0">
@@ -250,30 +268,31 @@ export default function ConstantContactPage() {
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
+      <div className="px-4 font-poppins text-sm text-gray-600">
+        Last updated: {lastUpdated ?? "No imported data yet"}
+      </div>
 
       {/* Content */}
       <div className="flex flex-col gap-4 px-4 lg:h-full">
         {/* Top band: 2x2 small cards + pie chart */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {["sent", "delivered", "opened", "clicked", "unsubscribed"].map(
-              (id) => {
-                const cfg = METRICS.find((m) => m.id === id)!;
-                const s = computed[id]?.summary;
+            {topSmallCards.map(({ id }) => {
+              const cfg = METRICS.find((m) => m.id === id)!;
+              const s = computed[id]?.fullSummary;
 
-                return (
-                  <SmallCard
-                    key={id}
-                    title={cfg.title}
-                    displayMode="metric-only"
-                    className="w-full h-full"
-                    metricValue={s?.current ?? 0}
-                    metricLabel={cfg.metricLabel ?? ""}
-                    metricChange={formatPercentChange(s)}
-                  />
-                );
-              },
-            )}
+              return (
+                <SmallCard
+                  key={id}
+                  title={cfg.title}
+                  displayMode="metric-only"
+                  className="w-full h-full"
+                  metricValue={s?.current ?? 0}
+                  metricLabel={getSmallCardSinceLabel(computed[id]?.full)}
+                  metricChange={formatAbsoluteChange(s)}
+                />
+              );
+            })}
           </div>
 
           {/* Pie chart */}

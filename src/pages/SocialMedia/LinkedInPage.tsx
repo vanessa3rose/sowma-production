@@ -10,6 +10,11 @@ import DateDropdown, {
 import ExportButton from "../../components/export-pdf/ExportButton";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+import { getLatestImportedDate } from "../../utils/latestImportedDate";
+import {
+  formatAbsoluteChange,
+  getSmallCardSinceLabel,
+} from "../../utils/metricChange";
 
 type MetricKey =
   | "followers"
@@ -162,19 +167,6 @@ function filterByRange(pts: LinePoint[], range: DateRangeValue) {
   return pts.filter((p) => p.date >= startStr && p.date <= endStr);
 }
 
-function getLatestImportedDate(
-  series: Record<MetricKey, LinePoint[]>,
-): string | null {
-  // CSV imports can populate different metric families independently.
-  // We display the latest date across all loaded LinkedIn series.
-  const allDates = Object.values(series)
-    .flat()
-    .map((point) => point.date);
-  if (allDates.length === 0) return null;
-  const sorted = allDates.sort();
-  return sorted[sorted.length - 1] ?? null;
-}
-
 export default function LinkedInPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
   const [rawSeries, setRawSeries] =
@@ -216,6 +208,7 @@ export default function LinkedInPage() {
       MetricKey,
       {
         filtered: LinePoint[];
+        fullSummary: MetricSummary;
         summary: MetricSummary;
         bounds: { min: Date | null; max: Date | null };
       }
@@ -226,6 +219,7 @@ export default function LinkedInPage() {
       const filtered = filterByRange(full, ranges[cfg.id] ?? { id: "30d" });
       out[cfg.id] = {
         filtered,
+        fullSummary: summarizeSeries(full),
         summary: summarizeSeries(filtered),
         bounds: getBounds(full),
       };
@@ -238,22 +232,18 @@ export default function LinkedInPage() {
     {
       title: "Reactions",
       key: "likes" as MetricKey,
-      label: "latest imported day",
     },
     {
       title: "Comments",
       key: "comments" as MetricKey,
-      label: "latest imported day",
     },
     {
       title: "Reposts",
       key: "shares" as MetricKey,
-      label: "latest imported day",
     },
     {
       title: "Interactions",
       key: "interactions" as MetricKey,
-      label: "latest imported day",
     },
   ];
   const lastUpdated = getLatestImportedDate(rawSeries);
@@ -315,9 +305,9 @@ export default function LinkedInPage() {
                   titleTooltip={METRIC_DESCRIPTIONS[card.key]}
                   displayMode="metric-only"
                   className="w-full min-h-[172px]"
-                  metricValue={item?.summary.current ?? 0}
-                  metricChange={formatPercentChange(item?.summary)}
-                  metricLabel={card.label}
+                  metricValue={item?.fullSummary.current ?? 0}
+                  metricChange={formatAbsoluteChange(item?.fullSummary)}
+                  metricLabel={getSmallCardSinceLabel(rawSeries[card.key])}
                 />
               );
             })}

@@ -4,6 +4,7 @@ import DateDropdown from "../../components/charts/DateButton";
 import BigCard from "../../components/cards/BigCard";
 import LineCharts from "../../components/charts/LineCharts";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+import { getLatestImportedDate } from "../../utils/latestImportedDate";
 
 type MetricSummary = { current: number | null; prev: number | null };
 type TwitterMetrics = { followers: number; tweets: number };
@@ -19,6 +20,7 @@ export default function TwitterPage() {
   const [followersOverTime, setFollowersOverTime] = useState<TimePoint[]>([]);
   const [tweetsOverTime, setTweetsOverTime] = useState<TimePoint[]>([]);
   const [metrics, setMetrics] = useState<TwitterMetrics | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [metricSummaries, setMetricSummaries] = useState<
     Partial<Record<keyof TwitterMetrics, MetricSummary>>
   >({});
@@ -125,6 +127,7 @@ export default function TwitterPage() {
         const followersAll = toLinePoints(followersRaw);
         const tweetsAll = toLinePoints(tweetsRaw);
 
+        setLastUpdated(getLatestImportedDate(followersRaw, tweetsRaw));
         setFollowersOverTimeAll(followersAll);
         setTweetsOverTimeAll(tweetsAll);
 
@@ -190,10 +193,12 @@ export default function TwitterPage() {
         </div>
         {/* Add export button if needed */}
       </div>
+      <div className="font-poppins text-sm text-gray-600">
+        Last updated: {lastUpdated ?? "No imported data yet"}
+      </div>
 
-      <div className="flex flex-col gap-4 px-4 lg:h-full">
+      <div className="flex flex-col gap-4 lg:h-full">
         <div className="w-full flex flex-col lg:flex-row gap-4">
-          {/* Right Column */}
           <div className="flex flex-col gap-4 w-full">
             <BigCard
               title="Tweets"
@@ -253,5 +258,4 @@ export default function TwitterPage() {
       </div>
     </div>
   );
-  // ...existing code...
 }

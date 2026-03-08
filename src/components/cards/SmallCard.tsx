@@ -9,7 +9,6 @@ interface SmallCardProps {
   subtitle?: string;
   chart?: React.ReactNode;
   metricValue?: number;
-  metricValueNote?: string;
   metricLabel?: string;
   metricChange?: string;
   displayMode: DisplayMode;
@@ -23,7 +22,6 @@ const SmallCard: React.FC<SmallCardProps> = ({
   subtitle,
   chart,
   metricValue,
-  metricValueNote,
   metricLabel,
   metricChange,
   displayMode = "metric-only",
@@ -33,10 +31,17 @@ const SmallCard: React.FC<SmallCardProps> = ({
   const shouldShowChart = displayMode === "both";
   const shouldShowMetric =
     displayMode === "both" || displayMode === "metric-only";
+  const isPositiveChange = metricChange?.startsWith("+") ?? false;
+  const isNegativeChange = metricChange?.startsWith("-") ?? false;
+  const metricChangeColor = isPositiveChange
+    ? "#10B981"
+    : isNegativeChange
+      ? "#EF4444"
+      : "#6B7280";
 
   return (
     <div
-      className={className}
+      className={`h-full flex flex-col ${className}`}
       style={{
         backgroundColor: "#ffffff",
         border: "1px solid #E5E5E5",
@@ -100,11 +105,11 @@ const SmallCard: React.FC<SmallCardProps> = ({
 
       {/* Content area - flexible layout based on displayMode */}
       <div
-        className={shouldShowChart ? "flex items-start justify-between" : ""}
+        className={`flex-1 ${shouldShowChart ? "flex h-full items-start justify-between" : ""}`}
       >
         {/* Left side - Metric Display */}
         {shouldShowMetric && metricValue !== undefined && (
-          <div className="flex flex-col">
+          <div className="flex flex-col h-full justify-between">
             {/* Main metric value */}
             <div
               className="flex items-baseline gap-2 flex-wrap"
@@ -122,20 +127,6 @@ const SmallCard: React.FC<SmallCardProps> = ({
               >
                 {metricValue}
               </span>
-              {metricValueNote && (
-                <span
-                  style={{
-                    fontFamily: "Poppins, sans-serif",
-                    fontWeight: 400,
-                    fontSize: "14px",
-                    lineHeight: "100%",
-                    letterSpacing: "0%",
-                    color: "#6B7280",
-                  }}
-                >
-                  {metricValueNote}
-                </span>
-              )}
             </div>
 
             {/* Metric change and label on same line with wrapping */}
@@ -152,20 +143,12 @@ const SmallCard: React.FC<SmallCardProps> = ({
                       fontSize: displayMode === "both" ? "12px" : "14px",
                       lineHeight: "100%",
                       letterSpacing: "0%",
-                      color:
-                        metricChange.includes("increase") ||
-                        metricChange.startsWith("+")
-                          ? "#10B981"
-                          : metricChange.includes("decrease") ||
-                              metricChange.startsWith("-")
-                            ? "#EF4444"
-                            : "#10B981",
+                      color: metricChangeColor,
                     }}
                   >
                     {metricChange}
                   </span>
-                  {(metricChange.includes("increase") ||
-                    metricChange.startsWith("+")) && (
+                  {isPositiveChange && (
                     <svg
                       width={displayMode === "both" ? "12" : "16"}
                       height={displayMode === "both" ? "12" : "16"}

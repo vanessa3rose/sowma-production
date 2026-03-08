@@ -12,6 +12,11 @@ import DateDropdown, {
 import ExportButton from "../../components/export-pdf/ExportButton";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+import { getLatestImportedDate } from "../../utils/latestImportedDate";
+import {
+  formatAbsoluteChange,
+  getSmallCardSinceLabel,
+} from "../../utils/metricChange";
 
 type MetricKey =
   | "followers"
@@ -149,6 +154,7 @@ export default function FacebookPage() {
     useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
   const [ranges, setRanges] =
     useState<Record<MetricKey, DateRangeValue>>(INITIAL_RANGES);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadFacebook() {
@@ -167,6 +173,9 @@ export default function FacebookPage() {
         results.forEach(({ id, rows }) => {
           next[id] = toLinePoints(rows);
         });
+        setLastUpdated(
+          getLatestImportedDate(results.map(({ rows }) => rows).flat()),
+        );
         setRawSeries(next);
       } catch (err) {
         console.error("Error loading Facebook metrics:", err);
@@ -197,6 +206,7 @@ export default function FacebookPage() {
       MetricKey,
       {
         filtered: LinePoint[];
+        fullSummary: MetricSummary;
         summary: MetricSummary;
         bounds: { min: Date | null; max: Date | null };
       }
@@ -206,6 +216,7 @@ export default function FacebookPage() {
       const filtered = filterByRange(full, ranges[cfg.id] ?? { id: "30d" });
       out[cfg.id] = {
         filtered,
+        fullSummary: summarizeSeries(full),
         summary: summarizeSeries(filtered),
         bounds: getBounds(full),
       };
@@ -214,14 +225,13 @@ export default function FacebookPage() {
   }, [rawSeries, ranges]);
 
   const topSmallCards = [
-    { title: "Shares", key: "shares" as MetricKey, label: "from last year" },
-    { title: "Reactions", key: "likes" as MetricKey, label: "from last year" },
+    { title: "Shares", key: "shares" as MetricKey },
+    { title: "Reactions", key: "likes" as MetricKey },
     {
       title: "Comments",
       key: "comments" as MetricKey,
-      label: "from last year",
     },
-    { title: "Likes", key: "likes" as MetricKey, label: "from last year" },
+    { title: "Likes", key: "likes" as MetricKey },
   ];
 
   // Use ALL posts data (not range-filtered) for the calendar so past months work
@@ -268,6 +278,9 @@ export default function FacebookPage() {
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
+      <div className="font-poppins text-sm text-gray-600">
+        Last updated: {lastUpdated ?? "No imported data yet"}
+      </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[2.1fr_1.3fr_1fr] gap-4">
         <div className="flex flex-col gap-4">
@@ -279,12 +292,11 @@ export default function FacebookPage() {
                   key={`${card.title}-${idx}`}
                   title={card.title}
                   titleTooltip={METRIC_DESCRIPTIONS[card.key]}
-                  subtitle="Total"
                   displayMode="metric-only"
                   className="w-full min-h-[172px]"
-                  metricValue={item?.summary.current ?? 0}
-                  metricChange={formatPercentChange(item?.summary)}
-                  metricLabel={card.label}
+                  metricValue={item?.fullSummary.current ?? 0}
+                  metricChange={formatAbsoluteChange(item?.fullSummary)}
+                  metricLabel={getSmallCardSinceLabel(rawSeries[card.key])}
                 />
               );
             })}

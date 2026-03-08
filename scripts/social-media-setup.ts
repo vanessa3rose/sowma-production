@@ -55,9 +55,10 @@ const SOCIAL_MEDIA_CONFIG = [
     userId: "1640840",
     username: "schoolonwheelsofmasschusetts",
     displayName: "School on Wheels of Massachusetts",
-    profileUrl: "https://www.linkedin.com/company/schoolonwheelsofmasschusettss/",
+    profileUrl:
+      "https://www.linkedin.com/company/schoolonwheelsofmasschusettss/",
     email: null,
-  }
+  },
 ];
 
 /**

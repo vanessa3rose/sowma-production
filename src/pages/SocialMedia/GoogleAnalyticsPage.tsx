@@ -25,6 +25,11 @@ import ExportButton from "../../components/export-pdf/ExportButton";
 
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
+import { getLatestImportedDate } from "../../utils/latestImportedDate";
+import {
+  formatAbsoluteChange,
+  getSmallCardSinceLabel,
+} from "../../utils/metricChange";
 
 // Types
 export type GAMetrics = {
@@ -299,7 +304,7 @@ export default function GoogleAnalyticsPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
 
   const [metrics, setMetrics] = useState<GAMetrics | null>(null);
-  const [pageViewsAsOf, setPageViewsAsOf] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   // charts
   const [usersOverTime, setUsersOverTime] = useState<TimePoint[]>([]);
@@ -313,6 +318,12 @@ export default function GoogleAnalyticsPage() {
 
   const [metricSummaries, setMetricSummaries] = useState<
     Partial<Record<MetricKey, MetricSummary>>
+  >({});
+  const [smallCardSummaries, setSmallCardSummaries] = useState<
+    Partial<Record<MetricKey, MetricSummary>>
+  >({});
+  const [smallCardSeries, setSmallCardSeries] = useState<
+    Partial<Record<MetricKey, Point[]>>
   >({});
 
   // date ranges
@@ -460,6 +471,16 @@ export default function GoogleAnalyticsPage() {
           newUsers: newUsersSummary,
           engagementTime: engagementTimeSummary,
         });
+        setSmallCardSummaries({
+          screenPageViews: summarizeSeries(pageviewsAll),
+          active7DayUsers: summarizeSeries(active7All),
+          engagementTime: summarizeSeries(engagementTimeAll),
+        });
+        setSmallCardSeries({
+          screenPageViews: pageviewsAll,
+          active7DayUsers: active7All,
+          engagementTime: engagementTimeAll,
+        });
 
         setMetrics({
           activeUsers: activeSummary.current ?? 0,
@@ -472,10 +493,16 @@ export default function GoogleAnalyticsPage() {
           newUsers: newUsersSummary.current ?? 0,
           engagementTime: engagementTimeSummary.current ?? 0,
         });
-        setPageViewsAsOf(
-          pageviewsDisplaySeries.length > 0
-            ? pageviewsDisplaySeries[pageviewsDisplaySeries.length - 1].date
-            : null,
+        setLastUpdated((prev) =>
+          getLatestImportedDate(
+            prev ? [{ date: prev }] : [],
+            activeAll,
+            pageviewsAll,
+            active7All,
+            engagementAll,
+            newUsersAll,
+            engagementTimeAll,
+          ),
         );
         setReturningVsNewData([
           { label: "New Users", value: pieNewUsers },
@@ -535,6 +562,13 @@ export default function GoogleAnalyticsPage() {
 
         setTotalSessionsRowsAll(sessionRows);
         setSourceRowsAll(sourceRows);
+        setLastUpdated((prev) =>
+          getLatestImportedDate(
+            prev ? [{ date: prev }] : [],
+            sessionRows,
+            sourceRows,
+          ),
+        );
       } catch (err) {
         console.error("Error loading GA breakdown metrics:", err);
         setTotalSessionsRowsAll([]);
@@ -662,12 +696,35 @@ export default function GoogleAnalyticsPage() {
         ),
       ).length > 0,
   );
+  const topSmallCards = [
+    {
+      title: "Page Views",
+      tooltip: GA_CARD_TOOLTIPS.pageViews,
+      value: smallCardSummaries.screenPageViews?.current ?? 0,
+      label: getSmallCardSinceLabel(smallCardSeries.screenPageViews),
+      change: formatAbsoluteChange(smallCardSummaries.screenPageViews),
+    },
+    {
+      title: "Active 7-Day Users",
+      tooltip: GA_CARD_TOOLTIPS.active7DayUsers,
+      value: smallCardSummaries.active7DayUsers?.current ?? 0,
+      label: getSmallCardSinceLabel(smallCardSeries.active7DayUsers),
+      change: formatAbsoluteChange(smallCardSummaries.active7DayUsers),
+    },
+    {
+      title: "Avg Engagement Time",
+      tooltip: GA_CARD_TOOLTIPS.avgEngagementTime,
+      value: Math.round(smallCardSummaries.engagementTime?.current ?? 0),
+      label: getSmallCardSinceLabel(smallCardSeries.engagementTime),
+      change: formatAbsoluteChange(smallCardSummaries.engagementTime),
+    },
+  ];
 
   // ---------------------
   // Render
   // ---------------------
   return (
-    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4 pt-4 lg:pt-6">
+    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
       <div className="w-full flex items-center justify-between px-4 py-2">
         <div className="flex items-center space-x-2 mr-2 lg:mr-0">
@@ -708,38 +765,24 @@ export default function GoogleAnalyticsPage() {
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
+      <div className="px-4 font-poppins text-sm text-gray-600">
+        Last updated: {lastUpdated ?? "No imported data yet"}
+      </div>
 
       {/* Row 1: Top small cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4">
-        <SmallCard
-          title="Page Views"
-          titleTooltip={GA_CARD_TOOLTIPS.pageViews}
-          displayMode="metric-only"
-          className="w-full"
-          metricValue={dMetrics.screenPageViews}
-          metricValueNote={
-            pageViewsAsOf ? `views (as of ${pageViewsAsOf})` : "views"
-          }
-          metricChange={formatPercentChange(metricSummaries.screenPageViews)}
-        />
-        <SmallCard
-          title="Active 7-Day Users"
-          titleTooltip={GA_CARD_TOOLTIPS.active7DayUsers}
-          displayMode="metric-only"
-          className="w-full"
-          metricValue={dMetrics.active7DayUsers}
-          metricLabel="users (7D)"
-          metricChange={formatPercentChange(metricSummaries.active7DayUsers)}
-        />
-        <SmallCard
-          title="Avg Engagement Time"
-          titleTooltip={GA_CARD_TOOLTIPS.avgEngagementTime}
-          displayMode="metric-only"
-          className="w-full"
-          metricValue={Math.round(dMetrics.engagementTime)}
-          metricLabel="seconds"
-          metricChange={formatPercentChange(metricSummaries.engagementTime)}
-        />
+        {topSmallCards.map((card) => (
+          <SmallCard
+            key={card.title}
+            title={card.title}
+            titleTooltip={card.tooltip}
+            displayMode="metric-only"
+            className="w-full"
+            metricValue={card.value}
+            metricLabel={card.label}
+            metricChange={card.change}
+          />
+        ))}
       </div>
 
       {/* Row 2: Map + New vs Returning */}
