@@ -50,6 +50,14 @@ const SOCIAL_MEDIA_CONFIG = [
     profileUrl: "https://www.constantcontact.com/",
     email: null,
   },
+  {
+    provider: Provider.LINKEDIN,
+    userId: "1640840",
+    username: "schoolonwheelsofmasschusetts",
+    displayName: "School on Wheels of Massachusetts",
+    profileUrl: "https://www.linkedin.com/company/schoolonwheelsofmasschusettss/",
+    email: null,
+  }
 ];
 
 /**
