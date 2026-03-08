@@ -162,7 +162,9 @@ function filterByRange(pts: LinePoint[], range: DateRangeValue) {
   return pts.filter((p) => p.date >= startStr && p.date <= endStr);
 }
 
-function getLatestImportedDate(series: Record<MetricKey, LinePoint[]>): string | null {
+function getLatestImportedDate(
+  series: Record<MetricKey, LinePoint[]>,
+): string | null {
   // CSV imports can populate different metric families independently.
   // We display the latest date across all loaded LinkedIn series.
   const allDates = Object.values(series)
@@ -233,9 +235,21 @@ export default function LinkedInPage() {
   }, [rawSeries, ranges]);
 
   const topSmallCards = [
-    { title: "Reactions", key: "likes" as MetricKey, label: "latest imported day" },
-    { title: "Comments", key: "comments" as MetricKey, label: "latest imported day" },
-    { title: "Reposts", key: "shares" as MetricKey, label: "latest imported day" },
+    {
+      title: "Reactions",
+      key: "likes" as MetricKey,
+      label: "latest imported day",
+    },
+    {
+      title: "Comments",
+      key: "comments" as MetricKey,
+      label: "latest imported day",
+    },
+    {
+      title: "Reposts",
+      key: "shares" as MetricKey,
+      label: "latest imported day",
+    },
     {
       title: "Interactions",
       key: "interactions" as MetricKey,

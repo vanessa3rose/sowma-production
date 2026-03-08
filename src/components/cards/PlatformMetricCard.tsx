@@ -91,7 +91,12 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                         fontFamily: "Poppins, sans-serif",
                         fontSize: "13px",
                         fontWeight: 500,
-                        color: change > 0 ? "#10B981" : change < 0 ? "#EF4444" : "#9CA3AF",
+                        color:
+                          change > 0
+                            ? "#10B981"
+                            : change < 0
+                              ? "#EF4444"
+                              : "#9CA3AF",
                       }}
                     >
                       {change > 0 ? "+" : ""}
@@ -101,14 +106,14 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                       /* FIX: Smaller font size and fixed width to match the SVG arrow scale */
                       <span
                         style={{
-                          fontSize: "10px", 
+                          fontSize: "10px",
                           fontWeight: 800,
                           color: "#9CA3AF",
                           lineHeight: "1",
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          width: "11px" 
+                          width: "11px",
                         }}
                       >
                         —
@@ -119,7 +124,10 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                         height="11"
                         viewBox="0 0 16 16"
                         fill="none"
-                        style={{ transform: change > 0 ? "rotate(-45deg)" : "rotate(45deg)" }}
+                        style={{
+                          transform:
+                            change > 0 ? "rotate(-45deg)" : "rotate(45deg)",
+                        }}
                       >
                         <path
                           d="M2 8L14 8M14 8L8 2M14 8L8 14"

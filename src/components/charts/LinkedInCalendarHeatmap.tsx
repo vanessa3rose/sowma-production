@@ -39,7 +39,10 @@ function buildActivity(points: LinePoint[]): Map<string, number> {
 
 function getReferenceDate(points: LinePoint[]): Date {
   if (!points.length) return new Date();
-  const sorted = points.map((p) => p.date).slice().sort();
+  const sorted = points
+    .map((p) => p.date)
+    .slice()
+    .sort();
   const latest = sorted[sorted.length - 1];
   const parsed = new Date(latest);
   return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
@@ -91,7 +94,9 @@ export function LinkedInCalendarHeatmap({
     return { day: i + 1, level, isFuture };
   });
 
-  const padded: Cell[] = Array(firstDay.getDay()).fill(EMPTY_CELL).concat(squares);
+  const padded: Cell[] = Array(firstDay.getDay())
+    .fill(EMPTY_CELL)
+    .concat(squares);
   while (padded.length < 42) {
     padded.push(EMPTY_CELL);
   }
@@ -135,7 +140,9 @@ export function LinkedInCalendarHeatmap({
         className={`grid grid-cols-7 px-1 ${compact ? "text-[9px]" : "text-[10px]"} text-gray-400`}
       >
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-          <div key={d} className="text-center">{d}</div>
+          <div key={d} className="text-center">
+            {d}
+          </div>
         ))}
       </div>
 
@@ -166,7 +173,11 @@ export function LinkedInCalendarHeatmap({
                 color: colors.text,
                 ...(compact ? { width: 24, height: 18, fontSize: 9 } : {}),
               }}
-              title={sq.day != null ? `${viewYear}-${viewMonth + 1}-${sq.day}` : undefined}
+              title={
+                sq.day != null
+                  ? `${viewYear}-${viewMonth + 1}-${sq.day}`
+                  : undefined
+              }
             >
               {compact ? "" : (sq.day ?? "")}
             </div>
