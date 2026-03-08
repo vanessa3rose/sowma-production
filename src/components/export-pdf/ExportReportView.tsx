@@ -539,6 +539,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                         valueLabel="Visitors"
                         intensityLabel="% of total"
                         showLegend={false}
+                        className="-mb-2"
                       />
                     </GoogleChartCard>
                   </div>
