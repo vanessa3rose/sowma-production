@@ -458,11 +458,27 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       Note: Metrics are daily values unless explicitly labeled
                       as cumulative.
                     </div>
-                    <div style={{ marginTop: "4px", fontSize: "12px", color: "#6B7280" }}>
-                      Delta values compare the latest point in range to the previous available point (not always the previous calendar day).
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontSize: "12px",
+                        color: "#6B7280",
+                      }}
+                    >
+                      Delta values compare the latest point in range to the
+                      previous available point (not always the previous calendar
+                      day).
                     </div>
-                    <div style={{ marginTop: "4px", fontSize: "12px", color: "#6B7280" }}>
-                      Delta values compare the latest point in range to the previous available point (not always the previous calendar day).
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontSize: "12px",
+                        color: "#6B7280",
+                      }}
+                    >
+                      Delta values compare the latest point in range to the
+                      previous available point (not always the previous calendar
+                      day).
                     </div>
                   </div>
                 ) : null}
@@ -523,6 +539,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                         valueLabel="Visitors"
                         intensityLabel="% of total"
                         showLegend={false}
+                        className="-mb-2"
                       />
                     </GoogleChartCard>
                   </div>
@@ -688,7 +705,11 @@ export default function e({ selections, range }: ExportReportViewProps) {
                     />
                   </GoogleChartCard>
 
-                  <GoogleChartCard title="Views" subtitle={rangeLabel} height={220}>
+                  <GoogleChartCard
+                    title="Views"
+                    subtitle={rangeLabel}
+                    height={220}
+                  >
                     <LineCharts
                       data={chartDataMap.VIEWS ?? []}
                       xAxisKey="date"
@@ -698,7 +719,6 @@ export default function e({ selections, range }: ExportReportViewProps) {
                     />
                   </GoogleChartCard>
                 </div>
-
               </ExportPage>
             </div>
           );
@@ -734,11 +754,27 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       Note: Metrics are daily values unless explicitly labeled
                       as cumulative.
                     </div>
-                    <div style={{ marginTop: "4px", fontSize: "12px", color: "#6B7280" }}>
-                      Delta values compare the latest point in range to the previous available point (not always the previous calendar day).
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontSize: "12px",
+                        color: "#6B7280",
+                      }}
+                    >
+                      Delta values compare the latest point in range to the
+                      previous available point (not always the previous calendar
+                      day).
                     </div>
-                    <div style={{ marginTop: "4px", fontSize: "12px", color: "#6B7280" }}>
-                      Delta values compare the latest point in range to the previous available point (not always the previous calendar day).
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontSize: "12px",
+                        color: "#6B7280",
+                      }}
+                    >
+                      Delta values compare the latest point in range to the
+                      previous available point (not always the previous calendar
+                      day).
                     </div>
                   </div>
                 ) : null}

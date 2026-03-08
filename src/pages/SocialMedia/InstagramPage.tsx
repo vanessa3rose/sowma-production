@@ -195,7 +195,9 @@ export default function InstagramPage() {
   }, [rawSeries, ranges]);
 
   // Engagement Mix: add date range selector and cumulative calculation
-  const [engagementRange, setEngagementRange] = useState<DateRangeValue>({ id: "30d" });
+  const [engagementRange, setEngagementRange] = useState<DateRangeValue>({
+    id: "30d",
+  });
 
   // Helper to get activity in range (difference between first and last value)
   function getActivityInRange(metricId: string, range: DateRangeValue) {
@@ -206,8 +208,14 @@ export default function InstagramPage() {
   }
 
   const engagementMix = [
-    { label: "Comments", value: getActivityInRange("comments", engagementRange) },
-    { label: "Impressions", value: getActivityInRange("impressions", engagementRange) },
+    {
+      label: "Comments",
+      value: getActivityInRange("comments", engagementRange),
+    },
+    {
+      label: "Impressions",
+      value: getActivityInRange("impressions", engagementRange),
+    },
     { label: "Likes", value: getActivityInRange("likes", engagementRange) },
     { label: "Posts", value: getActivityInRange("posts", engagementRange) },
   ];

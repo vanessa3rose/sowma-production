@@ -74,25 +74,17 @@ const LineCharts = ({
             {dataKeys.map((key) => {
               const color = PLATFORM_COLORS[key.toLowerCase()] || "#7987FF";
               return (
-              <linearGradient
-                key={key}
-                id={`gradient-${key}`}
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="5%"
-                  stopColor={color}
-                  stopOpacity={0.4}
-                />
-                <stop
-                  offset="95%"
-                  stopColor={color}
-                  stopOpacity={0.05}
-                />
-              </linearGradient>
+                <linearGradient
+                  key={key}
+                  id={`gradient-${key}`}
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="5%" stopColor={color} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={color} stopOpacity={0.05} />
+                </linearGradient>
               );
             })}
           </defs>

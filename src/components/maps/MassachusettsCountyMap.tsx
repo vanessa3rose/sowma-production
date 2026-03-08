@@ -25,6 +25,7 @@ interface MassachusettsCountyMapProps {
   valueLabel?: string; // "Visitors" / "Sessions"
   intensityLabel?: string; // "% of total"
   showLegend?: boolean;
+  className: String;
 }
 
 type CountyTooltip = {
@@ -66,6 +67,7 @@ export default function MassachusettsCountyMap({
   valueLabel = "Visitors",
   intensityLabel = "% of total",
   showLegend = true,
+  className,
 }: MassachusettsCountyMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [tooltip, setTooltip] = useState<CountyTooltip | null>(null);
@@ -115,7 +117,7 @@ export default function MassachusettsCountyMap({
       className="w-full h-full flex items-center justify-center relative"
     >
       <div
-        className="w-full h-full max-h-[320px]"
+        className={`w-full h-full max-h-[320px] mb-16 ${className}`}
         style={{
           transform: `rotate(${MAP_ROTATION_DEGREES}deg)`,
           transformOrigin: "center",
@@ -199,7 +201,7 @@ export default function MassachusettsCountyMap({
 
       {/* Legend */}
       {showLegend ? (
-        <div className="absolute left-2 bottom-2 z-10 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-md">
+        <div className="absolute left-2 bottom-10 z-10 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-md">
           <div className="mb-1 text-[11px] font-[Poppins] font-semibold text-gray-800">
             Visit Intensity
           </div>

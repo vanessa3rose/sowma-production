@@ -121,9 +121,7 @@ export default function APIData() {
             fileName: file.name,
             ok: false,
             message:
-              typeof body?.error === "string"
-                ? body.error
-                : "Upload failed",
+              typeof body?.error === "string" ? body.error : "Upload failed",
           });
           continue;
         }
@@ -202,7 +200,7 @@ export default function APIData() {
                 <div>{result.message}</div>
                 {result.ok ? (
                   <div>
-                    rows imported: {result.rowsImported ?? 0}, metrics written: {" "}
+                    rows imported: {result.rowsImported ?? 0}, metrics written:{" "}
                     {result.metricsWritten ?? 0}
                   </div>
                 ) : null}
@@ -270,7 +268,9 @@ export default function APIData() {
               </div>
 
               <div className="flex flex-col h-full">
-                <p className="lg:text-xl text-black lg:py-3 pt-3 pb-1">Metrics</p>
+                <p className="lg:text-xl text-black lg:py-3 pt-3 pb-1">
+                  Metrics
+                </p>
                 <input
                   type="text"
                   value={text}

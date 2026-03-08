@@ -764,6 +764,7 @@ export default function GoogleAnalyticsPage() {
                 totalValue={countyTotal}
                 valueLabel="Visitors"
                 intensityLabel="% of total"
+                className="mb-16"
               />
             }
             displayMode="chart-only"

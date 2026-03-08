@@ -153,7 +153,9 @@ function findHeaderIndex(headers: string[], aliases: string[]): number {
 
 function findHeaderRowIndex(rows: string[][]): number {
   for (let i = 0; i < rows.length; i += 1) {
-    const normalized = rows[i].map((cell) => normalizeHeader(String(cell ?? "")));
+    const normalized = rows[i].map((cell) =>
+      normalizeHeader(String(cell ?? "")),
+    );
     if (normalized.includes("date")) return i;
   }
   return -1;
@@ -233,11 +235,11 @@ function parseRows(rows: string[][]): CsvImportRow[] {
     if (!parsedDate) continue;
 
     const likes = likesIdx >= 0 ? parseNumber(row[likesIdx]) : undefined;
-    const comments = commentsIdx >= 0 ? parseNumber(row[commentsIdx]) : undefined;
+    const comments =
+      commentsIdx >= 0 ? parseNumber(row[commentsIdx]) : undefined;
     const shares = sharesIdx >= 0 ? parseNumber(row[sharesIdx]) : undefined;
 
-    const derivedInteractions =
-      (likes ?? 0) + (comments ?? 0) + (shares ?? 0);
+    const derivedInteractions = (likes ?? 0) + (comments ?? 0) + (shares ?? 0);
 
     const totalInteractions =
       totalInteractionsIdx >= 0
@@ -255,12 +257,7 @@ function parseRows(rows: string[][]): CsvImportRow[] {
       shares,
       views: viewsIdx >= 0 ? parseNumber(row[viewsIdx]) : undefined,
       totalInteractions,
-      daysPosted:
-        postsCount != null
-          ? postsCount > 0
-            ? 1
-            : 0
-          : undefined,
+      daysPosted: postsCount != null ? (postsCount > 0 ? 1 : 0) : undefined,
     });
   }
 
@@ -277,7 +274,9 @@ function rowToMetricWrites(row: CsvImportRow): MetricWrite[] {
     row.followers != null
       ? { metricName: Metric.FOLLOWERS, metricValue: row.followers }
       : null,
-    row.likes != null ? { metricName: Metric.LIKES, metricValue: row.likes } : null,
+    row.likes != null
+      ? { metricName: Metric.LIKES, metricValue: row.likes }
+      : null,
     row.comments != null
       ? { metricName: Metric.COMMENTS, metricValue: row.comments }
       : null,
@@ -293,7 +292,9 @@ function rowToMetricWrites(row: CsvImportRow): MetricWrite[] {
     row.daysPosted != null
       ? { metricName: Metric.DAYS_POSTED, metricValue: row.daysPosted }
       : null,
-    row.views != null ? { metricName: Metric.VIEWS, metricValue: row.views } : null,
+    row.views != null
+      ? { metricName: Metric.VIEWS, metricValue: row.views }
+      : null,
   ];
 
   return candidates.filter((m): m is MetricWrite => m !== null);
@@ -351,7 +352,10 @@ export default async function handler(req: any, res: any) {
     // Accept either raw CSV text or base64-encoded CSV/XLS/XLSX files
     // from the Admin upload UI.
     const parsedCsv = fileBase64.trim()
-      ? parseSpreadsheetRowsFromBuffer(decodeBase64ToBuffer(fileBase64), filename)
+      ? parseSpreadsheetRowsFromBuffer(
+          decodeBase64ToBuffer(fileBase64),
+          filename,
+        )
       : parseCsv(csvText);
     const parsedRows = parseRows(parsedCsv);
 
