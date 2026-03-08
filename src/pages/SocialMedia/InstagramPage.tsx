@@ -9,6 +9,11 @@ import PieCharts from "../../components/charts/PieCharts";
 import ExportButton from "../../components/export-pdf/ExportButton";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+import { getLatestImportedDate } from "../../utils/latestImportedDate";
+import {
+  formatAbsoluteChange,
+  getSmallCardSinceLabel,
+} from "../../utils/metricChange";
 
 type MetricConfig = {
   id: string;
@@ -120,6 +125,7 @@ export default function InstagramPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
 
   const [rawSeries, setRawSeries] = useState<Record<string, LinePoint[]>>({});
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [ranges, setRanges] = useState<Record<string, DateRangeValue>>(() => {
     const init: Record<string, DateRangeValue> = {};
     METRICS.forEach((m) => (init[m.id] = { id: "30d" }));
@@ -144,6 +150,7 @@ export default function InstagramPage() {
         for (const { cfg, rows } of results) {
           nextRaw[cfg.id] = toLinePoints(rows);
         }
+        setLastUpdated(getLatestImportedDate(results.map(({ rows }) => rows).flat()));
         setRawSeries(nextRaw);
       } catch (err) {
         console.error("Error loading Instagram metrics:", err);
@@ -178,8 +185,9 @@ export default function InstagramPage() {
         const full = rawSeries[cfg.id] ?? [];
         const filtered = filterByRange(full, ranges[cfg.id] ?? { id: "30d" });
         const summary = summarizeSeries(filtered);
+        const fullSummary = summarizeSeries(full);
         const bounds = getBounds(full);
-        acc[cfg.id] = { full, filtered, summary, bounds };
+        acc[cfg.id] = { full, filtered, fullSummary, summary, bounds };
         return acc;
       },
       {} as Record<
@@ -187,6 +195,7 @@ export default function InstagramPage() {
         {
           full: LinePoint[];
           filtered: LinePoint[];
+          fullSummary: MetricSummary;
           summary: MetricSummary;
           bounds: { min: Date | null; max: Date | null };
         }
@@ -219,6 +228,12 @@ export default function InstagramPage() {
     { label: "Likes", value: getActivityInRange("likes", engagementRange) },
     { label: "Posts", value: getActivityInRange("posts", engagementRange) },
   ];
+  const topSmallCards = [
+    { id: "impressions" },
+    { id: "followers" },
+    { id: "posts" },
+    { id: "comments" },
+  ] as const;
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
@@ -261,15 +276,18 @@ export default function InstagramPage() {
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
+      <div className="font-poppins text-sm text-gray-600">
+        Last updated: {lastUpdated ?? "No imported data yet"}
+      </div>
 
       {/* Content */}
       <div className="flex flex-col gap-4 px-4 lg:h-full">
         {/* Top band: 2x2 small cards + pie chart */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {["impressions", "followers", "posts", "comments"].map((id) => {
+            {topSmallCards.map(({ id }) => {
               const cfg = METRICS.find((m) => m.id === id)!;
-              const s = computed[id]?.summary;
+              const s = computed[id]?.fullSummary;
 
               return (
                 <SmallCard
@@ -279,8 +297,8 @@ export default function InstagramPage() {
                   displayMode="metric-only"
                   className="w-full h-full"
                   metricValue={s?.current ?? 0}
-                  metricLabel={cfg.metricLabel ?? ""}
-                  metricChange={formatPercentChange(s)}
+                  metricLabel={getSmallCardSinceLabel(computed[id]?.full)}
+                  metricChange={formatAbsoluteChange(s)}
                 />
               );
             })}
