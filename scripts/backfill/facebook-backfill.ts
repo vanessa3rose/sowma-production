@@ -29,6 +29,8 @@ const REQUIRED_FB_METRICS: Metric[] = [
   Metric.POSTS,
   Metric.SHARES,
   Metric.COMMENTS,
+  Metric.VIDEO_VIEWS,
+  Metric.WEBSITE_CLICKS,
 ];
 
 /* -------------------------------------------------
@@ -77,7 +79,7 @@ async function fetchDailyInsights(date: Date, accessToken: string) {
     "page_actions_post_reactions_like_total",
     "page_media_view",
     "page_video_views",
-    "page_website_clicks", 
+    "page_website_clicks",
   ];
   const out: Record<string, number> = {};
 
@@ -198,6 +200,14 @@ export async function runDailyFacebookSync() {
         { metricName: Metric.POSTS, metricValue: posts.posts },
         { metricName: Metric.SHARES, metricValue: posts.shares },
         { metricName: Metric.COMMENTS, metricValue: posts.comments },
+        {
+          metricName: Metric.VIDEO_VIEWS,
+          metricValue: insights.page_video_views,
+        },
+        {
+          metricName: Metric.WEBSITE_CLICKS,
+          metricValue: insights.page_website_clicks,
+        },
       ];
 
       for (const m of metricsToInsert) {
@@ -212,21 +222,6 @@ export async function runDailyFacebookSync() {
             breakdownKey: null,
             breakdownValue: null,
           },
-
-          {
-            socialMediaId: account.id,
-            metricName: Metric.VIDEO_VIEWS,
-            metricValue: insights.page_video_views ?? 0,
-            metricDate: currentDate,
-          },
-          {
-            socialMediaId: account.id,
-            metricName: Metric.WEBSITE_CLICKS,
-            metricValue: insights.page_website_clicks ?? 0,
-            metricDate: currentDate,
-          },
-        ],
-      });
         });
 
         if (!existing) {

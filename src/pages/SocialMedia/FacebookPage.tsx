@@ -20,7 +20,7 @@ type MetricKey =
   | "comments"
   | "posts"
   | "shares"
-  | "videoViews"  
+  | "videoViews"
   | "websiteClicks";
 
 type LinePoint = { date: string; value: number };
@@ -48,8 +48,18 @@ const METRICS: MetricConfig[] = [
   { id: "comments", metric: "COMMENTS", title: "Comments", label: "comments" },
   { id: "posts", metric: "POSTS", title: "Posts", label: "posts" },
   { id: "shares", metric: "SHARES", title: "Shares", label: "shares" },
-  { id: "videoViews", metric: "VIDEO_VIEWS", title: "Video Views", label: "video views" },
-  { id: "websiteClicks", metric: "WEBSITE_CLICKS", title: "Website Clicks", label: "website clicks" },
+  {
+    id: "videoViews",
+    metric: "VIDEO_VIEWS",
+    title: "Video Views",
+    label: "video views",
+  },
+  {
+    id: "websiteClicks",
+    metric: "WEBSITE_CLICKS",
+    title: "Website Clicks",
+    label: "website clicks",
+  },
 ];
 
 const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
@@ -416,7 +426,9 @@ export default function FacebookPage() {
           subtitle={
             <DateDropdown
               value={ranges.videoViews}
-              onChange={(r) => setRanges((prev) => ({ ...prev, videoViews: r }))}
+              onChange={(r) =>
+                setRanges((prev) => ({ ...prev, videoViews: r }))
+              }
               minDate={computed.videoViews?.bounds.min}
               maxDate={computed.videoViews?.bounds.max}
             />
@@ -448,7 +460,9 @@ export default function FacebookPage() {
           subtitle={
             <DateDropdown
               value={ranges.websiteClicks}
-              onChange={(r) => setRanges((prev) => ({ ...prev, websiteClicks: r }))}
+              onChange={(r) =>
+                setRanges((prev) => ({ ...prev, websiteClicks: r }))
+              }
               minDate={computed.websiteClicks?.bounds.min}
               maxDate={computed.websiteClicks?.bounds.max}
             />

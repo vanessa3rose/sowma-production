@@ -165,8 +165,11 @@ export async function runDailyFacebookSync() {
         { metricName: Metric.COMMENTS, metricValue: dailyComments },
         { metricName: Metric.SHARES, metricValue: dailyShares },
         { metricName: Metric.DAYS_POSTED, metricValue: daysPosted },
-        { metricName: Metric.VIDEO_VIEWS, metricValue: insights.videoViews },    
-        { metricName: Metric.WEBSITE_CLICKS, metricValue: insights.websiteClicks },
+        { metricName: Metric.VIDEO_VIEWS, metricValue: insights.videoViews },
+        {
+          metricName: Metric.WEBSITE_CLICKS,
+          metricValue: insights.websiteClicks,
+        },
       ] as const;
 
       await prisma.$transaction(async (tx) => {
