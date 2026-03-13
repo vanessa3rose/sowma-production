@@ -186,7 +186,7 @@ export default function FacebookPage() {
   }, [calendarOffset]);
 
   // Calculate dynamic height: 60px base + 60px per week
-  const dynamicCardHeight = 80 + weeksNeeded * 60;
+  const dynamicCardHeight = 100 + weeksNeeded * 60;
 
   useEffect(() => {
     async function loadFacebook() {
