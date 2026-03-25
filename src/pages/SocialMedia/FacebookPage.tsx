@@ -129,15 +129,15 @@ function getBounds(pts: LinePoint[]) {
   return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
 }
 
-function buildPostingActivity(points: LinePoint[]): Map<string, number> {
-  if (points.length < 2) return new Map();
-  const activity = new Map<string, number>();
-  for (let i = 1; i < points.length; i++) {
-    const delta = points[i].value - points[i - 1].value;
-    activity.set(points[i].date, Math.max(0, delta));
-  }
-  return activity;
-}
+// function buildPostingActivity(points: LinePoint[]): Map<string, number> {
+//   if (points.length < 2) return new Map();
+//   const activity = new Map<string, number>();
+//   for (let i = 1; i < points.length; i++) {
+//     const delta = points[i].value - points[i - 1].value;
+//     activity.set(points[i].date, Math.max(0, delta));
+//   }
+//   return activity;
+// }
 
 // function buildRecentPosts(points: LinePoint[], count = 6) {
 //   const activity = buildPostingActivity(points);
