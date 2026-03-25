@@ -36,3 +36,6 @@ package.json
 service-account.json
 package-lock.json
 .env*.local
+
+
+problemAndIdea.txt

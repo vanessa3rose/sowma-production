@@ -1,20 +1,35 @@
 import { useEffect, useMemo, useState } from "react";
-import InstagramEmbed from "../../components/InstagramEmbed";
+
+// Cards
+import BigCard from "../../components/cards/BigCard";
+import SmallCard from "../../components/cards/SmallCard";
+
+// Charts
+import LineCharts from "../../components/charts/LineCharts";
+import PieCharts from "../../components/charts/PieCharts";
+
+// Buttons
 import DateDropdown, {
   DateRangeValue,
 } from "../../components/charts/DateButton";
-import BigCard from "../../components/cards/BigCard";
-import SmallCard from "../../components/cards/SmallCard";
-import LineCharts from "../../components/charts/LineCharts";
-import PieCharts from "../../components/charts/PieCharts";
 import ExportButton from "../../components/export-pdf/ExportButton";
-import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
+
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import {
   formatAbsoluteChange,
   getSmallCardSinceLabel,
 } from "../../utils/metricChange";
+
+/* ---------- types ---------- */
+
+type LinePoint = { date: string; value: number };
+
+type MetricSummary = {
+  current: number | null;
+  prev: number | null;
+};
 
 type MetricConfig = {
   id: string;
@@ -23,23 +38,36 @@ type MetricConfig = {
   metricLabel?: string;
 };
 
-type LinePoint = { date: string; value: number };
-type MetricSummary = { current: number | null; prev: number | null };
-const PROVIDER = "INSTAGRAM";
-const DEFAULT_START_DATE = "2016-08-15";
+const PROVIDER = "CONSTANT_CONTACT";
+const DEFAULT_START_DATE = "2024-01-01";
 const DEFAULT_END_DATE = "3000-01-01";
 
 const METRICS: MetricConfig[] = [
-  { id: "impressions", title: "Impressions", metric: "VIEWS", metricLabel: "" },
-  { id: "followers", title: "Followers", metric: "FOLLOWERS", metricLabel: "" },
-  { id: "likes", title: "Total Likes", metric: "LIKES", metricLabel: "" },
+  { id: "sent", title: "Emails Sent", metric: "EMAILS_SENT", metricLabel: "" },
   {
-    id: "comments",
-    title: "Total Comments",
-    metric: "COMMENTS",
+    id: "delivered",
+    title: "Emails Delivered",
+    metric: "EMAILS_DELIVERED",
     metricLabel: "",
   },
-  { id: "posts", title: "Posts", metric: "POSTS", metricLabel: "" },
+  {
+    id: "opened",
+    title: "Emails Opened",
+    metric: "EMAIL_OPENED",
+    metricLabel: "",
+  },
+  {
+    id: "clicked",
+    title: "Emails Clicked",
+    metric: "EMAILS_CLICKED",
+    metricLabel: "",
+  },
+  {
+    id: "unsubscribed",
+    title: "Emails Unsubscribed",
+    metric: "EMAILS_UNSUBSCRIBED",
+    metricLabel: "",
+  },
 ];
 
 /* ---------- helpers ---------- */
@@ -94,9 +122,33 @@ function getBounds(pts: LinePoint[]) {
   return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
 }
 
+function filterByRange(pts: LinePoint[], range: DateRangeValue) {
+  if (!pts.length) return pts;
+  if (range.id === "all") return pts;
+
+  if (range.id === "custom" && range.start && range.end) {
+    const startStr = range.start.toISOString().slice(0, 10);
+    const endStr = range.end.toISOString().slice(0, 10);
+    return pts.filter((p) => p.date >= startStr && p.date <= endStr);
+  }
+
+  const end = new Date();
+  end.setHours(0, 0, 0, 0);
+  const start = new Date(end);
+
+  if (range.id === "7d") start.setDate(start.getDate() - 6);
+  if (range.id === "30d") start.setDate(start.getDate() - 29);
+  if (range.id === "1y") start.setFullYear(start.getFullYear() - 1);
+
+  const startStr = start.toISOString().slice(0, 10);
+  const endStr = end.toISOString().slice(0, 10);
+
+  return pts.filter((p) => p.date >= startStr && p.date <= endStr);
+}
+
 /* ---------- component ---------- */
 
-export default function InstagramPage() {
+export default function ConstantContactPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
 
   const [rawSeries, setRawSeries] = useState<Record<string, LinePoint[]>>({});
@@ -130,31 +182,12 @@ export default function InstagramPage() {
         );
         setRawSeries(nextRaw);
       } catch (err) {
-        console.error("Error loading Instagram metrics:", err);
+        console.error("Error loading Constant Contact metrics:", err);
       }
     }
 
     load();
   }, []);
-
-  function filterByRange(pts: LinePoint[], range: DateRangeValue) {
-    if (!pts.length) return pts;
-    if (range.id === "all") return pts;
-    if (range.id === "custom" && range.start && range.end) {
-      const startStr = range.start.toISOString().slice(0, 10);
-      const endStr = range.end.toISOString().slice(0, 10);
-      return pts.filter((p) => p.date >= startStr && p.date <= endStr);
-    }
-    const end = new Date();
-    end.setHours(0, 0, 0, 0);
-    const start = new Date(end);
-    if (range.id === "7d") start.setDate(start.getDate() - 6);
-    if (range.id === "30d") start.setDate(start.getDate() - 29);
-    if (range.id === "1y") start.setFullYear(start.getFullYear() - 1);
-    const startStr = start.toISOString().slice(0, 10);
-    const endStr = end.toISOString().slice(0, 10);
-    return pts.filter((p) => p.date >= startStr && p.date <= endStr);
-  }
 
   const computed = useMemo(() => {
     return METRICS.reduce(
@@ -180,36 +213,26 @@ export default function InstagramPage() {
     );
   }, [rawSeries, ranges]);
 
-  // Engagement Mix: add date range selector and cumulative calculation
-  const [engagementRange, setEngagementRange] = useState<DateRangeValue>({
-    id: "30d",
-  });
-
-  // Helper to get activity in range (difference between first and last value)
-  function getActivityInRange(metricId: string, range: DateRangeValue) {
-    const points = filterByRange(rawSeries[metricId] ?? [], range);
-    if (!points.length) return 0;
-    if (points.length === 1) return points[0].value;
-    return points[points.length - 1].value - points[0].value;
-  }
+  // Pie data
+  const sentNow = computed["sent"]?.summary.current ?? 0;
+  const deliveredNow = computed["delivered"]?.summary.current ?? 0;
+  const openedNow = computed["opened"]?.summary.current ?? 0;
+  const clickedNow = computed["clicked"]?.summary.current ?? 0;
+  const unsubscribedNow = computed["unsubscribed"]?.summary.current ?? 0;
 
   const engagementMix = [
-    {
-      label: "Comments",
-      value: getActivityInRange("comments", engagementRange),
-    },
-    {
-      label: "Impressions",
-      value: getActivityInRange("impressions", engagementRange),
-    },
-    { label: "Likes", value: getActivityInRange("likes", engagementRange) },
-    { label: "Posts", value: getActivityInRange("posts", engagementRange) },
+    { label: "Sent", value: sentNow },
+    { label: "Delivered", value: deliveredNow },
+    { label: "Opened", value: openedNow },
+    { label: "Clicked", value: clickedNow },
+    { label: "Unsubscribed", value: unsubscribedNow },
   ];
   const topSmallCards = [
-    { id: "impressions" },
-    { id: "followers" },
-    { id: "posts" },
-    { id: "comments" },
+    { id: "sent" },
+    { id: "delivered" },
+    { id: "opened" },
+    { id: "clicked" },
+    { id: "unsubscribed" },
   ] as const;
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
@@ -237,7 +260,7 @@ export default function InstagramPage() {
           </button>
 
           <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
-            Instagram
+            Constant Contact
           </h1>
         </div>
 
@@ -245,12 +268,12 @@ export default function InstagramPage() {
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
-      <div className="font-poppins text-sm text-gray-600">
+      <div className="px-4 font-poppins text-sm text-gray-600">
         Last updated: {lastUpdated ?? "No imported data yet"}
       </div>
 
       {/* Content */}
-      <div className="flex flex-col gap-4 lg:h-full">
+      <div className="flex flex-col gap-4 px-4 lg:h-full">
         {/* Top band: 2x2 small cards + pie chart */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -272,19 +295,10 @@ export default function InstagramPage() {
             })}
           </div>
 
-          {/* Pie chart with date range selector */}
+          {/* Pie chart */}
           <div className="lg:col-span-1">
             <BigCard
               title="Engagement Mix"
-              titleTooltip="Spread of interactions between Comments, Impressions, Likes, and Posts"
-              subtitle={
-                <DateDropdown
-                  value={engagementRange}
-                  onChange={setEngagementRange}
-                  minDate={computed["impressions"]?.bounds.min}
-                  maxDate={computed["impressions"]?.bounds.max}
-                />
-              }
               chart={
                 <div className="w-full h-64">
                   <PieCharts
@@ -300,9 +314,8 @@ export default function InstagramPage() {
           </div>
         </div>
 
-        {/* Likes + Instagram Feed */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 lg:h-full">
-          {/* Likes BigCard */}
+        {/* Only Posts BigCard */}
+        <div className="w-full grid grid-cols-1  gap-4 lg:h-full">
           {METRICS.filter((cfg) => cfg.id === "likes").map((cfg) => {
             const item = computed[cfg.id];
             const filtered = item?.filtered ?? [];
@@ -313,11 +326,10 @@ export default function InstagramPage() {
               <div key={cfg.id}>
                 <BigCard
                   title={cfg.title}
-                  titleTooltip={cfg.description}
                   subtitle={
                     <DateDropdown
-                      value={ranges[cfg.id] ?? "30d"}
-                      onChange={(r) =>
+                      value={ranges[cfg.id] ?? { id: "30d" }}
+                      onChange={(r: DateRangeValue) =>
                         setRanges((prev) => ({ ...prev, [cfg.id]: r }))
                       }
                       minDate={bounds.min}
@@ -338,29 +350,17 @@ export default function InstagramPage() {
                         />
                       </div>
                     ) : (
-                      <div className="flex items-center justify-center text-gray-500">
+                      <div className="h-64 flex items-center justify-center text-gray-500">
                         No data available
                       </div>
                     )
                   }
                   displayMode="both"
-                  className="w-full h-[360px]"
+                  className="w-full h-full"
                 />
               </div>
             );
           })}
-
-          {/* Instagram Feed */}
-          <BigCard
-            title="Recent Posts"
-            chart={
-              <div className="flex justify-center items-start w-full">
-                <InstagramEmbed />
-              </div>
-            }
-            displayMode="chart-only"
-            className="w-full h-[360px] md:h-[370px]"
-          />
         </div>
       </div>
     </div>

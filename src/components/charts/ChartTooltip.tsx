@@ -18,7 +18,7 @@ type RechartsTooltipItem = {
 
 export type ChartTooltipProps = {
   active?: boolean;
-  payload?: RechartsTooltipItem[];
+  payload?: ReadonlyArray<RechartsTooltipItem>;
   label?: unknown;
 
   /** Optional title override; if omitted uses formatted label */
@@ -177,7 +177,7 @@ export default function ChartTooltip(props: ChartTooltipProps) {
             <div className="flex min-w-0 items-center gap-2">
               <span
                 className="h-2.5 w-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: r.color ?? "#7987FF" }}
+                style={{ backgroundColor: r.color ?? "#FFA9D0" }}
               />
               <span className="truncate text-xs text-gray-700">
                 {r.displayName}

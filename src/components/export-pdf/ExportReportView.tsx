@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
-import type { DateRangeId } from "../charts/DateDropdown";
+import type { DateRangeValue } from "../charts/DateButton.js";
 import type { ExportCardSelection } from "../../types/exportTypes";
 import LineCharts from "../charts/LineCharts";
+import PieCharts from "../charts/PieCharts";
+import BarCharts from "../charts/BarCharts";
+import MassachusettsCountyMap from "../maps/MassachusettsCountyMap";
 import {
   EXPORT_PLATFORM_CONFIGS,
   type ExportMetricFormat,
@@ -10,15 +13,30 @@ import type { Platform } from "../../config/chartConfigs";
 
 export type ExportReportViewProps = {
   selections: ExportCardSelection[];
-  range: DateRangeId;
+  range: DateRangeValue;
 };
 
-const RANGE_LABELS: Record<DateRangeId, string> = {
-  "7d": "Last week",
-  "30d": "Last month",
-  "1y": "Last year",
-  all: "All time",
-};
+function getRangeLabel(range: DateRangeValue) {
+  switch (range.id) {
+    case "7d":
+      return "Last week";
+    case "30d":
+      return "Last month";
+    case "1y":
+      return "Last year";
+    case "all":
+      return "All time";
+    case "custom":
+      if (range.start && range.end) {
+        const fmt = (d: Date) =>
+          `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
+        return `Custom: ${fmt(range.start)} - ${fmt(range.end)}`;
+      }
+      return "Custom Range";
+    default:
+      return "";
+  }
+}
 
 function formatNumber(value: number, digits = 0) {
   if (!Number.isFinite(value)) return "0";
@@ -62,6 +80,17 @@ function formatDelta(delta: number, format?: ExportMetricFormat) {
     return `${formatSigned(delta, 0)}s`;
   }
   return formatSigned(delta, 0);
+}
+
+function latestPointDate(
+  chartDataMap: Record<string, { date: string; value: number }[]>,
+) {
+  const dates = Object.values(chartDataMap)
+    .flat()
+    .map((point) => point.date)
+    .filter(Boolean)
+    .sort();
+  return dates.length ? dates[dates.length - 1] : null;
 }
 
 function MetricRow({
@@ -122,7 +151,7 @@ function ChartBlock({
   dataKeys,
 }: {
   title: string;
-  data: any[];
+  data: Array<Record<string, unknown>>;
   dataKeys: string[];
 }) {
   const hasData = Array.isArray(data) && data.length > 0;
@@ -143,12 +172,13 @@ function ChartBlock({
         {title}
       </div>
       {hasData ? (
-        <div className="flex w-full h-[200px]">
+        <div className="flex w-full h-[200px] min-h-0">
           <LineCharts
             data={data}
             xAxisKey="date"
             dataKeys={dataKeys}
             showArea
+            compact
           />
         </div>
       ) : (
@@ -158,6 +188,146 @@ function ChartBlock({
       )}
     </div>
   );
+}
+
+const PDF_CARD_STYLE: React.CSSProperties = {
+  backgroundColor: "#ffffff",
+  border: "1px solid #E5E5E5",
+  borderBottom: "3px solid #D1D5DB",
+  borderRight: "2px solid #D1D5DB",
+  borderRadius: "12px",
+  padding: "20px",
+  fontFamily: "Poppins, sans-serif",
+};
+
+function GoogleSmallMetricCard({
+  title,
+  value,
+  valueNote,
+  delta,
+}: {
+  title: string;
+  value: string;
+  valueNote?: string;
+  delta: string;
+}) {
+  return (
+    <div style={PDF_CARD_STYLE}>
+      <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+        {title}
+      </div>
+      <div className="mt-1 flex items-baseline gap-2 flex-wrap">
+        <span style={{ fontSize: "32px", fontWeight: 400, color: "#3B82F6" }}>
+          {value}
+        </span>
+        {valueNote ? (
+          <span style={{ fontSize: "14px", color: "#6B7280" }}>
+            {valueNote}
+          </span>
+        ) : null}
+      </div>
+      <div
+        style={{
+          fontSize: "14px",
+          color: delta.includes("+")
+            ? "#10B981"
+            : delta.includes("-")
+              ? "#EF4444"
+              : "#6B7280",
+          marginTop: "4px",
+        }}
+      >
+        {delta}
+      </div>
+    </div>
+  );
+}
+
+function GoogleChartCard({
+  title,
+  subtitle,
+  children,
+  height = 220,
+}: {
+  title: string;
+  subtitle?: string;
+  children: ReactNode;
+  height?: number;
+}) {
+  return (
+    <div
+      className="flex flex-col"
+      style={{
+        ...PDF_CARD_STYLE,
+        minHeight: `${height}px`,
+        height: `${height}px`,
+      }}
+    >
+      <div className="flex items-center justify-between">
+        <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+          {title}
+        </div>
+        {subtitle ? (
+          <div style={{ fontSize: "12px", fontWeight: 500, color: "#4B5563" }}>
+            {subtitle}
+          </div>
+        ) : null}
+      </div>
+      <div className="mt-2 flex-1 min-h-0">{children}</div>
+    </div>
+  );
+}
+
+function toCountyIntensity(countyTotals: Record<string, number>) {
+  const total = Object.values(countyTotals).reduce(
+    (sum, value) => sum + value,
+    0,
+  );
+  if (total <= 0) return {};
+  return Object.fromEntries(
+    Object.entries(countyTotals).map(([county, value]) => [
+      county,
+      value / total,
+    ]),
+  ) as Record<string, number>;
+}
+
+function toTitleCaseLabel(input: string): string {
+  return input.replace(/[A-Za-z]+/g, (word) => {
+    if (word.length === 0) return word;
+    return word[0].toUpperCase() + word.slice(1).toLowerCase();
+  });
+}
+
+function groupSourceTotals(sourceTotals: Record<string, number>): Array<{
+  source: string;
+  sessions: number;
+  otherBreakdown?: Array<{ label: string; value: number }>;
+}> {
+  const sorted = Object.entries(sourceTotals)
+    .sort((a, b) => b[1] - a[1])
+    .map(([source, sessions]) => ({
+      source: toTitleCaseLabel(source),
+      sessions,
+    }));
+
+  if (sorted.length <= 5) return sorted;
+
+  const top = sorted.slice(0, 4);
+  const otherItems = sorted.slice(4);
+  const otherTotal = otherItems.reduce((sum, item) => sum + item.sessions, 0);
+
+  return [
+    ...top,
+    {
+      source: "Other",
+      sessions: otherTotal,
+      otherBreakdown: otherItems.map((item) => ({
+        label: item.source,
+        value: item.sessions,
+      })),
+    },
+  ];
 }
 
 function ExportPage({ children }: { children: ReactNode }) {
@@ -182,6 +352,12 @@ const PLATFORM_HEADER_HEIGHT_PX = 60;
 const KPI_BLOCK_HEIGHT_PX = 140;
 const CHARTS_PER_ROW = 2;
 const CHART_ROW_HEIGHT_PX = 220;
+const LINKEDIN_SMALL_KPIS = [
+  { id: "LIKES", title: "Reactions" },
+  { id: "COMMENTS", title: "Comments" },
+  { id: "SHARES", title: "Reposts" },
+  { id: "TOTAL_INTERACTIONS", title: "Total Interactions" },
+];
 
 function buildChartPages<T>(
   charts: T[],
@@ -215,20 +391,338 @@ function buildChartPages<T>(
   return pages;
 }
 
-export default function ExportReportView({
-  selections,
-  range,
-}: ExportReportViewProps) {
+export default function e({ selections, range }: ExportReportViewProps) {
   const timestamp = new Date().toLocaleString();
+  const rangeLabel = getRangeLabel(range);
 
   return (
     <div className="bg-white">
       {selections.map((selection, index) => {
-        const platformKey =
-          selection.type === "google"
-            ? "google"
-            : (selection.platform as Platform);
+        if (selection.type === "google") {
+          const metricSummaries = selection.data.metricSummaries;
+          const chartDataMap = selection.data.chartDataMap;
+
+          const pageViewsSummary = metricSummaries.SCREEN_PAGE_VIEWS ?? {
+            current: 0,
+            prev: 0,
+          };
+          const active7Summary = metricSummaries.ACTIVE_7_DAY_USERS ?? {
+            current: 0,
+            prev: 0,
+          };
+          const engagementTimeSummary = metricSummaries.ENGAGEMENT_TIME ?? {
+            current: 0,
+            prev: 0,
+          };
+          const countyTotals = selection.data.countyTotals ?? {};
+          const countyIntensity = toCountyIntensity(countyTotals);
+          const countyTotal = Object.values(countyTotals).reduce(
+            (sum, value) => sum + value,
+            0,
+          );
+
+          const newVs = selection.data.newVsReturning ?? {
+            newUsers: 0,
+            returningUsers: 0,
+          };
+          const newVsData = [
+            { label: "New Users", value: newVs.newUsers },
+            { label: "Returning Users", value: newVs.returningUsers },
+          ];
+
+          const deviceData = Object.entries(
+            selection.data.deviceTotals ?? {},
+          ).map(([label, value]) => ({
+            label:
+              label.length > 0
+                ? label[0].toUpperCase() + label.slice(1).toLowerCase()
+                : "Unknown",
+            value,
+          }));
+          const sourceData = groupSourceTotals(
+            selection.data.sourceTotals ?? {},
+          );
+
+          return (
+            <div key={`google-${index}`}>
+              <ExportPage>
+                {index === 0 ? (
+                  <div className="mb-6 border-b border-gray-200 pb-4">
+                    <div className="text-2xl font-semibold">
+                      SOWMA Social Media Analytics Report
+                    </div>
+                    <div className="mt-1 text-sm text-gray-600">
+                      Generated {timestamp} - {rangeLabel}
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500">
+                      Note: Metrics are daily values unless explicitly labeled
+                      as cumulative.
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontSize: "12px",
+                        color: "#6B7280",
+                      }}
+                    >
+                      Delta values compare the latest point in range to the
+                      previous available point (not always the previous calendar
+                      day).
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontSize: "12px",
+                        color: "#6B7280",
+                      }}
+                    >
+                      Delta values compare the latest point in range to the
+                      previous available point (not always the previous calendar
+                      day).
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="text-3xl font-bold mb-4">Google Analytics</div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <GoogleSmallMetricCard
+                    title="Page Views"
+                    value={formatValue(pageViewsSummary.current ?? 0, "number")}
+                    valueNote={
+                      selection.data.pageViewsAsOf
+                        ? `views (as of ${selection.data.pageViewsAsOf})`
+                        : "views"
+                    }
+                    delta={formatDelta(
+                      (pageViewsSummary.current ?? 0) -
+                        (pageViewsSummary.prev ?? 0),
+                      "number",
+                    )}
+                  />
+                  <GoogleSmallMetricCard
+                    title="Active 7-Day Users"
+                    value={formatValue(active7Summary.current ?? 0, "number")}
+                    valueNote="users (7D)"
+                    delta={formatDelta(
+                      (active7Summary.current ?? 0) -
+                        (active7Summary.prev ?? 0),
+                      "number",
+                    )}
+                  />
+                  <GoogleSmallMetricCard
+                    title="Avg Engagement Time"
+                    value={formatValue(
+                      engagementTimeSummary.current ?? 0,
+                      "seconds",
+                    )}
+                    valueNote="seconds"
+                    delta={formatDelta(
+                      (engagementTimeSummary.current ?? 0) -
+                        (engagementTimeSummary.prev ?? 0),
+                      "seconds",
+                    )}
+                  />
+                </div>
+
+                <div className="mt-3 flex gap-4">
+                  <div className="w-3/5">
+                    <GoogleChartCard
+                      title="Massachusetts Visitors by County"
+                      subtitle={rangeLabel}
+                      height={255}
+                    >
+                      <MassachusettsCountyMap
+                        countyIntensity={countyIntensity}
+                        countyValue={countyTotals}
+                        totalValue={countyTotal}
+                        valueLabel="Visitors"
+                        intensityLabel="% of total"
+                        showLegend={false}
+                        className="-mb-2"
+                      />
+                    </GoogleChartCard>
+                  </div>
+                  <div className="w-2/5">
+                    <GoogleChartCard
+                      title="New vs Returning Users"
+                      subtitle={rangeLabel}
+                      height={255}
+                    >
+                      <PieCharts
+                        data={newVsData}
+                        dataKey="value"
+                        nameKey="label"
+                        disableAnimation
+                      />
+                    </GoogleChartCard>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex gap-4">
+                  <div className="w-2/5">
+                    <GoogleChartCard
+                      title="Sessions by Device Category"
+                      subtitle={rangeLabel}
+                      height={255}
+                    >
+                      <PieCharts
+                        data={deviceData}
+                        dataKey="value"
+                        nameKey="label"
+                        disableAnimation
+                      />
+                    </GoogleChartCard>
+                  </div>
+                  <div className="w-3/5">
+                    <GoogleChartCard
+                      title="Active Users"
+                      subtitle={rangeLabel}
+                      height={255}
+                    >
+                      <LineCharts
+                        data={chartDataMap.ACTIVE_USERS ?? []}
+                        xAxisKey="date"
+                        dataKeys={["value"]}
+                        showArea
+                        compact
+                      />
+                    </GoogleChartCard>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-4">
+                  <GoogleChartCard
+                    title="Traffic Source Breakdown"
+                    subtitle={rangeLabel}
+                    height={270}
+                  >
+                    <BarCharts
+                      data={sourceData}
+                      xAxisKey="source"
+                      dataKeys={["sessions"]}
+                    />
+                  </GoogleChartCard>
+                  <GoogleChartCard
+                    title="Engagement Rate"
+                    subtitle={rangeLabel}
+                    height={270}
+                  >
+                    <LineCharts
+                      data={chartDataMap.ENGAGEMENT_RATE ?? []}
+                      xAxisKey="date"
+                      dataKeys={["value"]}
+                      showArea
+                      compact
+                    />
+                  </GoogleChartCard>
+                </div>
+              </ExportPage>
+            </div>
+          );
+        }
+
+        const platformKey = selection.platform as Platform;
         const config = EXPORT_PLATFORM_CONFIGS[platformKey];
+
+        if (platformKey === "linkedin") {
+          // LinkedIn has a custom layout in PDF so it matches the live page:
+          // 2x2 small KPI grid (top-left), one top-right chart, and two charts below.
+          const chartDataMap = selection.data.chartDataMap;
+          const metricSummaries = selection.data.metricSummaries;
+          const latestDate = latestPointDate(chartDataMap);
+
+          return (
+            <div key={`${selection.type}-${index}`}>
+              <ExportPage>
+                {index === 0 ? (
+                  <div className="mb-6 border-b border-gray-200 pb-4">
+                    <div className="text-2xl font-semibold">
+                      SOWMA Social Media Analytics Report
+                    </div>
+                    <div className="mt-1 text-sm text-gray-600">
+                      Generated {timestamp} - {rangeLabel}
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500">
+                      Note: Metrics are daily values unless explicitly labeled
+                      as cumulative.
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="text-3xl font-bold mb-2">LinkedIn</div>
+                <div className="text-sm text-gray-600 mb-4">
+                  Last updated: {latestDate ?? "No imported data"}
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    {LINKEDIN_SMALL_KPIS.map((card) => {
+                      const summary = metricSummaries[card.id] ?? {
+                        current: 0,
+                        prev: 0,
+                      };
+                      const delta =
+                        (summary.current ?? 0) - (summary.prev ?? 0);
+                      return (
+                        <GoogleSmallMetricCard
+                          key={card.id}
+                          title={card.title}
+                          value={formatValue(summary.current ?? 0, "number")}
+                          delta={formatDelta(delta, "number")}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  <GoogleChartCard
+                    title="Total Interactions"
+                    subtitle={rangeLabel}
+                    height={290}
+                  >
+                    <LineCharts
+                      data={chartDataMap.TOTAL_INTERACTIONS ?? []}
+                      xAxisKey="date"
+                      dataKeys={["value"]}
+                      showArea
+                      compact
+                    />
+                  </GoogleChartCard>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-4">
+                  <GoogleChartCard
+                    title="New Followers"
+                    subtitle={rangeLabel}
+                    height={220}
+                  >
+                    <LineCharts
+                      data={chartDataMap.FOLLOWERS ?? []}
+                      xAxisKey="date"
+                      dataKeys={["value"]}
+                      showArea
+                      compact
+                    />
+                  </GoogleChartCard>
+
+                  <GoogleChartCard
+                    title="Views"
+                    subtitle={rangeLabel}
+                    height={220}
+                  >
+                    <LineCharts
+                      data={chartDataMap.VIEWS ?? []}
+                      xAxisKey="date"
+                      dataKeys={["value"]}
+                      showArea
+                      compact
+                    />
+                  </GoogleChartCard>
+                </div>
+              </ExportPage>
+            </div>
+          );
+        }
 
         const metrics = config.metrics.map((metric) => {
           const summary = selection.data.metricSummaries[metric.id];
@@ -254,11 +748,33 @@ export default function ExportReportView({
                       SOWMA Social Media Analytics Report
                     </div>
                     <div className="mt-1 text-sm text-gray-600">
-                      Generated {timestamp} - {RANGE_LABELS[range]}
+                      Generated {timestamp} - {rangeLabel}
                     </div>
                     <div className="mt-2 text-xs text-gray-500">
                       Note: Metrics are daily values unless explicitly labeled
                       as cumulative.
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontSize: "12px",
+                        color: "#6B7280",
+                      }}
+                    >
+                      Delta values compare the latest point in range to the
+                      previous available point (not always the previous calendar
+                      day).
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontSize: "12px",
+                        color: "#6B7280",
+                      }}
+                    >
+                      Delta values compare the latest point in range to the
+                      previous available point (not always the previous calendar
+                      day).
                     </div>
                   </div>
                 ) : null}

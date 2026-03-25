@@ -2,7 +2,7 @@ import { getAuthBySocialMediaId } from "../../db/social-media-auth.js";
 import fetch from "node-fetch";
 import "dotenv/config";
 import { PrismaClient, Metric } from "../../src/generated/prisma/index.js";
-import { startOfDay, formatISODate } from "../../src/utils/dates.js";
+import { startOfDay, endOfDay, formatISODate } from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
    Prisma setup (serverless-friendly)
@@ -14,6 +14,12 @@ if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
    Constants
 -------------------------------------------------- */
 const INSTAGRAM_USER_ID = process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
+
+const REQUIRED_IG_METRICS: Metric[] = [
+  Metric.LIKES,
+  Metric.COMMENTS,
+  Metric.DAYS_POSTED,
+];
 
 type MediaItem = {
   id: string;
@@ -32,6 +38,27 @@ type IGApiResponse = {
   data?: MediaItem[];
   paging?: { next?: string };
 };
+
+/* -------------------------------------------------
+   Helpers
+-------------------------------------------------- */
+async function allMetricsStoredForDay(socialMediaId: string, date: Date) {
+  const metricsForDay = await prisma.socialMediaMetrics.findMany({
+    where: {
+      socialMediaId,
+      metricDate: date,
+      breakdownKey: null,
+      breakdownValue: null,
+    },
+    select: { metricName: true },
+  });
+
+  const existingMetricNames = new Set(
+    metricsForDay.map((m: any) => m.metricName),
+  );
+
+  return REQUIRED_IG_METRICS.every((metric) => existingMetricNames.has(metric));
+}
 
 /* -------------------------------------------------
    Fetch ALL Instagram media with pagination
@@ -112,39 +139,45 @@ export async function backfillInstagram() {
   for (const day of days) {
     const date = startOfDay(new Date(day));
 
-    const exists = await prisma.socialMediaMetrics.findFirst({
-      where: {
-        socialMediaId: account.id,
-        metricDate: date,
-        metricName: Metric.LIKES,
-      },
-    });
-    if (exists) continue;
+    if (await allMetricsStoredForDay(account.id, date)) {
+      continue;
+    }
 
     const metrics = dailyMetrics.get(day)!;
 
-    await prisma.socialMediaMetrics.createMany({
-      data: [
-        {
+    const metricsToInsert = [
+      { metricName: Metric.LIKES, metricValue: metrics.likes },
+      { metricName: Metric.COMMENTS, metricValue: metrics.comments },
+      { metricName: Metric.DAYS_POSTED, metricValue: metrics.daysPosted },
+    ];
+
+    for (const m of metricsToInsert) {
+      const existing = await prisma.socialMediaMetrics.findFirst({
+        where: {
           socialMediaId: account.id,
-          metricName: Metric.LIKES,
-          metricValue: metrics.likes,
-          metricDate: date,
+          metricName: m.metricName,
+          metricDate: {
+            gte: startOfDay(date),
+            lt: endOfDay(date),
+          },
+          breakdownKey: null,
+          breakdownValue: null,
         },
-        {
-          socialMediaId: account.id,
-          metricName: Metric.COMMENTS,
-          metricValue: metrics.comments,
-          metricDate: date,
-        },
-        {
-          socialMediaId: account.id,
-          metricName: Metric.DAYS_POSTED,
-          metricValue: metrics.daysPosted,
-          metricDate: date,
-        },
-      ],
-    });
+      });
+
+      if (!existing) {
+        await prisma.socialMediaMetrics.create({
+          data: {
+            socialMediaId: account.id,
+            metricName: m.metricName,
+            metricValue: m.metricValue,
+            metricDate: date,
+            breakdownKey: null,
+            breakdownValue: null,
+          },
+        });
+      }
+    }
 
     console.log(`[IG] Backfilled ${day}`);
   }

@@ -22,13 +22,19 @@ type PieChartsProps = {
   data: any[];
   dataKey: string;
   nameKey: string;
+  disableAnimation?: boolean;
 };
 
 function formatPieLabel({ value, percent }: PieLabelRenderProps) {
   return `${value} (${((percent as number) * 100).toFixed(0)}%)`;
 }
 
-const PieCharts = ({ data, dataKey, nameKey }: PieChartsProps) => {
+const PieCharts = ({
+  data,
+  dataKey,
+  nameKey,
+  disableAnimation = false,
+}: PieChartsProps) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState<{ width: number; height: number }>({
     width: 0,
@@ -52,17 +58,34 @@ const PieCharts = ({ data, dataKey, nameKey }: PieChartsProps) => {
   }, []);
 
   const compact = useMemo(() => {
-    // If we don't have a measurement yet, assume compact to avoid label overflow.
     if (!size.width || !size.height) return true;
     return size.width < 320 || size.height < 160;
   }, [size.width, size.height]);
+
+  const validData = data.filter((entry) => entry[dataKey] > 0);
+
+  if (!validData.length) {
+    return (
+      <div
+        ref={wrapperRef}
+        className="w-full h-full flex items-center justify-center"
+      >
+        <p
+          style={{ fontFamily: "Poppins, sans-serif" }}
+          className="text-sm text-gray-400"
+        >
+          No data available
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div ref={wrapperRef} className="w-full h-full lg:p-4 overflow-visible">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
-            data={data}
+            data={validData}
             dataKey={dataKey}
             nameKey={nameKey}
             outerRadius={compact ? "65%" : "70%"}
@@ -71,8 +94,9 @@ const PieCharts = ({ data, dataKey, nameKey }: PieChartsProps) => {
             labelLine={compact ? false : true}
             cx="50%"
             cy="50%"
+            isAnimationActive={!disableAnimation}
           >
-            {data.map((_: any, index: number) => (
+            {validData.map((_: any, index: number) => (
               <Cell
                 key={`cell-${index}`}
                 fill={COLORS[index % COLORS.length]}

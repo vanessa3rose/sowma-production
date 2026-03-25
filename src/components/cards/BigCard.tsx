@@ -31,6 +31,10 @@ const BigCard: React.FC<BigCardProps> = ({
   const shouldShowChart =
     displayMode === "both" || displayMode === "chart-only";
   const shouldShowMetric = displayMode === "both";
+  const useFullChartHeight =
+    displayMode === "chart-only" ||
+    title === "Days Posted" ||
+    title === "Engagement Calendar";
 
   return (
     <div
@@ -87,13 +91,14 @@ const BigCard: React.FC<BigCardProps> = ({
         <div className="mb-4">
           <div className="flex items-baseline gap-2 flex-wrap opacity-100">
             <span
-              className="text-blue-600"
+              className=""
               style={{
                 fontFamily: "Poppins, sans-serif",
                 fontWeight: 400,
                 fontSize: "32px",
                 lineHeight: "100%",
                 letterSpacing: "-3.75%",
+                color: "#4781C2",
               }}
             >
               {metricValue}
@@ -144,7 +149,7 @@ const BigCard: React.FC<BigCardProps> = ({
           className={`
             flex 
             ${
-              title !== "Days Posted"
+              !useFullChartHeight
                 ? "h-[300px] w-full overflow-hidden"
                 : "flex h-full w-full justify-center items-center"
             }`}

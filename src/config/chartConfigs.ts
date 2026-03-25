@@ -91,6 +91,46 @@ export const CHART_CONFIGS: Record<string, ChartConfig[]> = {
     },
   ],
 
+  linkedin: [
+    // LinkedIn charts mirror imported CSV-backed daily KPIs.
+    {
+      id: "new_followers",
+      title: "New Followers",
+      type: "line",
+      metric: "FOLLOWERS",
+    },
+    {
+      id: "views",
+      title: "Views",
+      type: "line",
+      metric: "VIEWS",
+    },
+    {
+      id: "likes",
+      title: "Reactions",
+      type: "line",
+      metric: "LIKES",
+    },
+    {
+      id: "comments",
+      title: "Comments",
+      type: "line",
+      metric: "COMMENTS",
+    },
+    {
+      id: "shares",
+      title: "Reposts",
+      type: "line",
+      metric: "SHARES",
+    },
+    {
+      id: "total_interactions",
+      title: "Total Interactions",
+      type: "line",
+      metric: "TOTAL_INTERACTIONS",
+    },
+  ],
+
   google: [
     {
       id: "activeUsers",
@@ -162,6 +202,7 @@ export const PLATFORM_LABELS: Record<Platform, string> = {
   instagram: "Instagram",
   twitter: "Twitter",
   facebook: "Facebook",
+  linkedin: "LinkedIn",
   google: "Google Analytics",
   constantcontact: "Constant Contact",
 };

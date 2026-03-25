@@ -12,7 +12,12 @@ import {
 
 import ChartTooltip from "./ChartTooltip";
 
-const COLORS = ["#7987FF", "#F765A3", "#FFA9D0", "#A155B9"];
+const PLATFORM_COLORS: Record<string, string> = {
+  facebook: "#F765A3",
+  instagram: "#E4405F",
+  twitter: "#FFA9D0",
+  tiktok: "#A155B9",
+};
 
 type LineChartProps = {
   data: any[];
@@ -20,6 +25,7 @@ type LineChartProps = {
   dataKeys: string[];
   showArea?: boolean;
   autoAdjustYAxis?: boolean;
+  compact?: boolean;
 };
 
 const LineCharts = ({
@@ -28,6 +34,7 @@ const LineCharts = ({
   dataKeys,
   showArea,
   autoAdjustYAxis = true,
+  compact = false,
 }: LineChartProps) => {
   const values: number[] = [];
   if (autoAdjustYAxis) {
@@ -57,85 +64,102 @@ const LineCharts = ({
       {showArea ? (
         <AreaChart
           data={data}
-          margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
+          margin={
+            compact
+              ? { top: 8, right: 12, left: 4, bottom: 24 }
+              : { top: 20, right: 50, left: 20, bottom: 80 }
+          }
         >
           <defs>
-            {dataKeys.map((key, index) => (
-              <linearGradient
-                key={key}
-                id={`gradient-${key}`}
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="5%"
-                  stopColor={COLORS[index % COLORS.length]}
-                  stopOpacity={0.4}
-                />
-                <stop
-                  offset="95%"
-                  stopColor={COLORS[index % COLORS.length]}
-                  stopOpacity={0.05}
-                />
-              </linearGradient>
-            ))}
+            {dataKeys.map((key) => {
+              const color = PLATFORM_COLORS[key.toLowerCase()] || "#7987FF";
+              return (
+                <linearGradient
+                  key={key}
+                  id={`gradient-${key}`}
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="5%" stopColor={color} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={color} stopOpacity={0.05} />
+                </linearGradient>
+              );
+            })}
           </defs>
 
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey={xAxisKey}
-            tick={{ fontFamily: "Poppins, sans-serif" }}
+            tick={{
+              fontFamily: "Poppins, sans-serif",
+              fontSize: compact ? 10 : 12,
+            }}
             interval="preserveStartEnd"
-            minTickGap={28}
+            minTickGap={compact ? 14 : 28}
           />
           <YAxis
-            tick={{ fontFamily: "Poppins, sans-serif" }}
+            tick={{
+              fontFamily: "Poppins, sans-serif",
+              fontSize: compact ? 10 : 12,
+            }}
             domain={yDomain}
             allowDecimals={false}
           />
           <Tooltip content={<ChartTooltip />} />
 
-          {dataKeys.map((key, index) => (
+          {dataKeys.map((key) => (
             <Area
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={COLORS[index % COLORS.length]}
-              strokeWidth={3}
+              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#7987FF"}
+              strokeWidth={compact ? 2.5 : 3}
               fill={`url(#gradient-${key})`}
               fillOpacity={1}
+              connectNulls={false}
             />
           ))}
         </AreaChart>
       ) : (
         <LineChart
           data={data}
-          margin={{ top: 20, right: 50, left: 20, bottom: 48 }}
+          margin={
+            compact
+              ? { top: 8, right: 12, left: 4, bottom: 24 }
+              : { top: 20, right: 50, left: 20, bottom: 48 }
+          }
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey={xAxisKey}
-            tick={{ fontFamily: "Poppins, sans-serif" }}
+            tick={{
+              fontFamily: "Poppins, sans-serif",
+              fontSize: compact ? 10 : 12,
+            }}
             interval="preserveStartEnd"
-            minTickGap={28}
+            minTickGap={compact ? 14 : 28}
           />
           <YAxis
-            tick={{ fontFamily: "Poppins, sans-serif" }}
+            tick={{
+              fontFamily: "Poppins, sans-serif",
+              fontSize: compact ? 10 : 12,
+            }}
             domain={yDomain}
             allowDecimals={false}
           />
           <Tooltip content={<ChartTooltip />} />
-          {dataKeys.map((key, index) => (
+          {dataKeys.map((key) => (
             <Line
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={COLORS[index % COLORS.length]}
-              strokeWidth={3}
-              dot={{ r: 4 }}
+              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#7987FF"}
+              strokeWidth={compact ? 2.5 : 3}
+              dot={compact ? false : { r: 4 }}
               activeDot={false}
+              connectNulls={false}
             />
           ))}
         </LineChart>

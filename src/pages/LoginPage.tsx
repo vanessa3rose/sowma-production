@@ -11,6 +11,8 @@ type Tab = "signin" | "waitlist";
 
 export default function LoginPage() {
   const [activeTab, setActiveTab] = useState<Tab>("signin");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<FormStatus>({
@@ -21,6 +23,8 @@ export default function LoginPage() {
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab);
     // Reset form state when switching tabs
+    setFirstName("");
+    setLastName("");
     setEmail("");
     setStatus({ type: "idle", message: "" });
     setIsSubmitting(false);
@@ -32,6 +36,13 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!firstName.trim() || !lastName.trim()) {
+      setStatus({
+        type: "error",
+        message: "Please enter your first and last name",
+      });
+      return;
+    }
 
     if (!isValidEmail(email)) {
       setStatus({
@@ -48,7 +59,11 @@ export default function LoginPage() {
       const response = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          email,
+        }),
       });
 
       // Parse JSON body
@@ -97,6 +112,8 @@ export default function LoginPage() {
         type: "success",
         message: "You're on the list!",
       });
+      setFirstName("");
+      setLastName("");
       setEmail("");
     } catch (error) {
       // Network errors
@@ -172,6 +189,34 @@ export default function LoginPage() {
               {activeTab === "waitlist" ? (
                 /* WAITLIST FORM */
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        First name:
+                      </label>
+                      <input
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Jane"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sowma-blue focus:border-transparent outline-none transition-all"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Last name:
+                      </label>
+                      <input
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Doe"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sowma-blue focus:border-transparent outline-none transition-all"
+                        required
+                      />
+                    </div>
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Email:
