@@ -17,6 +17,7 @@ import {
   formatAbsoluteChange,
   getSmallCardSinceLabel,
 } from "../../utils/metricChange";
+import FacebookEmbed from "../../components/FacebookEmbed";
 
 type MetricKey =
   | "followers"
@@ -138,14 +139,14 @@ function buildPostingActivity(points: LinePoint[]): Map<string, number> {
   return activity;
 }
 
-function buildRecentPosts(points: LinePoint[], count = 6) {
-  const activity = buildPostingActivity(points);
-  return Array.from(activity.entries())
-    .filter(([, value]) => value > 0)
-    .sort((a, b) => b[0].localeCompare(a[0]))
-    .slice(0, count)
-    .map(([date, value]) => ({ date, value }));
-}
+// function buildRecentPosts(points: LinePoint[], count = 6) {
+//   const activity = buildPostingActivity(points);
+//   return Array.from(activity.entries())
+//     .filter(([, value]) => value > 0)
+//     .sort((a, b) => b[0].localeCompare(a[0]))
+//     .slice(0, count)
+//     .map(([date, value]) => ({ date, value }));
+// }
 
 // ── Page ────────────────────────────────────────────────────────────────────
 export default function FacebookPage() {
@@ -236,7 +237,7 @@ export default function FacebookPage() {
 
   // Use ALL posts data (not range-filtered) for the calendar so past months work
   const allPostsPoints = rawSeries.posts ?? [];
-  const recentPosts = buildRecentPosts(computed.posts?.filtered ?? []);
+  // const recentPosts = buildRecentPosts(computed.posts?.filtered ?? []);
 
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
@@ -389,28 +390,13 @@ export default function FacebookPage() {
         </div>
 
         <BigCard
-          title="Recent Posts"
-          titleTooltip="Displays the date and quantity of most recent posts"
+          title="Facebook Feed"
           chart={
-            recentPosts.length ? (
-              <div className="w-full flex flex-col gap-2 pt-2">
-                {recentPosts.map((post) => (
-                  <div
-                    key={post.date}
-                    className="rounded-lg border border-[#E5E5E5] p-3 font-poppins"
-                  >
-                    <p className="font-semibold text-sm">{post.date}</p>
-                    <p className="text-sm text-gray-600">
-                      {post.value} new post(s)
-                    </p>
-                  </div>
-                ))}
+            <div className="w-full flex justify-center items-start overflow-hidden">
+              <div className="w-full max-w-[500px] min-h-[600px]">
+                <FacebookEmbed />
               </div>
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                No recent post data
-              </div>
-            )
+            </div>
           }
           displayMode="chart-only"
           className="xl:h-[736px]"
