@@ -32,9 +32,8 @@ const BigCard: React.FC<BigCardProps> = ({
     displayMode === "both" || displayMode === "chart-only";
   const shouldShowMetric = displayMode === "both";
   const useFullChartHeight =
-    displayMode === "chart-only" ||
-    title === "Days Posted" ||
-    title === "Engagement Calendar";
+    displayMode === "chart-only" &&
+    (title === "Days Posted" || title === "Engagement Calendar");
 
   return (
     <div

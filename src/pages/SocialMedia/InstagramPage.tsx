@@ -313,7 +313,7 @@ export default function InstagramPage() {
               <div key={cfg.id}>
                 <BigCard
                   title={cfg.title}
-                  titleTooltip={cfg.description}
+                  titleTooltip={""}
                   subtitle={
                     <DateDropdown
                       value={ranges[cfg.id] ?? "30d"}
@@ -359,7 +359,7 @@ export default function InstagramPage() {
               </div>
             }
             displayMode="chart-only"
-            className="w-full h-[360px] md:h-[370px]"
+            className="w-full h-[360px]"
           />
         </div>
       </div>
