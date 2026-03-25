@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import InstagramEmbed from "../../components/InstagramEmbed";
 import DateDropdown, {
   DateRangeValue,
 } from "../../components/charts/DateButton";
@@ -20,7 +21,6 @@ type MetricConfig = {
   title: string;
   metric: string;
   metricLabel?: string;
-  description: string;
 };
 
 type LinePoint = { date: string; value: number };
@@ -30,41 +30,16 @@ const DEFAULT_START_DATE = "2016-08-15";
 const DEFAULT_END_DATE = "3000-01-01";
 
 const METRICS: MetricConfig[] = [
-  {
-    id: "impressions",
-    title: "Impressions",
-    metric: "VIEWS",
-    metricLabel: "",
-    description: "Number of users who see your website",
-  },
-  {
-    id: "followers",
-    title: "Followers",
-    metric: "FOLLOWERS",
-    metricLabel: "",
-    description: "Cumulative count",
-  },
-  {
-    id: "likes",
-    title: "Total Likes",
-    metric: "LIKES",
-    metricLabel: "",
-    description: "Cumulative count",
-  },
+  { id: "impressions", title: "Impressions", metric: "VIEWS", metricLabel: "" },
+  { id: "followers", title: "Followers", metric: "FOLLOWERS", metricLabel: "" },
+  { id: "likes", title: "Total Likes", metric: "LIKES", metricLabel: "" },
   {
     id: "comments",
     title: "Total Comments",
     metric: "COMMENTS",
     metricLabel: "",
-    description: "Cumulative count",
   },
-  {
-    id: "posts",
-    title: "Posts",
-    metric: "POSTS",
-    metricLabel: "",
-    description: "Cumulative count",
-  },
+  { id: "posts", title: "Posts", metric: "POSTS", metricLabel: "" },
 ];
 
 /* ---------- helpers ---------- */
@@ -239,11 +214,11 @@ export default function InstagramPage() {
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
-        <div className="flex items-center space-x-2">
+      <div className="w-full flex items-center px-4 py-2">
+        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
           <button
             onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px] flex items-center justify-center"
+            className="w-[40px] h-[40px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -261,20 +236,12 @@ export default function InstagramPage() {
             </svg>
           </button>
 
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
             Instagram
           </h1>
         </div>
-        <div className="flex flex-row justify-center items-center mt-2 lg:flex-row lg:mt-0 lg:space-x-2 space-x-4">
-          <a
-            href="https://www.instagram.com/schoolonwheelsma/?hl=en"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
-          >
-            {" "}
-            Go to Account{" "}
-          </a>
+
+        <div className="ml-auto">
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
@@ -295,7 +262,6 @@ export default function InstagramPage() {
                 <SmallCard
                   key={id}
                   title={cfg.title}
-                  titleTooltip={cfg.description}
                   displayMode="metric-only"
                   className="w-full h-full"
                   metricValue={s?.current ?? 0}
@@ -334,8 +300,9 @@ export default function InstagramPage() {
           </div>
         </div>
 
-        {/* Only Likes BigCard */}
-        <div className="w-full grid grid-cols-1 gap-4 lg:h-full">
+        {/* Likes + Instagram Feed */}
+        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 lg:h-full">
+          {/* Likes BigCard */}
           {METRICS.filter((cfg) => cfg.id === "likes").map((cfg) => {
             const item = computed[cfg.id];
             const filtered = item?.filtered ?? [];
@@ -382,6 +349,18 @@ export default function InstagramPage() {
               </div>
             );
           })}
+
+          {/* Instagram Feed */}
+          <BigCard
+            title="Recent Posts"
+            chart={
+              <div className="flex justify-center items-start w-full">
+                <InstagramEmbed />
+              </div>
+            }
+            displayMode="chart-only"
+            className="w-full h-[360px] md:h-[370px]"
+          />
         </div>
       </div>
     </div>

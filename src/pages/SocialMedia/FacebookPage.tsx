@@ -284,7 +284,7 @@ export default function FacebookPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-[2.1fr_1.3fr_1fr] gap-4">
         <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {topSmallCards.map((card, idx) => {
               const item = computed[card.key];
               return (
@@ -327,7 +327,7 @@ export default function FacebookPage() {
                   showArea
                 />
               ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
+                <div className="flex w-full h-3/4 items-center justify-center text-gray-500">
                   No data available
                 </div>
               )
@@ -361,7 +361,7 @@ export default function FacebookPage() {
                   showArea
                 />
               ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
+                <div className="flex w-full h-3/4 items-center justify-center text-gray-500">
                   No data available
                 </div>
               )
@@ -378,13 +378,13 @@ export default function FacebookPage() {
               allPostsPoints.length ? (
                 <CalendarHeatmap points={allPostsPoints} />
               ) : (
-                <div className="flex items-center justify-center text-gray-500">
+                <div className="flex w-full h-3/4 items-center justify-center text-gray-500">
                   No post activity data
                 </div>
               )
             }
             displayMode="chart-only"
-            className="lmd:h-[500px] g:h-[400px] xl:h-[360px]"
+            className="min-h-[360px] md:h-[500px]] xl:h-[360px]"
           />
         </div>
 
@@ -407,7 +407,7 @@ export default function FacebookPage() {
                 ))}
               </div>
             ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
+              <div className="flex w-full h-full items-center justify-center text-gray-500">
                 No recent post data
               </div>
             )
