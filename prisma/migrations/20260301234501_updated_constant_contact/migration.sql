@@ -1,0 +1,5 @@
+-- AlterEnum
+ALTER TYPE "public"."Metric" ADD VALUE 'EMAIL_BOUNCED';
+ALTER TYPE "public"."Metric" ADD VALUE 'EMAIL_FORWARDED';
+ALTER TYPE "public"."Metric" ADD VALUE 'EMAIL_NOT_OPENED';
+ALTER TYPE "public"."Metric" ADD VALUE 'EMAIL_ABUSE';

@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import {
   PrismaClient,
   Metric,
@@ -11,6 +12,7 @@ import {
   endOfDay,
   toUnixTimestamp,
   formatISODate,
+  metricsExistForDay,
 } from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
@@ -23,7 +25,7 @@ const prisma = new PrismaClient();
 -------------------------------------------------- */
 const IG_USER_ID = process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
 const MEDIA_LIMIT = 50;
-const FB_GRAPH_VERSION = "v20.0";
+const FB_GRAPH_VERSION = "v24.0";
 
 /* -------------------------------------------------
    Types
@@ -39,11 +41,20 @@ type DailyInsights = {
   views?: number;
   reach?: number;
   total_interactions?: number;
+  shares?: number;
+  saves?: number;
+  profile_views?: number;
+  website_clicks?: number;
 };
 
 type AccountTotals = {
   followers_count?: number;
   media_count?: number;
+};
+
+type MetricInsert = {
+  metricName: Metric;
+  metricValue: number;
 };
 
 /* -------------------------------------------------
@@ -74,7 +85,7 @@ async function fetchDailyInsights(
 
   const url =
     `https://graph.facebook.com/${FB_GRAPH_VERSION}/${IG_USER_ID}/insights` +
-    `?metric=views,reach,total_interactions` +
+    `?metric=views,reach,total_interactions,shares,saves,profile_views,website_clicks` +
     `&period=day` +
     `&metric_type=total_value` +
     `&since=${since}&until=${until}` +
@@ -86,13 +97,13 @@ async function fetchDailyInsights(
   }
 
   const json = (await res.json()) as {
-    data?: Array<{ name: string; values?: Array<{ value?: number }> }>;
+    data?: Array<{ name: string; total_value?: { value?: number } }>;
   };
 
   const out: Record<string, number> = {};
 
   for (const row of json.data ?? []) {
-    out[row.name] = row.values?.[0]?.value ?? 0;
+    out[row.name] = row.total_value?.value ?? 0;
   }
 
   return out;
@@ -160,6 +171,13 @@ export async function runDailyInstagramSync() {
     const ACCESS_TOKEN = fbAuth.accessToken;
 
     for (const account of accounts) {
+      if (await metricsExistForDay(account.id, metricDate)) {
+        console.log(
+          `[IG] ${account.username} already synced (${formatISODate(metricDate)})`,
+        );
+        continue;
+      }
+
       console.log(
         `[IG] Syncing ${account.username} (${formatISODate(metricDate)})`,
       );
@@ -173,21 +191,28 @@ export async function runDailyInstagramSync() {
         0,
       );
 
-      const daysPosted = media.length > 0 ? 1 : 0;
-
       const insights = await fetchDailyInsights(metricDate, ACCESS_TOKEN);
 
       const totals = await fetchAccountTotals(ACCESS_TOKEN);
 
-      const metricsToInsert = [
+      const metricsToInsert: MetricInsert[] = [
         { metricName: Metric.LIKES, metricValue: dailyLikes },
         { metricName: Metric.COMMENTS, metricValue: dailyComments },
-        { metricName: Metric.DAYS_POSTED, metricValue: daysPosted },
         { metricName: Metric.VIEWS, metricValue: insights.views ?? 0 },
         { metricName: Metric.REACH, metricValue: insights.reach ?? 0 },
         {
           metricName: Metric.TOTAL_INTERACTIONS,
           metricValue: insights.total_interactions ?? 0,
+        },
+        { metricName: Metric.SHARES, metricValue: insights.shares ?? 0 },
+        { metricName: Metric.SAVES, metricValue: insights.saves ?? 0 },
+        {
+          metricName: Metric.PROFILE_VIEWS,
+          metricValue: insights.profile_views ?? 0,
+        },
+        {
+          metricName: Metric.WEBSITE_CLICKS,
+          metricValue: insights.website_clicks ?? 0,
         },
         {
           metricName: Metric.FOLLOWERS,
@@ -197,7 +222,7 @@ export async function runDailyInstagramSync() {
           metricName: Metric.POSTS,
           metricValue: totals.media_count ?? 0,
         },
-      ] as const;
+      ];
 
       await prisma.$transaction(async (tx) => {
         await tx.socialMediaMetrics.deleteMany({
@@ -240,4 +265,6 @@ export async function runDailyInstagramSync() {
 /* -------------------------------------------------
    Entrypoint
 -------------------------------------------------- */
-runDailyInstagramSync().catch(console.error);
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  runDailyInstagramSync().catch(console.error);
+}
