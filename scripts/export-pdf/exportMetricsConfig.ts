@@ -38,9 +38,17 @@ const GOOGLE_METRICS: ExportMetricDefinition[] = [
 ];
 
 const INSTAGRAM_METRICS: ExportMetricDefinition[] = [
+  { id: "VIEWS", label: "Views" },
+  { id: "REACH", label: "Reach" },
+  { id: "TOTAL_INTERACTIONS", label: "Total Interactions" },
   { id: "LIKES", label: "Likes" },
   { id: "COMMENTS", label: "Comments" },
   { id: "FOLLOWERS", label: "Followers" },
+  { id: "POSTS", label: "Posts" },
+  { id: "SHARES", label: "Shares" },
+  { id: "SAVES", label: "Saves" },
+  { id: "PROFILE_VIEWS", label: "Profile Views" },
+  { id: "WEBSITE_CLICKS", label: "Website Clicks" },
 ];
 
 const FACEBOOK_METRICS: ExportMetricDefinition[] = [

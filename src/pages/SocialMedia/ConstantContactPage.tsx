@@ -354,6 +354,7 @@ export default function ConstantContactPage() {
                           data={filtered}
                           xAxisKey="date"
                           dataKeys={["value"]}
+                          labels={{ value: cfg.title }}
                           showArea
                         />
                       </div>

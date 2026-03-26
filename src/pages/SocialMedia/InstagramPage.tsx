@@ -18,31 +18,17 @@ import {
 import { getGlossaryDefinition, isGlossaryKey } from "../../data/glossarydata";
 
 const METRICS: MetricConfig[] = [
-  {
-    id: "impressions",
-    title: "Impressions",
-    metric: "VIEWS",
-  },
-  {
-    id: "followers",
-    title: "Total Followers",
-    metric: "FOLLOWERS",
-  },
-  {
-    id: "likes",
-    title: "Likes",
-    metric: "LIKES",
-  },
-  {
-    id: "comments",
-    title: "Comments",
-    metric: "COMMENTS",
-  },
-  {
-    id: "posts",
-    title: "Total Posts",
-    metric: "POSTS",
-  },
+  { id: "impressions", title: "Impressions", metric: "VIEWS" },
+  { id: "followers", title: "Total Followers", metric: "FOLLOWERS" },
+  { id: "reach", title: "Reach", metric: "REACH" },
+  { id: "totalInteractions", title: "Total Interactions", metric: "TOTAL_INTERACTIONS" },
+  { id: "likes", title: "Likes", metric: "LIKES" },
+  { id: "comments", title: "Comments", metric: "COMMENTS" },
+  { id: "posts", title: "Total Posts", metric: "POSTS" },
+  { id: "shares", title: "Shares", metric: "SHARES" },
+  { id: "saves", title: "Saves", metric: "SAVES" },
+  { id: "profileViews", title: "Profile Views", metric: "PROFILE_VIEWS" },
+  { id: "websiteClicks", title: "Website Clicks", metric: "WEBSITE_CLICKS" },
 ];
 
 type MetricConfig = {
@@ -118,6 +104,10 @@ function getBounds(pts: LinePoint[]) {
     min: new Date(dates[0]),
     max: new Date(dates[dates.length - 1]),
   };
+}
+
+function sumSeries(pts: LinePoint[]): number {
+  return pts.reduce((acc, p) => acc + p.value, 0);
 }
 
 /* ---------- component ---------- */
@@ -230,35 +220,70 @@ export default function InstagramPage() {
     id: "30d",
   });
 
-  // Calculate activity as difference between first and last value
-  function getActivityInRange(metricId: string, range: DateRangeValue) {
-    const points = filterByRange(rawSeries[metricId] ?? [], range);
-
-    if (!points.length) return 0;
-    if (points.length === 1) return points[0].value;
-
-    return points[points.length - 1].value - points[0].value;
+  // Sum all values in range (for daily metrics shown as totals)
+  function sumInRange(metricId: string, range: DateRangeValue) {
+    return sumSeries(filterByRange(rawSeries[metricId] ?? [], range));
   }
 
   const engagementMix = [
-    {
-      label: "Comments",
-      value: getActivityInRange("comments", engagementRange),
-    },
-    {
-      label: "Impressions",
-      value: getActivityInRange("impressions", engagementRange),
-    },
-    { label: "Likes", value: getActivityInRange("likes", engagementRange) },
-    { label: "Posts", value: getActivityInRange("posts", engagementRange) },
+    { label: "Likes", value: sumInRange("likes", engagementRange) },
+    { label: "Comments", value: sumInRange("comments", engagementRange) },
+    { label: "Shares", value: sumInRange("shares", engagementRange) },
+    { label: "Saves", value: sumInRange("saves", engagementRange) },
   ];
 
-  const topSmallCards = [
+  const smallCards = [
     { id: "impressions" },
-    { id: "followers" },
+    { id: "totalInteractions" },
     { id: "posts" },
     { id: "comments" },
   ] as const;
+
+  function lineBigCard(
+    id: string,
+    chartData: LinePoint[],
+    metricValue: number,
+    metricLabel: string,
+    metricChange?: string,
+  ) {
+    const cfg = METRICS.find((m) => m.id === id)!;
+    const bounds = computed[id]?.bounds ?? { min: null, max: null };
+    return (
+      <BigCard
+        key={id}
+        title={cfg.title}
+        titleTooltip={isGlossaryKey(cfg.id) ? getGlossaryDefinition(cfg.id) : ""}
+        subtitle={
+          <DateDropdown
+            value={ranges[id] ?? { id: "30d" }}
+            onChange={(r) => setRanges((prev) => ({ ...prev, [id]: r }))}
+            minDate={bounds.min}
+            maxDate={bounds.max}
+          />
+        }
+        metricValue={metricValue}
+        metricLabel={metricLabel}
+        metricChange={metricChange}
+        chart={
+          chartData.length ? (
+            <LineCharts
+              data={chartData}
+              xAxisKey="date"
+              dataKeys={["value"]}
+              labels={{ value: cfg.title }}
+              showArea
+            />
+          ) : (
+            <div className="flex items-center justify-center text-gray-500">
+              No data available
+            </div>
+          )
+        }
+        displayMode="both"
+        className="w-full h-[360px]"
+      />
+    );
+  }
 
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
@@ -308,106 +333,90 @@ export default function InstagramPage() {
         Last updated: {lastUpdated ?? "No imported data yet"}
       </div>
 
-      {/* Content */}
       <div className="flex flex-col gap-4">
-        {/* Small cards + pie chart */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {topSmallCards.map(({ id }) => {
-              const cfg = METRICS.find((m) => m.id === id)!;
-              const s = computed[id]?.fullSummary;
 
-              return (
-                <SmallCard
-                  key={id}
-                  title={cfg.title}
-                  titleTooltip={
-                    isGlossaryKey(cfg.id) ? getGlossaryDefinition(cfg.id) : ""
-                  }
-                  className="w-full h-full"
-                  displayMode="metric-only"
-                  metricValue={s?.current ?? 0}
-                  metricLabel={getSmallCardSinceLabel(computed[id]?.full)}
-                  metricChange={formatAbsoluteChange(s)}
-                />
-              );
-            })}
-          </div>
-
-          <div className="lg:col-span-1">
-            <BigCard
-              title="Engagement Mix"
-              titleTooltip={getGlossaryDefinition("engagementMix")}
-              className="w-full h-full"
-              subtitle={
-                <DateDropdown
-                  value={engagementRange}
-                  onChange={setEngagementRange}
-                  minDate={computed["impressions"]?.bounds.min}
-                  maxDate={computed["impressions"]?.bounds.max}
-                />
-              }
-              chart={
-                <div className="w-full h-64">
-                  <PieCharts
-                    data={engagementMix}
-                    dataKey="value"
-                    nameKey="label"
-                  />
-                </div>
-              }
-              displayMode="both"
-            />
-          </div>
-        </div>
-
-        {/* Likes chart */}
-        <div className="grid grid-cols-1 gap-4">
-          {METRICS.filter((cfg) => cfg.id === "likes").map((cfg) => {
-            const item = computed[cfg.id];
-            const filtered = item?.filtered ?? [];
-            const bounds = item?.bounds ?? { min: null, max: null };
-            const summary = item?.summary ?? { current: 0, prev: null };
-
+        {/* Small cards — full-width horizontal strip */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {smallCards.map(({ id }) => {
+            const cfg = METRICS.find((m) => m.id === id)!;
+            const s = computed[id]?.fullSummary;
             return (
-              <BigCard
-                key={cfg.id}
+              <SmallCard
+                key={id}
                 title={cfg.title}
-                subtitle={
-                  <DateDropdown
-                    value={ranges[cfg.id] ?? { id: "30d" }}
-                    onChange={(r) =>
-                      setRanges((prev) => ({ ...prev, [cfg.id]: r }))
-                    }
-                    minDate={bounds.min}
-                    maxDate={bounds.max}
-                  />
+                titleTooltip={
+                  isGlossaryKey(cfg.id) ? getGlossaryDefinition(cfg.id) : ""
                 }
-                metricValue={summary.current ?? 0}
-                metricLabel="total"
-                metricChange={formatPercentChange(summary)}
-                chart={
-                  filtered.length ? (
-                    <div className="w-full h-64">
-                      <LineCharts
-                        data={filtered}
-                        xAxisKey="date"
-                        dataKeys={["value"]}
-                        showArea
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center text-gray-500">
-                      No data available
-                    </div>
-                  )
-                }
-                displayMode="both"
-                className="w-full h-[360px]"
+                displayMode="metric-only"
+                className="w-full min-h-[172px]"
+                metricValue={s?.current ?? 0}
+                metricLabel={getSmallCardSinceLabel(computed[id]?.full)}
+                metricChange={formatAbsoluteChange(s)}
               />
             );
           })}
         </div>
+
+        {/* Followers + Reach + Total Likes */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {(() => {
+            const item = computed["followers"];
+            const filtered = item?.filtered ?? [];
+            const summary = item?.summary ?? { current: 0, prev: null };
+            return lineBigCard("followers", filtered, summary.current ?? 0, "followers", formatPercentChange(summary));
+          })()}
+          {(() => {
+            const item = computed["reach"];
+            const filtered = item?.filtered ?? [];
+            const summary = item?.summary ?? { current: 0, prev: null };
+            return lineBigCard("reach", filtered, summary.current ?? 0, "total", formatPercentChange(summary));
+          })()}
+          {(() => {
+            const item = computed["likes"];
+            const filtered = item?.filtered ?? [];
+            const summary = item?.summary ?? { current: 0, prev: null };
+            return lineBigCard("likes", filtered, summary.current ?? 0, "total", formatPercentChange(summary));
+          })()}
+        </div>
+
+        {/* Engagement Mix + Recent Posts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <BigCard
+            title="Engagement Mix"
+            titleTooltip={getGlossaryDefinition("engagementMix")}
+            subtitle={
+              <DateDropdown
+                value={engagementRange}
+                onChange={setEngagementRange}
+                minDate={computed["likes"]?.bounds.min}
+                maxDate={computed["likes"]?.bounds.max}
+              />
+            }
+            chart={
+              <div className="w-full h-64">
+                <PieCharts
+                  data={engagementMix}
+                  dataKey="value"
+                  nameKey="label"
+                />
+              </div>
+            }
+            displayMode="both"
+            className="w-full h-[360px]"
+          />
+          <BigCard
+            title="Recent Posts"
+            chart={
+              <div className="flex justify-center items-start w-full">
+                <InstagramEmbed />
+              </div>
+            }
+            displayMode="chart-only"
+            scrollable
+            className="w-full h-[360px]"
+          />
+        </div>
+
       </div>
     </div>
   );

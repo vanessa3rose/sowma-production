@@ -64,6 +64,13 @@ const PieCharts = ({
 
   const validData = data.filter((entry) => entry[dataKey] > 0);
 
+  const tooltipSeries = Object.fromEntries(
+    validData.map((entry, index) => [
+      entry[nameKey],
+      { color: COLORS[index % COLORS.length] },
+    ]),
+  );
+
   if (!validData.length) {
     return (
       <div
@@ -104,7 +111,7 @@ const PieCharts = ({
             ))}
           </Pie>
 
-          <Tooltip content={<ChartTooltip hideZeroValues />} />
+          <Tooltip content={<ChartTooltip hideZeroValues series={tooltipSeries} />} />
 
           <Legend
             verticalAlign="bottom"

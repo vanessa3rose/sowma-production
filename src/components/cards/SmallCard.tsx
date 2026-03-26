@@ -122,7 +122,7 @@ const SmallCard: React.FC<SmallCardProps> = ({
                   fontSize: "32px",
                   lineHeight: "100%",
                   letterSpacing: "-1%",
-                  color: "#3B82F6",
+                  color: "#4781C2",
                 }}
               >
                 {metricValue}
