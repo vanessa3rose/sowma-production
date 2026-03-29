@@ -14,6 +14,7 @@ interface BigCardProps {
   className: string;
   dropdown?: React.ReactNode;
   titleTooltip?: string;
+  style?: React.CSSProperties;
 }
 
 const BigCard: React.FC<BigCardProps> = ({
@@ -27,6 +28,7 @@ const BigCard: React.FC<BigCardProps> = ({
   className = "",
   dropdown,
   titleTooltip,
+  style,
 }) => {
   const shouldShowChart =
     displayMode === "both" || displayMode === "chart-only";
@@ -44,6 +46,7 @@ const BigCard: React.FC<BigCardProps> = ({
         borderRadius: "12px",
         boxShadow: "0px 4px 4px #1e1e1e64",
         padding: "20px",
+        ...style,
       }}
     >
       {/* Header with title, subtitle, and optional dropdown */}

@@ -147,6 +147,14 @@ function buildRecentPosts(points: LinePoint[], count = 6) {
     .map(([date, value]) => ({ date, value }));
 }
 
+function calculateWeeksNeeded(year: number, month: number): number {
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const totalDays = lastDay.getDate();
+  const paddedDays = firstDay.getDay() + totalDays;
+  return Math.ceil(paddedDays / 7);
+}
+
 // ── Page ────────────────────────────────────────────────────────────────────
 export default function FacebookPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
@@ -155,6 +163,41 @@ export default function FacebookPage() {
   const [ranges, setRanges] =
     useState<Record<MetricKey, DateRangeValue>>(INITIAL_RANGES);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [calendarOffset, setCalendarOffset] = useState(0);
+  const [isXl, setIsXl] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1280px)");
+    setIsXl(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsXl(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const today = new Date();
+  const minCalendarOffset = useMemo(() => {
+    if (!rawSeries.posts.length) return -12;
+    const earliest = rawSeries.posts[0].date.slice(0, 7);
+    const eYear = parseInt(earliest.slice(0, 4));
+    const eMonth = parseInt(earliest.slice(5, 7)) - 1;
+    const monthsDiff =
+      (today.getFullYear() - eYear) * 12 + (today.getMonth() - eMonth);
+    return -monthsDiff;
+  }, [rawSeries.posts]);
+
+  const weeksNeeded = useMemo(() => {
+    const viewDate = new Date(
+      today.getFullYear(),
+      today.getMonth() + calendarOffset,
+      1,
+    );
+    return calculateWeeksNeeded(viewDate.getFullYear(), viewDate.getMonth());
+  }, [calendarOffset]);
+
+  // Only enforce a shared height at xl+ where the cards sit side-by-side
+  const sharedCardHeight = isXl
+    ? 360 + Math.max(0, weeksNeeded - 5) * 60
+    : undefined;
 
   useEffect(() => {
     async function loadFacebook() {
@@ -333,7 +376,8 @@ export default function FacebookPage() {
               )
             }
             displayMode="both"
-            className="h-[360px]"
+            className=""
+            style={sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined}
           />
         </div>
 
@@ -376,7 +420,12 @@ export default function FacebookPage() {
             subtitle={<HeatmapLegend />}
             chart={
               allPostsPoints.length ? (
-                <CalendarHeatmap points={allPostsPoints} />
+                <CalendarHeatmap
+                  points={allPostsPoints}
+                  offset={calendarOffset}
+                  onOffsetChange={setCalendarOffset}
+                  minOffset={minCalendarOffset}
+                />
               ) : (
                 <div className="flex w-full h-3/4 items-center justify-center text-gray-500">
                   No post activity data
@@ -384,7 +433,8 @@ export default function FacebookPage() {
               )
             }
             displayMode="chart-only"
-            className="min-h-[360px] md:h-[500px]] xl:h-[360px]"
+            className=""
+            style={sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined}
           />
         </div>
 
@@ -413,7 +463,7 @@ export default function FacebookPage() {
             )
           }
           displayMode="chart-only"
-          className="xl:h-[736px]"
+          className="h-full"
         />
       </div>
     </div>
