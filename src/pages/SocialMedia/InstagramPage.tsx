@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import InstagramEmbed from "../../components/InstagramEmbed";
 import DateDropdown, {
   DateRangeValue,
 } from "../../components/charts/DateButton";
@@ -16,6 +15,36 @@ import {
   getSmallCardSinceLabel,
 } from "../../utils/metricChange";
 
+import { getGlossaryDefinition, isGlossaryKey } from "../../data/glossarydata";
+
+const METRICS: MetricConfig[] = [
+  {
+    id: "impressions",
+    title: "Impressions",
+    metric: "VIEWS",
+  },
+  {
+    id: "followers",
+    title: "Total Followers",
+    metric: "FOLLOWERS",
+  },
+  {
+    id: "likes",
+    title: "Likes",
+    metric: "LIKES",
+  },
+  {
+    id: "comments",
+    title: "Comments",
+    metric: "COMMENTS",
+  },
+  {
+    id: "posts",
+    title: "Total Posts",
+    metric: "POSTS",
+  },
+];
+
 type MetricConfig = {
   id: string;
   title: string;
@@ -25,25 +54,14 @@ type MetricConfig = {
 
 type LinePoint = { date: string; value: number };
 type MetricSummary = { current: number | null; prev: number | null };
+
 const PROVIDER = "INSTAGRAM";
 const DEFAULT_START_DATE = "2016-08-15";
 const DEFAULT_END_DATE = "3000-01-01";
 
-const METRICS: MetricConfig[] = [
-  { id: "impressions", title: "Impressions", metric: "VIEWS", metricLabel: "" },
-  { id: "followers", title: "Followers", metric: "FOLLOWERS", metricLabel: "" },
-  { id: "likes", title: "Total Likes", metric: "LIKES", metricLabel: "" },
-  {
-    id: "comments",
-    title: "Total Comments",
-    metric: "COMMENTS",
-    metricLabel: "",
-  },
-  { id: "posts", title: "Posts", metric: "POSTS", metricLabel: "" },
-];
-
 /* ---------- helpers ---------- */
 
+// Sort metrics by date ascending
 function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
   return raw
     .filter((m) => m.metricDate || m.lastSynced)
@@ -55,6 +73,7 @@ function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
     );
 }
 
+// Convert API data into chart-friendly format
 function toLinePoints(raw: SocialMediaMetric[]): LinePoint[] {
   return sortByDate(raw).map((m) => {
     const ts = (m.metricDate ?? m.lastSynced)!;
@@ -62,6 +81,7 @@ function toLinePoints(raw: SocialMediaMetric[]): LinePoint[] {
   });
 }
 
+// Get current and previous values from a series
 function summarizeSeries(points: LinePoint[]): MetricSummary {
   if (points.length === 0) return { current: null, prev: null };
   if (points.length === 1) return { current: points[0].value, prev: null };
@@ -71,6 +91,7 @@ function summarizeSeries(points: LinePoint[]): MetricSummary {
   };
 }
 
+// Format percent change between two values
 function formatPercentChange(summary?: MetricSummary | null) {
   if (
     !summary ||
@@ -84,14 +105,19 @@ function formatPercentChange(summary?: MetricSummary | null) {
   return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}% vs. prev.`;
 }
 
+// Get date bounds of a dataset
 function getBounds(pts: LinePoint[]) {
   if (!pts.length)
     return { min: null as Date | null, max: null as Date | null };
+
   const dates = pts
     .map((p) => p.date)
     .slice()
     .sort();
-  return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
+  return {
+    min: new Date(dates[0]),
+    max: new Date(dates[dates.length - 1]),
+  };
 }
 
 /* ---------- component ---------- */
@@ -101,12 +127,15 @@ export default function InstagramPage() {
 
   const [rawSeries, setRawSeries] = useState<Record<string, LinePoint[]>>({});
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+
+  // Date range per metric card
   const [ranges, setRanges] = useState<Record<string, DateRangeValue>>(() => {
     const init: Record<string, DateRangeValue> = {};
     METRICS.forEach((m) => (init[m.id] = { id: "30d" }));
     return init;
   });
 
+  // Load metric data once on mount
   useEffect(() => {
     async function load() {
       try {
@@ -122,13 +151,16 @@ export default function InstagramPage() {
         );
 
         const nextRaw: Record<string, LinePoint[]> = {};
+
         for (const { cfg, rows } of results) {
           nextRaw[cfg.id] = toLinePoints(rows);
         }
+
+        setRawSeries(nextRaw);
+
         setLastUpdated(
           getLatestImportedDate(results.map(({ rows }) => rows).flat()),
         );
-        setRawSeries(nextRaw);
       } catch (err) {
         console.error("Error loading Instagram metrics:", err);
       }
@@ -137,34 +169,47 @@ export default function InstagramPage() {
     load();
   }, []);
 
+  // Filter data by selected date range
   function filterByRange(pts: LinePoint[], range: DateRangeValue) {
     if (!pts.length) return pts;
     if (range.id === "all") return pts;
+
     if (range.id === "custom" && range.start && range.end) {
       const startStr = range.start.toISOString().slice(0, 10);
       const endStr = range.end.toISOString().slice(0, 10);
       return pts.filter((p) => p.date >= startStr && p.date <= endStr);
     }
+
     const end = new Date();
     end.setHours(0, 0, 0, 0);
+
     const start = new Date(end);
+
     if (range.id === "7d") start.setDate(start.getDate() - 6);
     if (range.id === "30d") start.setDate(start.getDate() - 29);
     if (range.id === "1y") start.setFullYear(start.getFullYear() - 1);
+
     const startStr = start.toISOString().slice(0, 10);
     const endStr = end.toISOString().slice(0, 10);
+
     return pts.filter((p) => p.date >= startStr && p.date <= endStr);
   }
 
+  // Compute filtered + summarized data per metric
   const computed = useMemo(() => {
     return METRICS.reduce(
       (acc, cfg) => {
         const full = rawSeries[cfg.id] ?? [];
         const filtered = filterByRange(full, ranges[cfg.id] ?? { id: "30d" });
-        const summary = summarizeSeries(filtered);
-        const fullSummary = summarizeSeries(full);
-        const bounds = getBounds(full);
-        acc[cfg.id] = { full, filtered, fullSummary, summary, bounds };
+
+        acc[cfg.id] = {
+          full,
+          filtered,
+          summary: summarizeSeries(filtered),
+          fullSummary: summarizeSeries(full),
+          bounds: getBounds(full),
+        };
+
         return acc;
       },
       {} as Record<
@@ -172,24 +217,26 @@ export default function InstagramPage() {
         {
           full: LinePoint[];
           filtered: LinePoint[];
-          fullSummary: MetricSummary;
           summary: MetricSummary;
+          fullSummary: MetricSummary;
           bounds: { min: Date | null; max: Date | null };
         }
       >,
     );
   }, [rawSeries, ranges]);
 
-  // Engagement Mix: add date range selector and cumulative calculation
+  // Engagement mix range selector
   const [engagementRange, setEngagementRange] = useState<DateRangeValue>({
     id: "30d",
   });
 
-  // Helper to get activity in range (difference between first and last value)
+  // Calculate activity as difference between first and last value
   function getActivityInRange(metricId: string, range: DateRangeValue) {
     const points = filterByRange(rawSeries[metricId] ?? [], range);
+
     if (!points.length) return 0;
     if (points.length === 1) return points[0].value;
+
     return points[points.length - 1].value - points[0].value;
   }
 
@@ -205,17 +252,19 @@ export default function InstagramPage() {
     { label: "Likes", value: getActivityInRange("likes", engagementRange) },
     { label: "Posts", value: getActivityInRange("posts", engagementRange) },
   ];
+
   const topSmallCards = [
     { id: "impressions" },
     { id: "followers" },
     { id: "posts" },
     { id: "comments" },
   ] as const;
+
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
-      <div className="w-full flex items-center px-4 py-2">
-        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => (window.location.href = "/")}
             className="w-[40px] h-[40px]"
@@ -236,23 +285,33 @@ export default function InstagramPage() {
             </svg>
           </button>
 
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
             Instagram
           </h1>
         </div>
 
-        <div className="ml-auto">
+        <div className="flex flex-row items-center space-x-4 mt-2 lg:mt-0">
+          <a
+            href="https://www.instagram.com/schoolonwheelsma/?hl=en"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-semibold"
+          >
+            Go to Account
+          </a>
+
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
-      <div className="font-poppins text-sm text-gray-600">
+
+      <div className="text-sm text-gray-600">
         Last updated: {lastUpdated ?? "No imported data yet"}
       </div>
 
       {/* Content */}
-      <div className="flex flex-col gap-4 lg:h-full">
-        {/* Top band: 2x2 small cards + pie chart */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="flex flex-col gap-4">
+        {/* Small cards + pie chart */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {topSmallCards.map(({ id }) => {
               const cfg = METRICS.find((m) => m.id === id)!;
@@ -262,8 +321,11 @@ export default function InstagramPage() {
                 <SmallCard
                   key={id}
                   title={cfg.title}
-                  displayMode="metric-only"
+                  titleTooltip={
+                    isGlossaryKey(cfg.id) ? getGlossaryDefinition(cfg.id) : ""
+                  }
                   className="w-full h-full"
+                  displayMode="metric-only"
                   metricValue={s?.current ?? 0}
                   metricLabel={getSmallCardSinceLabel(computed[id]?.full)}
                   metricChange={formatAbsoluteChange(s)}
@@ -272,11 +334,11 @@ export default function InstagramPage() {
             })}
           </div>
 
-          {/* Pie chart with date range selector */}
           <div className="lg:col-span-1">
             <BigCard
               title="Engagement Mix"
-              titleTooltip="Spread of interactions between Comments, Impressions, Likes, and Posts"
+              titleTooltip={getGlossaryDefinition("engagementMix")}
+              className="w-full h-full"
               subtitle={
                 <DateDropdown
                   value={engagementRange}
@@ -295,14 +357,12 @@ export default function InstagramPage() {
                 </div>
               }
               displayMode="both"
-              className="w-full h-full"
             />
           </div>
         </div>
 
-        {/* Likes + Instagram Feed */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 lg:h-full">
-          {/* Likes BigCard */}
+        {/* Likes chart */}
+        <div className="grid grid-cols-1 gap-4">
           {METRICS.filter((cfg) => cfg.id === "likes").map((cfg) => {
             const item = computed[cfg.id];
             const filtered = item?.filtered ?? [];
@@ -310,57 +370,43 @@ export default function InstagramPage() {
             const summary = item?.summary ?? { current: 0, prev: null };
 
             return (
-              <div key={cfg.id}>
-                <BigCard
-                  title={cfg.title}
-                  titleTooltip={""}
-                  subtitle={
-                    <DateDropdown
-                      value={ranges[cfg.id] ?? "30d"}
-                      onChange={(r) =>
-                        setRanges((prev) => ({ ...prev, [cfg.id]: r }))
-                      }
-                      minDate={bounds.min}
-                      maxDate={bounds.max}
-                    />
-                  }
-                  metricValue={summary.current ?? 0}
-                  metricLabel="total"
-                  metricChange={formatPercentChange(summary)}
-                  chart={
-                    filtered.length ? (
-                      <div className="w-full h-64">
-                        <LineCharts
-                          data={filtered}
-                          xAxisKey="date"
-                          dataKeys={["value"]}
-                          showArea
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center text-gray-500">
-                        No data available
-                      </div>
-                    )
-                  }
-                  displayMode="both"
-                  className="w-full h-[360px]"
-                />
-              </div>
+              <BigCard
+                key={cfg.id}
+                title={cfg.title}
+                subtitle={
+                  <DateDropdown
+                    value={ranges[cfg.id] ?? { id: "30d" }}
+                    onChange={(r) =>
+                      setRanges((prev) => ({ ...prev, [cfg.id]: r }))
+                    }
+                    minDate={bounds.min}
+                    maxDate={bounds.max}
+                  />
+                }
+                metricValue={summary.current ?? 0}
+                metricLabel="total"
+                metricChange={formatPercentChange(summary)}
+                chart={
+                  filtered.length ? (
+                    <div className="w-full h-64">
+                      <LineCharts
+                        data={filtered}
+                        xAxisKey="date"
+                        dataKeys={["value"]}
+                        showArea
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center text-gray-500">
+                      No data available
+                    </div>
+                  )
+                }
+                displayMode="both"
+                className="w-full h-[360px]"
+              />
             );
           })}
-
-          {/* Instagram Feed */}
-          <BigCard
-            title="Recent Posts"
-            chart={
-              <div className="flex justify-center items-start w-full">
-                <InstagramEmbed />
-              </div>
-            }
-            displayMode="chart-only"
-            className="w-full h-[360px]"
-          />
         </div>
       </div>
     </div>

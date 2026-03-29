@@ -31,6 +31,8 @@ import {
   getSmallCardSinceLabel,
 } from "../../utils/metricChange";
 
+import { getGlossaryDefinition } from "../../data/glossarydata";
+
 // Types
 export type GAMetrics = {
   activeUsers: number;
@@ -68,20 +70,6 @@ type Point = { date: string; value: number };
 const provider = "GOOGLE_ANALYTICS";
 const defaultStartDate = "2024-01-01";
 const defaultEndDate = "3000-01-01";
-const GA_CARD_TOOLTIPS = {
-  pageViews: "Total page and screen views.",
-  active7DayUsers: "Users active in the last 7 days.",
-  avgEngagementTime: "Average engagement time per user (seconds).",
-  countyVisitors: "Total site visitors by Massachusetts county.",
-  newVsReturning:
-    "Users who have never been to the site vs. users who are returning.",
-  sessionsByDevice: "Types of devices accessing the site.",
-  activeUsers:
-    "Users who were on the site for more than 10 seconds, or visited multiple pages.",
-  trafficSources: "How each user got to the site.",
-  engagementRate:
-    "Percent of sessions that lasted more than 10 seconds, or visited 2+ pages.",
-} as const;
 
 // -----------------------------
 // Today-anchored date helpers
@@ -540,7 +528,7 @@ export default function GoogleAnalyticsPage() {
 
   // ---------------------
   // Fetch county sessions breakdown + compute % of total
-  // ✅ date dropdown on map, anchored to TODAY
+  // date dropdown on map, anchored to TODAY
   // ---------------------
   useEffect(() => {
     async function loadBreakdownsAllTime() {
@@ -699,21 +687,21 @@ export default function GoogleAnalyticsPage() {
   const topSmallCards = [
     {
       title: "Page Views",
-      tooltip: GA_CARD_TOOLTIPS.pageViews,
+      tooltip: getGlossaryDefinition("pageViews"),
       value: smallCardSummaries.screenPageViews?.current ?? 0,
       label: getSmallCardSinceLabel(smallCardSeries.screenPageViews),
       change: formatAbsoluteChange(smallCardSummaries.screenPageViews),
     },
     {
       title: "Active 7-Day Users",
-      tooltip: GA_CARD_TOOLTIPS.active7DayUsers,
+      tooltip: getGlossaryDefinition("active7DayUsers"),
       value: smallCardSummaries.active7DayUsers?.current ?? 0,
       label: getSmallCardSinceLabel(smallCardSeries.active7DayUsers),
       change: formatAbsoluteChange(smallCardSummaries.active7DayUsers),
     },
     {
       title: "Avg Engagement Time",
-      tooltip: GA_CARD_TOOLTIPS.avgEngagementTime,
+      tooltip: getGlossaryDefinition("avgEngagementTime"),
       value: Math.round(smallCardSummaries.engagementTime?.current ?? 0),
       label: getSmallCardSinceLabel(smallCardSeries.engagementTime),
       change: formatAbsoluteChange(smallCardSummaries.engagementTime),
@@ -726,7 +714,7 @@ export default function GoogleAnalyticsPage() {
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
-      <div className="w-full flex items-center justify-between px-4 py-2">
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
         <div className="flex items-center space-x-2 mr-2 lg:mr-0">
           <button
             onClick={() => (window.location.href = "/")}
@@ -765,12 +753,13 @@ export default function GoogleAnalyticsPage() {
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
+
       <div className="px-4 font-poppins text-sm text-gray-600">
         Last updated: {lastUpdated ?? "No imported data yet"}
       </div>
 
       {/* Row 1: Top small cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {topSmallCards.map((card) => (
           <SmallCard
             key={card.title}
@@ -786,11 +775,11 @@ export default function GoogleAnalyticsPage() {
       </div>
 
       {/* Row 2: Map + New vs Returning */}
-      <div className="flex lg:flex-row flex-col gap-4 px-4">
+      <div className="flex lg:flex-row flex-col gap-4">
         <div className="lg:w-3/5 w-full">
           <BigCard
             title="Massachusetts Visitors by County"
-            titleTooltip={GA_CARD_TOOLTIPS.countyVisitors}
+            titleTooltip={getGlossaryDefinition("countyVisitors")}
             subtitle={
               <DateDropdown
                 value={{ id: countyRange }}
@@ -817,7 +806,7 @@ export default function GoogleAnalyticsPage() {
         <div className="lg:w-2/5 w-full">
           <BigCard
             title="New vs Returning Users"
-            titleTooltip={GA_CARD_TOOLTIPS.newVsReturning}
+            titleTooltip={getGlossaryDefinition("newVsReturning")}
             subtitle={
               <DateDropdown
                 value={{ id: newVsReturningRange }}
@@ -841,11 +830,11 @@ export default function GoogleAnalyticsPage() {
       </div>
 
       {/* Row 3: Device category + Active users */}
-      <div className="flex lg:flex-row flex-col gap-4 px-4">
+      <div className="flex lg:flex-row flex-col gap-4">
         <div className="lg:w-2/5 w-full">
           <BigCard
             title="Sessions by Device Category"
-            titleTooltip={GA_CARD_TOOLTIPS.sessionsByDevice}
+            titleTooltip={getGlossaryDefinition("sessionsByDevice")}
             subtitle={
               <DateDropdown
                 value={{ id: deviceRange }}
@@ -869,7 +858,7 @@ export default function GoogleAnalyticsPage() {
         <div className="lg:w-3/5 w-full">
           <BigCard
             title="Active Users"
-            titleTooltip={GA_CARD_TOOLTIPS.activeUsers}
+            titleTooltip={getGlossaryDefinition("activeUsers")}
             subtitle={
               <DateDropdown
                 value={{ id: activeUsersRange }}
@@ -897,10 +886,10 @@ export default function GoogleAnalyticsPage() {
       </div>
 
       {/* Row 4: Source + Engagement side-by-side equal */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 pb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-4">
         <BigCard
           title="Traffic Source Breakdown"
-          titleTooltip={GA_CARD_TOOLTIPS.trafficSources}
+          titleTooltip={getGlossaryDefinition("trafficSources")}
           subtitle={
             <DateDropdown
               value={{ id: sourceRange }}
@@ -924,7 +913,7 @@ export default function GoogleAnalyticsPage() {
         />
         <BigCard
           title="Engagement Rate"
-          titleTooltip={GA_CARD_TOOLTIPS.engagementRate}
+          titleTooltip={getGlossaryDefinition("engagementRate")}
           subtitle={
             <DateDropdown
               value={{ id: engagementRange }}
