@@ -75,7 +75,7 @@ const METRIC_DESCRIPTIONS: Record<MetricKey, string> = {
   likes: "Cumulative count",
   views: "Cumulative count",
   comments: "Cumulative count",
-  posts: "Green squares indicate days with posts",
+  posts: "Blue squares indicate days with posts",
   shares: "Cumulative count",
 };
 
