@@ -164,6 +164,15 @@ export default function FacebookPage() {
     useState<Record<MetricKey, DateRangeValue>>(INITIAL_RANGES);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [calendarOffset, setCalendarOffset] = useState(0);
+  const [isXl, setIsXl] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1280px)");
+    setIsXl(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsXl(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   const today = new Date();
   const minCalendarOffset = useMemo(() => {
@@ -185,8 +194,10 @@ export default function FacebookPage() {
     return calculateWeeksNeeded(viewDate.getFullYear(), viewDate.getMonth());
   }, [calendarOffset]);
 
-  // Calculate dynamic height: 60px base + 60px per week
-  const dynamicCardHeight = 100 + weeksNeeded * 60;
+  // Only enforce a shared height at xl+ where the cards sit side-by-side
+  const sharedCardHeight = isXl
+    ? 360 + Math.max(0, weeksNeeded - 5) * 60
+    : undefined;
 
   useEffect(() => {
     async function loadFacebook() {
@@ -365,8 +376,8 @@ export default function FacebookPage() {
               )
             }
             displayMode="both"
-            className="lmd:h-[500px] g:h-[400px]"
-            style={{ height: `${dynamicCardHeight}px` }}
+            className=""
+            style={sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined}
           />
         </div>
 
@@ -422,8 +433,8 @@ export default function FacebookPage() {
               )
             }
             displayMode="chart-only"
-            className="lmd:h-[500px] g:h-[400px]"
-            style={{ height: `${dynamicCardHeight}px` }}
+            className=""
+            style={sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined}
           />
         </div>
 
@@ -452,8 +463,7 @@ export default function FacebookPage() {
             )
           }
           displayMode="chart-only"
-          className=""
-          style={{ height: `${dynamicCardHeight + 375}px` }}
+          className="h-full"
         />
       </div>
     </div>
