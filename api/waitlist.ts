@@ -2,6 +2,7 @@ import { clerkClient } from "@clerk/express";
 import { PrismaClient } from "../src/generated/prisma/index.js";
 import nodemailer from "nodemailer";
 import { randomUUID } from "node:crypto";
+import { requireAdminApi } from "./_auth.js";
 
 const SOWMA_BLUE = "#2872b0";
 
@@ -364,6 +365,9 @@ export default async function handler(req: any, res: any) {
 
   if (method === "GET") {
     // Return the full queue for the admin waitlist table.
+    const auth = await requireAdminApi(req, res);
+    if (!auth) return;
+
     try {
       const [entries, invitations] = await Promise.all([
         getWaitlistEntries(),
@@ -446,6 +450,9 @@ export default async function handler(req: any, res: any) {
     }
   } else if (method === "PATCH") {
     // Approve or deny a waitlist user from the admin tab.
+    const auth = await requireAdminApi(req, res);
+    if (!auth) return;
+
     try {
       const action = String(req.body?.action ?? "")
         .trim()
@@ -593,6 +600,9 @@ export default async function handler(req: any, res: any) {
     }
   } else if (method === "DELETE") {
     // Remove a waitlist user directly from the admin tab.
+    const auth = await requireAdminApi(req, res);
+    if (!auth) return;
+
     try {
       const email: string = normalizeEmail(req.body?.email);
 

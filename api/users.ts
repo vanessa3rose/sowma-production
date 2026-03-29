@@ -1,9 +1,13 @@
 import { clerkClient } from "@clerk/express";
+import { requireAdminApi } from "./_auth.js";
 
 type Role = "ADMIN" | "USER" | "VIEWER";
 
 export default async function handler(req: any, res: any) {
   const method = req.method;
+
+  const auth = await requireAdminApi(req, res);
+  if (!auth) return;
 
   try {
     if (method === "GET") {
