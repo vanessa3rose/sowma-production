@@ -1,6 +1,6 @@
 import { clerkClient } from "@clerk/express";
 import { PrismaClient } from "../src/generated/prisma/index.js";
-import nodemailer from "nodemailer";
+import * as nodemailer from "nodemailer";
 import { randomUUID } from "node:crypto";
 import { requireAdminApi } from "./_auth.js";
 
