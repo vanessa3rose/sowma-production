@@ -5,6 +5,7 @@ import LineCharts from "../charts/LineCharts";
 import PieCharts from "../charts/PieCharts";
 import BarCharts from "../charts/BarCharts";
 import MassachusettsCountyMap from "../maps/MassachusettsCountyMap";
+import ReactECharts from "echarts-for-react";
 import {
   EXPORT_PLATFORM_CONFIGS,
   type ExportMetricFormat,
@@ -330,6 +331,102 @@ function groupSourceTotals(sourceTotals: Record<string, number>): Array<{
   ];
 }
 
+function fmtN(n: number): string {
+  return n.toLocaleString();
+}
+
+function buildCCSankeyOption(vals: Record<string, number>) {
+  const sent = vals.EMAILS_SENT ?? 0;
+  const delivered = vals.EMAILS_DELIVERED ?? 0;
+  const bounced = vals.EMAIL_BOUNCED ?? 0;
+  const opened = vals.EMAIL_OPENED ?? 0;
+  const notOpened = vals.EMAIL_NOT_OPENED ?? 0;
+  const clicked = vals.EMAILS_CLICKED ?? 0;
+  const unsubscribed = vals.EMAILS_UNSUBSCRIBED ?? 0;
+  const abuse = vals.EMAIL_ABUSE ?? 0;
+  const forwarded = vals.EMAIL_FORWARDED ?? 0;
+
+  type SankeyNode = { name: string; itemStyle: { color: string } };
+  type SankeyLink = { source: string; target: string; value: number; lineStyle: { color: string; opacity: number } };
+
+  const nodes: SankeyNode[] = [
+    { name: `Sent\n${fmtN(sent)}`, itemStyle: { color: "#5B8FF9" } },
+    { name: `Delivered\n${fmtN(delivered)}`, itemStyle: { color: "#9DC96A" } },
+    { name: `Bounced\n${fmtN(bounced)}`, itemStyle: { color: "#C5C5C5" } },
+    { name: `Opened\n${fmtN(opened)}`, itemStyle: { color: "#A78BFA" } },
+    { name: `Not Opened\n${fmtN(notOpened)}`, itemStyle: { color: "#F472B6" } },
+    { name: `Clicked\n${fmtN(clicked)}`, itemStyle: { color: "#60A5FA" } },
+  ];
+
+  const links: SankeyLink[] = [
+    { source: `Sent\n${fmtN(sent)}`, target: `Delivered\n${fmtN(delivered)}`, value: delivered, lineStyle: { color: "#9DC96A", opacity: 0.35 } },
+  ];
+
+  if (bounced > 0) links.push({ source: `Sent\n${fmtN(sent)}`, target: `Bounced\n${fmtN(bounced)}`, value: bounced, lineStyle: { color: "#C5C5C5", opacity: 0.35 } });
+  if (opened > 0) links.push({ source: `Delivered\n${fmtN(delivered)}`, target: `Opened\n${fmtN(opened)}`, value: opened, lineStyle: { color: "#A78BFA", opacity: 0.35 } });
+  if (notOpened > 0) links.push({ source: `Delivered\n${fmtN(delivered)}`, target: `Not Opened\n${fmtN(notOpened)}`, value: notOpened, lineStyle: { color: "#F472B6", opacity: 0.35 } });
+  if (clicked > 0) links.push({ source: `Opened\n${fmtN(opened)}`, target: `Clicked\n${fmtN(clicked)}`, value: clicked, lineStyle: { color: "#60A5FA", opacity: 0.35 } });
+  if (unsubscribed > 0) {
+    nodes.push({ name: `Unsubscribed\n${fmtN(unsubscribed)}`, itemStyle: { color: "#FB923C" } });
+    links.push({ source: `Opened\n${fmtN(opened)}`, target: `Unsubscribed\n${fmtN(unsubscribed)}`, value: unsubscribed, lineStyle: { color: "#FB923C", opacity: 0.35 } });
+  }
+  if (abuse > 0) {
+    nodes.push({ name: `Spam\n${fmtN(abuse)}`, itemStyle: { color: "#F87171" } });
+    links.push({ source: `Delivered\n${fmtN(delivered)}`, target: `Spam\n${fmtN(abuse)}`, value: abuse, lineStyle: { color: "#F87171", opacity: 0.35 } });
+  }
+  if (forwarded > 0) {
+    nodes.push({ name: `Forwarded\n${fmtN(forwarded)}`, itemStyle: { color: "#34D399" } });
+    links.push({ source: `Opened\n${fmtN(opened)}`, target: `Forwarded\n${fmtN(forwarded)}`, value: forwarded, lineStyle: { color: "#34D399", opacity: 0.35 } });
+  }
+
+  return {
+    tooltip: { trigger: "item", triggerOn: "mousemove" },
+    series: [{
+      type: "sankey",
+      layout: "none",
+      emphasis: { focus: "adjacency" },
+      nodeWidth: 18,
+      nodeGap: 28,
+      left: "2%", right: "18%", top: "8%", bottom: "8%",
+      data: nodes,
+      links,
+      label: { color: "#374151", fontFamily: "inherit", fontSize: 11, fontWeight: 500 },
+      lineStyle: { curveness: 0.5 },
+    }],
+  };
+}
+
+function mergeChartData(
+  aPoints: { date: string; value: number }[],
+  aKey: string,
+  bPoints: { date: string; value: number }[],
+  bKey: string,
+): Record<string, unknown>[] {
+  const map = new Map<string, Record<string, unknown>>();
+  for (const p of aPoints) map.set(p.date, { date: p.date, [aKey]: p.value });
+  for (const p of bPoints) {
+    const existing = map.get(p.date);
+    if (existing) existing[bKey] = p.value;
+    else map.set(p.date, { date: p.date, [bKey]: p.value });
+  }
+  return Array.from(map.values()).sort((a, b) =>
+    String(a.date).localeCompare(String(b.date)),
+  );
+}
+
+function computeRatePoints(
+  numerator: { date: string; value: number }[],
+  denominator: { date: string; value: number }[],
+  key: string,
+): Record<string, unknown>[] {
+  const denomMap = new Map(denominator.map((p) => [p.date, p.value]));
+  return numerator.flatMap((p) => {
+    const denom = denomMap.get(p.date) ?? 0;
+    if (denom === 0) return [];
+    return [{ date: p.date, [key]: Math.round((p.value / denom) * 1000) / 10 }];
+  });
+}
+
 function ExportPage({ children }: { children: ReactNode }) {
   return (
     <div
@@ -624,6 +721,201 @@ export default function e({ selections, range }: ExportReportViewProps) {
 
         const platformKey = selection.platform as Platform;
         const config = EXPORT_PLATFORM_CONFIGS[platformKey];
+
+        if (platformKey === "constantcontact") {
+          const chartDataMap = selection.data.chartDataMap;
+          const metricSummaries = selection.data.metricSummaries;
+          const latestDate = latestPointDate(chartDataMap);
+
+          const sentSummary = metricSummaries.EMAILS_SENT ?? { current: 0, prev: 0 };
+          const deliveredSummary = metricSummaries.EMAILS_DELIVERED ?? { current: 0, prev: 0 };
+          const openedSummary = metricSummaries.EMAIL_OPENED ?? { current: 0, prev: 0 };
+          const clickedSummary = metricSummaries.EMAILS_CLICKED ?? { current: 0, prev: 0 };
+
+          const openRate = (deliveredSummary.current ?? 0) > 0
+            ? Math.round(((openedSummary.current ?? 0) / (deliveredSummary.current ?? 0)) * 1000) / 10
+            : 0;
+          const prevOpenRate = (deliveredSummary.prev ?? 0) > 0
+            ? Math.round(((openedSummary.prev ?? 0) / (deliveredSummary.prev ?? 0)) * 1000) / 10
+            : 0;
+
+          const ctor = (openedSummary.current ?? 0) > 0
+            ? Math.round(((clickedSummary.current ?? 0) / (openedSummary.current ?? 0)) * 1000) / 10
+            : 0;
+          const prevCtor = (openedSummary.prev ?? 0) > 0
+            ? Math.round(((clickedSummary.prev ?? 0) / (openedSummary.prev ?? 0)) * 1000) / 10
+            : 0;
+
+          const deliveryRate = (sentSummary.current ?? 0) > 0
+            ? Math.round(((deliveredSummary.current ?? 0) / (sentSummary.current ?? 0)) * 1000) / 10
+            : 0;
+          const prevDeliveryRate = (sentSummary.prev ?? 0) > 0
+            ? Math.round(((deliveredSummary.prev ?? 0) / (sentSummary.prev ?? 0)) * 1000) / 10
+            : 0;
+
+          // Sankey totals — sum all points for each metric
+          const ccSankeyVals: Record<string, number> = {};
+          [
+            "EMAILS_SENT", "EMAILS_DELIVERED", "EMAIL_BOUNCED", "EMAIL_OPENED",
+            "EMAIL_NOT_OPENED", "EMAILS_CLICKED", "EMAILS_UNSUBSCRIBED",
+            "EMAIL_ABUSE", "EMAIL_FORWARDED",
+          ].forEach((key) => {
+            ccSankeyVals[key] = (chartDataMap[key] ?? []).reduce((s, p) => s + p.value, 0);
+          });
+          const ccSankeyOption = buildCCSankeyOption(ccSankeyVals);
+          const hasSankeyData = ccSankeyVals.EMAILS_SENT > 0;
+
+          const opensData = mergeChartData(
+            chartDataMap.EMAIL_UNIQUE_OPENS ?? [],
+            "uniqueOpens",
+            chartDataMap.EMAIL_TOTAL_OPENS ?? [],
+            "totalOpens",
+          );
+          const clicksData = mergeChartData(
+            chartDataMap.EMAIL_UNIQUE_CLICKS ?? [],
+            "uniqueClicks",
+            chartDataMap.EMAIL_TOTAL_CLICKS ?? [],
+            "totalClicks",
+          );
+          const openRateData = computeRatePoints(
+            chartDataMap.EMAIL_OPENED ?? [],
+            chartDataMap.EMAILS_DELIVERED ?? [],
+            "openRate",
+          );
+          const ctorData = computeRatePoints(
+            chartDataMap.EMAILS_CLICKED ?? [],
+            chartDataMap.EMAIL_OPENED ?? [],
+            "ctorRate",
+          );
+          const deliveryRateData = computeRatePoints(
+            chartDataMap.EMAILS_DELIVERED ?? [],
+            chartDataMap.EMAILS_SENT ?? [],
+            "deliveryRate",
+          );
+
+          return (
+            <div key={`${selection.type}-${index}`}>
+              <ExportPage>
+                {index === 0 ? (
+                  <div className="mb-6 border-b border-gray-200 pb-4">
+                    <div className="text-2xl font-semibold">
+                      SOWMA Social Media Analytics Report
+                    </div>
+                    <div className="mt-1 text-sm text-gray-600">
+                      Generated {timestamp} - {rangeLabel}
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500">
+                      Note: Metrics are daily values unless explicitly labeled as cumulative.
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="text-3xl font-bold mb-2">Constant Contact</div>
+                <div className="text-sm text-gray-600 mb-4">
+                  Last updated: {latestDate ?? "No data"}
+                </div>
+
+                {/* Email Flow Sankey */}
+                <GoogleChartCard title="Email Flow" subtitle={rangeLabel} height={360}>
+                  {hasSankeyData ? (
+                    <ReactECharts
+                      option={ccSankeyOption}
+                      style={{ height: "100%", width: "100%" }}
+                      opts={{ renderer: "svg" }}
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                      No data in range
+                    </div>
+                  )}
+                </GoogleChartCard>
+
+                {/* KPI row: Sent, Delivered, Open Rate %, CTOR %, Delivery Rate % */}
+                <div className="grid grid-cols-5 gap-4">
+                  <GoogleSmallMetricCard
+                    title="Emails Sent"
+                    value={formatValue(sentSummary.current ?? 0)}
+                    delta={formatDelta((sentSummary.current ?? 0) - (sentSummary.prev ?? 0))}
+                  />
+                  <GoogleSmallMetricCard
+                    title="Emails Delivered"
+                    value={formatValue(deliveredSummary.current ?? 0)}
+                    delta={formatDelta((deliveredSummary.current ?? 0) - (deliveredSummary.prev ?? 0))}
+                  />
+                  <GoogleSmallMetricCard
+                    title="Open Rate"
+                    value={`${openRate}%`}
+                    delta={`${formatSigned(openRate - prevOpenRate, 1)}pp`}
+                  />
+                  <GoogleSmallMetricCard
+                    title="Click-to-Open Rate"
+                    value={`${ctor}%`}
+                    delta={`${formatSigned(ctor - prevCtor, 1)}pp`}
+                  />
+                  <GoogleSmallMetricCard
+                    title="Delivery Rate"
+                    value={`${deliveryRate}%`}
+                    delta={`${formatSigned(deliveryRate - prevDeliveryRate, 1)}pp`}
+                  />
+                </div>
+
+                {/* Opens vs Clicks comparison */}
+                <div className="mt-3 grid grid-cols-2 gap-4">
+                  <GoogleChartCard title="Opens: Unique vs Total" subtitle={rangeLabel} height={200}>
+                    <LineCharts
+                      data={opensData}
+                      xAxisKey="date"
+                      dataKeys={["uniqueOpens", "totalOpens"]}
+                      showArea
+                      compact
+                    />
+                  </GoogleChartCard>
+                  <GoogleChartCard title="Clicks: Unique vs Total" subtitle={rangeLabel} height={200}>
+                    <LineCharts
+                      data={clicksData}
+                      xAxisKey="date"
+                      dataKeys={["uniqueClicks", "totalClicks"]}
+                      showArea
+                      compact
+                    />
+                  </GoogleChartCard>
+                </div>
+
+                {/* Rate charts */}
+                <div className="mt-3 grid grid-cols-3 gap-4">
+                  <GoogleChartCard title="Open Rate %" subtitle={rangeLabel} height={200}>
+                    <LineCharts data={openRateData} xAxisKey="date" dataKeys={["openRate"]} showArea compact />
+                  </GoogleChartCard>
+                  <GoogleChartCard title="Click-to-Open Rate %" subtitle={rangeLabel} height={200}>
+                    <LineCharts data={ctorData} xAxisKey="date" dataKeys={["ctorRate"]} showArea compact />
+                  </GoogleChartCard>
+                  <GoogleChartCard title="Delivery Rate %" subtitle={rangeLabel} height={200}>
+                    <LineCharts data={deliveryRateData} xAxisKey="date" dataKeys={["deliveryRate"]} showArea compact />
+                  </GoogleChartCard>
+                </div>
+
+                {/* Individual metrics */}
+                <div className="mt-3 grid grid-cols-3 gap-4">
+                  <GoogleChartCard title="Emails Sent" subtitle={rangeLabel} height={200}>
+                    <LineCharts data={chartDataMap.EMAILS_SENT ?? []} xAxisKey="date" dataKeys={["value"]} showArea compact />
+                  </GoogleChartCard>
+                  <GoogleChartCard title="Emails Delivered" subtitle={rangeLabel} height={200}>
+                    <LineCharts data={chartDataMap.EMAILS_DELIVERED ?? []} xAxisKey="date" dataKeys={["value"]} showArea compact />
+                  </GoogleChartCard>
+                  <GoogleChartCard title="Unsubscribed" subtitle={rangeLabel} height={200}>
+                    <LineCharts data={chartDataMap.EMAILS_UNSUBSCRIBED ?? []} xAxisKey="date" dataKeys={["value"]} showArea compact />
+                  </GoogleChartCard>
+                  <GoogleChartCard title="Bounced" subtitle={rangeLabel} height={200}>
+                    <LineCharts data={chartDataMap.EMAIL_BOUNCED ?? []} xAxisKey="date" dataKeys={["value"]} showArea compact />
+                  </GoogleChartCard>
+                  <GoogleChartCard title="Abuse / Spam" subtitle={rangeLabel} height={200}>
+                    <LineCharts data={chartDataMap.EMAIL_ABUSE ?? []} xAxisKey="date" dataKeys={["value"]} showArea compact />
+                  </GoogleChartCard>
+                </div>
+              </ExportPage>
+            </div>
+          );
+        }
 
         if (platformKey === "linkedin") {
           // LinkedIn has a custom layout in PDF so it matches the live page:

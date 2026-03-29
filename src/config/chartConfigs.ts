@@ -20,13 +20,6 @@ export const CHART_CONFIGS: Record<string, ChartConfig[]> = {
       type: "line",
       metric: "FOLLOWERS",
     },
-    { id: "reach", title: "Reach", type: "line", metric: "REACH" },
-    {
-      id: "total_interactions",
-      title: "Total Interactions",
-      type: "line",
-      metric: "TOTAL_INTERACTIONS",
-    },
     { id: "total_likes", title: "Total Likes", type: "line", metric: "LIKES" },
     {
       id: "total_comments",
@@ -39,20 +32,6 @@ export const CHART_CONFIGS: Record<string, ChartConfig[]> = {
       title: "Media Reactions",
       type: "line",
       metric: "POSTS",
-    },
-    { id: "shares", title: "Shares", type: "line", metric: "SHARES" },
-    { id: "saves", title: "Saves", type: "line", metric: "SAVES" },
-    {
-      id: "profile_views",
-      title: "Profile Views",
-      type: "line",
-      metric: "PROFILE_VIEWS",
-    },
-    {
-      id: "website_clicks",
-      title: "Website Clicks",
-      type: "line",
-      metric: "WEBSITE_CLICKS",
     },
   ],
 
@@ -210,6 +189,30 @@ export const CHART_CONFIGS: Record<string, ChartConfig[]> = {
       title: "Unsubscribed",
       type: "line",
       metric: "EMAILS_UNSUBSCRIBED",
+    },
+    {
+      id: "email_bounced",
+      title: "Bounced",
+      type: "line",
+      metric: "EMAIL_BOUNCED",
+    },
+    {
+      id: "email_forwarded",
+      title: "Forwarded",
+      type: "line",
+      metric: "EMAIL_FORWARDED",
+    },
+    {
+      id: "email_not_opened",
+      title: "Not Opened",
+      type: "line",
+      metric: "EMAIL_NOT_OPENED",
+    },
+    {
+      id: "email_abuse",
+      title: "Abuse / Spam",
+      type: "line",
+      metric: "EMAIL_ABUSE",
     },
   ],
 };

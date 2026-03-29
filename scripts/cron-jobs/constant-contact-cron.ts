@@ -29,6 +29,10 @@ type CampaignSummary = {
     opens?: number;
     clicks?: number;
     optouts?: number; // unsubscribes
+    bounces?: number;
+    forwards?: number;
+    not_opened?: number;
+    abuse?: number;
   };
 };
 
@@ -36,6 +40,24 @@ type CampaignSummariesResponse = {
   bulk_email_campaign_summaries?: CampaignSummary[];
   _links?: {
     next?: { href?: string };
+  };
+};
+
+type CampaignDetailsResponse = {
+  campaign_id: string;
+  campaign_activities?: Array<{
+    campaign_activity_id: string;
+    role: string;
+    current_status?: string;
+  }>;
+};
+
+type ActivityReport = {
+  campaign_id: string;
+  campaign_activity_id: string;
+  tracking_counts?: {
+    opens?: number;
+    clicks?: number;
   };
 };
 
@@ -71,6 +93,45 @@ async function getConstantContactAccountOrThrow() {
 function isWithinUtcDay(iso: string, day: Date) {
   const t = new Date(iso).getTime();
   return t >= startOfDay(day).getTime() && t <= endOfDay(day).getTime();
+}
+
+async function fetchCampaignDetails(
+  accessToken: string,
+  campaignId: string,
+): Promise<CampaignDetailsResponse> {
+  const res = await fetch(`${BASE_URL}/emails/${campaignId}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: "application/json",
+    },
+  });
+  if (!res.ok) {
+    throw new Error(
+      `[CC] campaign details failed: ${res.status} ${await res.text()}`,
+    );
+  }
+  return (await res.json()) as CampaignDetailsResponse;
+}
+
+async function fetchActivityReport(
+  accessToken: string,
+  activityId: string,
+): Promise<ActivityReport> {
+  const res = await fetch(
+    `${BASE_URL}/reports/email_reports/${activityId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    },
+  );
+  if (!res.ok) {
+    throw new Error(
+      `[CC] activity report failed: ${res.status} ${await res.text()}`,
+    );
+  }
+  return (await res.json()) as ActivityReport;
 }
 
 async function fetchSummariesPage(accessToken: string, nextHref?: string) {
@@ -150,6 +211,12 @@ export async function runDailyConstantContactSync() {
     let emailOpened = 0; // matches your Metric enum: EMAIL_OPENED
     let emailsClicked = 0;
     let emailsUnsubscribed = 0;
+    let emailsBounced = 0;
+    let emailsForwarded = 0;
+    let emailsNotOpened = 0;
+    let emailsAbuse = 0;
+    let emailTotalOpens = 0;
+    let emailTotalClicks = 0;
 
     for (const s of summaries) {
       const u = s.unique_counts ?? {};
@@ -157,10 +224,34 @@ export async function runDailyConstantContactSync() {
       emailOpened += u.opens ?? 0;
       emailsClicked += u.clicks ?? 0;
       emailsUnsubscribed += u.optouts ?? 0;
+      emailsBounced += u.bounces ?? 0;
+      emailsForwarded += u.forwards ?? 0;
+      emailsNotOpened += u.not_opened ?? 0;
+      emailsAbuse += u.abuse ?? 0;
+
+      // Fetch per-activity tracking counts (total opens/clicks including repeats)
+      try {
+        const details = await fetchCampaignDetails(accessToken, s.campaign_id);
+        for (const activity of details.campaign_activities ?? []) {
+          if (activity.current_status === "DONE") {
+            const report = await fetchActivityReport(
+              accessToken,
+              activity.campaign_activity_id,
+            );
+            emailTotalOpens += report.tracking_counts?.opens ?? 0;
+            emailTotalClicks += report.tracking_counts?.clicks ?? 0;
+          }
+        }
+      } catch (err) {
+        console.warn(
+          `[CC] Could not fetch tracking counts for campaign ${s.campaign_id}:`,
+          err,
+        );
+      }
     }
 
-    // Delivered not guaranteed here; use simplest definition
-    const emailsDelivered = emailsSent;
+    // Delivered = sent - bounced
+    const emailsDelivered = Math.max(0, emailsSent - emailsBounced);
 
     const metricsToInsert = [
       { metricName: Metric.EMAILS_SENT, metricValue: emailsSent },
@@ -171,6 +262,14 @@ export async function runDailyConstantContactSync() {
         metricName: Metric.EMAILS_UNSUBSCRIBED,
         metricValue: emailsUnsubscribed,
       },
+      { metricName: Metric.EMAIL_BOUNCED, metricValue: emailsBounced },
+      { metricName: Metric.EMAIL_FORWARDED, metricValue: emailsForwarded },
+      { metricName: Metric.EMAIL_NOT_OPENED, metricValue: emailsNotOpened },
+      { metricName: Metric.EMAIL_ABUSE, metricValue: emailsAbuse },
+      { metricName: Metric.EMAIL_UNIQUE_OPENS, metricValue: emailOpened },
+      { metricName: Metric.EMAIL_UNIQUE_CLICKS, metricValue: emailsClicked },
+      { metricName: Metric.EMAIL_TOTAL_OPENS, metricValue: emailTotalOpens },
+      { metricName: Metric.EMAIL_TOTAL_CLICKS, metricValue: emailTotalClicks },
     ] as const;
 
     // Idempotent: replace metrics for that day
@@ -199,7 +298,7 @@ export async function runDailyConstantContactSync() {
     });
 
     console.log(
-      `[CC] OK: campaigns=${summaries.length} sent=${emailsSent} opened=${emailOpened} clicked=${emailsClicked} unsub=${emailsUnsubscribed}`,
+      `[CC] OK: campaigns=${summaries.length} sent=${emailsSent} delivered=${emailsDelivered} unique_opens=${emailOpened} unique_clicks=${emailsClicked} total_opens=${emailTotalOpens} total_clicks=${emailTotalClicks} bounced=${emailsBounced} forwarded=${emailsForwarded} not_opened=${emailsNotOpened} abuse=${emailsAbuse} unsub=${emailsUnsubscribed}`,
     );
     console.log("[CC] Daily Constant Contact sync complete");
   } finally {

@@ -43,6 +43,9 @@ function shouldRefresh(rec: AuthRow, nowMs: number) {
   if (rec.accessToken === "" || !rec.expiresAt || !rec.refreshTokenExpiresAt)
     return true;
 
+  // Refresh if the access token is expired or about to expire (within 5 min)
+  if (rec.expiresAt.getTime() <= nowMs + 5 * 60 * 1000) return true;
+
   const last = rec.lastRefreshed?.getTime() ?? 0;
   if (!last) return true;
 

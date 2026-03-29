@@ -17,6 +17,14 @@ const REQUIRED_CC_METRICS: Metric[] = [
   Metric.EMAIL_OPENED,
   Metric.EMAILS_CLICKED,
   Metric.EMAILS_UNSUBSCRIBED,
+  Metric.EMAIL_BOUNCED,
+  Metric.EMAIL_FORWARDED,
+  Metric.EMAIL_NOT_OPENED,
+  Metric.EMAIL_ABUSE,
+  Metric.EMAIL_UNIQUE_OPENS,
+  Metric.EMAIL_UNIQUE_CLICKS,
+  Metric.EMAIL_TOTAL_OPENS,
+  Metric.EMAIL_TOTAL_CLICKS,
 ];
 
 /* -------------------------------------------------
@@ -40,12 +48,31 @@ type CampaignSummary = {
     abuse: number;
     bounces: number;
     not_opened: number;
+    [key: string]: number; // allow additional fields returned by API
   };
 };
 
 type SummaryResponse = {
   bulk_email_campaign_summaries: CampaignSummary[];
   _links?: { next?: { href: string } };
+};
+
+type CampaignDetailsResponse = {
+  campaign_id: string;
+  campaign_activities?: Array<{
+    campaign_activity_id: string;
+    role: string;
+    current_status?: string;
+  }>;
+};
+
+type ActivityReport = {
+  campaign_id: string;
+  campaign_activity_id: string;
+  tracking_counts?: {
+    opens?: number;
+    clicks?: number;
+  };
 };
 
 /* -------------------------------------------------
@@ -116,6 +143,78 @@ function isSameDay(dateStr: string, target: Date): boolean {
     d.getUTCMonth() === target.getUTCMonth() &&
     d.getUTCDate() === target.getUTCDate()
   );
+}
+
+async function fetchCampaignDetails(
+  accessToken: string,
+  campaignId: string,
+): Promise<CampaignDetailsResponse> {
+  const res = await fetch(`https://api.cc.email/v3/emails/${campaignId}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+  if (!res.ok) {
+    throw new Error(`[CC] campaign details failed: ${res.status} ${await res.text()}`);
+  }
+  return (await res.json()) as CampaignDetailsResponse;
+}
+
+async function fetchActivityReport(
+  accessToken: string,
+  activityId: string,
+): Promise<ActivityReport> {
+  const res = await fetch(
+    `https://api.cc.email/v3/reports/email_reports/${activityId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    },
+  );
+  if (!res.ok) {
+    throw new Error(`[CC] activity report failed: ${res.status} ${await res.text()}`);
+  }
+  return (await res.json()) as ActivityReport;
+}
+
+async function fetchTrackingCountsForCampaigns(
+  accessToken: string,
+  campaigns: CampaignSummary[],
+  retries = 5,
+  delayMs = 1000,
+): Promise<{ totalOpens: number; totalClicks: number }> {
+  let totalOpens = 0;
+  let totalClicks = 0;
+
+  for (const campaign of campaigns) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const details = await fetchCampaignDetails(accessToken, campaign.campaign_id);
+        for (const activity of details.campaign_activities ?? []) {
+          if (activity.current_status === "DONE") {
+            const report = await fetchActivityReport(accessToken, activity.campaign_activity_id);
+            totalOpens += report.tracking_counts?.opens ?? 0;
+            totalClicks += report.tracking_counts?.clicks ?? 0;
+          }
+        }
+        break;
+      } catch (err: any) {
+        if (err.message.includes("429") && attempt < retries) {
+          const wait = delayMs * Math.pow(2, attempt - 1);
+          console.warn(`[CC] Rate limited fetching tracking for ${campaign.campaign_id}, waiting ${wait}ms...`);
+          await new Promise((r) => setTimeout(r, wait));
+        } else {
+          console.warn(`[CC] Could not fetch tracking counts for campaign ${campaign.campaign_id}:`, err);
+          break;
+        }
+      }
+    }
+  }
+
+  return { totalOpens, totalClicks };
 }
 
 // to deal with rate limiting
@@ -191,13 +290,28 @@ function aggregateCampaigns(campaigns: CampaignSummary[]) {
   return campaigns.reduce(
     (acc, c) => ({
       sends: acc.sends + c.unique_counts.sends,
+      bounced: acc.bounced + c.unique_counts.bounces,
       delivered:
-        acc.delivered + (c.unique_counts.sends - c.unique_counts.bounces),
+        acc.delivered +
+        Math.max(0, c.unique_counts.sends - c.unique_counts.bounces),
       opens: acc.opens + c.unique_counts.opens,
       clicks: acc.clicks + c.unique_counts.clicks,
       unsubscribes: acc.unsubscribes + c.unique_counts.optouts,
+      forwarded: acc.forwarded + c.unique_counts.forwards,
+      notOpened: acc.notOpened + c.unique_counts.not_opened,
+      abuse: acc.abuse + c.unique_counts.abuse,
     }),
-    { sends: 0, delivered: 0, opens: 0, clicks: 0, unsubscribes: 0 },
+    {
+      sends: 0,
+      bounced: 0,
+      delivered: 0,
+      opens: 0,
+      clicks: 0,
+      unsubscribes: 0,
+      forwarded: 0,
+      notOpened: 0,
+      abuse: 0,
+    },
   );
 }
 
@@ -253,6 +367,7 @@ async function backfillConstantContact() {
       }
 
       const totals = aggregateCampaigns(campaigns);
+      const tracking = await fetchTrackingCountsForCampaigns(validAccessToken, campaigns);
 
       const metricsToInsert = [
         { metricName: Metric.EMAILS_SENT, metricValue: totals.sends },
@@ -263,6 +378,14 @@ async function backfillConstantContact() {
           metricName: Metric.EMAILS_UNSUBSCRIBED,
           metricValue: totals.unsubscribes,
         },
+        { metricName: Metric.EMAIL_BOUNCED, metricValue: totals.bounced },
+        { metricName: Metric.EMAIL_FORWARDED, metricValue: totals.forwarded },
+        { metricName: Metric.EMAIL_NOT_OPENED, metricValue: totals.notOpened },
+        { metricName: Metric.EMAIL_ABUSE, metricValue: totals.abuse },
+        { metricName: Metric.EMAIL_UNIQUE_OPENS, metricValue: totals.opens },
+        { metricName: Metric.EMAIL_UNIQUE_CLICKS, metricValue: totals.clicks },
+        { metricName: Metric.EMAIL_TOTAL_OPENS, metricValue: tracking.totalOpens },
+        { metricName: Metric.EMAIL_TOTAL_CLICKS, metricValue: tracking.totalClicks },
       ] as const;
 
       for (const m of metricsToInsert) {
@@ -295,7 +418,7 @@ async function backfillConstantContact() {
       }
 
       console.log(
-        `  ${dateStr} -- ${campaigns.length} campaign(s): sent=${totals.sends} opened=${totals.opens} clicked=${totals.clicks} unsub=${totals.unsubscribes}`,
+        `  ${dateStr} -- ${campaigns.length} campaign(s): sent=${totals.sends} delivered=${totals.delivered} opened=${totals.opens} clicked=${totals.clicks} bounced=${totals.bounced} forwarded=${totals.forwarded} not_opened=${totals.notOpened} abuse=${totals.abuse} unsub=${totals.unsubscribes}`,
       );
     } catch (err: any) {
       if (err?.message?.includes("401")) {

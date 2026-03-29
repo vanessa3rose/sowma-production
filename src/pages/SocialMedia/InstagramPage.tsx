@@ -16,6 +16,7 @@ import {
 } from "../../utils/metricChange";
 
 import { getGlossaryDefinition, isGlossaryKey } from "../../data/glossarydata";
+import InstagramEmbed from "../../components/InstagramEmbed";
 
 const METRICS: MetricConfig[] = [
   { id: "impressions", title: "Impressions", metric: "VIEWS" },

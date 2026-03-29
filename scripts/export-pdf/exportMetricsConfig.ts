@@ -38,17 +38,9 @@ const GOOGLE_METRICS: ExportMetricDefinition[] = [
 ];
 
 const INSTAGRAM_METRICS: ExportMetricDefinition[] = [
-  { id: "VIEWS", label: "Views" },
-  { id: "REACH", label: "Reach" },
-  { id: "TOTAL_INTERACTIONS", label: "Total Interactions" },
   { id: "LIKES", label: "Likes" },
   { id: "COMMENTS", label: "Comments" },
   { id: "FOLLOWERS", label: "Followers" },
-  { id: "POSTS", label: "Posts" },
-  { id: "SHARES", label: "Shares" },
-  { id: "SAVES", label: "Saves" },
-  { id: "PROFILE_VIEWS", label: "Profile Views" },
-  { id: "WEBSITE_CLICKS", label: "Website Clicks" },
 ];
 
 const FACEBOOK_METRICS: ExportMetricDefinition[] = [
@@ -79,6 +71,14 @@ const CONSTANT_CONTACT_METRICS: ExportMetricDefinition[] = [
   { id: "EMAIL_OPENED", label: "Emails Opened" },
   { id: "EMAILS_CLICKED", label: "Emails Clicked" },
   { id: "EMAILS_UNSUBSCRIBED", label: "Unsubscribed" },
+  { id: "EMAIL_BOUNCED", label: "Bounced" },
+  { id: "EMAIL_ABUSE", label: "Abuse / Spam" },
+  { id: "EMAIL_NOT_OPENED", label: "Not Opened" },
+  { id: "EMAIL_FORWARDED", label: "Forwarded" },
+  { id: "EMAIL_UNIQUE_OPENS", label: "Unique Opens" },
+  { id: "EMAIL_TOTAL_OPENS", label: "Total Opens" },
+  { id: "EMAIL_UNIQUE_CLICKS", label: "Unique Clicks" },
+  { id: "EMAIL_TOTAL_CLICKS", label: "Total Clicks" },
 ];
 
 export const EXPORT_PLATFORM_CONFIGS: Record<Platform, ExportPlatformConfig> = {

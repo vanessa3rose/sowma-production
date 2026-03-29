@@ -118,6 +118,12 @@ const App = () => {
               component={() => <ProtectedRoute component={LinkedInPage} />}
             />
             <Route
+              path="/newsletter"
+              component={() => (
+                <ProtectedRoute component={ConstantContactPage} />
+              )}
+            />
+            <Route
               path="/glossary"
               component={() => <ProtectedRoute component={GlossaryPage} />}
             />
