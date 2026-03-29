@@ -9,7 +9,6 @@ import { getLatestImportedDate } from "../../utils/latestImportedDate";
 type MetricSummary = { current: number | null; prev: number | null };
 type TwitterMetrics = { followers: number; tweets: number };
 type TimePoint = { date: string; followers?: number; tweets?: number };
-
 export default function TwitterPage() {
   const [followersOverTimeAll, setFollowersOverTimeAll] = useState<
     { date: string; value: number }[]
@@ -166,10 +165,10 @@ export default function TwitterPage() {
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between lg:items-center">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
           <button
             onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px] flex items-center justify-center"
+            className="w-[40px] h-[40px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -187,7 +186,7 @@ export default function TwitterPage() {
             </svg>
           </button>
 
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-wrap">
             Twitter
           </h1>
         </div>
@@ -202,7 +201,6 @@ export default function TwitterPage() {
           <div className="flex flex-col gap-4 w-full">
             <BigCard
               title="Tweets"
-              titleTooltip="Cumulative count"
               subtitle={
                 <DateDropdown
                   value={tweetsRange}
@@ -229,7 +227,6 @@ export default function TwitterPage() {
             <div className="flex flex-col gap-4 w-full">
               <BigCard
                 title="Followers"
-                titleTooltip="Cumulative count"
                 subtitle={
                   <DateDropdown
                     value={followersRange}

@@ -21,6 +21,10 @@ import {
   formatAbsoluteChange,
   getSmallCardSinceLabel,
 } from "../../utils/metricChange";
+import {
+  isGlossaryKey,
+  getGlossaryDefinition,
+} from "../../data/glossarydata.tsx";
 
 /* ---------- types ---------- */
 
@@ -43,30 +47,30 @@ const DEFAULT_START_DATE = "2024-01-01";
 const DEFAULT_END_DATE = "3000-01-01";
 
 const METRICS: MetricConfig[] = [
-  { id: "sent", title: "Emails Sent", metric: "EMAILS_SENT", metricLabel: "" },
+  {
+    id: "sent",
+    title: "Emails Sent",
+    metric: "EMAILS_SENT",
+  },
   {
     id: "delivered",
     title: "Emails Delivered",
     metric: "EMAILS_DELIVERED",
-    metricLabel: "",
   },
   {
     id: "opened",
     title: "Emails Opened",
     metric: "EMAIL_OPENED",
-    metricLabel: "",
   },
   {
     id: "clicked",
     title: "Emails Clicked",
     metric: "EMAILS_CLICKED",
-    metricLabel: "",
   },
   {
     id: "unsubscribed",
     title: "Emails Unsubscribed",
     metric: "EMAILS_UNSUBSCRIBED",
-    metricLabel: "",
   },
 ];
 
@@ -285,6 +289,9 @@ export default function ConstantContactPage() {
                 <SmallCard
                   key={id}
                   title={cfg.title}
+                  titleTooltip={
+                    isGlossaryKey(cfg.id) ? getGlossaryDefinition(cfg.id) : ""
+                  }
                   displayMode="metric-only"
                   className="w-full h-full"
                   metricValue={s?.current ?? 0}
@@ -299,6 +306,7 @@ export default function ConstantContactPage() {
           <div className="lg:col-span-1">
             <BigCard
               title="Engagement Mix"
+              titleTooltip={getGlossaryDefinition("engagementMix")}
               chart={
                 <div className="w-full h-64">
                   <PieCharts
@@ -321,11 +329,11 @@ export default function ConstantContactPage() {
             const filtered = item?.filtered ?? [];
             const bounds = item?.bounds ?? { min: null, max: null };
             const summary = item?.summary ?? { current: 0, prev: null };
-
             return (
               <div key={cfg.id}>
                 <BigCard
                   title={cfg.title}
+                  titleTooltip={getGlossaryDefinition(cfg.id)}
                   subtitle={
                     <DateDropdown
                       value={ranges[cfg.id] ?? { id: "30d" }}

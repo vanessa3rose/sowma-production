@@ -1,43 +1,13 @@
 import { Link } from "wouter";
+import { GLOSSARY_ITEMS } from "../data/glossarydata.tsx";
 
 export default function GlossaryPage() {
-  const items = [
-    {
-      term: "API",
-      definition:
-        "A system that allows one tool to connect and retrieve data from another tool.",
-      platforms: ["Facebook", "Google Analytics", "Instagram"],
-    },
-    {
-      term: "Bounce Rate",
-      definition:
-        "The percentage of website visitors who leave after viewing one page.",
-      platforms: ["Google Analytics"],
-    },
-    {
-      term: "Reach",
-      definition: "The number of unique users who saw your content.",
-      platforms: ["Instagram"],
-    },
-    {
-      term: "Impressions",
-      definition:
-        "The total number of times your content was displayed, including repeats.",
-      platforms: ["Instagram"],
-    },
-    {
-      term: "Engagement Rate",
-      definition:
-        "A measure of how much people interact with your content relative to followers or reach.",
-      platforms: ["Google Analytics"],
-    },
-  ];
-
   const platformRoutes: Record<string, string> = {
     "Google Analytics": "/social/google-analytics",
     Facebook: "/social/facebook",
     Instagram: "/social/instagram",
     Twitter: "/social/twitter",
+    "Constant Contact": "/social/constant-contact",
   };
 
   return (
@@ -82,42 +52,46 @@ export default function GlossaryPage() {
         </div>
 
         {/* Rows */}
+        {/* finds a term in the glossary data/defintions and returns the defintion and 
+           platform */}
         <div className="flex flex-col space-y-6">
-          {items.map((item, idx) => (
-            <div
-              key={idx}
-              className="grid grid-cols-1 sm:grid-cols-[150px_minmax(0,1fr)] lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)] border-b border-black pb-6 gap-y-2 gap-x-8 items-start"
-            >
-              {/* Term */}
-              <p className="text-xl lg:md:whitespace-nowrap px-2">
-                {item.term}
-              </p>
+          {[...GLOSSARY_ITEMS]
+            .sort((a: any, b: any) => a.key.localeCompare(b.key))
+            .map((item: any) => (
+              <div
+                key={item.key}
+                className="grid grid-cols-1 sm:grid-cols-[150px_minmax(0,1fr)] lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)] border-b border-black pb-6 gap-y-2 gap-x-8 items-start"
+              >
+                {/* Term */}
+                <p className="text-xl lg:md:whitespace-nowrap px-2">
+                  {item.term}
+                </p>
 
-              {/* Definition */}
-              <div className="text-lg">
-                <p className="break-words">{item.definition}</p>
+                {/* Definition */}
+                <div className="text-lg">
+                  <p className="break-words">{item.definition}</p>
 
-                {item.platforms && item.platforms.length > 0 && (
-                  <div className="mt-2">
-                    <span className="font-semibold text-sm text-gray-800">
-                      Platforms:
-                    </span>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {item.platforms.map((platform, index) => (
-                        <Link
-                          key={index}
-                          href={platformRoutes[platform]}
-                          className="text-sm bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full font-medium whitespace-nowrap"
-                        >
-                          {platform}
-                        </Link>
-                      ))}
+                  {item.platforms && item.platforms.length > 0 && (
+                    <div className="mt-2">
+                      <span className="font-semibold text-sm text-gray-800">
+                        Platforms:
+                      </span>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {item.platforms.map((platform: any, index: any) => (
+                          <Link
+                            key={index}
+                            href={platformRoutes[platform]}
+                            className="text-sm bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full font-medium whitespace-nowrap"
+                          >
+                            {platform}
+                          </Link>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
 
         {/* How We Retrieve Data */}

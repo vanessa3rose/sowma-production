@@ -22,9 +22,9 @@ type BarDataRow = {
 };
 
 type BarGraphsProps = {
-  data: BarDataRow[]; // define as array of integers
-  dataKeys: string[]; // name of each bar label
-  xAxisKey: string; // the x axis titles for the chart
+  data: BarDataRow[];
+  dataKeys: string[];
+  xAxisKey: string;
 };
 
 const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
@@ -61,25 +61,12 @@ const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
 
   const leftMargin = Math.max(16, yAxisWidth - 64);
 
-  const tooltipContent = ({
-    active,
-    payload,
-    label,
-  }: {
-    active?: boolean;
-    payload?: ReadonlyArray<{
-      payload?: BarDataRow;
-      name?: string;
-      dataKey?: string;
-      value?: unknown;
-      color?: string;
-      fill?: string;
-    }>;
-    label?: unknown;
-  }) => {
-    if (!active) return null;
+  const CustomTooltip = (props: any) => {
+    const { active, payload, label } = props;
 
-    const row = payload?.[0]?.payload;
+    if (!active || !payload || payload.length === 0) return null;
+
+    const row = payload[0].payload as BarDataRow | undefined;
     const otherBreakdown = row?.otherBreakdown;
     const isOtherBar = String(label ?? "") === "Other";
 
@@ -137,7 +124,8 @@ const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
           width={yAxisWidth}
           tick={{ fontFamily: "Poppins, sans-serif", fontSize: 12 }}
         />
-        <Tooltip content={tooltipContent} />
+        {/* Fix: wrap tooltip in any */}
+        <Tooltip content={(props: any) => <CustomTooltip {...props} />} />
         {dataKeys.map((key) => (
           <Bar key={key} dataKey={key} fill="#7987FF" />
         ))}

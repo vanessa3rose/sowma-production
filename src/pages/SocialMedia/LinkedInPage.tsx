@@ -15,6 +15,7 @@ import {
   formatAbsoluteChange,
   getSmallCardSinceLabel,
 } from "../../utils/metricChange";
+import { getGlossaryDefinition, isGlossaryKey } from "../../data/glossarydata";
 
 type MetricKey =
   | "followers"
@@ -77,15 +78,6 @@ const INITIAL_RANGES: Record<MetricKey, DateRangeValue> = {
   comments: { id: "30d" },
   shares: { id: "30d" },
   interactions: { id: "30d" },
-};
-
-const METRIC_DESCRIPTIONS: Record<MetricKey, string> = {
-  followers: "Daily new followers for the latest imported date in range.",
-  views: "Daily page/content views for the latest imported date in range.",
-  likes: "Daily reactions for the latest imported date in range.",
-  comments: "Daily comments for the latest imported date in range.",
-  shares: "Daily reposts/shares for the latest imported date in range.",
-  interactions: "Daily total interactions (reactions + comments + reposts).",
 };
 
 function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
@@ -241,20 +233,17 @@ export default function LinkedInPage() {
       title: "Reposts",
       key: "shares" as MetricKey,
     },
-    {
-      title: "Interactions",
-      key: "interactions" as MetricKey,
-    },
   ];
   const lastUpdated = getLatestImportedDate(rawSeries);
 
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
+      {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between lg:items-center">
         <div className="flex items-center space-x-2">
           <button
             onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px] flex items-center justify-center"
+            className="w-[40px] h-[40px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -262,7 +251,7 @@ export default function LinkedInPage() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-7 h-7"
+              className="size-7"
             >
               <path
                 strokeLinecap="round"
@@ -289,33 +278,34 @@ export default function LinkedInPage() {
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>
+
       <div className="font-poppins text-sm text-gray-600">
         Last updated: {lastUpdated ?? "No imported data yet"}
       </div>
 
+      {/* small cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {topSmallCards.map((card, idx) => (
+          <SmallCard
+            key={`${card.title}-${idx}`}
+            title={card.title}
+            titleTooltip={
+              isGlossaryKey(card.key) ? getGlossaryDefinition(card.key) : ""
+            }
+            displayMode="metric-only"
+            className="w-full"
+            metricValue={computed[card.key]?.fullSummary.current ?? 0}
+            metricChange={formatAbsoluteChange(computed[card.key]?.fullSummary)}
+            metricLabel={getSmallCardSinceLabel(rawSeries[card.key])}
+          />
+        ))}
+      </div>
+
+      {/* big cards */}
       <div className="grid grid-cols-1 xl:grid-cols-[2fr_2fr] gap-4">
         <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {topSmallCards.map((card, idx) => {
-              const item = computed[card.key];
-              return (
-                <SmallCard
-                  key={`${card.title}-${idx}`}
-                  title={card.title}
-                  titleTooltip={METRIC_DESCRIPTIONS[card.key]}
-                  displayMode="metric-only"
-                  className="w-full min-h-[172px]"
-                  metricValue={item?.fullSummary.current ?? 0}
-                  metricChange={formatAbsoluteChange(item?.fullSummary)}
-                  metricLabel={getSmallCardSinceLabel(rawSeries[card.key])}
-                />
-              );
-            })}
-          </div>
-
           <BigCard
             title="New Followers"
-            titleTooltip={METRIC_DESCRIPTIONS.followers}
             subtitle={
               <DateDropdown
                 value={ranges.followers}
@@ -349,7 +339,6 @@ export default function LinkedInPage() {
 
           <BigCard
             title="Views"
-            titleTooltip={METRIC_DESCRIPTIONS.views}
             subtitle={
               <DateDropdown
                 value={ranges.views}
@@ -385,7 +374,7 @@ export default function LinkedInPage() {
         <div className="flex flex-col gap-4">
           <BigCard
             title="Total Interactions"
-            titleTooltip={METRIC_DESCRIPTIONS.interactions}
+            titleTooltip={getGlossaryDefinition("interactions")}
             subtitle={
               <DateDropdown
                 value={ranges.interactions}

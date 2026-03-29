@@ -19,7 +19,6 @@ import AdminRejection from "./pages/AdminRejection";
 
 import GlossaryPage from "./pages/Glossary";
 import ErrorPage from "./pages/ErrorPage";
-import Newsletter from "./pages/Newsletter";
 
 import { ProtectedRoute } from "./components/routes/ProtectedRoute";
 import { AdminRoute } from "./components/routes/AdminRoute";
@@ -117,10 +116,6 @@ const App = () => {
             <Route
               path="/social/linkedin"
               component={() => <ProtectedRoute component={LinkedInPage} />}
-            />
-            <Route
-              path="/newsletter"
-              component={() => <ProtectedRoute component={Newsletter} />}
             />
             <Route
               path="/glossary"
