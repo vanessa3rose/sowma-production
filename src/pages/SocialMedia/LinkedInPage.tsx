@@ -325,6 +325,7 @@ export default function LinkedInPage() {
                   data={computed.followers.filtered}
                   xAxisKey="date"
                   dataKeys={["value"]}
+                  labels={{ value: "New Followers" }}
                   showArea
                 />
               ) : (
@@ -358,6 +359,7 @@ export default function LinkedInPage() {
                   data={computed.views.filtered}
                   xAxisKey="date"
                   dataKeys={["value"]}
+                  labels={{ value: "Views" }}
                   showArea
                 />
               ) : (
@@ -394,6 +396,7 @@ export default function LinkedInPage() {
                   data={computed.interactions.filtered}
                   xAxisKey="date"
                   dataKeys={["value"]}
+                  labels={{ value: "Total Interactions" }}
                   showArea
                 />
               ) : (

@@ -410,6 +410,7 @@ export default function FacebookPage() {
                   data={computed.followers.filtered}
                   xAxisKey="date"
                   dataKeys={["value"]}
+                  labels={{ value: "Followers" }}
                   showArea
                 />
               ) : (
@@ -444,6 +445,7 @@ export default function FacebookPage() {
                   data={computed.views.filtered}
                   xAxisKey="date"
                   dataKeys={["value"]}
+                  labels={{ value: "Views" }}
                   showArea
                 />
               ) : (

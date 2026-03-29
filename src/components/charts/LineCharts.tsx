@@ -23,6 +23,7 @@ type LineChartProps = {
   data: any[];
   xAxisKey: string;
   dataKeys: string[];
+  labels?: Record<string, string>;
   showArea?: boolean;
   autoAdjustYAxis?: boolean;
   compact?: boolean;
@@ -32,10 +33,14 @@ const LineCharts = ({
   data,
   xAxisKey,
   dataKeys,
+  labels,
   showArea,
   autoAdjustYAxis = true,
   compact = false,
 }: LineChartProps) => {
+  const series = labels
+    ? Object.fromEntries(Object.entries(labels).map(([k, v]) => [k, { label: v }]))
+    : undefined;
   const values: number[] = [];
   if (autoAdjustYAxis) {
     data.forEach((row) => {
@@ -107,7 +112,7 @@ const LineCharts = ({
             domain={yDomain}
             allowDecimals={false}
           />
-          <Tooltip content={<ChartTooltip />} />
+          <Tooltip content={<ChartTooltip series={series} />} />
 
           {dataKeys.map((key) => (
             <Area
@@ -149,7 +154,7 @@ const LineCharts = ({
             domain={yDomain}
             allowDecimals={false}
           />
-          <Tooltip content={<ChartTooltip />} />
+          <Tooltip content={<ChartTooltip series={series} />} />
           {dataKeys.map((key) => (
             <Line
               key={key}

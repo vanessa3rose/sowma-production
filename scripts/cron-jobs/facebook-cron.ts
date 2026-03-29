@@ -32,7 +32,7 @@ const POSTS_LIMIT = 50;
 type InsightsResponse = {
   data?: Array<{
     name: string;
-    values?: Array<{ value?: number }>;
+    total_value?: { value?: number };
   }>;
 };
 
@@ -74,7 +74,7 @@ async function fetchDailyInsights(date: Date, accessToken: string) {
   const out: Record<string, number> = {};
 
   for (const row of json.data ?? []) {
-    out[row.name] = row.values?.[0]?.value ?? 0;
+    out[row.name] = row.total_value?.value ?? 0;
   }
 
   return {
