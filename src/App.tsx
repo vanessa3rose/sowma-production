@@ -16,6 +16,7 @@ import ConstantContactPage from "./pages/SocialMedia/ConstantContactPage";
 import LinkedInPage from "./pages/SocialMedia/LinkedInPage";
 import AdminPage from "./pages/AdminPage";
 import AdminRejection from "./pages/AdminRejection";
+import NotFoundPage from "./pages/NotFound";
 
 import GlossaryPage from "./pages/Glossary";
 import ErrorPage from "./pages/ErrorPage";
@@ -152,10 +153,7 @@ const App = () => {
             <Route path="/login" component={LoginPage} />
             <Route path="/accept-invite" component={AcceptInvitePage} />
             <Route path="/accept-invite/:rest*" component={AcceptInvitePage} />
-
-            <Route>
-              <p className="p-4 text-black">404: Page Not Found</p>
-            </Route>
+            <Route component={NotFoundPage} />
           </Switch>
         </div>
       </div>
