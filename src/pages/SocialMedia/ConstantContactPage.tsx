@@ -162,7 +162,10 @@ function formatPercentChange(summary?: MetricSummary | null): string {
 function getBounds(pts: LinePoint[]) {
   if (!pts.length)
     return { min: null as Date | null, max: null as Date | null };
-  const dates = pts.map((p) => p.date).slice().sort();
+  const dates = pts
+    .map((p) => p.date)
+    .slice()
+    .sort();
   return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
 }
 
@@ -395,7 +398,8 @@ export default function ConstantContactPage() {
   const [clicksRange, setClicksRange] = useState<DateRangeValue>(ALL_RANGE);
   const [openRateRange, setOpenRateRange] = useState<DateRangeValue>(ALL_RANGE);
   const [ctorRange, setCtorRange] = useState<DateRangeValue>(ALL_RANGE);
-  const [deliveryRateRange, setDeliveryRateRange] = useState<DateRangeValue>(ALL_RANGE);
+  const [deliveryRateRange, setDeliveryRateRange] =
+    useState<DateRangeValue>(ALL_RANGE);
 
   useEffect(() => {
     async function load() {
@@ -459,8 +463,14 @@ export default function ConstantContactPage() {
 
   // Opens comparison: Unique vs Total
   const opensData = useMemo(() => {
-    const unique = filterByRange(rawSeries["email_unique_opens"] ?? [], opensRange);
-    const total = filterByRange(rawSeries["email_total_opens"] ?? [], opensRange);
+    const unique = filterByRange(
+      rawSeries["email_unique_opens"] ?? [],
+      opensRange,
+    );
+    const total = filterByRange(
+      rawSeries["email_total_opens"] ?? [],
+      opensRange,
+    );
     return mergeByDate(unique, "uniqueOpens", total, "totalOpens");
   }, [rawSeries, opensRange]);
 
@@ -468,11 +478,17 @@ export default function ConstantContactPage() {
     ...(rawSeries["email_unique_opens"] ?? []),
     ...(rawSeries["email_total_opens"] ?? []),
   ]);
-// hi
+  // hi
   // Clicks comparison: Unique vs Total
   const clicksData = useMemo(() => {
-    const unique = filterByRange(rawSeries["email_unique_clicks"] ?? [], clicksRange);
-    const total = filterByRange(rawSeries["email_total_clicks"] ?? [], clicksRange);
+    const unique = filterByRange(
+      rawSeries["email_unique_clicks"] ?? [],
+      clicksRange,
+    );
+    const total = filterByRange(
+      rawSeries["email_total_clicks"] ?? [],
+      clicksRange,
+    );
     return mergeByDate(unique, "uniqueClicks", total, "totalClicks");
   }, [rawSeries, clicksRange]);
 
@@ -483,9 +499,18 @@ export default function ConstantContactPage() {
 
   // Open Rate %: opened / delivered * 100
   const openRateData = useMemo(() => {
-    const delivered = filterByRange(rawSeries["emails_delivered"] ?? [], openRateRange);
-    const opened = filterByRange(rawSeries["email_opened"] ?? [], openRateRange);
-    return toRateSeries(opened, delivered).map((p) => ({ date: p.date, openRate: p.value }));
+    const delivered = filterByRange(
+      rawSeries["emails_delivered"] ?? [],
+      openRateRange,
+    );
+    const opened = filterByRange(
+      rawSeries["email_opened"] ?? [],
+      openRateRange,
+    );
+    return toRateSeries(opened, delivered).map((p) => ({
+      date: p.date,
+      openRate: p.value,
+    }));
   }, [rawSeries, openRateRange]);
 
   const openRateBounds = getBounds([
@@ -495,9 +520,18 @@ export default function ConstantContactPage() {
 
   // Delivery Rate %: delivered / sent * 100
   const deliveryRateData = useMemo(() => {
-    const sent = filterByRange(rawSeries["emails_sent"] ?? [], deliveryRateRange);
-    const delivered = filterByRange(rawSeries["emails_delivered"] ?? [], deliveryRateRange);
-    return toRateSeries(delivered, sent).map((p) => ({ date: p.date, deliveryRate: p.value }));
+    const sent = filterByRange(
+      rawSeries["emails_sent"] ?? [],
+      deliveryRateRange,
+    );
+    const delivered = filterByRange(
+      rawSeries["emails_delivered"] ?? [],
+      deliveryRateRange,
+    );
+    return toRateSeries(delivered, sent).map((p) => ({
+      date: p.date,
+      deliveryRate: p.value,
+    }));
   }, [rawSeries, deliveryRateRange]);
 
   const deliveryRateBounds = getBounds([
@@ -509,7 +543,10 @@ export default function ConstantContactPage() {
   const ctorData = useMemo(() => {
     const opened = filterByRange(rawSeries["email_opened"] ?? [], ctorRange);
     const clicked = filterByRange(rawSeries["emails_clicked"] ?? [], ctorRange);
-    return toRateSeries(clicked, opened).map((p) => ({ date: p.date, ctorRate: p.value }));
+    return toRateSeries(clicked, opened).map((p) => ({
+      date: p.date,
+      ctorRate: p.value,
+    }));
   }, [rawSeries, ctorRange]);
 
   const ctorBounds = getBounds([
@@ -723,7 +760,6 @@ export default function ConstantContactPage() {
         {/* ── Individual metric line charts ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {CHART_IDS.map((id) => {
-
             const cfg = METRICS.find((m) => m.id === id)!;
             const item = computed[id];
             const filtered = item?.filtered ?? [];

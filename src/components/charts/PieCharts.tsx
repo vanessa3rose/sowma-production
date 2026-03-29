@@ -111,7 +111,9 @@ const PieCharts = ({
             ))}
           </Pie>
 
-          <Tooltip content={<ChartTooltip hideZeroValues series={tooltipSeries} />} />
+          <Tooltip
+            content={<ChartTooltip hideZeroValues series={tooltipSeries} />}
+          />
 
           <Legend
             verticalAlign="bottom"

@@ -117,15 +117,12 @@ async function fetchActivityReport(
   accessToken: string,
   activityId: string,
 ): Promise<ActivityReport> {
-  const res = await fetch(
-    `${BASE_URL}/reports/email_reports/${activityId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: "application/json",
-      },
+  const res = await fetch(`${BASE_URL}/reports/email_reports/${activityId}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: "application/json",
     },
-  );
+  });
   if (!res.ok) {
     throw new Error(
       `[CC] activity report failed: ${res.status} ${await res.text()}`,

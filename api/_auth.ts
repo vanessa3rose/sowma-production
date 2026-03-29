@@ -36,7 +36,7 @@ async function authenticateWithClerk(req: ApiRequest): Promise<AuthResult> {
   const auth = requestState.toAuth();
   return {
     ok: true,
-    userId: auth.userId ?? null,
+    userId: auth?.userId ?? null,
     isInternal: false,
   };
 }

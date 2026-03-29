@@ -39,7 +39,9 @@ const LineCharts = ({
   compact = false,
 }: LineChartProps) => {
   const series = labels
-    ? Object.fromEntries(Object.entries(labels).map(([k, v]) => [k, { label: v }]))
+    ? Object.fromEntries(
+        Object.entries(labels).map(([k, v]) => [k, { label: v }]),
+      )
     : undefined;
   const values: number[] = [];
   if (autoAdjustYAxis) {

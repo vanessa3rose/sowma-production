@@ -45,7 +45,8 @@ async function fetchAllMedia(accessToken: string): Promise<MediaItem[]> {
 
   while (url) {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`[IG] media fetch failed: ${await res.text()}`);
+    if (!res.ok)
+      throw new Error(`[IG] media fetch failed: ${await res.text()}`);
     const json = (await res.json()) as IGApiResponse;
     all.push(...(json.data ?? []));
     url = json.paging?.next ?? null;
@@ -108,7 +109,10 @@ async function fetchAccountTotals(
     console.warn(`[IG] account totals failed: ${res.status}`);
     return {};
   }
-  return (await res.json()) as { followers_count?: number; media_count?: number };
+  return (await res.json()) as {
+    followers_count?: number;
+    media_count?: number;
+  };
 }
 
 /* -------------------------------------------------

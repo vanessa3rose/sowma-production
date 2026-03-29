@@ -156,7 +156,9 @@ async function fetchCampaignDetails(
     },
   });
   if (!res.ok) {
-    throw new Error(`[CC] campaign details failed: ${res.status} ${await res.text()}`);
+    throw new Error(
+      `[CC] campaign details failed: ${res.status} ${await res.text()}`,
+    );
   }
   return (await res.json()) as CampaignDetailsResponse;
 }
@@ -175,7 +177,9 @@ async function fetchActivityReport(
     },
   );
   if (!res.ok) {
-    throw new Error(`[CC] activity report failed: ${res.status} ${await res.text()}`);
+    throw new Error(
+      `[CC] activity report failed: ${res.status} ${await res.text()}`,
+    );
   }
   return (await res.json()) as ActivityReport;
 }
@@ -192,10 +196,16 @@ async function fetchTrackingCountsForCampaigns(
   for (const campaign of campaigns) {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const details = await fetchCampaignDetails(accessToken, campaign.campaign_id);
+        const details = await fetchCampaignDetails(
+          accessToken,
+          campaign.campaign_id,
+        );
         for (const activity of details.campaign_activities ?? []) {
           if (activity.current_status === "DONE") {
-            const report = await fetchActivityReport(accessToken, activity.campaign_activity_id);
+            const report = await fetchActivityReport(
+              accessToken,
+              activity.campaign_activity_id,
+            );
             totalOpens += report.tracking_counts?.opens ?? 0;
             totalClicks += report.tracking_counts?.clicks ?? 0;
           }
@@ -204,10 +214,15 @@ async function fetchTrackingCountsForCampaigns(
       } catch (err: any) {
         if (err.message.includes("429") && attempt < retries) {
           const wait = delayMs * Math.pow(2, attempt - 1);
-          console.warn(`[CC] Rate limited fetching tracking for ${campaign.campaign_id}, waiting ${wait}ms...`);
+          console.warn(
+            `[CC] Rate limited fetching tracking for ${campaign.campaign_id}, waiting ${wait}ms...`,
+          );
           await new Promise((r) => setTimeout(r, wait));
         } else {
-          console.warn(`[CC] Could not fetch tracking counts for campaign ${campaign.campaign_id}:`, err);
+          console.warn(
+            `[CC] Could not fetch tracking counts for campaign ${campaign.campaign_id}:`,
+            err,
+          );
           break;
         }
       }
@@ -367,7 +382,10 @@ async function backfillConstantContact() {
       }
 
       const totals = aggregateCampaigns(campaigns);
-      const tracking = await fetchTrackingCountsForCampaigns(validAccessToken, campaigns);
+      const tracking = await fetchTrackingCountsForCampaigns(
+        validAccessToken,
+        campaigns,
+      );
 
       const metricsToInsert = [
         { metricName: Metric.EMAILS_SENT, metricValue: totals.sends },
@@ -384,8 +402,14 @@ async function backfillConstantContact() {
         { metricName: Metric.EMAIL_ABUSE, metricValue: totals.abuse },
         { metricName: Metric.EMAIL_UNIQUE_OPENS, metricValue: totals.opens },
         { metricName: Metric.EMAIL_UNIQUE_CLICKS, metricValue: totals.clicks },
-        { metricName: Metric.EMAIL_TOTAL_OPENS, metricValue: tracking.totalOpens },
-        { metricName: Metric.EMAIL_TOTAL_CLICKS, metricValue: tracking.totalClicks },
+        {
+          metricName: Metric.EMAIL_TOTAL_OPENS,
+          metricValue: tracking.totalOpens,
+        },
+        {
+          metricName: Metric.EMAIL_TOTAL_CLICKS,
+          metricValue: tracking.totalClicks,
+        },
       ] as const;
 
       for (const m of metricsToInsert) {

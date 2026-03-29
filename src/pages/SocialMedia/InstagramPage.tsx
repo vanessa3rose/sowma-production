@@ -22,7 +22,11 @@ const METRICS: MetricConfig[] = [
   { id: "impressions", title: "Impressions", metric: "VIEWS" },
   { id: "followers", title: "Total Followers", metric: "FOLLOWERS" },
   { id: "reach", title: "Reach", metric: "REACH" },
-  { id: "totalInteractions", title: "Total Interactions", metric: "TOTAL_INTERACTIONS" },
+  {
+    id: "totalInteractions",
+    title: "Total Interactions",
+    metric: "TOTAL_INTERACTIONS",
+  },
   { id: "likes", title: "Likes", metric: "LIKES" },
   { id: "comments", title: "Comments", metric: "COMMENTS" },
   { id: "posts", title: "Total Posts", metric: "POSTS" },
@@ -253,7 +257,9 @@ export default function InstagramPage() {
       <BigCard
         key={id}
         title={cfg.title}
-        titleTooltip={isGlossaryKey(cfg.id) ? getGlossaryDefinition(cfg.id) : ""}
+        titleTooltip={
+          isGlossaryKey(cfg.id) ? getGlossaryDefinition(cfg.id) : ""
+        }
         subtitle={
           <DateDropdown
             value={ranges[id] ?? { id: "30d" }}
@@ -335,7 +341,6 @@ export default function InstagramPage() {
       </div>
 
       <div className="flex flex-col gap-4">
-
         {/* Small cards — full-width horizontal strip */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {smallCards.map(({ id }) => {
@@ -364,19 +369,37 @@ export default function InstagramPage() {
             const item = computed["followers"];
             const filtered = item?.filtered ?? [];
             const summary = item?.summary ?? { current: 0, prev: null };
-            return lineBigCard("followers", filtered, summary.current ?? 0, "followers", formatPercentChange(summary));
+            return lineBigCard(
+              "followers",
+              filtered,
+              summary.current ?? 0,
+              "followers",
+              formatPercentChange(summary),
+            );
           })()}
           {(() => {
             const item = computed["reach"];
             const filtered = item?.filtered ?? [];
             const summary = item?.summary ?? { current: 0, prev: null };
-            return lineBigCard("reach", filtered, summary.current ?? 0, "total", formatPercentChange(summary));
+            return lineBigCard(
+              "reach",
+              filtered,
+              summary.current ?? 0,
+              "total",
+              formatPercentChange(summary),
+            );
           })()}
           {(() => {
             const item = computed["likes"];
             const filtered = item?.filtered ?? [];
             const summary = item?.summary ?? { current: 0, prev: null };
-            return lineBigCard("likes", filtered, summary.current ?? 0, "total", formatPercentChange(summary));
+            return lineBigCard(
+              "likes",
+              filtered,
+              summary.current ?? 0,
+              "total",
+              formatPercentChange(summary),
+            );
           })()}
         </div>
 
@@ -417,7 +440,6 @@ export default function InstagramPage() {
             className="w-full h-[360px]"
           />
         </div>
-
       </div>
     </div>
   );

@@ -421,7 +421,9 @@ export default function FacebookPage() {
             }
             displayMode="both"
             className=""
-            style={sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined}
+            style={
+              sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined
+            }
           />
         </div>
 
@@ -478,7 +480,9 @@ export default function FacebookPage() {
             }
             displayMode="chart-only"
             className=""
-            style={sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined}
+            style={
+              sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined
+            }
           />
         </div>
 
