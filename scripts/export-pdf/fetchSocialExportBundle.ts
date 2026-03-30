@@ -54,6 +54,19 @@ function summarizeSeries(points: { value: number }[]): {
   };
 }
 
+function aggregateBreakdownTotals(
+  rows: SocialMediaMetric[],
+  breakdownKey: string,
+): Record<string, number> {
+  const totals: Record<string, number> = {};
+  for (const row of rows) {
+    if (row.breakdownKey !== breakdownKey || !row.breakdownValue) continue;
+    totals[row.breakdownValue] =
+      (totals[row.breakdownValue] ?? 0) + row.metricValue;
+  }
+  return totals;
+}
+
 export async function fetchSocialExportBundle(
   platform: Platform,
   range: DateRangeValue,
@@ -100,9 +113,31 @@ export async function fetchSocialExportBundle(
   > = {};
 
   for (const { metricId, rows } of results) {
-    const pts = toLinePoints(rows);
+    const pts = toLinePoints(rows.filter((row) => !row.breakdownKey));
     chartDataMap[metricId] = pts;
     metricSummaries[metricId] = summarizeSeries(pts);
+  }
+
+  const breakdownTotals: Record<string, Record<string, number>> = {};
+  if (platform === "linkedin") {
+    const totalUsersRows =
+      results.find(({ metricId }) => metricId === "TOTAL_USERS")?.rows ?? [];
+    const followerRows =
+      results.find(({ metricId }) => metricId === "FOLLOWERS")?.rows ?? [];
+
+    breakdownTotals.deviceType = aggregateBreakdownTotals(
+      totalUsersRows,
+      "deviceType",
+    );
+    breakdownTotals.pageType = aggregateBreakdownTotals(totalUsersRows, "pageType");
+    breakdownTotals.visitorIndustry = aggregateBreakdownTotals(
+      totalUsersRows,
+      "industry",
+    );
+    breakdownTotals.followerIndustry = aggregateBreakdownTotals(
+      followerRows,
+      "industry",
+    );
   }
 
   return {
@@ -114,5 +149,6 @@ export async function fetchSocialExportBundle(
         { current: value.current ?? 0, prev: value.prev ?? 0 },
       ]),
     ),
+    breakdownTotals,
   };
 }
