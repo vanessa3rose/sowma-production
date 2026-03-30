@@ -582,7 +582,7 @@ export default function ConstantContactPage() {
             hasSankeyData ? (
               <ReactECharts
                 option={buildSankeyOption(sankeyVals)}
-                style={{ width: "100%" }}
+                style={{ height: "100%", width: "100%" }}
                 opts={{ renderer: "svg" }}
               />
             ) : (
