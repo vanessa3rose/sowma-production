@@ -7,6 +7,7 @@ type LinkedInCalendarHeatmapProps = {
   points: LinePoint[];
   compact?: boolean;
   disableNavigation?: boolean;
+  anchorDate?: string | Date | null;
 };
 
 const EMPTY_CELL: Cell = { day: null, level: -2, isFuture: false };
@@ -38,7 +39,16 @@ function buildActivity(points: LinePoint[]): Map<string, number> {
   return activity;
 }
 
-function getReferenceDate(points: LinePoint[]): Date {
+function getReferenceDate(
+  points: LinePoint[],
+  anchorDate?: string | Date | null,
+): Date {
+  if (anchorDate) {
+    const parsed =
+      anchorDate instanceof Date ? new Date(anchorDate) : new Date(anchorDate);
+    if (!Number.isNaN(parsed.getTime())) return parsed;
+  }
+
   if (!points.length) return new Date();
   const sorted = points
     .map((p) => p.date)
@@ -53,11 +63,15 @@ export function LinkedInCalendarHeatmap({
   points,
   compact = false,
   disableNavigation = false,
+  anchorDate,
 }: LinkedInCalendarHeatmapProps) {
   // Use the latest imported day as the anchor month so exported PDFs
   // consistently show the month the data came from.
-  const anchorDate = useMemo(() => getReferenceDate(points), [points]);
-  const today = new Date(anchorDate);
+  const referenceDate = useMemo(
+    () => getReferenceDate(points, anchorDate),
+    [points, anchorDate],
+  );
+  const today = new Date(referenceDate);
   today.setHours(23, 59, 59, 999);
   const [offset, setOffset] = useState(0);
 
@@ -106,8 +120,8 @@ export function LinkedInCalendarHeatmap({
   }
 
   return (
-    <div className="flex flex-col gap-2 h-full w-full min-h-0 overflow-hidden">
-      <div className="flex items-center justify-between px-1">
+    <div className="flex flex-col gap-1 h-full w-full min-h-0 overflow-hidden">
+      <div className="flex items-center justify-between px-1 shrink-0">
         {disableNavigation ? (
           <span className="w-6 h-6" />
         ) : (
@@ -138,7 +152,7 @@ export function LinkedInCalendarHeatmap({
       </div>
 
       <div
-        className={`grid grid-cols-7 px-1 ${compact ? "text-[9px]" : "text-[10px]"} text-gray-400`}
+        className={`grid grid-cols-7 px-1 shrink-0 ${compact ? "text-[9px]" : "text-[10px]"} text-gray-400`}
       >
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
           <div key={d} className="text-center">
@@ -148,7 +162,7 @@ export function LinkedInCalendarHeatmap({
       </div>
 
       <div
-        className={`grid grid-cols-7 ${compact ? "gap-1 justify-center" : "gap-1 flex-1"} min-h-0`}
+        className={`grid grid-cols-7 ${compact ? "gap-1 justify-center" : "gap-1 flex-1 h-0 overflow-hidden"} min-h-0`}
         style={
           compact
             ? undefined
@@ -162,7 +176,7 @@ export function LinkedInCalendarHeatmap({
             return (
               <div
                 key={idx}
-                className="rounded-md bg-transparent min-h-0"
+                className="rounded-md bg-transparent min-h-0 h-full"
                 style={compact ? { width: 24, height: 18 } : undefined}
               />
             );
@@ -175,7 +189,7 @@ export function LinkedInCalendarHeatmap({
           return (
             <div
               key={idx}
-              className="rounded-md flex items-center justify-center text-xs md:text-sm min-h-0 overflow-hidden"
+              className="rounded-md flex items-center justify-center text-xs md:text-sm min-h-0 h-full overflow-hidden"
               style={{
                 backgroundColor: colors.bg,
                 color: colors.text,
