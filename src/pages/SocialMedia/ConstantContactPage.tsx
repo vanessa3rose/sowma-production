@@ -8,6 +8,7 @@ import DateDropdown, {
 } from "../../components/charts/DateButton";
 import ExportButton from "../../components/export-pdf/ExportButton";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
+import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 
 /* ---------- types ---------- */
@@ -109,13 +110,7 @@ const METRICS: MetricConfig[] = [
   },
 ];
 
-const CHART_IDS = [
-  "emails_sent",
-  "emails_delivered",
-  "emails_unsubscribed",
-  "email_bounced",
-  "email_abuse",
-];
+const CHART_IDS = ["email_abuse"];
 
 /* ---------- helpers ---------- */
 
@@ -396,10 +391,10 @@ export default function ConstantContactPage() {
   const [sankeyRange, setSankeyRange] = useState<DateRangeValue>(ALL_RANGE);
   const [opensRange, setOpensRange] = useState<DateRangeValue>(ALL_RANGE);
   const [clicksRange, setClicksRange] = useState<DateRangeValue>(ALL_RANGE);
-  const [openRateRange, setOpenRateRange] = useState<DateRangeValue>(ALL_RANGE);
-  const [ctorRange, setCtorRange] = useState<DateRangeValue>(ALL_RANGE);
   const [deliveryRateRange, setDeliveryRateRange] =
     useState<DateRangeValue>(ALL_RANGE);
+
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -414,6 +409,11 @@ export default function ConstantContactPage() {
             }).then((rows) => ({ cfg, rows })),
           ),
         );
+
+        setLastUpdated(
+          getLatestImportedDate(results.map(({ rows }) => rows).flat()),
+        );
+
         const nextRaw: Record<string, LinePoint[]> = {};
         for (const { cfg, rows } of results) {
           nextRaw[cfg.id] = toLinePoints(rows);
@@ -497,27 +497,6 @@ export default function ConstantContactPage() {
     ...(rawSeries["email_total_clicks"] ?? []),
   ]);
 
-  // Open Rate %: opened / delivered * 100
-  const openRateData = useMemo(() => {
-    const delivered = filterByRange(
-      rawSeries["emails_delivered"] ?? [],
-      openRateRange,
-    );
-    const opened = filterByRange(
-      rawSeries["email_opened"] ?? [],
-      openRateRange,
-    );
-    return toRateSeries(opened, delivered).map((p) => ({
-      date: p.date,
-      openRate: p.value,
-    }));
-  }, [rawSeries, openRateRange]);
-
-  const openRateBounds = getBounds([
-    ...(rawSeries["emails_delivered"] ?? []),
-    ...(rawSeries["email_opened"] ?? []),
-  ]);
-
   // Delivery Rate %: delivered / sent * 100
   const deliveryRateData = useMemo(() => {
     const sent = filterByRange(
@@ -539,29 +518,14 @@ export default function ConstantContactPage() {
     ...(rawSeries["emails_delivered"] ?? []),
   ]);
 
-  // Click-to-Open Rate %: clicked / opened * 100
-  const ctorData = useMemo(() => {
-    const opened = filterByRange(rawSeries["email_opened"] ?? [], ctorRange);
-    const clicked = filterByRange(rawSeries["emails_clicked"] ?? [], ctorRange);
-    return toRateSeries(clicked, opened).map((p) => ({
-      date: p.date,
-      ctorRate: p.value,
-    }));
-  }, [rawSeries, ctorRange]);
-
-  const ctorBounds = getBounds([
-    ...(rawSeries["email_opened"] ?? []),
-    ...(rawSeries["emails_clicked"] ?? []),
-  ]);
-
   return (
-    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 py-2">
+    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between lg:items-center">
         <div className="flex items-center space-x-2">
           <button
             onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px] flex items-center justify-center"
+            className="w-[40px] h-[40px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -578,10 +542,12 @@ export default function ConstantContactPage() {
               />
             </svg>
           </button>
+
           <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
             Constant Contact
           </h1>
         </div>
+
         <div className="flex flex-row justify-center items-center mt-2 lg:mt-0 space-x-4">
           <a
             href="https://app.constantcontact.com"
@@ -595,102 +561,39 @@ export default function ConstantContactPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 px-4">
+      <div className="text-sm text-gray-600">
+        Last updated: {lastUpdated ?? "No imported data yet"}
+      </div>
+
+      <div className="flex flex-col gap-4">
         {/* ── Email Flow Sankey — first ── */}
-        <div className="w-full rounded-2xl border border-gray-100 bg-white shadow-sm p-6">
-          <div className="mb-4 flex items-start justify-between">
-            <div>
-              <h2 className="font-poppins font-semibold text-lg text-gray-800">
-                Email Flow
-              </h2>
-              <p className="text-sm text-gray-400 mt-0.5">
-                End-to-end journey from sent to final action
-              </p>
-            </div>
+        <BigCard
+          title="Email Flow"
+          titleTooltip="End-to-end journey from sent to final action."
+          subtitle={
             <DateDropdown
               value={sankeyRange}
               onChange={setSankeyRange}
               minDate={sankeyBounds.min}
               maxDate={sankeyBounds.max}
             />
-          </div>
-          {hasSankeyData ? (
-            <ReactECharts
-              option={buildSankeyOption(sankeyVals)}
-              style={{ height: 520, width: "100%" }}
-              opts={{ renderer: "svg" }}
-            />
-          ) : (
-            <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
-              No data available
-            </div>
-          )}
-        </div>
-
-        {/* ── Open Rate % + CTOR % ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <BigCard
-            title="Open Rate %"
-            titleTooltip="Percentage of delivered emails that were opened (Opened ÷ Delivered × 100)"
-            subtitle={
-              <DateDropdown
-                value={openRateRange}
-                onChange={setOpenRateRange}
-                minDate={openRateBounds.min}
-                maxDate={openRateBounds.max}
+          }
+          chart={
+            hasSankeyData ? (
+              <ReactECharts
+                option={buildSankeyOption(sankeyVals)}
+                style={{ width: "100%" }}
+                opts={{ renderer: "svg" }}
               />
-            }
-            chart={
-              openRateData.length > 0 ? (
-                <div className="w-full h-full">
-                  <LineCharts
-                    data={openRateData}
-                    xAxisKey="date"
-                    dataKeys={["openRate"]}
-                    showArea
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
-            }
-            displayMode="chart-only"
-            className="w-full h-[360px]"
-          />
-
-          <BigCard
-            title="Click-to-Open Rate %"
-            titleTooltip="Of people who opened, the percentage who clicked a link (Clicked ÷ Opened × 100)"
-            subtitle={
-              <DateDropdown
-                value={ctorRange}
-                onChange={setCtorRange}
-                minDate={ctorBounds.min}
-                maxDate={ctorBounds.max}
-              />
-            }
-            chart={
-              ctorData.length > 0 ? (
-                <div className="w-full h-full">
-                  <LineCharts
-                    data={ctorData}
-                    xAxisKey="date"
-                    dataKeys={["ctorRate"]}
-                    showArea
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
-            }
-            displayMode="chart-only"
-            className="w-full h-[360px]"
-          />
-        </div>
+            ) : (
+              <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
+                No data available
+              </div>
+            )
+          }
+          displayMode="chart-only"
+          className="w-full h-[360px]"
+        />
 
         {/* ── Opens + Clicks comparison ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

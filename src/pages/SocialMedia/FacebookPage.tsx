@@ -353,11 +353,10 @@ export default function FacebookPage() {
             href="https://www.facebook.com/schoolonwheels"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-semibold"
+            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
           >
             Go to Account
           </a>
-
           <ExportButton onExport={exportByPlatforms} />
         </div>
       </div>

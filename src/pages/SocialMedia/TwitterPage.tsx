@@ -5,11 +5,14 @@ import BigCard from "../../components/cards/BigCard";
 import LineCharts from "../../components/charts/LineCharts";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
+import ExportButton from "../../components/export-pdf/ExportButton";
+import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 
 type MetricSummary = { current: number | null; prev: number | null };
 type TwitterMetrics = { followers: number; tweets: number };
 type TimePoint = { date: string; followers?: number; tweets?: number };
 export default function TwitterPage() {
+  const { exportByPlatforms } = useGlobalPageExporter();
   const [followersOverTimeAll, setFollowersOverTimeAll] = useState<
     { date: string; value: number }[]
   >([]);
@@ -165,7 +168,7 @@ export default function TwitterPage() {
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between lg:items-center">
-        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => (window.location.href = "/")}
             className="w-[40px] h-[40px]"
@@ -186,12 +189,24 @@ export default function TwitterPage() {
             </svg>
           </button>
 
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-wrap">
+          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
             Twitter
           </h1>
         </div>
-        {/* Add export button if needed */}
+
+        <div className="flex flex-row items-center space-x-4 mt-2 lg:mt-0">
+          <a
+            href="https://x.com/sowma"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
+          >
+            Go to Account
+          </a>
+          <ExportButton onExport={exportByPlatforms} />
+        </div>
       </div>
+
       <div className="font-poppins text-sm text-gray-600">
         Last updated: {lastUpdated ?? "No imported data yet"}
       </div>
