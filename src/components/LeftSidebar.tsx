@@ -19,17 +19,16 @@ const socialLinks = [
     label: "Google Analytics",
     icon: googleAnalytics,
   },
-  { slug: "instagram", label: "Instagram", icon: instagram },
-  { slug: "facebook", label: "Facebook", icon: facebook },
-  // Temporary: hide TikTok from the navbar.
-  // { slug: "tiktok", label: "TikTok", icon: tiktok },
-  { slug: "linkedin", label: "LinkedIn", icon: linkedin },
-  { slug: "twitter", label: "Twitter/X", icon: twitter },
   {
     slug: "constant-contact",
     label: "Constant Contact",
     icon: constantContact,
   },
+  { slug: "facebook", label: "Facebook", icon: facebook },
+  { slug: "instagram", label: "Instagram", icon: instagram },
+
+  { slug: "linkedin", label: "LinkedIn", icon: linkedin },
+  { slug: "twitter", label: "Twitter/X", icon: twitter },
 ];
 
 const exceptionRoutes: Record<string, string> = {
