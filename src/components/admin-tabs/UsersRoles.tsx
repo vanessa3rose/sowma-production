@@ -89,7 +89,7 @@ export default function UsersRoles() {
         <div className="w-[30%]">Name</div>
         <div className="w-[30%]">Email</div>
         <div className="w-[20%]">Role</div>
-        <div className="w-[20%]" />
+        <div className="w-[20%]">Actions</div>
       </div>
 
       {/* Rows */}
@@ -116,11 +116,16 @@ export default function UsersRoles() {
               </div>
 
               {/* Role */}
-              <div className="flex w-[20%] justify-center">
+              <div className="flex w-[20%] justify-center items-center">
                 <select
                   value={user.role}
                   onChange={(e) => updateRole(user.id, e.target.value as Role)}
-                  className="lg:px-6 px-2 py-2 mx-1 rounded-full border-2 border-[#7B7C7C] text-xs md:text-lg leading-none"
+                  className="appearance-none bg-transparent border-none outline-none cursor-pointer text-xs md:text-lg leading-none pr-6 text-center"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237B7C7C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "right 0px center",
+                  }}
                 >
                   <option value="ADMIN">Admin</option>
                   <option value="USER">User</option>
