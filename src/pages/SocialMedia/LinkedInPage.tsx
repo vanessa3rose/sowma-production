@@ -4,6 +4,7 @@ import SmallCard from "../../components/cards/SmallCard";
 import { HeatmapLegend } from "../../components/charts/CalendarHeatmap";
 import { LinkedInCalendarHeatmap } from "../../components/charts/LinkedInCalendarHeatmap";
 import LineCharts from "../../components/charts/LineCharts";
+import PieCharts from "../../components/charts/PieCharts";
 import DateDropdown, {
   DateRangeValue,
 } from "../../components/charts/DateButton";
@@ -30,13 +31,16 @@ type MetricKey =
   | "likes"
   | "comments"
   | "shares"
-  | "interactions";
+  | "interactions"
+  | "daysPosted";
 
 type MetricConfig = {
   id: MetricKey;
   metric: string;
   title: string;
 };
+
+type RangeKey = MetricKey | "engagementRate" | "interactionMix";
 
 const PROVIDER = "LINKEDIN";
 const DEFAULT_START_DATE = "2024-01-01";
@@ -61,6 +65,12 @@ const METRICS: MetricConfig[] = [
     metric: "TOTAL_INTERACTIONS",
     title: "Total Interactions",
   },
+  {
+    id: "daysPosted",
+    metric: "DAYS_POSTED",
+    title: "Days Posted",
+    label: "days posted",
+  },
 ];
 
 const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
@@ -70,15 +80,19 @@ const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
   comments: [],
   shares: [],
   interactions: [],
+  daysPosted: [],
 };
 
-const INITIAL_RANGES: Record<MetricKey, DateRangeValue> = {
+const INITIAL_RANGES: Record<RangeKey, DateRangeValue> = {
   followers: { id: "30d" },
   views: { id: "30d" },
   likes: { id: "30d" },
   comments: { id: "30d" },
   shares: { id: "30d" },
   interactions: { id: "30d" },
+  daysPosted: { id: "30d" },
+  engagementRate: { id: "30d" },
+  interactionMix: { id: "30d" },
 };
 
 function formatPercentChange(summary?: MetricSummary | null): string {
@@ -99,7 +113,7 @@ export default function LinkedInPage() {
   const [rawSeries, setRawSeries] =
     useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
   const [ranges, setRanges] =
-    useState<Record<MetricKey, DateRangeValue>>(INITIAL_RANGES);
+    useState<Record<RangeKey, DateRangeValue>>(INITIAL_RANGES);
 
   useEffect(() => {
     async function loadLinkedIn() {
@@ -155,6 +169,36 @@ export default function LinkedInPage() {
     return out;
   }, [rawSeries, ranges]);
 
+  const engagementRate = useMemo(() => {
+    const full = buildEngagementRateSeries(
+      rawSeries.interactions,
+      rawSeries.views,
+    );
+    const filtered = filterByRange(full, ranges.engagementRate);
+    return {
+      filtered,
+      summary: summarizeSeries(filtered),
+      bounds: getBounds(full),
+    };
+  }, [rawSeries.interactions, rawSeries.views, ranges.engagementRate]);
+
+  const interactionMixData = useMemo(() => {
+    const likes = filterByRange(rawSeries.likes, ranges.interactionMix);
+    const comments = filterByRange(rawSeries.comments, ranges.interactionMix);
+    const shares = filterByRange(rawSeries.shares, ranges.interactionMix);
+
+    return [
+      { label: "Reactions", value: sumSeries(likes) },
+      { label: "Comments", value: sumSeries(comments) },
+      { label: "Reposts", value: sumSeries(shares) },
+    ];
+  }, [
+    rawSeries.likes,
+    rawSeries.comments,
+    rawSeries.shares,
+    ranges.interactionMix,
+  ]);
+
   const topSmallCards = [
     {
       title: "Reactions",
@@ -198,39 +242,89 @@ export default function LinkedInPage() {
       </div>
 
       {/* big cards */}
-      <div className="grid grid-cols-1 xl:grid-cols-[2fr_2fr] gap-4">
-        <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           <BigCard
-            title="New Followers"
+            title="Total Interactions"
+            titleTooltip={getGlossaryDefinition("interactions")}
             subtitle={
               <DateDropdown
-                value={ranges.followers}
+                value={ranges.interactions}
                 onChange={(r: DateRangeValue) =>
-                  setRanges((prev) => ({ ...prev, followers: r }))
+                  setRanges((prev) => ({ ...prev, interactions: r }))
                 }
-                minDate={computed.followers?.bounds.min}
-                maxDate={computed.followers?.bounds.max}
+                minDate={computed.interactions?.bounds.min}
+                maxDate={computed.interactions?.bounds.max}
               />
             }
-            metricValue={computed.followers?.summary.current ?? 0}
+            metricValue={computed.interactions?.summary.current ?? 0}
             metricLabel="latest imported day"
-            metricChange={formatPercentChange(computed.followers?.summary)}
+            metricChange={formatPercentChange(computed.interactions?.summary)}
             chart={
-              computed.followers?.filtered.length ? (
+              computed.interactions?.filtered.length ? (
                 <LineCharts
-                  data={computed.followers.filtered}
+                  data={computed.interactions.filtered}
                   xAxisKey="date"
                   dataKeys={["value"]}
-                  labels={{ value: "New Followers" }}
+                  labels={{ value: "Total Interactions" }}
                   showArea
                 />
               ) : (
                 <div className="h-full flex items-center justify-center text-gray-500">
-                  No new follower data available
+                  No interactions data available
                 </div>
               )
             }
             displayMode="both"
+            className="h-[360px]"
+          />
+
+          <BigCard
+            title="Interaction Mix"
+            titleTooltip="Share of engagement made up of reactions, comments, and reposts for the selected range."
+            subtitle={
+              <DateDropdown
+                value={ranges.interactionMix}
+                onChange={(r: DateRangeValue) =>
+                  setRanges((prev) => ({ ...prev, interactionMix: r }))
+                }
+                minDate={computed.likes?.bounds.min}
+                maxDate={computed.likes?.bounds.max}
+              />
+            }
+            chart={
+              interactionMixData.some((entry) => entry.value > 0) ? (
+                <PieCharts
+                  data={interactionMixData}
+                  dataKey="value"
+                  nameKey="label"
+                />
+              ) : (
+                <div className="flex items-center justify-center text-gray-500">
+                  No interaction mix data
+                </div>
+              )
+            }
+            displayMode="chart-only"
+            className="h-[360px]"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <BigCard
+            title="Days Posted"
+            titleTooltip={getGlossaryDefinition("daysPosted")}
+            subtitle={<HeatmapLegend />}
+            chart={
+              rawSeries.daysPosted.length ? (
+                <LinkedInCalendarHeatmap points={rawSeries.daysPosted} />
+              ) : (
+                <div className="flex items-center justify-center text-gray-500">
+                  No posting activity data
+                </div>
+              )
+            }
+            displayMode="chart-only"
             className="h-[360px]"
           />
 
@@ -269,35 +363,34 @@ export default function LinkedInPage() {
           />
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           <BigCard
-            title="Total Interactions"
-            titleTooltip={getGlossaryDefinition("interactions")}
+            title="New Followers"
             subtitle={
               <DateDropdown
-                value={ranges.interactions}
+                value={ranges.followers}
                 onChange={(r: DateRangeValue) =>
-                  setRanges((prev) => ({ ...prev, interactions: r }))
+                  setRanges((prev) => ({ ...prev, followers: r }))
                 }
-                minDate={computed.interactions?.bounds.min}
-                maxDate={computed.interactions?.bounds.max}
+                minDate={computed.followers?.bounds.min}
+                maxDate={computed.followers?.bounds.max}
               />
             }
-            metricValue={computed.interactions?.summary.current ?? 0}
+            metricValue={computed.followers?.summary.current ?? 0}
             metricLabel="latest imported day"
-            metricChange={formatPercentChange(computed.interactions?.summary)}
+            metricChange={formatPercentChange(computed.followers?.summary)}
             chart={
-              computed.interactions?.filtered.length ? (
+              computed.followers?.filtered.length ? (
                 <LineCharts
-                  data={computed.interactions.filtered}
+                  data={computed.followers.filtered}
                   xAxisKey="date"
                   dataKeys={["value"]}
-                  labels={{ value: "Total Interactions" }}
+                  labels={{ value: "New Followers" }}
                   showArea
                 />
               ) : (
                 <div className="h-full flex items-center justify-center text-gray-500">
-                  No interactions data available
+                  No new follower data available
                 </div>
               )
             }
@@ -306,19 +399,39 @@ export default function LinkedInPage() {
           />
 
           <BigCard
-            title="Engagement Calendar"
-            titleTooltip="Interaction intensity by calendar day. Darker means more interactions."
-            subtitle={<HeatmapLegend />}
+            title="Engagement Rate"
+            titleTooltip="Daily interaction rate calculated as total interactions divided by views."
+            subtitle={
+              <DateDropdown
+                value={ranges.engagementRate}
+                onChange={(r: DateRangeValue) =>
+                  setRanges((prev) => ({ ...prev, engagementRate: r }))
+                }
+                minDate={engagementRate.bounds.min}
+                maxDate={engagementRate.bounds.max}
+              />
+            }
+            metricValue={Number(
+              (engagementRate.summary.current ?? 0).toFixed(1),
+            )}
+            metricLabel="% of views"
+            metricChange={formatRateDelta(engagementRate.summary)}
             chart={
-              rawSeries.interactions.length ? (
-                <LinkedInCalendarHeatmap points={rawSeries.interactions} />
+              engagementRate.filtered.length ? (
+                <LineCharts
+                  data={engagementRate.filtered}
+                  xAxisKey="date"
+                  dataKeys={["value"]}
+                  labels={{ value: "Engagement Rate (%)" }}
+                  showArea
+                />
               ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No interaction activity data
+                <div className="h-full flex items-center justify-center text-gray-500">
+                  No engagement rate data available
                 </div>
               )
             }
-            displayMode="chart-only"
+            displayMode="both"
             className="h-[360px]"
           />
         </div>

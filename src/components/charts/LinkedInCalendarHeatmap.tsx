@@ -106,7 +106,7 @@ export function LinkedInCalendarHeatmap({
   }
 
   return (
-    <div className="flex flex-col gap-2 h-full w-full min-h-0">
+    <div className="flex flex-col gap-2 h-full w-full min-h-0 overflow-hidden">
       <div className="flex items-center justify-between px-1">
         {disableNavigation ? (
           <span className="w-6 h-6" />
@@ -148,14 +148,21 @@ export function LinkedInCalendarHeatmap({
       </div>
 
       <div
-        className={`grid grid-cols-7 grid-rows-6 ${compact ? "gap-1 justify-center" : "gap-1 flex-1"} min-h-0`}
+        className={`grid grid-cols-7 ${compact ? "gap-1 justify-center" : "gap-1 flex-1"} min-h-0`}
+        style={
+          compact
+            ? undefined
+            : {
+                gridTemplateRows: "repeat(6, minmax(0, 1fr))",
+              }
+        }
       >
         {padded.map((sq, idx) => {
           if (sq.level === -2) {
             return (
               <div
                 key={idx}
-                className="rounded-md bg-transparent"
+                className="rounded-md bg-transparent min-h-0"
                 style={compact ? { width: 24, height: 18 } : undefined}
               />
             );
@@ -168,7 +175,7 @@ export function LinkedInCalendarHeatmap({
           return (
             <div
               key={idx}
-              className="rounded-md flex items-center justify-center text-xs md:text-sm min-h-0"
+              className="rounded-md flex items-center justify-center text-xs md:text-sm min-h-0 overflow-hidden"
               style={{
                 backgroundColor: colors.bg,
                 color: colors.text,
