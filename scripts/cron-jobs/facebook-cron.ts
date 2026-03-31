@@ -27,7 +27,7 @@ const FB_API_VERSION = "v24.0";
 const POSTS_LIMIT = 50;
 
 /* -------------------------------------------------
-   Types (UPDATED)
+   Types
 -------------------------------------------------- */
 type InsightsResponse = {
   data?: Array<{
@@ -78,7 +78,7 @@ async function fetchDailyInsights(date: Date, accessToken: string) {
   for (const row of json.data ?? []) {
     const value =
       row.total_value?.value ?? // old
-      row.values?.[0]?.value ?? // new (THIS is what FB now returns)
+      row.values?.[0]?.value ?? // new
       0;
 
     out[row.name] = value;
@@ -106,12 +106,9 @@ async function fetchPostsForDay(date: Date, accessToken: string) {
 
   const json = (await res.json()) as PostsResponse;
 
-  const start = startOfDay(date).getTime();
-  const end = endOfDay(date).getTime();
-
   return (json.data ?? []).filter((p) => {
     const t = new Date(p.created_time).getTime();
-    return t >= start && t <= end;
+    return t >= startOfDay(date).getTime() && t <= endOfDay(date).getTime();
   });
 }
 
