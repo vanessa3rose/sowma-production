@@ -27,12 +27,13 @@ const FB_API_VERSION = "v24.0";
 const POSTS_LIMIT = 50;
 
 /* -------------------------------------------------
-   Types
+   Types (UPDATED)
 -------------------------------------------------- */
 type InsightsResponse = {
   data?: Array<{
     name: string;
-    total_value?: { value?: number };
+    total_value?: { value?: number }; // old format
+    values?: Array<{ value?: number }>; // new format
   }>;
 };
 
@@ -61,20 +62,26 @@ async function fetchDailyInsights(date: Date, accessToken: string) {
     `https://graph.facebook.com/${FB_API_VERSION}/${FB_PAGE_ID}/insights` +
     `?metric=${metrics.join(",")}` +
     `&period=day` +
-    `&metric_type=total_value` +
     `&since=${since}&until=${until}` +
     `&access_token=${accessToken}`;
 
   const res = await fetch(url);
+
   if (!res.ok) {
     throw new Error(`[FB] insights failed: ${res.status} ${await res.text()}`);
   }
 
   const json = (await res.json()) as InsightsResponse;
+
   const out: Record<string, number> = {};
 
   for (const row of json.data ?? []) {
-    out[row.name] = row.total_value?.value ?? 0;
+    const value =
+      row.total_value?.value ?? // old
+      row.values?.[0]?.value ?? // new (THIS is what FB now returns)
+      0;
+
+    out[row.name] = value;
   }
 
   return {
@@ -92,15 +99,19 @@ async function fetchPostsForDay(date: Date, accessToken: string) {
     `&access_token=${accessToken}`;
 
   const res = await fetch(url);
+
   if (!res.ok) {
     throw new Error(`[FB] posts failed: ${res.status} ${await res.text()}`);
   }
 
   const json = (await res.json()) as PostsResponse;
 
+  const start = startOfDay(date).getTime();
+  const end = endOfDay(date).getTime();
+
   return (json.data ?? []).filter((p) => {
     const t = new Date(p.created_time).getTime();
-    return t >= startOfDay(date).getTime() && t <= endOfDay(date).getTime();
+    return t >= start && t <= end;
   });
 }
 
