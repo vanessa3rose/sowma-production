@@ -952,7 +952,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                 </GoogleChartCard>
 
                 {/* KPI row: Sent, Delivered, Open Rate %, CTOR %, Delivery Rate % */}
-                <div className="grid grid-cols-5 gap-4">
+                <div className="grid grid-cols-5 gap-4 pt-4">
                   <GoogleSmallMetricCard
                     title="Emails Sent"
                     value={formatValue(sentSummary.current ?? 0)}

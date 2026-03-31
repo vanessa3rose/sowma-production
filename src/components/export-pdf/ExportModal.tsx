@@ -126,61 +126,73 @@ export default function ExportModal({
     >
       <DialogPanel className="w-[450px] bg-white rounded-xl shadow-lg flex flex-col px-10 py-6">
         <DialogTitle className="relative mb-4 flex items-center justify-between">
-          <p className=" flex-1 text-xl font-semibold">Select for Export</p>
-          <DateDropdown
-            value={range}
-            onChange={setRange}
-            className="p-1 border-[#A1A1A1] border-[0.9px] rounded-[9px]"
-          />
+          {!isLoading ? (
+            <>
+              <p className=" flex-1 text-xl font-semibold">Select for Export</p>
+              <DateDropdown
+                value={range}
+                onChange={setRange}
+                className="p-1 border-[#A1A1A1] border-[0.9px] rounded-[9px]"
+              />
+            </>
+          ) : (
+            <p className=" flex-1 text-xl font-semibold">Generating PDF</p>
+          )}
         </DialogTitle>
 
         <div className="w-full h-[1px] bg-black/40" />
 
         {!isLoading ? (
-          <div className="w-full mt-5">
-            {/* "Select All" checkbox */}
-            <CheckboxTitle
-              key={SELECT_ALL_LABEL}
-              name={SELECT_ALL_LABEL}
-              checked={checkedStates[SELECT_ALL_LABEL]}
-              onChange={(checked) =>
-                handleCheckboxChange(SELECT_ALL_LABEL, checked)
-              }
-            />
-
-            {/* One checkbox per exportable platform */}
-            {EXPORTABLE_PLATFORMS.map((platform) => (
+          <>
+            <div className="w-full mt-5">
+              {/* "Select All" checkbox */}
               <CheckboxTitle
-                key={platform}
-                // Human-readable label (e.g. "Instagram", "Google Analytics")
-                name={PLATFORM_LABELS[platform]}
-                // State is stored under the platform key (e.g. "instagram")
-                checked={checkedStates[platform]}
-                onChange={(checked) => handleCheckboxChange(platform, checked)}
+                key={SELECT_ALL_LABEL}
+                name={SELECT_ALL_LABEL}
+                checked={checkedStates[SELECT_ALL_LABEL]}
+                onChange={(checked) =>
+                  handleCheckboxChange(SELECT_ALL_LABEL, checked)
+                }
               />
-            ))}
-          </div>
-        ) : (
-          <LoadingAnimation />
-        )}
 
-        {/* Modal footer buttons */}
-        <div className="mt-auto flex justify-end gap-2 pt-4">
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 text-sm font-medium"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleDownload}
-            className="px-4 py-2 rounded-md bg-black text-white text-sm font-semibold"
-          >
-            Download PDF
-          </button>
-        </div>
+              {/* One checkbox per exportable platform */}
+              {EXPORTABLE_PLATFORMS.map((platform) => (
+                <CheckboxTitle
+                  key={platform}
+                  // Human-readable label (e.g. "Instagram", "Google Analytics")
+                  name={PLATFORM_LABELS[platform]}
+                  // State is stored under the platform key (e.g. "instagram")
+                  checked={checkedStates[platform]}
+                  onChange={(checked) =>
+                    handleCheckboxChange(platform, checked)
+                  }
+                />
+              ))}
+            </div>
+
+            {/* Modal footer buttons */}
+            <div className="mt-auto flex justify-end gap-2 pt-4">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 text-sm font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="px-4 py-2 rounded-md bg-black text-white text-sm font-semibold"
+              >
+                Download PDF
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="flex mt-[200px] h-[150px]">
+            <LoadingAnimation />
+          </div>
+        )}
       </DialogPanel>
     </Dialog>
   );
