@@ -90,36 +90,83 @@ export const GLOSSARY_ITEMS = [
     platforms: ["Google Analytics"],
   },
   {
-    key: "sent",
+    key: "emails_sent",
     term: "Emails Sent",
-    definition:
-      "The total number of emails that were sent from your Constant Contact campaigns.",
+    definition: "The total number of unique emails sent across campaigns.",
     platforms: ["Constant Contact"],
   },
   {
-    key: "delivered",
+    key: "emails_delivered",
     term: "Emails Delivered",
     definition:
       "The number of sent emails that successfully reached recipients' inboxes.",
     platforms: ["Constant Contact"],
   },
   {
-    key: "opened",
+    key: "emails_opened",
     term: "Emails Opened",
     definition: "The number of delivered emails that recipients opened.",
     platforms: ["Constant Contact"],
   },
   {
-    key: "clicked",
+    key: "emails_clicked",
     term: "Emails Clicked",
     definition: "The number of times recipients clicked links within an email.",
     platforms: ["Constant Contact"],
   },
   {
-    key: "unsubscribed",
+    key: "emails_unsubscribed",
     term: "Emails Unsubscribed",
     definition:
       "The number of recipients who unsubscribed from the mailing list after receiving an email.",
+    platforms: ["Constant Contact"],
+  },
+  {
+    key: "emails_bounced",
+    term: "Emails Bounced",
+    definition: "Emails that could not be delivered.",
+    platforms: ["Constant Contact"],
+  },
+  {
+    key: "emails_forwarded",
+    term: "Emails Forwarded",
+    definition: "Recipients forwarded the email.",
+    platforms: ["Constant Contact"],
+  },
+  {
+    key: "emails_not_opened",
+    term: "Emails Not Opened",
+    definition: "Recipients received but did not open the email.",
+    platforms: ["Constant Contact"],
+  },
+  {
+    key: "email_abuse",
+    term: "Abuse / Spam Emails",
+    definition: "Recipients marked the email as spam.",
+    platforms: ["Constant Contact"],
+  },
+  {
+    key: "email_unique_opens",
+    term: "Unique Emails Opened",
+    definition: "Number of unique recipients who opened each campaign.",
+    platforms: ["Constant Contact"],
+  },
+  {
+    key: "email_total_opens",
+    term: "Total Emails Opens",
+    definition: "Total number of times emails were opened, including re-opens.",
+    platforms: ["Constant Contact"],
+  },
+  {
+    key: "email_unique_clicks",
+    title: "Unique Email Clicks",
+    definition: "Number of unique recipients who clicked a link.",
+    platforms: ["Constant Contact"],
+  },
+  {
+    key: "email_total_clicks",
+    title: "Total Email Clicks",
+    definition: "Total number of link clicks, including repeat clicks.",
     platforms: ["Constant Contact"],
   },
   {

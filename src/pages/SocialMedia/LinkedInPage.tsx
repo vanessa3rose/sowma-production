@@ -30,7 +30,6 @@ type MetricConfig = {
   id: MetricKey;
   metric: string;
   title: string;
-  label: string;
 };
 
 const PROVIDER = "LINKEDIN";
@@ -42,22 +41,19 @@ const METRICS: MetricConfig[] = [
     id: "followers",
     metric: "FOLLOWERS",
     title: "New Followers",
-    label: "new followers",
   },
-  { id: "views", metric: "VIEWS", title: "Views", label: "views" },
-  { id: "likes", metric: "LIKES", title: "Reactions", label: "reactions" },
+  { id: "views", metric: "VIEWS", title: "Views" },
+  { id: "likes", metric: "LIKES", title: "Reactions" },
   {
     id: "comments",
     metric: "COMMENTS",
     title: "Comments",
-    label: "comments",
   },
-  { id: "shares", metric: "SHARES", title: "Reposts", label: "reposts" },
+  { id: "shares", metric: "SHARES", title: "Reposts" },
   {
     id: "interactions",
     metric: "TOTAL_INTERACTIONS",
     title: "Total Interactions",
-    label: "interactions",
   },
 ];
 

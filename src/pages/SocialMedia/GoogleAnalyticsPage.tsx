@@ -289,7 +289,6 @@ function formatPercentChange(summary?: MetricSummary | null): string {
 // Component
 // -----------------------------
 export default function GoogleAnalyticsPage() {
-
   const [metrics, setMetrics] = useState<GAMetrics | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
@@ -715,7 +714,9 @@ export default function GoogleAnalyticsPage() {
       <SocialMediaHeader
         lastUpdated={lastUpdated}
         Title={"Google Analytics"}
-        Link={"https://analytics.google.com/analytics/web/#/p393011442/reports/intelligenthome"}
+        Link={
+          "https://analytics.google.com/analytics/web/#/p393011442/reports/intelligenthome"
+        }
       />
 
       {/* Row 1: Top small cards */}

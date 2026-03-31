@@ -9,6 +9,7 @@ import DateDropdown, {
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 import SocialMediaHeader from "../../components/SocialMediaHeader";
+import { isGlossaryKey, getGlossaryDefinition } from "../../data/glossarydata";
 
 /* ---------- types ---------- */
 
@@ -19,7 +20,6 @@ type MetricConfig = {
   id: string;
   title: string;
   metric: string;
-  description: string;
 };
 
 /* ---------- config ---------- */
@@ -33,79 +33,66 @@ const METRICS: MetricConfig[] = [
     id: "emails_sent",
     title: "Emails Sent",
     metric: "EMAILS_SENT",
-    description: "Total unique emails sent across all campaigns",
   },
   {
     id: "emails_delivered",
     title: "Emails Delivered",
     metric: "EMAILS_DELIVERED",
-    description: "Emails that reached the inbox (sent minus bounced)",
   },
   {
-    id: "email_opened",
+    id: "emails_opened",
     title: "Emails Opened",
     metric: "EMAIL_OPENED",
-    description: "Unique recipients who opened the email",
   },
   {
     id: "emails_clicked",
     title: "Emails Clicked",
     metric: "EMAILS_CLICKED",
-    description: "Unique recipients who clicked a link in the email",
   },
   {
     id: "emails_unsubscribed",
     title: "Unsubscribed",
     metric: "EMAILS_UNSUBSCRIBED",
-    description: "Recipients who opted out of future emails",
   },
   {
-    id: "email_bounced",
+    id: "emails_bounced",
     title: "Bounced",
     metric: "EMAIL_BOUNCED",
-    description: "Emails that could not be delivered",
   },
   {
-    id: "email_forwarded",
+    id: "emails_forwarded",
     title: "Forwarded",
     metric: "EMAIL_FORWARDED",
-    description: "Recipients who forwarded the email",
   },
   {
-    id: "email_not_opened",
+    id: "emails_not_opened",
     title: "Not Opened",
     metric: "EMAIL_NOT_OPENED",
-    description: "Recipients who received but did not open the email",
   },
   {
     id: "email_abuse",
     title: "Abuse / Spam",
     metric: "EMAIL_ABUSE",
-    description: "Recipients who marked the email as spam",
   },
   {
     id: "email_unique_opens",
     title: "Unique Opens",
     metric: "EMAIL_UNIQUE_OPENS",
-    description: "Number of unique recipients who opened each campaign",
   },
   {
     id: "email_total_opens",
     title: "Total Opens",
     metric: "EMAIL_TOTAL_OPENS",
-    description: "Total number of times emails were opened, including re-opens",
   },
   {
     id: "email_unique_clicks",
     title: "Unique Clicks",
     metric: "EMAIL_UNIQUE_CLICKS",
-    description: "Number of unique recipients who clicked a link",
   },
   {
     id: "email_total_clicks",
     title: "Total Clicks",
     metric: "EMAIL_TOTAL_CLICKS",
-    description: "Total number of link clicks, including repeat clicks",
   },
 ];
 
@@ -379,7 +366,6 @@ const ALL_RANGE: DateRangeValue = { id: "all" };
 const DEFAULT_RANGE: DateRangeValue = { id: "30d" };
 
 export default function ConstantContactPage() {
-
   const [rawSeries, setRawSeries] = useState<Record<string, LinePoint[]>>({});
   const [ranges, setRanges] = useState<Record<string, DateRangeValue>>(() => {
     const init: Record<string, DateRangeValue> = {};
@@ -476,7 +462,7 @@ export default function ConstantContactPage() {
     ...(rawSeries["email_unique_opens"] ?? []),
     ...(rawSeries["email_total_opens"] ?? []),
   ]);
-  
+
   // Clicks comparison: Unique vs Total
   const clicksData = useMemo(() => {
     const unique = filterByRange(
@@ -632,7 +618,9 @@ export default function ConstantContactPage() {
               <BigCard
                 key={id}
                 title={cfg.title}
-                titleTooltip={cfg.description}
+                titleTooltip={
+                  isGlossaryKey(cfg.id) ? getGlossaryDefinition(cfg.id) : ""
+                }
                 subtitle={
                   <DateDropdown
                     value={ranges[id] ?? DEFAULT_RANGE}
