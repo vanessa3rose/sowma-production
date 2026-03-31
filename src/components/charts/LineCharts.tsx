@@ -16,7 +16,6 @@ const PLATFORM_COLORS: Record<string, string> = {
   facebook: "#F765A3",
   instagram: "#E4405F",
   twitter: "#FFA9D0",
-  tiktok: "#A155B9",
 };
 
 type LineChartProps = {

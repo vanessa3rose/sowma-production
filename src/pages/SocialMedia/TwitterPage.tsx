@@ -6,8 +6,6 @@ import LineCharts from "../../components/charts/LineCharts";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 
-type MetricSummary = { current: number | null; prev: number | null };
-type TwitterMetrics = { followers: number; tweets: number };
 type TimePoint = { date: string; followers?: number; tweets?: number };
 export default function TwitterPage() {
   const [followersOverTimeAll, setFollowersOverTimeAll] = useState<
