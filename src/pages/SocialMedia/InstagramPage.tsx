@@ -286,7 +286,7 @@ export default function InstagramPage() {
             href="https://www.instagram.com/schoolonwheelsma/?hl=en"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-semibold"
+            className="rounded-[15px] border border-[#4781C2] px-4 py-1.5 text-[#4781C2] font-semibold"
           >
             Go to Account
           </a>

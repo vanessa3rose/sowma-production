@@ -212,7 +212,7 @@ export default function LinkedInPage() {
             href="https://www.linkedin.com/company/schoolonwheelsofmasschusetts/"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
+            className="rounded-[15px] border border-[#4781C2] px-4 py-1.5 text-[#4781C2] font-poppins font-semibold inline-block"
           >
             Go to Account
           </a>
