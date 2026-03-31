@@ -48,7 +48,7 @@ export default function CheckboxTitle({
         {/* label for social media type */}
         <label
           htmlFor={`${name.toLowerCase()}-checkbox`}
-          className="ml-2 opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px] cursor-pointer"
+          className={`${name.toLowerCase().includes("all") && "text-sowma-blue font-extrabold"} "ml-2 opacity-100 flex items-center justify-start bg-white text-black font-inter font-medium text-[18px] leading-[39.6px] tracking-[0px] cursor-pointer"`}
         >
           {name}
         </label>

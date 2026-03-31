@@ -19,7 +19,7 @@ interface ModalProps {
 }
 
 // Label for the "select everything" option at the top of the list.
-const SELECT_ALL_LABEL = "Select All";
+const SELECT_ALL_LABEL = "SELECT ALL";
 
 /**
  * Platforms that currently support charts & exports.
@@ -27,12 +27,12 @@ const SELECT_ALL_LABEL = "Select All";
  * they can be added here as well.
  */
 const EXPORTABLE_PLATFORMS: Platform[] = [
-  "instagram",
-  "twitter",
-  "facebook",
-  "linkedin",
   "google",
   "constantcontact",
+  "facebook",
+  "instagram",
+  "linkedin",
+  "twitter",
 ];
 
 type CheckedState = Record<string, boolean>;
@@ -124,13 +124,17 @@ export default function ExportModal({
       onClose={handleCancel}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
     >
-      <DialogPanel className="w-[404px] h-[454px] bg-white rounded-xl shadow-lg flex flex-col p-6">
-        <DialogTitle className="relative text-xl font-semibold mb-4">
-          Select for Export
-          <div className="absolute top-[-10px] left-[175px] w-[184px] h-[46px] right-0 opacity-100 rounded-[9px] bg-white border-[#A1A1A1] border-[0.9px]">
-            <DateDropdown value={range} onChange={setRange} className="p-1" />
-          </div>
+      <DialogPanel className="w-[450px] bg-white rounded-xl shadow-lg flex flex-col px-10 py-6">
+        <DialogTitle className="relative mb-4 flex items-center justify-between">
+          <p className=" flex-1 text-xl font-semibold">Select for Export</p>
+          <DateDropdown
+            value={range}
+            onChange={setRange}
+            className="p-1 border-[#A1A1A1] border-[0.9px] rounded-[9px]"
+          />
         </DialogTitle>
+
+        <div className="w-full h-[1px] bg-black/40" />
 
         {!isLoading ? (
           <div className="w-full mt-5">
