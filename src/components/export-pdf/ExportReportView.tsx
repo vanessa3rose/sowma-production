@@ -536,6 +536,10 @@ const LINKEDIN_SMALL_KPIS = [
   { id: "COMMENTS", title: "Comments" },
   { id: "SHARES", title: "Reposts" },
 ];
+const LINKEDIN_CARD_HEIGHT = 315;
+const LINKEDIN_KPI_CARD_HEIGHT = 133;
+const LINKEDIN_KPI_ROW_HEIGHT = 434;
+const LINKEDIN_CALENDAR_ROW_HEIGHT = 347;
 
 function LinkedInMiniMetricCard({
   title,
@@ -552,31 +556,45 @@ function LinkedInMiniMetricCard({
     <div
       style={{
         ...PDF_CARD_STYLE,
-        minHeight: "121px",
-        height: "121px",
+        padding: "14px 18px",
+        minHeight: `${LINKEDIN_KPI_CARD_HEIGHT}px`,
+        height: `${LINKEDIN_KPI_CARD_HEIGHT}px`,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
       }}
     >
-      <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
-        {title}
-      </div>
-      <div style={{ fontSize: "32px", fontWeight: 400, color: "#3B82F6" }}>
-        {value}
-      </div>
       <div
         style={{
-          fontSize: "14px",
-          color: delta.includes("+")
-            ? "#10B981"
-            : delta.includes("-")
-              ? "#EF4444"
-              : "#6B7280",
-          marginTop: "4px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          gap: "3px",
+          minHeight: "0",
         }}
       >
-        {delta}
-      </div>
-      <div style={{ fontSize: "14px", color: "#6B7280", marginTop: "2px" }}>
-        {note}
+        <div style={{ fontWeight: 500, fontSize: "15px", color: "#000000" }}>
+          {title}
+        </div>
+        <div style={{ fontSize: "30px", fontWeight: 400, color: "#3B82F6" }}>
+          {value}
+        </div>
+        <div
+          style={{
+            fontSize: "12px",
+            lineHeight: 1.15,
+            color: delta.includes("+")
+              ? "#10B981"
+              : delta.includes("-")
+                ? "#EF4444"
+                : "#6B7280",
+          }}
+        >
+          {delta}
+        </div>
+        <div style={{ fontSize: "11px", lineHeight: 1.1, color: "#6B7280" }}>
+          {note}
+        </div>
       </div>
     </div>
   );
@@ -1079,7 +1097,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       <GoogleChartCard
                         title="Unique Visitors"
                         subtitle={rangeLabel}
-                        height={395}
+                        height={LINKEDIN_KPI_ROW_HEIGHT}
                       >
                         <LineCharts
                           data={chartDataMap.TOTAL_USERS ?? []}
@@ -1097,7 +1115,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       <GoogleChartCard
                         title="Views"
                         subtitle={rangeLabel}
-                        height={220}
+                        height={LINKEDIN_CARD_HEIGHT}
                       >
                         <LineCharts
                           data={chartDataMap.VIEWS ?? []}
@@ -1112,15 +1130,17 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       <GoogleChartCard
                         title="Visitor Demographics"
                         subtitle="Industry"
-                        height={220}
+                        height={LINKEDIN_CARD_HEIGHT}
                       >
                         {visitorDemographicData.length ? (
-                          <PieCharts
-                            data={visitorDemographicData}
-                            dataKey="value"
-                            nameKey="label"
-                            disableAnimation
-                          />
+                          <div className="h-full [&_.recharts-default-legend]:!text-[9px] [&_.recharts-default-legend]:leading-tight [&_.recharts-legend-item-text]:!text-[9px] [&_.recharts-legend-item]:mr-2">
+                            <PieCharts
+                              data={visitorDemographicData}
+                              dataKey="value"
+                              nameKey="label"
+                              disableAnimation
+                            />
+                          </div>
                         ) : (
                           <div className="flex h-full items-center justify-center text-sm text-gray-500">
                             No data in range
@@ -1131,24 +1151,23 @@ export default function e({ selections, range }: ExportReportViewProps) {
                   </div>
 
                   <div className="mt-3 grid grid-cols-2 gap-4">
-                    <GoogleChartCard
-                      title="Days Posted"
-                      subtitle={latestDate ?? undefined}
-                      height={220}
-                    >
-                      <LinkedInCalendarHeatmap
-                        points={daysPostedPoints}
-                        compact
-                        disableNavigation
-                        anchorDate={latestDate}
-                      />
+                  <GoogleChartCard
+                    title="Days Posted"
+                    subtitle={latestDate ?? undefined}
+                    height={LINKEDIN_CALENDAR_ROW_HEIGHT}
+                  >
+                    <LinkedInCalendarHeatmap
+                      points={daysPostedPoints}
+                      disableNavigation
+                      anchorDate={latestDate}
+                    />
                     </GoogleChartCard>
 
-                    <GoogleChartCard
-                      title="New Followers"
-                      subtitle={rangeLabel}
-                      height={220}
-                    >
+                  <GoogleChartCard
+                    title="New Followers"
+                    subtitle={rangeLabel}
+                    height={LINKEDIN_CALENDAR_ROW_HEIGHT}
+                  >
                       <LineCharts
                         data={chartDataMap.FOLLOWERS ?? []}
                         xAxisKey="date"
@@ -1171,7 +1190,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       <GoogleChartCard
                         title="Engagement Rate"
                         subtitle={rangeLabel}
-                        height={220}
+                        height={LINKEDIN_CARD_HEIGHT}
                       >
                         <LineCharts
                           data={engagementRateData}
@@ -1186,7 +1205,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       <GoogleChartCard
                         title="Device Type"
                         subtitle={rangeLabel}
-                        height={220}
+                        height={LINKEDIN_CARD_HEIGHT}
                       >
                         {deviceTypeData.length ? (
                           <PieCharts
@@ -1205,18 +1224,20 @@ export default function e({ selections, range }: ExportReportViewProps) {
                   </div>
 
                   <div className="mt-3 grid grid-cols-2 gap-4">
-                    <GoogleChartCard
-                      title="Follower Demographics"
-                      subtitle="Industry"
-                      height={220}
-                    >
-                      {followerDemographicData.length ? (
-                        <PieCharts
-                          data={followerDemographicData}
-                          dataKey="value"
-                          nameKey="label"
-                          disableAnimation
-                        />
+                      <GoogleChartCard
+                        title="Follower Demographics"
+                        subtitle="Industry"
+                        height={LINKEDIN_CARD_HEIGHT}
+                      >
+                        {followerDemographicData.length ? (
+                        <div className="h-full [&_.recharts-default-legend]:!text-[9px] [&_.recharts-default-legend]:leading-tight [&_.recharts-legend-item-text]:!text-[9px] [&_.recharts-legend-item]:mr-2">
+                          <PieCharts
+                            data={followerDemographicData}
+                            dataKey="value"
+                            nameKey="label"
+                            disableAnimation
+                          />
+                        </div>
                       ) : (
                         <div className="flex h-full items-center justify-center text-sm text-gray-500">
                           No data in range
@@ -1224,11 +1245,11 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       )}
                     </GoogleChartCard>
 
-                    <GoogleChartCard
-                      title="Visitor Type"
-                      subtitle={rangeLabel}
-                      height={220}
-                    >
+                  <GoogleChartCard
+                    title="Visitor Type"
+                    subtitle={rangeLabel}
+                    height={LINKEDIN_CARD_HEIGHT}
+                  >
                       {visitorTypeData.length ? (
                         <PieCharts
                           data={visitorTypeData}
@@ -1249,7 +1270,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       <GoogleChartCard
                         title="Interaction Mix"
                         subtitle={rangeLabel}
-                        height={220}
+                        height={LINKEDIN_CARD_HEIGHT}
                       >
                         {interactionMixData.some((entry) => entry.value > 0) ? (
                           <PieCharts
@@ -1270,7 +1291,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       <GoogleChartCard
                         title="Total Interactions"
                         subtitle={rangeLabel}
-                        height={220}
+                        height={LINKEDIN_CARD_HEIGHT}
                       >
                         <LineCharts
                           data={chartDataMap.TOTAL_INTERACTIONS ?? []}
