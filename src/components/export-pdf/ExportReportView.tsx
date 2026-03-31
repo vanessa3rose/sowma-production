@@ -490,11 +490,30 @@ function mergeChartData(
   );
 }
 
-function ExportPage({ children }: { children: ReactNode }) {
+function computeRatePoints(
+  numerator: { date: string; value: number }[],
+  denominator: { date: string; value: number }[],
+  key: string,
+): Record<string, unknown>[] {
+  const denomMap = new Map(denominator.map((p) => [p.date, p.value]));
+  return numerator.flatMap((p) => {
+    const denom = denomMap.get(p.date) ?? 0;
+    if (denom === 0) return [];
+    return [{ date: p.date, [key]: Math.round((p.value / denom) * 1000) / 10 }];
+  });
+}
+
+function ExportPage({
+  children,
+  widthClass = "w-[1000px]",
+}: {
+  children: ReactNode;
+  widthClass?: string;
+}) {
   return (
     <div
       data-export-page
-      className="w-[1000px] bg-white px-8 py-6 font-sans text-gray-900"
+      className={`${widthClass} bg-white px-6 py-6 font-sans text-gray-900`}
     >
       {children}
     </div>
@@ -1013,74 +1032,125 @@ export default function e({ selections, range }: ExportReportViewProps) {
 
           return (
             <div key={`${selection.type}-${index}`}>
-              <ExportPage>
-                {index === 0 ? (
-                  <div className="mb-6 border-b border-gray-200 pb-4">
-                    <div className="text-2xl font-semibold">
-                      SOWMA Social Media Analytics Report
+              <>
+                <ExportPage widthClass="w-[1160px]">
+                  {index === 0 ? (
+                    <div className="mb-6 border-b border-gray-200 pb-4">
+                      <div className="text-2xl font-semibold">
+                        SOWMA Social Media Analytics Report
+                      </div>
+                      <div className="mt-1 text-sm text-gray-600">
+                        Generated {timestamp} - {rangeLabel}
+                      </div>
+                      <div className="mt-2 text-xs text-gray-500">
+                        Note: Metrics are daily values unless explicitly labeled
+                        as cumulative.
+                      </div>
                     </div>
-                    <div className="mt-1 text-sm text-gray-600">
-                      Generated {timestamp} - {rangeLabel}
-                    </div>
-                    <div className="mt-2 text-xs text-gray-500">
-                      Note: Metrics are daily values unless explicitly labeled
-                      as cumulative.
-                    </div>
+                  ) : null}
+
+                  <div className="text-3xl font-bold mb-2">LinkedIn</div>
+                  <div className="text-sm text-gray-600 mb-4">
+                    Last updated: {latestDate ?? "No imported data"}
                   </div>
-                ) : null}
 
-                <div className="text-3xl font-bold mb-2">LinkedIn</div>
-                <div className="text-sm text-gray-600 mb-4">
-                  Last updated: {latestDate ?? "No imported data"}
-                </div>
+                  <div className="mt-3 flex gap-4">
+                    <div className="w-1/3 flex flex-col gap-4">
+                      {LINKEDIN_SMALL_KPIS.map((card) => {
+                        const summary = metricSummaries[card.id] ?? {
+                          current: 0,
+                          prev: 0,
+                        };
+                        const delta =
+                          (summary.current ?? 0) - (summary.prev ?? 0);
+                        return (
+                          <LinkedInMiniMetricCard
+                            key={card.id}
+                            title={card.title}
+                            value={formatValue(summary.current ?? 0, "number")}
+                            delta={formatDelta(delta, "number")}
+                            note={`since ${latestDate ?? "N/A"}`}
+                          />
+                        );
+                      })}
+                    </div>
 
-                <div className="mt-3 flex gap-4">
-                  <div className="w-1/3 flex flex-col gap-4">
-                    {LINKEDIN_SMALL_KPIS.map((card) => {
-                      const summary = metricSummaries[card.id] ?? {
-                        current: 0,
-                        prev: 0,
-                      };
-                      const delta =
-                        (summary.current ?? 0) - (summary.prev ?? 0);
-                      return (
-                        <LinkedInMiniMetricCard
-                          key={card.id}
-                          title={card.title}
-                          value={formatValue(summary.current ?? 0, "number")}
-                          delta={formatDelta(delta, "number")}
-                          note={`since ${latestDate ?? "N/A"}`}
+                    <div className="w-2/3">
+                      <GoogleChartCard
+                        title="Unique Visitors"
+                        subtitle={rangeLabel}
+                        height={395}
+                      >
+                        <LineCharts
+                          data={chartDataMap.TOTAL_USERS ?? []}
+                          xAxisKey="date"
+                          dataKeys={["value"]}
+                          showArea
+                          compact
                         />
-                      );
-                    })}
+                      </GoogleChartCard>
+                    </div>
                   </div>
 
-                  <div className="w-2/3">
+                  <div className="mt-3 flex gap-4">
+                    <div className="w-1/2">
+                      <GoogleChartCard
+                        title="Views"
+                        subtitle={rangeLabel}
+                        height={220}
+                      >
+                        <LineCharts
+                          data={chartDataMap.VIEWS ?? []}
+                          xAxisKey="date"
+                          dataKeys={["value"]}
+                          showArea
+                          compact
+                        />
+                      </GoogleChartCard>
+                    </div>
+                    <div className="w-1/2">
+                      <GoogleChartCard
+                        title="Visitor Demographics"
+                        subtitle="Industry"
+                        height={220}
+                      >
+                        {visitorDemographicData.length ? (
+                          <PieCharts
+                            data={visitorDemographicData}
+                            dataKey="value"
+                            nameKey="label"
+                            disableAnimation
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                            No data in range
+                          </div>
+                        )}
+                      </GoogleChartCard>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-4">
                     <GoogleChartCard
-                      title="Unique Visitors"
-                      subtitle={rangeLabel}
-                      height={395}
+                      title="Days Posted"
+                      subtitle={latestDate ?? undefined}
+                      height={220}
                     >
-                      <LineCharts
-                        data={chartDataMap.TOTAL_USERS ?? []}
-                        xAxisKey="date"
-                        dataKeys={["value"]}
-                        showArea
+                      <LinkedInCalendarHeatmap
+                        points={daysPostedPoints}
                         compact
+                        disableNavigation
+                        anchorDate={latestDate}
                       />
                     </GoogleChartCard>
-                  </div>
-                </div>
 
-                <div className="mt-3 flex gap-4">
-                  <div className="w-1/2">
                     <GoogleChartCard
-                      title="Views"
+                      title="New Followers"
                       subtitle={rangeLabel}
                       height={220}
                     >
                       <LineCharts
-                        data={chartDataMap.VIEWS ?? []}
+                        data={chartDataMap.FOLLOWERS ?? []}
                         xAxisKey="date"
                         dataKeys={["value"]}
                         showArea
@@ -1088,15 +1158,61 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       />
                     </GoogleChartCard>
                   </div>
-                  <div className="w-1/2">
+                </ExportPage>
+
+                <ExportPage widthClass="w-[1160px]">
+                  <div className="text-3xl font-bold mb-2">LinkedIn</div>
+                  <div className="text-sm text-gray-600 mb-4">
+                    Last updated: {latestDate ?? "No imported data"}
+                  </div>
+
+                  <div className="mt-3 flex gap-4">
+                    <div className="w-2/3">
+                      <GoogleChartCard
+                        title="Engagement Rate"
+                        subtitle={rangeLabel}
+                        height={220}
+                      >
+                        <LineCharts
+                          data={engagementRateData}
+                          xAxisKey="date"
+                          dataKeys={["engagementRate"]}
+                          showArea
+                          compact
+                        />
+                      </GoogleChartCard>
+                    </div>
+                    <div className="w-1/3">
+                      <GoogleChartCard
+                        title="Device Type"
+                        subtitle={rangeLabel}
+                        height={220}
+                      >
+                        {deviceTypeData.length ? (
+                          <PieCharts
+                            data={deviceTypeData}
+                            dataKey="value"
+                            nameKey="label"
+                            disableAnimation
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                            No data in range
+                          </div>
+                        )}
+                      </GoogleChartCard>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-4">
                     <GoogleChartCard
-                      title="Visitor Demographics"
+                      title="Follower Demographics"
                       subtitle="Industry"
                       height={220}
                     >
-                      {visitorDemographicData.length ? (
+                      {followerDemographicData.length ? (
                         <PieCharts
-                          data={visitorDemographicData}
+                          data={followerDemographicData}
                           dataKey="value"
                           nameKey="label"
                           disableAnimation
@@ -1107,126 +1223,15 @@ export default function e({ selections, range }: ExportReportViewProps) {
                         </div>
                       )}
                     </GoogleChartCard>
-                  </div>
-                </div>
 
-                <div className="mt-3 grid grid-cols-2 gap-4">
-                  <GoogleChartCard
-                    title="Days Posted"
-                    subtitle={latestDate ?? undefined}
-                    height={220}
-                  >
-                    <LinkedInCalendarHeatmap
-                      points={daysPostedPoints}
-                      compact
-                      disableNavigation
-                      anchorDate={latestDate}
-                    />
-                  </GoogleChartCard>
-
-                  <GoogleChartCard
-                    title="New Followers"
-                    subtitle={rangeLabel}
-                    height={220}
-                  >
-                    <LineCharts
-                      data={chartDataMap.FOLLOWERS ?? []}
-                      xAxisKey="date"
-                      dataKeys={["value"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                </div>
-
-                <div className="mt-3 flex gap-4">
-                  <div className="w-2/3">
                     <GoogleChartCard
-                      title="Engagement Rate"
+                      title="Visitor Type"
                       subtitle={rangeLabel}
                       height={220}
                     >
-                      <LineCharts
-                        data={engagementRateData}
-                        xAxisKey="date"
-                        dataKeys={["engagementRate"]}
-                        showArea
-                        compact
-                      />
-                    </GoogleChartCard>
-                  </div>
-                  <div className="w-1/3">
-                    <GoogleChartCard
-                      title="Device Type"
-                      subtitle={rangeLabel}
-                      height={220}
-                    >
-                      {deviceTypeData.length ? (
+                      {visitorTypeData.length ? (
                         <PieCharts
-                          data={deviceTypeData}
-                          dataKey="value"
-                          nameKey="label"
-                          disableAnimation
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-sm text-gray-500">
-                          No data in range
-                        </div>
-                      )}
-                    </GoogleChartCard>
-                  </div>
-                </div>
-
-                <div className="mt-3 grid grid-cols-2 gap-4">
-                  <GoogleChartCard
-                    title="Follower Demographics"
-                    subtitle="Industry"
-                    height={220}
-                  >
-                    {followerDemographicData.length ? (
-                      <PieCharts
-                        data={followerDemographicData}
-                        dataKey="value"
-                        nameKey="label"
-                        disableAnimation
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-sm text-gray-500">
-                        No data in range
-                      </div>
-                    )}
-                  </GoogleChartCard>
-
-                  <GoogleChartCard
-                    title="Visitor Type"
-                    subtitle={rangeLabel}
-                    height={220}
-                  >
-                    {visitorTypeData.length ? (
-                      <PieCharts
-                        data={visitorTypeData}
-                        dataKey="value"
-                        nameKey="label"
-                        disableAnimation
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-sm text-gray-500">
-                        No data in range
-                      </div>
-                    )}
-                  </GoogleChartCard>
-                </div>
-
-                <div className="mt-3 flex gap-4">
-                  <div className="w-1/3">
-                    <GoogleChartCard
-                      title="Interaction Mix"
-                      subtitle={rangeLabel}
-                      height={220}
-                    >
-                      {interactionMixData.some((entry) => entry.value > 0) ? (
-                        <PieCharts
-                          data={interactionMixData}
+                          data={visitorTypeData}
                           dataKey="value"
                           nameKey="label"
                           disableAnimation
@@ -1239,23 +1244,46 @@ export default function e({ selections, range }: ExportReportViewProps) {
                     </GoogleChartCard>
                   </div>
 
-                  <div className="w-2/3">
-                    <GoogleChartCard
-                      title="Total Interactions"
-                      subtitle={rangeLabel}
-                      height={220}
-                    >
-                      <LineCharts
-                        data={chartDataMap.TOTAL_INTERACTIONS ?? []}
-                        xAxisKey="date"
-                        dataKeys={["value"]}
-                        showArea
-                        compact
-                      />
-                    </GoogleChartCard>
+                  <div className="mt-3 flex gap-4">
+                    <div className="w-1/3">
+                      <GoogleChartCard
+                        title="Interaction Mix"
+                        subtitle={rangeLabel}
+                        height={220}
+                      >
+                        {interactionMixData.some((entry) => entry.value > 0) ? (
+                          <PieCharts
+                            data={interactionMixData}
+                            dataKey="value"
+                            nameKey="label"
+                            disableAnimation
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                            No data in range
+                          </div>
+                        )}
+                      </GoogleChartCard>
+                    </div>
+
+                    <div className="w-2/3">
+                      <GoogleChartCard
+                        title="Total Interactions"
+                        subtitle={rangeLabel}
+                        height={220}
+                      >
+                        <LineCharts
+                          data={chartDataMap.TOTAL_INTERACTIONS ?? []}
+                          xAxisKey="date"
+                          dataKeys={["value"]}
+                          showArea
+                          compact
+                        />
+                      </GoogleChartCard>
+                    </div>
                   </div>
-                </div>
-              </ExportPage>
+                </ExportPage>
+              </>
             </div>
           );
         }
