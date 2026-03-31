@@ -9,12 +9,10 @@ import DateDropdown, {
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 import SocialMediaHeader from "../../components/SocialMediaHeader";
-import { isGlossaryKey, getGlossaryDefinition } from "../../data/glossarydata";
 
 /* ---------- types ---------- */
 
 type LinePoint = { date: string; value: number };
-type MetricSummary = { current: number | null; prev: number | null };
 
 type MetricConfig = {
   id: string;
@@ -96,8 +94,6 @@ const METRICS: MetricConfig[] = [
   },
 ];
 
-const CHART_IDS = ["email_abuse"];
-
 /* ---------- helpers ---------- */
 
 function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
@@ -116,28 +112,6 @@ function toLinePoints(raw: SocialMediaMetric[]): LinePoint[] {
     const ts = (m.metricDate ?? m.lastSynced)!;
     return { date: ts.slice(0, 10), value: m.metricValue };
   });
-}
-
-function summarizeSeries(points: LinePoint[]): MetricSummary {
-  if (!points.length) return { current: null, prev: null };
-  if (points.length === 1) return { current: points[0].value, prev: null };
-  return {
-    current: points[points.length - 1].value,
-    prev: points[points.length - 2].value,
-  };
-}
-
-function formatPercentChange(summary?: MetricSummary | null): string {
-  if (
-    !summary ||
-    summary.current == null ||
-    summary.prev == null ||
-    summary.prev === 0
-  ) {
-    return "+ 0%";
-  }
-  const pct = ((summary.current - summary.prev) / summary.prev) * 100;
-  return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}% vs. prev.`;
 }
 
 function getBounds(pts: LinePoint[]) {
@@ -168,18 +142,6 @@ function filterByRange(pts: LinePoint[], range: DateRangeValue): LinePoint[] {
   const startStr = start.toISOString().slice(0, 10);
   const endStr = end.toISOString().slice(0, 10);
   return pts.filter((p) => p.date >= startStr && p.date <= endStr);
-}
-
-function toRateSeries(
-  numerator: LinePoint[],
-  denominator: LinePoint[],
-): LinePoint[] {
-  const denomMap = new Map(denominator.map((p) => [p.date, p.value]));
-  return numerator.flatMap((p) => {
-    const denom = denomMap.get(p.date) ?? 0;
-    if (denom === 0) return [];
-    return [{ date: p.date, value: Math.round((p.value / denom) * 1000) / 10 }];
-  });
 }
 
 function mergeByDate(
@@ -363,20 +325,12 @@ function buildSankeyOption(vals: Record<string, number>) {
 /* ---------- component ---------- */
 
 const ALL_RANGE: DateRangeValue = { id: "all" };
-const DEFAULT_RANGE: DateRangeValue = { id: "30d" };
 
 export default function ConstantContactPage() {
   const [rawSeries, setRawSeries] = useState<Record<string, LinePoint[]>>({});
-  const [ranges, setRanges] = useState<Record<string, DateRangeValue>>(() => {
-    const init: Record<string, DateRangeValue> = {};
-    METRICS.forEach((m) => (init[m.id] = DEFAULT_RANGE));
-    return init;
-  });
   const [sankeyRange, setSankeyRange] = useState<DateRangeValue>(ALL_RANGE);
   const [opensRange, setOpensRange] = useState<DateRangeValue>(ALL_RANGE);
   const [clicksRange, setClicksRange] = useState<DateRangeValue>(ALL_RANGE);
-  const [deliveryRateRange, setDeliveryRateRange] =
-    useState<DateRangeValue>(ALL_RANGE);
 
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
@@ -409,28 +363,6 @@ export default function ConstantContactPage() {
     }
     load();
   }, []);
-
-  const computed = useMemo(() => {
-    return METRICS.reduce(
-      (acc, cfg) => {
-        const full = rawSeries[cfg.id] ?? [];
-        const filtered = filterByRange(full, ranges[cfg.id] ?? DEFAULT_RANGE);
-        const summary = summarizeSeries(filtered);
-        const bounds = getBounds(full);
-        acc[cfg.id] = { full, filtered, summary, bounds };
-        return acc;
-      },
-      {} as Record<
-        string,
-        {
-          full: LinePoint[];
-          filtered: LinePoint[];
-          summary: MetricSummary;
-          bounds: { min: Date | null; max: Date | null };
-        }
-      >,
-    );
-  }, [rawSeries, ranges]);
 
   // Sankey: sum all values over the selected sankeyRange
   const sankeyVals = useMemo(() => {
@@ -481,27 +413,6 @@ export default function ConstantContactPage() {
     ...(rawSeries["email_total_clicks"] ?? []),
   ]);
 
-  // Delivery Rate %: delivered / sent * 100
-  const deliveryRateData = useMemo(() => {
-    const sent = filterByRange(
-      rawSeries["emails_sent"] ?? [],
-      deliveryRateRange,
-    );
-    const delivered = filterByRange(
-      rawSeries["emails_delivered"] ?? [],
-      deliveryRateRange,
-    );
-    return toRateSeries(delivered, sent).map((p) => ({
-      date: p.date,
-      deliveryRate: p.value,
-    }));
-  }, [rawSeries, deliveryRateRange]);
-
-  const deliveryRateBounds = getBounds([
-    ...(rawSeries["emails_sent"] ?? []),
-    ...(rawSeries["emails_delivered"] ?? []),
-  ]);
-
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       <SocialMediaHeader
@@ -525,11 +436,13 @@ export default function ConstantContactPage() {
           }
           chart={
             hasSankeyData ? (
-              <ReactECharts
-                option={buildSankeyOption(sankeyVals)}
-                style={{ height: "100%", width: "100%" }}
-                opts={{ renderer: "svg" }}
-              />
+              <div className="flex w-full justify-center items-center">
+                <ReactECharts
+                  option={buildSankeyOption(sankeyVals)}
+                  style={{ height: "100%", width: "95%" }}
+                  opts={{ renderer: "svg" }}
+                />
+              </div>
             ) : (
               <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
                 No data available
@@ -591,88 +504,6 @@ export default function ConstantContactPage() {
                     data={clicksData}
                     xAxisKey="date"
                     dataKeys={["uniqueClicks", "totalClicks"]}
-                    showArea
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
-            }
-            displayMode="chart-only"
-            className="w-full h-[360px]"
-          />
-        </div>
-
-        {/* ── Individual metric line charts ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {CHART_IDS.map((id) => {
-            const cfg = METRICS.find((m) => m.id === id)!;
-            const item = computed[id];
-            const filtered = item?.filtered ?? [];
-            const bounds = item?.bounds ?? { min: null, max: null };
-            const summary = item?.summary ?? { current: null, prev: null };
-
-            return (
-              <BigCard
-                key={id}
-                title={cfg.title}
-                titleTooltip={
-                  isGlossaryKey(cfg.id) ? getGlossaryDefinition(cfg.id) : ""
-                }
-                subtitle={
-                  <DateDropdown
-                    value={ranges[id] ?? DEFAULT_RANGE}
-                    onChange={(r) =>
-                      setRanges((prev) => ({ ...prev, [id]: r }))
-                    }
-                    minDate={bounds.min}
-                    maxDate={bounds.max}
-                  />
-                }
-                metricValue={summary.current ?? 0}
-                metricLabel="total"
-                metricChange={formatPercentChange(summary)}
-                chart={
-                  filtered.length ? (
-                    <div className="w-full h-full">
-                      <LineCharts
-                        data={filtered}
-                        xAxisKey="date"
-                        dataKeys={["value"]}
-                        showArea
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center text-gray-500">
-                      No data available
-                    </div>
-                  )
-                }
-                displayMode="both"
-                className="w-full h-[360px]"
-              />
-            );
-          })}
-
-          <BigCard
-            title="Delivery Rate %"
-            subtitle={
-              <DateDropdown
-                value={deliveryRateRange}
-                onChange={setDeliveryRateRange}
-                minDate={deliveryRateBounds.min}
-                maxDate={deliveryRateBounds.max}
-              />
-            }
-            chart={
-              deliveryRateData.length > 0 ? (
-                <div className="w-full h-full">
-                  <LineCharts
-                    data={deliveryRateData}
-                    xAxisKey="date"
-                    dataKeys={["deliveryRate"]}
                     showArea
                   />
                 </div>
