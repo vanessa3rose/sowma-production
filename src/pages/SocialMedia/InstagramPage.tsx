@@ -8,7 +8,7 @@ import LineCharts from "../../components/charts/LineCharts";
 import PieCharts from "../../components/charts/PieCharts";
 import ExportButton from "../../components/export-pdf/ExportButton";
 import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
-import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+import { fetchMetrics } from "../../utils/fetchMetrics";
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import {
   formatAbsoluteChange,
@@ -17,6 +17,13 @@ import {
 
 import { getGlossaryDefinition, isGlossaryKey } from "../../data/glossarydata";
 import InstagramEmbed from "../../components/InstagramEmbed";
+import {
+  type LinePoint,
+  type MetricSummary,
+  toLinePoints,
+  summarizeSeries,
+  getBounds,
+} from "../../utils/seriesUtils";
 
 const METRICS: MetricConfig[] = [
   { id: "impressions", title: "Impressions", metric: "VIEWS" },
@@ -43,44 +50,11 @@ type MetricConfig = {
   metricLabel?: string;
 };
 
-type LinePoint = { date: string; value: number };
-type MetricSummary = { current: number | null; prev: number | null };
-
 const PROVIDER = "INSTAGRAM";
 const DEFAULT_START_DATE = "2016-08-15";
 const DEFAULT_END_DATE = "3000-01-01";
 
 /* ---------- helpers ---------- */
-
-// Sort metrics by date ascending
-function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
-  return raw
-    .filter((m) => m.metricDate || m.lastSynced)
-    .slice()
-    .sort((a, b) =>
-      (a.metricDate ?? a.lastSynced)!.localeCompare(
-        (b.metricDate ?? b.lastSynced)!,
-      ),
-    );
-}
-
-// Convert API data into chart-friendly format
-function toLinePoints(raw: SocialMediaMetric[]): LinePoint[] {
-  return sortByDate(raw).map((m) => {
-    const ts = (m.metricDate ?? m.lastSynced)!;
-    return { date: ts.slice(0, 10), value: m.metricValue };
-  });
-}
-
-// Get current and previous values from a series
-function summarizeSeries(points: LinePoint[]): MetricSummary {
-  if (points.length === 0) return { current: null, prev: null };
-  if (points.length === 1) return { current: points[0].value, prev: null };
-  return {
-    current: points[points.length - 1].value,
-    prev: points[points.length - 2].value,
-  };
-}
 
 // Format percent change between two values
 function formatPercentChange(summary?: MetricSummary | null) {
@@ -94,21 +68,6 @@ function formatPercentChange(summary?: MetricSummary | null) {
   }
   const pct = ((summary.current - summary.prev) / summary.prev) * 100;
   return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}% vs. prev.`;
-}
-
-// Get date bounds of a dataset
-function getBounds(pts: LinePoint[]) {
-  if (!pts.length)
-    return { min: null as Date | null, max: null as Date | null };
-
-  const dates = pts
-    .map((p) => p.date)
-    .slice()
-    .sort();
-  return {
-    min: new Date(dates[0]),
-    max: new Date(dates[dates.length - 1]),
-  };
 }
 
 function sumSeries(pts: LinePoint[]): number {
@@ -327,7 +286,7 @@ export default function InstagramPage() {
             href="https://www.instagram.com/schoolonwheelsma/?hl=en"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-semibold"
+            className="rounded-[15px] border border-[#4781C2] px-4 py-1.5 text-[#4781C2] font-semibold"
           >
             Go to Account
           </a>

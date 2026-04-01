@@ -8,7 +8,6 @@ import googleAnalytics from "../assets/google-analytics.png";
 import instagram from "../assets/instagram.jpg";
 import linkedin from "../assets/linkedin.jpg";
 import twitter from "../assets/twitter.jpg";
-// import tiktok from "../assets/tiktok.jpg";
 import constantContact from "../assets/newsletter.jpg";
 
 type Role = "ADMIN" | "USER" | "VIEWER";
@@ -21,8 +20,6 @@ const socialLinks = [
   },
   { slug: "instagram", label: "Instagram", icon: instagram },
   { slug: "facebook", label: "Facebook", icon: facebook },
-  // Temporary: hide TikTok from the navbar.
-  // { slug: "tiktok", label: "TikTok", icon: tiktok },
   { slug: "linkedin", label: "LinkedIn", icon: linkedin },
   { slug: "twitter", label: "Twitter/X", icon: twitter },
   {
@@ -31,10 +28,6 @@ const socialLinks = [
     icon: constantContact,
   },
 ];
-
-const exceptionRoutes: Record<string, string> = {
-  tiktok: "/error/tiktok",
-};
 
 const LeftSidebar = ({
   mobile = false,
@@ -258,8 +251,7 @@ const LeftSidebar = ({
             )}
 
             {socialLinks.map((social, idx) => {
-              const href =
-                exceptionRoutes[social.slug] || `/social/${social.slug}`;
+              const href = `/social/${social.slug}`;
               const isActive = location === href;
 
               return (
