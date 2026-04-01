@@ -224,7 +224,6 @@ export default function FacebookPage() {
     loadFacebook();
   }, []);
 
-
   const computed = useMemo(() => {
     const out = {} as Record<
       MetricKey,

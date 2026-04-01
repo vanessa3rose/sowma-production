@@ -170,4 +170,3 @@ export function isGlossaryKey(
 export function getGlossaryDefinition(key: keyof typeof GLOSSARY_MAP): string {
   return GLOSSARY_MAP[key]?.definition ?? "";
 }
-

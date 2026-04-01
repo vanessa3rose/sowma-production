@@ -34,7 +34,10 @@ export function summarizeSeries(points: LinePoint[]): MetricSummary {
 export function getBounds(pts: LinePoint[]) {
   if (!pts.length)
     return { min: null as Date | null, max: null as Date | null };
-  const dates = pts.map((p) => p.date).slice().sort();
+  const dates = pts
+    .map((p) => p.date)
+    .slice()
+    .sort();
   return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
 }
 
