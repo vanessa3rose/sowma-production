@@ -405,7 +405,6 @@ export default function FacebookPage() {
             metricLabel="followers"
             metricChange={formatPercentChange(computed.followers?.summary)}
             chart={
-              computed.followers?.filtered.length ? (
                 <LineCharts
                   data={computed.followers.filtered}
                   xAxisKey="date"
@@ -413,11 +412,6 @@ export default function FacebookPage() {
                   labels={{ value: "Followers" }}
                   showArea
                 />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
             }
             displayMode="both"
             className=""
@@ -442,7 +436,6 @@ export default function FacebookPage() {
             metricLabel="from last week"
             metricChange={formatPercentChange(computed.views?.summary)}
             chart={
-              computed.views?.filtered.length ? (
                 <LineCharts
                   data={computed.views.filtered}
                   xAxisKey="date"
@@ -450,11 +443,6 @@ export default function FacebookPage() {
                   labels={{ value: "Views" }}
                   showArea
                 />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
             }
             displayMode="both"
             className="h-[360px]"
@@ -465,18 +453,12 @@ export default function FacebookPage() {
             titleTooltip={getGlossaryDefinition("daysPosted")}
             subtitle={<HeatmapLegend />}
             chart={
-              allPostsPoints.length ? (
                 <CalendarHeatmap
                   points={allPostsPoints}
                   offset={calendarOffset}
                   onOffsetChange={setCalendarOffset}
                   minOffset={minCalendarOffset}
                 />
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No post activity data
-                </div>
-              )
             }
             displayMode="chart-only"
             className=""
@@ -490,7 +472,6 @@ export default function FacebookPage() {
           title="Recent Posts"
           titleTooltip={getGlossaryDefinition("recentPosts")}
           chart={
-            recentPosts.length ? (
               <div className="w-full flex flex-col gap-2 pt-2">
                 {recentPosts.map((post) => (
                   <div
@@ -504,11 +485,6 @@ export default function FacebookPage() {
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                No recent post data
-              </div>
-            )
           }
           displayMode="chart-only"
           className="h-full"

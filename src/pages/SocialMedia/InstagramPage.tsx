@@ -272,7 +272,6 @@ export default function InstagramPage() {
         metricLabel={metricLabel}
         metricChange={metricChange}
         chart={
-          chartData.length ? (
             <LineCharts
               data={chartData}
               xAxisKey="date"
@@ -280,11 +279,6 @@ export default function InstagramPage() {
               labels={{ value: cfg.title }}
               showArea
             />
-          ) : (
-            <div className="flex items-center justify-center text-gray-500">
-              No data available
-            </div>
-          )
         }
         displayMode="both"
         className="w-full h-[360px]"

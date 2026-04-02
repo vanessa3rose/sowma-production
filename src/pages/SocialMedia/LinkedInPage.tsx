@@ -320,7 +320,6 @@ export default function LinkedInPage() {
             metricLabel="latest imported day"
             metricChange={formatPercentChange(computed.followers?.summary)}
             chart={
-              computed.followers?.filtered.length ? (
                 <LineCharts
                   data={computed.followers.filtered}
                   xAxisKey="date"
@@ -328,11 +327,6 @@ export default function LinkedInPage() {
                   labels={{ value: "New Followers" }}
                   showArea
                 />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No new follower data available
-                </div>
-              )
             }
             displayMode="both"
             className="h-[360px]"
@@ -354,7 +348,6 @@ export default function LinkedInPage() {
             metricLabel="latest imported day"
             metricChange={formatPercentChange(computed.views?.summary)}
             chart={
-              computed.views?.filtered.length ? (
                 <LineCharts
                   data={computed.views.filtered}
                   xAxisKey="date"
@@ -362,11 +355,6 @@ export default function LinkedInPage() {
                   labels={{ value: "Views" }}
                   showArea
                 />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No views data available
-                </div>
-              )
             }
             displayMode="both"
             className="h-[360px]"
@@ -391,7 +379,6 @@ export default function LinkedInPage() {
             metricLabel="latest imported day"
             metricChange={formatPercentChange(computed.interactions?.summary)}
             chart={
-              computed.interactions?.filtered.length ? (
                 <LineCharts
                   data={computed.interactions.filtered}
                   xAxisKey="date"
@@ -399,11 +386,6 @@ export default function LinkedInPage() {
                   labels={{ value: "Total Interactions" }}
                   showArea
                 />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No interactions data available
-                </div>
-              )
             }
             displayMode="both"
             className="h-[360px]"
@@ -414,13 +396,7 @@ export default function LinkedInPage() {
             titleTooltip="Interaction intensity by calendar day. Darker means more interactions."
             subtitle={<HeatmapLegend />}
             chart={
-              rawSeries.interactions.length ? (
                 <LinkedInCalendarHeatmap points={rawSeries.interactions} />
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No interaction activity data
-                </div>
-              )
             }
             displayMode="chart-only"
             className="h-[360px]"

@@ -641,7 +641,6 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-              openRateData.length > 0 ? (
                 <div className="w-full h-full">
                   <LineCharts
                     data={openRateData}
@@ -650,11 +649,6 @@ export default function ConstantContactPage() {
                     showArea
                   />
                 </div>
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
@@ -672,7 +666,6 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-              ctorData.length > 0 ? (
                 <div className="w-full h-full">
                   <LineCharts
                     data={ctorData}
@@ -681,11 +674,6 @@ export default function ConstantContactPage() {
                     showArea
                   />
                 </div>
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
@@ -706,7 +694,6 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-              opensData.length > 0 ? (
                 <div className="w-full h-full">
                   <LineCharts
                     data={opensData}
@@ -715,11 +702,6 @@ export default function ConstantContactPage() {
                     showArea
                   />
                 </div>
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
@@ -737,7 +719,6 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-              clicksData.length > 0 ? (
                 <div className="w-full h-full">
                   <LineCharts
                     data={clicksData}
@@ -746,11 +727,6 @@ export default function ConstantContactPage() {
                     showArea
                   />
                 </div>
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
@@ -785,7 +761,6 @@ export default function ConstantContactPage() {
                 metricLabel="total"
                 metricChange={formatPercentChange(summary)}
                 chart={
-                  filtered.length ? (
                     <div className="w-full h-full">
                       <LineCharts
                         data={filtered}
@@ -794,11 +769,6 @@ export default function ConstantContactPage() {
                         showArea
                       />
                     </div>
-                  ) : (
-                    <div className="flex items-center justify-center text-gray-500">
-                      No data available
-                    </div>
-                  )
                 }
                 displayMode="both"
                 className="w-full h-[360px]"
@@ -817,7 +787,6 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-              deliveryRateData.length > 0 ? (
                 <div className="w-full h-full">
                   <LineCharts
                     data={deliveryRateData}
@@ -826,11 +795,6 @@ export default function ConstantContactPage() {
                     showArea
                   />
                 </div>
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
             }
             displayMode="chart-only"
             className="w-full h-[360px]"

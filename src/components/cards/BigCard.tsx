@@ -3,6 +3,13 @@ import TitleTooltip from "../charts/TitleTooltip";
 
 type DisplayMode = "both" | "chart-only";
 
+function hasData(data: unknown): boolean {
+  if (data === null || data === undefined) return false;
+  if (Array.isArray(data)) return data.length > 0;
+  if (typeof data === "object") return Object.keys(data).length > 0;
+  return true;
+}
+
 interface BigCardProps {
   title: string;
   subtitle?: React.ReactNode;
@@ -15,6 +22,7 @@ interface BigCardProps {
   dropdown?: React.ReactNode;
   titleTooltip?: string;
   style?: React.CSSProperties;
+  data?: unknown;
   scrollable?: boolean;
 }
 
@@ -30,6 +38,7 @@ const BigCard: React.FC<BigCardProps> = ({
   dropdown,
   titleTooltip,
   style,
+  data,
   scrollable = false,
 }) => {
   const shouldShowChart =
@@ -162,7 +171,7 @@ const BigCard: React.FC<BigCardProps> = ({
       )}
 
       {/* Chart Display */}
-      {shouldShowChart && chart && (
+      {shouldShowChart && (
         <div
           className={`
             flex
@@ -172,7 +181,22 @@ const BigCard: React.FC<BigCardProps> = ({
                 : "flex h-full w-full justify-center items-center"
             }`}
         >
-          {chart}
+          {data !== undefined && !hasData(data) ? (
+            <div className="flex h-full w-full items-center justify-center">
+              <span
+                style={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: 400,
+                  fontSize: "14px",
+                  color: "#6B7280",
+                }}
+              >
+                No data available
+              </span>
+            </div>
+          ) : (
+            chart
+          )}
         </div>
       )}
     </div>
