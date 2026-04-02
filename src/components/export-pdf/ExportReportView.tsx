@@ -535,10 +535,10 @@ const LINKEDIN_SMALL_KPIS = [
   { id: "COMMENTS", title: "Comments" },
   { id: "SHARES", title: "Reposts" },
 ];
-const LINKEDIN_EXPORT_CARD_HEIGHT = 195;
-const LINKEDIN_EXPORT_PIE_HEIGHT = 190;
-const LINKEDIN_KPI_CARD_HEIGHT = 102;
-const LINKEDIN_KPI_ROW_HEIGHT = 332;
+const LINKEDIN_EXPORT_CARD_HEIGHT = 235;
+const LINKEDIN_EXPORT_PIE_HEIGHT = 310;
+const LINKEDIN_KPI_CARD_HEIGHT = 117;
+const LINKEDIN_KPI_ROW_HEIGHT = 382;
 
 function LinkedInMiniMetricCard({
   title,
@@ -617,6 +617,34 @@ function normalizeBreakdownChartData(
       label: formatter(label),
       value,
     }));
+}
+
+function condenseChartData(
+  data: Array<{ label: string; value: number }>,
+  keepCount: number,
+  sourceSliceCount = keepCount,
+) {
+  const merged = Array.from(
+    data.reduce((acc, entry) => {
+      if (!Number.isFinite(entry.value) || entry.value <= 0) return acc;
+      acc.set(entry.label, (acc.get(entry.label) ?? 0) + entry.value);
+      return acc;
+    }, new Map<string, number>()),
+  )
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value);
+
+  const source = merged.slice(0, sourceSliceCount);
+
+  if (source.length <= keepCount) return source;
+
+  const top = source.slice(0, keepCount);
+  const otherValue = source
+    .slice(keepCount)
+    .reduce((sum, entry) => sum + entry.value, 0);
+  return otherValue > 0
+    ? [...top, { label: "Other", value: otherValue }]
+    : top;
 }
 
 function buildChartPages<T>(
@@ -1007,12 +1035,16 @@ export default function e({ selections, range }: ExportReportViewProps) {
           const latestDate = latestPointDate(chartDataMap);
           const breakdownTotals = selection.data.breakdownTotals ?? {};
 
-          const visitorDemographicData = normalizeBreakdownChartData(
-            breakdownTotals.visitorIndustry,
-          ).slice(0, 6);
-          const followerDemographicData = normalizeBreakdownChartData(
-            breakdownTotals.followerIndustry,
-          ).slice(0, 6);
+          const visitorDemographicData = condenseChartData(
+            normalizeBreakdownChartData(breakdownTotals.visitorIndustry),
+            4,
+            6,
+          );
+          const followerDemographicData = condenseChartData(
+            normalizeBreakdownChartData(breakdownTotals.followerIndustry),
+            4,
+            6,
+          );
           const interactionMixData = [
             {
               label: "Reactions",

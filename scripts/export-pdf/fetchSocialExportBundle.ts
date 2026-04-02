@@ -20,6 +20,9 @@ const PROVIDER_MAP: Record<SocialPlatform, string> = {
   constantcontact: "CONSTANT_CONTACT",
 };
 
+const ALL_TIME_START_DATE = "2024-01-01";
+const ALL_TIME_END_DATE = "3000-01-01";
+
 function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
   return raw
     .slice()
@@ -120,16 +123,32 @@ export async function fetchSocialExportBundle(
 
   const breakdownTotals: Record<string, Record<string, number>> = {};
   if (platform === "linkedin") {
-    const totalUsersRows =
-      results.find(({ metricId }) => metricId === "TOTAL_USERS")?.rows ?? [];
-    const followerRows =
-      results.find(({ metricId }) => metricId === "FOLLOWERS")?.rows ?? [];
+    const [allTimeTotalUsersRows, allTimeFollowerRows] = await Promise.all([
+      fetchMetrics({
+        provider,
+        metric: "TOTAL_USERS",
+        startDate: ALL_TIME_START_DATE,
+        endDate: ALL_TIME_END_DATE,
+      }),
+      fetchMetrics({
+        provider,
+        metric: "FOLLOWERS",
+        startDate: ALL_TIME_START_DATE,
+        endDate: ALL_TIME_END_DATE,
+      }),
+    ]);
+
+    const totalUsersRows = allTimeTotalUsersRows;
+    const followerRows = allTimeFollowerRows;
 
     breakdownTotals.deviceType = aggregateBreakdownTotals(
-      totalUsersRows,
+      results.find(({ metricId }) => metricId === "TOTAL_USERS")?.rows ?? [],
       "deviceType",
     );
-    breakdownTotals.pageType = aggregateBreakdownTotals(totalUsersRows, "pageType");
+    breakdownTotals.pageType = aggregateBreakdownTotals(
+      results.find(({ metricId }) => metricId === "TOTAL_USERS")?.rows ?? [],
+      "pageType",
+    );
     breakdownTotals.visitorIndustry = aggregateBreakdownTotals(
       totalUsersRows,
       "industry",
