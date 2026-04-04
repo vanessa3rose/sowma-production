@@ -530,7 +530,7 @@ export default function ConstantContactPage() {
             Constant Contact
           </h1>
         </div>
-        <div className="flex flex-row justify-center items-center mt-2 lg:mt-0 space-x-4">
+        <div className="flex flex-row items-center space-x-4 mt-2 lg:mt-0">
           <a
             href="https://app.constantcontact.com"
             target="_blank"

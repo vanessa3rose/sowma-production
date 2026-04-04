@@ -570,7 +570,7 @@ export default function Homepage() {
               label: "Facebook",
               value: impressionsChange.facebook,
               change: impressionsChange.fbChange,
-              color: "#A155B9",
+              color: "#4781C2",
               sinceDate: formatSinceDate(
                 impressionsChange.fbSince,
                 impressionsRange,
@@ -580,7 +580,7 @@ export default function Homepage() {
               label: "Instagram",
               value: impressionsChange.instagram,
               change: impressionsChange.igChange,
-              color: "#7987FF",
+              color: "#4CAF86",
               sinceDate: formatSinceDate(
                 impressionsChange.igSince,
                 impressionsRange,
@@ -607,21 +607,21 @@ export default function Homepage() {
               label: "Facebook",
               value: postsChange.facebook,
               change: postsChange.fbChange,
-              color: "#A155B9",
+              color: "#4781C2",
               sinceDate: formatSinceDate(postsChange.fbSince, daysPostedRange),
             },
             {
               label: "Instagram",
               value: postsChange.instagram,
               change: postsChange.igChange,
-              color: "#7987FF",
+              color: "#4CAF86",
               sinceDate: formatSinceDate(postsChange.igSince, daysPostedRange),
             },
             {
               label: "Twitter",
               value: postsChange.twitter,
               change: postsChange.twChange,
-              color: "#F765A3",
+              color: "#2D5A8A",
               sinceDate: formatSinceDate(postsChange.twSince, daysPostedRange),
             },
           ]}
@@ -683,7 +683,7 @@ export default function Homepage() {
               label: "Facebook",
               value: followerChange.facebook,
               change: followerChange.fbChange,
-              color: "#A155B9",
+              color: "#4781C2",
               sinceDate: formatSinceDate(
                 followerChange.fbSince,
                 followersRange,
@@ -693,7 +693,7 @@ export default function Homepage() {
               label: "Instagram",
               value: followerChange.instagram,
               change: followerChange.igChange,
-              color: "#7987FF",
+              color: "#4CAF86",
               sinceDate: formatSinceDate(
                 followerChange.igSince,
                 followersRange,
@@ -703,7 +703,7 @@ export default function Homepage() {
               label: "Twitter",
               value: followerChange.twitter,
               change: followerChange.twChange,
-              color: "#F765A3",
+              color: "#2D5A8A",
               sinceDate: formatSinceDate(
                 followerChange.twSince,
                 followersRange,

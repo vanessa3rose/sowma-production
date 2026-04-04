@@ -13,9 +13,9 @@ const EMPTY_CELL: Cell = { day: null, level: -2, isFuture: false };
 
 function heatColor(level: number): { bg: string; text: string } {
   if (level <= 0) return { bg: "#989b9f", text: "#ffffff" };
-  if (level === 1) return { bg: "#7987ff", text: "#ffffff" };
-  if (level === 2) return { bg: "#6772d7", text: "#ffffff" };
-  return { bg: "#545dae", text: "#ffffff" };
+  if (level === 1) return { bg: "#90B4D8", text: "#ffffff" };
+  if (level === 2) return { bg: "#4781C2", text: "#ffffff" };
+  return { bg: "#2D5A8A", text: "#ffffff" };
 }
 
 function activityToLevel(value: number, allValues: number[]): number {

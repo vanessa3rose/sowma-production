@@ -207,7 +207,7 @@ export default function LinkedInPage() {
           </h1>
         </div>
 
-        <div className="flex flex-row justify-center items-center mt-2 lg:flex-row lg:mt-0 lg:space-x-2 space-x-4">
+        <div className="flex flex-row items-center space-x-4 mt-2 lg:mt-0">
           <a
             href="https://www.linkedin.com/company/schoolonwheelsofmasschusetts/"
             target="_blank"

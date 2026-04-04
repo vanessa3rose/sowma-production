@@ -13,9 +13,9 @@ import {
 import ChartTooltip from "./ChartTooltip";
 
 const PLATFORM_COLORS: Record<string, string> = {
-  facebook: "#F765A3",
-  instagram: "#E4405F",
-  twitter: "#FFA9D0",
+  facebook: "#4781C2",
+  instagram: "#4CAF86",
+  twitter: "#2D5A8A",
 };
 
 type LineChartProps = {
@@ -78,7 +78,7 @@ const LineCharts = ({
         >
           <defs>
             {dataKeys.map((key) => {
-              const color = PLATFORM_COLORS[key.toLowerCase()] || "#7987FF";
+              const color = PLATFORM_COLORS[key.toLowerCase()] || "#4781C2";
               return (
                 <linearGradient
                   key={key}
@@ -120,7 +120,7 @@ const LineCharts = ({
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#7987FF"}
+              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#4781C2"}
               strokeWidth={compact ? 2.5 : 3}
               fill={`url(#gradient-${key})`}
               fillOpacity={1}
@@ -161,7 +161,7 @@ const LineCharts = ({
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#7987FF"}
+              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#4781C2"}
               strokeWidth={compact ? 2.5 : 3}
               dot={compact ? false : { r: 4 }}
               activeDot={false}

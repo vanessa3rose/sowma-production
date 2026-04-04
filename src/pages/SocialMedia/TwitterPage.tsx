@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { DateRangeValue } from "../../components/charts/DateButton";
 import DateDropdown from "../../components/charts/DateButton";
+import ExportButton from "../../components/export-pdf/ExportButton";
+import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import BigCard from "../../components/cards/BigCard";
 import LineCharts from "../../components/charts/LineCharts";
 import { fetchMetrics } from "../../utils/fetchMetrics";
@@ -29,6 +31,7 @@ function formatPercentChange(summary?: MetricSummary | null): string {
 }
 
 export default function TwitterPage() {
+  const { exportByPlatforms } = useGlobalPageExporter();
   const [followersOverTimeAll, setFollowersOverTimeAll] = useState<
     { date: string; value: number }[]
   >([]);
@@ -134,7 +137,17 @@ export default function TwitterPage() {
             Twitter
           </h1>
         </div>
-        {/* Add export button if needed */}
+        <div className="flex flex-row items-center space-x-4 mt-2 lg:mt-0">
+          <a
+            href="https://x.com/schoolonwheels"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-[15px] border border-[#4781C2] px-4 py-1.5 text-[#4781C2] font-semibold"
+          >
+            Go to Account
+          </a>
+          <ExportButton onExport={exportByPlatforms} />
+        </div>
       </div>
       <div className="font-poppins text-sm text-gray-600">
         Last updated: {lastUpdated ?? "No imported data yet"}

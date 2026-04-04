@@ -12,10 +12,10 @@ import {
 import ChartTooltip from "./ChartTooltip";
 
 const COLORS = [
-  "#7987FF", // blue
-  "#F765A3", // pink
-  "#FFA9D0", // light pink
-  "#A155B9", // purple
+  "#4781C2", // SOWMA blue
+  "#4CAF86", // green
+  "#7BC8A4", // light green
+  "#2D7D5A", // dark green
 ];
 
 type PieChartsProps = {
