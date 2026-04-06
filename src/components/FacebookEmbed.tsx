@@ -1,55 +1,60 @@
-import { useEffect } from "react";
-
-declare global {
-  interface Window {
-    FB?: any;
-  }
-}
+import { useEffect, useState } from "react";
 
 export default function FacebookEmbed() {
-  useEffect(() => {
-    // Load SDK if not already loaded
-    if (!window.FB) {
-      const script = document.createElement("script");
-      script.src =
-        "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v25.0";
-      script.async = true;
-      script.defer = true;
-      script.crossOrigin = "anonymous";
-      document.body.appendChild(script);
+  const [mounted, setMounted] = useState(false);
 
-      script.onload = () => {
-        if (window.FB) {
-          window.FB.XFBML.parse();
+  useEffect(() => {
+    // Inject CSS to force width constraint on the widget's internals
+    const styleId = "sk-override-styles";
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `
+        .sk-ww-facebook-page-posts,
+        .sk-ww-facebook-page-posts * ,
+        [class*="sociablekit"],
+        [class*="sk-"] iframe,
+        [class*="sk-"] > div {
+          max-width: 100% !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
         }
-      };
-    } else {
-      window.FB.XFBML.parse();
+      `;
+      document.head.appendChild(style);
     }
+
+    // Mark as mounted so the div is in the DOM before script runs
+    setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!mounted) return;
+
+    // Remove any existing script
+    const existing = document.getElementById("sk-facebook-script");
+    if (existing) existing.remove();
+
+    // Wait a tick for React to flush the div to the real DOM
+    const timer = setTimeout(() => {
+      const script = document.createElement("script");
+      script.id = "sk-facebook-script";
+      script.src =
+        "https://widgets.sociablekit.com/facebook-page-posts/widget.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [mounted]);
+
+  if (!mounted) return null;
+
   return (
-    <div className="w-full flex justify-center">
+    <div style={{ width: "100%", maxWidth: "100%", overflowX: "hidden" }}>
       <div
-        className="fb-page"
-        data-href="https://www.facebook.com/schoolonwheels/"
-        data-tabs="timeline"
-        data-width=""
-        data-height=""
-        data-small-header="false"
-        data-adapt-container-width="true"
-        data-hide-cover="false"
-        data-show-facepile="true"
-      >
-        <blockquote
-          cite="https://www.facebook.com/schoolonwheels/"
-          className="fb-xfbml-parse-ignore"
-        >
-          <a href="https://www.facebook.com/schoolonwheels/">
-            School on Wheels of Massachusetts
-          </a>
-        </blockquote>
-      </div>
+        className="sk-ww-facebook-page-posts"
+        data-embed-id="25667963"
+      />
     </div>
   );
 }

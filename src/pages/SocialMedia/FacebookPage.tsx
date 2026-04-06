@@ -240,7 +240,8 @@ export default function FacebookPage() {
   // const recentPosts = buildRecentPosts(computed.posts?.filtered ?? []);
 
   return (
-    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
+    <div className="w-full min-h-screen bg-white flex justify-center">
+      <div className="w-full max-w-[1200px] flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
       <div className="flex flex-col lg:flex-row justify-between lg:items-center">
         <div className="flex items-center space-x-2">
           <button
@@ -284,124 +285,129 @@ export default function FacebookPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[2.1fr_1.3fr_1fr] gap-4">
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {topSmallCards.map((card, idx) => {
-              const item = computed[card.key];
-              return (
-                <SmallCard
-                  key={`${card.title}-${idx}`}
-                  title={card.title}
-                  titleTooltip={METRIC_DESCRIPTIONS[card.key]}
-                  displayMode="metric-only"
-                  className="w-full min-h-[172px]"
-                  metricValue={item?.fullSummary.current ?? 0}
-                  metricChange={formatAbsoluteChange(item?.fullSummary)}
-                  metricLabel={getSmallCardSinceLabel(rawSeries[card.key])}
-                />
-              );
-            })}
-          </div>
-
-          <BigCard
-            title="Followers"
-            titleTooltip={METRIC_DESCRIPTIONS.followers}
-            subtitle={
-              <DateDropdown
-                value={ranges.followers}
-                onChange={(r) =>
-                  setRanges((prev) => ({ ...prev, followers: r }))
-                }
-                minDate={computed.followers?.bounds.min}
-                maxDate={computed.followers?.bounds.max}
-              />
-            }
-            metricValue={computed.followers?.summary.current ?? 0}
-            metricLabel="followers"
-            metricChange={formatPercentChange(computed.followers?.summary)}
-            chart={
-              computed.followers?.filtered.length ? (
-                <LineCharts
-                  data={computed.followers.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  showArea
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
-            }
-            displayMode="both"
-            className="h-[360px]"
-          />
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <BigCard
-            title="Views"
-            titleTooltip={METRIC_DESCRIPTIONS.views}
-            subtitle={
-              <DateDropdown
-                value={ranges.views}
-                onChange={(r) => setRanges((prev) => ({ ...prev, views: r }))}
-                minDate={computed.views?.bounds.min}
-                maxDate={computed.views?.bounds.max}
-              />
-            }
-            metricValue={computed.views?.summary.current ?? 0}
-            metricLabel="from last week"
-            metricChange={formatPercentChange(computed.views?.summary)}
-            chart={
-              computed.views?.filtered.length ? (
-                <LineCharts
-                  data={computed.views.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  showArea
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
-            }
-            displayMode="both"
-            className="h-[360px]"
-          />
-
-          <BigCard
-            title="Days Posted"
-            titleTooltip={METRIC_DESCRIPTIONS.posts}
-            subtitle={<HeatmapLegend />}
-            chart={
-              allPostsPoints.length ? (
-                <CalendarHeatmap points={allPostsPoints} />
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No post activity data
-                </div>
-              )
-            }
-            displayMode="chart-only"
-            className="lmd:h-[500px] g:h-[400px] xl:h-[360px]"
-          />
-        </div>
-
-        <BigCard
-          title="Facebook Feed"
-          chart={
-            <div className="w-full flex justify-center items-start overflow-hidden">
-              <div className="w-full max-w-[500px] min-h-[600px]">
-                <FacebookEmbed />
-              </div>
-            </div>
-          }
-          displayMode="chart-only"
-          className="xl:h-[736px]"
+  {/* Left + middle columns */}
+  <div className="flex flex-col gap-4">
+    {/* Small cards */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {topSmallCards.map((card, idx) => (
+        <SmallCard
+          key={`${card.title}-${idx}`}
+          title={card.title}
+          titleTooltip={METRIC_DESCRIPTIONS[card.key]}
+          displayMode="metric-only"
+          className="w-full min-h-[172px]"
+          metricValue={computed[card.key]?.fullSummary.current ?? 0}
+          metricChange={formatAbsoluteChange(computed[card.key]?.fullSummary)}
+          metricLabel={getSmallCardSinceLabel(rawSeries[card.key])}
         />
-      </div>
+      ))}
     </div>
+
+    {/* Followers BigCard */}
+    <BigCard
+      title="Followers"
+      titleTooltip={METRIC_DESCRIPTIONS.followers}
+      subtitle={
+        <DateDropdown
+          value={ranges.followers}
+          onChange={(r) =>
+            setRanges((prev) => ({ ...prev, followers: r }))
+          }
+          minDate={computed.followers?.bounds.min}
+          maxDate={computed.followers?.bounds.max}
+        />
+      }
+      metricValue={computed.followers?.summary.current ?? 0}
+      metricLabel="followers"
+      metricChange={formatPercentChange(computed.followers?.summary)}
+      chart={
+        computed.followers?.filtered.length ? (
+          <LineCharts
+            data={computed.followers.filtered}
+            xAxisKey="date"
+            dataKeys={["value"]}
+            showArea
+          />
+        ) : (
+          <div className="h-full flex items-center justify-center text-gray-500">
+            No data available
+          </div>
+        )
+      }
+      displayMode="both"
+      className="h-[360px]"
+    />
+  </div>
+
+  {/* Right column */}
+  <div className="flex flex-col gap-4">
+    {/* Views BigCard */}
+    <BigCard
+      title="Views"
+      titleTooltip={METRIC_DESCRIPTIONS.views}
+      subtitle={
+        <DateDropdown
+          value={ranges.views}
+          onChange={(r) => setRanges((prev) => ({ ...prev, views: r }))}
+          minDate={computed.views?.bounds.min}
+          maxDate={computed.views?.bounds.max}
+        />
+      }
+      metricValue={computed.views?.summary.current ?? 0}
+      metricLabel="from last week"
+      metricChange={formatPercentChange(computed.views?.summary)}
+      chart={
+        computed.views?.filtered.length ? (
+          <LineCharts
+            data={computed.views.filtered}
+            xAxisKey="date"
+            dataKeys={["value"]}
+            showArea
+          />
+        ) : (
+          <div className="h-full flex items-center justify-center text-gray-500">
+            No data available
+          </div>
+        )
+      }
+      displayMode="both"
+      className="h-[360px]"
+    />
+
+    {/* Days Posted BigCard */}
+    <BigCard
+      title="Days Posted"
+      titleTooltip={METRIC_DESCRIPTIONS.posts}
+      subtitle={<HeatmapLegend />}
+      chart={
+        allPostsPoints.length ? (
+          <CalendarHeatmap points={allPostsPoints} />
+        ) : (
+          <div className="flex items-center justify-center text-gray-500">
+            No post activity data
+          </div>
+        )
+      }
+      displayMode="chart-only"
+      className="lmd:h-[500px] g:h-[400px] xl:h-[360px]"
+    />
+  </div>
+</div>
+
+{/* Facebook Feed: Full width under the grid */}
+<div className="mt-4 w-full">
+<BigCard
+  title="Facebook Feed"
+  chart={
+    <div className="w-full overflow-x-hidden">
+      <FacebookEmbed />
+    </div>
+  }
+  displayMode="chart-only"
+  className="min-h-[600px]"
+/>
+</div>
+    </div>
+</div>
   );
 }
