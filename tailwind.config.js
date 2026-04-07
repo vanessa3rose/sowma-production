@@ -11,11 +11,17 @@ export default {
         "sowma-light-blue": COLORS.SOWMA_LIGHT_BLUE,
         "sowma-blue": COLORS.SOWMA_BLUE,
         "sowma-dark-blue": COLORS.SOWMA_DARK_BLUE,
+
         "sowma-light-green": COLORS.SOWMA_LIGHT_GREEN,
         "sowma-green": COLORS.SOWMA_GREEN,
         "sowma-dark-green": COLORS.SOWMA_DARK_GREEN,
+
         "sowma-bright-green": COLORS.SOWMA_BRIGHT_GREEN,
         "sowma-bright-red": COLORS.SOWMA_BRIGHT_RED,
+
+        "sowma-lightest-gray": COLORS.SOWMA_LIGHTEST_GRAY,
+        "sowma-lighter-gray": COLORS.SOWMA_LIGHTER_GRAY,
+        "sowma-light-gray": COLORS.SOWMA_LIGHT_GRAY,
         "sowma-gray": COLORS.SOWMA_GRAY,
       },
       fontFamily: {
