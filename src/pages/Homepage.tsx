@@ -9,6 +9,8 @@ import PlatformMetricCard from "../components/cards/PlatformMetricCard";
 import DateDropdown, { DateRangeValue } from "../components/charts/DateButton";
 
 import { COLORS } from "../data/colors.js";
+import BarCharts from "../components/charts/BarCharts";
+import { HEAR_ABOUT_US_DATA } from "../data/tuftsHearAboutUs";
 
 type PlatformMetricPoint = {
   date: string;
@@ -717,12 +719,17 @@ export default function Homepage() {
         <BigCard
           title="How did you hear about us?"
           subtitle=""
-          displayMode="both"
+          displayMode="chart-only"
           className="flex-1 w-full max-h-[320px]"
           chart={
-            <div className="w-full flex items-center justify-center text-sm text-gray-500">
-              No data available.
-            </div>
+            <BarCharts
+              data={HEAR_ABOUT_US_DATA.map((d) => ({
+                source: d.source,
+                count: d.count,
+              }))}
+              xAxisKey="source"
+              dataKeys={["count"]}
+            />
           }
         />
       </div>

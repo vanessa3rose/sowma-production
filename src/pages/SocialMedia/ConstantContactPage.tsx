@@ -141,13 +141,13 @@ type SankeyLink = {
 function buildSankeyOption(vals: Record<string, number>) {
   const sent = vals.emails_sent ?? 0;
   const delivered = vals.emails_delivered ?? 0;
-  const bounced = vals.email_bounced ?? 0;
-  const opened = vals.email_opened ?? 0;
-  const notOpened = vals.email_not_opened ?? 0;
+  const bounced = vals.emails_bounced ?? 0;
+  const opened = vals.emails_opened ?? 0;
+  const notOpened = vals.emails_not_opened ?? 0;
   const clicked = vals.emails_clicked ?? 0;
   const unsubscribed = vals.emails_unsubscribed ?? 0;
   const abuse = vals.email_abuse ?? 0;
-  const forwarded = vals.email_forwarded ?? 0;
+  const forwarded = vals.emails_forwarded ?? 0;
 
   const nodes: SankeyNode[] = [
     { name: `Sent\n${fmt(sent)}`, itemStyle: { color: "#5B8FF9" } },
