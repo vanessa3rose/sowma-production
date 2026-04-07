@@ -9,6 +9,7 @@ import DateDropdown, {
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
 import SocialMediaHeader from "../../components/SocialMediaHeader";
+import { getGlossaryDefinition } from "../../data/glossarydata";
 
 /* ---------- types ---------- */
 
@@ -425,7 +426,7 @@ export default function ConstantContactPage() {
         {/* ── Email Flow Sankey — first ── */}
         <BigCard
           title="Email Flow"
-          titleTooltip="End-to-end journey from sent to final action."
+          titleTooltip={getGlossaryDefinition("email_flow")}
           subtitle={
             <DateDropdown
               value={sankeyRange}
@@ -457,7 +458,7 @@ export default function ConstantContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <BigCard
             title="Opens: Unique vs Total"
-            titleTooltip="Unique Opens (purple) shows distinct openers; Total Opens (pink) includes re-opens"
+            titleTooltip={getGlossaryDefinition("email_opens")}
             subtitle={
               <DateDropdown
                 value={opensRange}
@@ -488,7 +489,7 @@ export default function ConstantContactPage() {
 
           <BigCard
             title="Clicks: Unique vs Total"
-            titleTooltip="Unique Clicks (purple) shows distinct clickers; Total Clicks (pink) includes repeat clicks"
+            titleTooltip={getGlossaryDefinition("email_clicks")}
             subtitle={
               <DateDropdown
                 value={clicksRange}

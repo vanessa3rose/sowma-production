@@ -19,6 +19,15 @@ const PLATFORM_COLORS: Record<string, string> = {
   tiktok: "#A155B9",
 };
 
+const getSeriesColor = (key: string) => {
+  const k = key.toLowerCase();
+
+  if (k.includes("unique")) return "#7987FF";
+  if (k.includes("total")) return "#E4405F";
+
+  return PLATFORM_COLORS[k] || "#7987FF";
+};
+
 type LineChartProps = {
   data: any[];
   xAxisKey: string;
@@ -79,7 +88,7 @@ const LineCharts = ({
         >
           <defs>
             {dataKeys.map((key) => {
-              const color = PLATFORM_COLORS[key.toLowerCase()] || "#7987FF";
+              const color = getSeriesColor(key);
               return (
                 <linearGradient
                   key={key}
@@ -121,7 +130,7 @@ const LineCharts = ({
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#7987FF"}
+              stroke={getSeriesColor(key)}
               strokeWidth={compact ? 2.5 : 3}
               fill={`url(#gradient-${key})`}
               fillOpacity={1}
@@ -162,7 +171,7 @@ const LineCharts = ({
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#7987FF"}
+              stroke={getSeriesColor(key)}
               strokeWidth={compact ? 2.5 : 3}
               dot={compact ? false : { r: 4 }}
               activeDot={false}
