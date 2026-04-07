@@ -433,7 +433,7 @@ export default function FacebookPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <BigCard
           title="Video Views"
-          titleTooltip={METRIC_DESCRIPTIONS.videoViews}
+          titleTooltip={getGlossaryDefinition("videoViews")}
           subtitle={
             <DateDropdown
               value={ranges.videoViews}
@@ -467,7 +467,7 @@ export default function FacebookPage() {
 
         <BigCard
           title="Website Clicks"
-          titleTooltip={METRIC_DESCRIPTIONS.websiteClicks}
+          titleTooltip={getGlossaryDefinition("websiteClicks")}
           subtitle={
             <DateDropdown
               value={ranges.websiteClicks}
