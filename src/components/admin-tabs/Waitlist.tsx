@@ -182,7 +182,7 @@ export default function Waitlist() {
                       className={`relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base transition ${
                         isRowBusy && !isApproveBusy
                           ? "bg-[#9dbada] text-white/80"
-                          : "bg-[#4e8bcc]"
+                          : "bg-[#4781C2]"
                       } disabled:opacity-100`}
                       onClick={() =>
                         handleWaitlistAction(user.email, "approve")

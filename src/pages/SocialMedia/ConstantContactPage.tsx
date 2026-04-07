@@ -15,6 +15,20 @@ import { getGlossaryDefinition } from "../../data/glossarydata";
 
 type LinePoint = { date: string; value: number };
 
+import ExportButton from "../../components/export-pdf/ExportButton";
+import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
+import { fetchMetrics } from "../../utils/fetchMetrics";
+import {
+  type LinePoint,
+  type MetricSummary,
+  toLinePoints,
+  summarizeSeries,
+  getBounds,
+  filterByRange,
+} from "../../utils/seriesUtils";
+
+/* ---------- types ---------- */
+
 type MetricConfig = {
   id: string;
   title: string;

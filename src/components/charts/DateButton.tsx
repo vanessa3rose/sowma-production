@@ -218,9 +218,14 @@ export default function DateDropdown({
                 className={[
                   "rounded-full px-3 py-1 text-xs font-semibold font-[Poppins] border transition-colors",
                   activePreset === preset.id
-                    ? "bg-blue-500 text-white border-blue-500"
+                    ? "text-white"
                     : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50",
                 ].join(" ")}
+                style={
+                  activePreset === preset.id
+                    ? { backgroundColor: "#4781C2", borderColor: "#4781C2" }
+                    : undefined
+                }
               >
                 {preset.label}
               </button>

@@ -137,10 +137,10 @@ export const GLOSSARY_ITEMS = [
 ] as const;
 
 // List of Keys present
-export const GLOSSARY_KEYS = GLOSSARY_ITEMS.map((item) => item.key);
+const GLOSSARY_KEYS = GLOSSARY_ITEMS.map((item) => item.key);
 
 // MAP conversion
-export const GLOSSARY_MAP = Object.fromEntries(
+const GLOSSARY_MAP = Object.fromEntries(
   GLOSSARY_ITEMS.map((item) => [item.key, item]),
 ) as Record<
   (typeof GLOSSARY_ITEMS)[number]["key"],
@@ -156,8 +156,4 @@ export function isGlossaryKey(
 
 export function getGlossaryDefinition(key: keyof typeof GLOSSARY_MAP): string {
   return GLOSSARY_MAP[key]?.definition ?? "";
-}
-
-export function getGlossaryItem(key: keyof typeof GLOSSARY_MAP) {
-  return GLOSSARY_MAP[key];
 }
