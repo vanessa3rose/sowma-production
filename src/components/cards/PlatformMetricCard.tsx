@@ -30,7 +30,7 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
       className={className}
       style={{
         backgroundColor: "white",
-        border: "1px solid #E5E5E5",
+        border: `1px solid ${COLORS.SOWMA_LIGHTER_GRAY}`,
         borderRadius: "12px",
         boxShadow: "0px 4px 4px #1e1e1e64",
         padding: "24px 28px",
@@ -63,7 +63,7 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                     fontFamily: "Poppins, sans-serif",
                     fontSize: "12px",
                     fontWeight: 500,
-                    color: "#9CA3AF",
+                    color: COLORS.SOWMA_GRAY,
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
                     width: "72px",
@@ -76,7 +76,7 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                     fontFamily: "Poppins, sans-serif",
                     fontSize: "28px",
                     // FIX: Removed the condition that turned the number gray when change === 0
-                    color: value === null ? "#9CA3AF" : color,
+                    color: value === null ? COLORS.SOWMA_GRAY : color,
                     fontWeight: 600,
                     lineHeight: "1",
                   }}
@@ -97,7 +97,7 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                             ? COLORS.SOWMA_BRIGHT_GREEN
                             : change < 0
                               ? COLORS.SOWMA_BRIGHT_RED
-                              : "#9CA3AF",
+                              : COLORS.SOWMA_GRAY,
                       }}
                     >
                       {change > 0 ? "+" : ""}
@@ -109,7 +109,7 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                         style={{
                           fontSize: "10px",
                           fontWeight: 800,
-                          color: "#9CA3AF",
+                          color: COLORS.SOWMA_GRAY,
                           lineHeight: "1",
                           display: "inline-flex",
                           alignItems: "center",
@@ -162,7 +162,7 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
             {index < metrics.length - 1 && (
               <div
                 style={{
-                  borderBottom: "1px solid #F0F0F0",
+                  borderBottom: `1px solid ${COLORS.SOWMA_LIGHTEST_GRAY}`,
                   marginTop: "16px",
                 }}
               />

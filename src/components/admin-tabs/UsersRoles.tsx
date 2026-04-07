@@ -120,7 +120,7 @@ export default function UsersRoles() {
                 <select
                   value={user.role}
                   onChange={(e) => updateRole(user.id, e.target.value as Role)}
-                  className="lg:px-6 px-2 py-2 mx-1 rounded-full border-2 border-[#7B7C7C] text-xs md:text-lg leading-none"
+                  className="lg:px-6 px-2 py-2 mx-1 rounded-full border-2 border-neutral-500 text-xs md:text-lg leading-none"
                 >
                   <option value="ADMIN">Admin</option>
                   <option value="USER">User</option>
@@ -133,7 +133,7 @@ export default function UsersRoles() {
                 {isLastAdmin ? null : (
                   <button
                     aria-label={`Remove ${user.firstName} ${user.lastName}`}
-                    className="flex h-10 w-10 items-center justify-center rounded-md bg-[#ad3a3b] text-white"
+                    className="flex h-10 w-10 items-center justify-center rounded-md bg-sowma-red text-white"
                     onClick={() => removeUser(user.id)}
                   >
                     <svg

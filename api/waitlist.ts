@@ -311,7 +311,7 @@ async function sendWaitlistInviteEmail(
     "If you were not expecting this email, you can ignore it.",
   ].join("\n");
   const html = `
-    <div style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.5; max-width: 560px;">
+    <div style="font-family: Arial, sans-serif; color: ${COLORS.SOWMA_DARKEST_BLUE}; line-height: 1.5; max-width: 560px;">
       <p style="margin: 0 0 16px;">Hi ${name},</p>
       <p style="margin: 0 0 16px;">Your waitlist request has been approved.</p>
       <p style="margin: 0 0 20px;">Use the button below to accept your invitation and set your password:</p>
@@ -321,8 +321,8 @@ async function sendWaitlistInviteEmail(
           style="
             display: inline-block;
             padding: 10px 16px;
-            background: ${COLORS.SOWMA_BLUE};
-            color: #ffffff;
+            background: ${COLORS.SOWMA_MEDIUM_BLUE};
+            color: white;
             text-decoration: none;
             border-radius: 8px;
             font-weight: 600;
@@ -331,13 +331,13 @@ async function sendWaitlistInviteEmail(
           Accept Your Invitation
         </a>
       </p>
-      <p style="margin: 0 0 8px; color: #6b7280; font-size: 13px;">
+      <p style="margin: 0 0 8px; color: ${COLORS.SOWMA_MEDIUM_GRAY}; font-size: 13px;">
         If the button doesn't work, copy and paste this URL into your browser:
       </p>
       <p style="margin: 0 0 16px; font-size: 13px; word-break: break-all;">
-        <a href="${inviteUrl}" style="color: ${COLORS.SOWMA_BLUE};">${inviteUrl}</a>
+        <a href="${inviteUrl}" style="color: ${COLORS.SOWMA_MEDIUM_BLUE};">${inviteUrl}</a>
       </p>
-      <p style="margin: 0; color: #6b7280; font-size: 13px;">
+      <p style="margin: 0; color: ${COLORS.SOWMA_MEDIUM_GRAY}; font-size: 13px;">
         If you were not expecting this email, you can ignore it.
       </p>
     </div>
