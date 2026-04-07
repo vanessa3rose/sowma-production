@@ -9,9 +9,7 @@ import LineCharts from "../../components/charts/LineCharts";
 import DateDropdown, {
   DateRangeValue,
 } from "../../components/charts/DateButton";
-import ExportButton from "../../components/export-pdf/ExportButton";
-import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
-import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+import { fetchMetrics } from "../../utils/fetchMetrics";
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import {
   formatAbsoluteChange,
@@ -19,6 +17,15 @@ import {
 } from "../../utils/metricChange";
 
 import { getGlossaryDefinition, isGlossaryKey } from "../../data/glossarydata";
+import SocialMediaHeader from "../../components/SocialMediaHeader";
+import {
+  type LinePoint,
+  type MetricSummary,
+  toLinePoints,
+  summarizeSeries,
+  getBounds,
+  filterByRange,
+} from "../../utils/seriesUtils";
 
 type MetricKey =
   | "followers"
@@ -27,10 +34,6 @@ type MetricKey =
   | "comments"
   | "posts"
   | "shares";
-
-type LinePoint = { date: string; value: number };
-
-type MetricSummary = { current: number | null; prev: number | null };
 
 type MetricConfig = {
   id: MetricKey;
@@ -95,33 +98,6 @@ const INITIAL_RANGES: Record<MetricKey, DateRangeValue> = {
 
 /* ---------- helpers ---------- */
 
-function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
-  return raw
-    .filter((m) => m.metricDate || m.lastSynced)
-    .slice()
-    .sort((a, b) =>
-      (a.metricDate ?? a.lastSynced)!.localeCompare(
-        (b.metricDate ?? b.lastSynced)!,
-      ),
-    );
-}
-
-function toLinePoints(raw: SocialMediaMetric[]): LinePoint[] {
-  return sortByDate(raw).map((m) => {
-    const ts = (m.metricDate ?? m.lastSynced)!;
-    return { date: ts.slice(0, 10), value: m.metricValue };
-  });
-}
-
-function summarizeSeries(points: LinePoint[]): MetricSummary {
-  if (!points.length) return { current: null, prev: null };
-  if (points.length === 1) return { current: points[0].value, prev: null };
-  return {
-    current: points[points.length - 1].value,
-    prev: points[points.length - 2].value,
-  };
-}
-
 function formatPercentChange(summary?: MetricSummary | null): string {
   if (
     !summary ||
@@ -133,20 +109,6 @@ function formatPercentChange(summary?: MetricSummary | null): string {
 
   const pct = ((summary.current - summary.prev) / summary.prev) * 100;
   return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
-}
-
-function getBounds(pts: LinePoint[]) {
-  if (!pts.length)
-    return { min: null as Date | null, max: null as Date | null };
-
-  const dates = pts
-    .map((p) => p.date)
-    .slice()
-    .sort();
-  return {
-    min: new Date(dates[0]),
-    max: new Date(dates[dates.length - 1]),
-  };
 }
 
 function buildPostingActivity(points: LinePoint[]): Map<string, number> {
@@ -183,8 +145,6 @@ function buildRecentPosts(points: LinePoint[], count = 6) {
 /* ---------- component ---------- */
 
 export default function FacebookPage() {
-  const { exportByPlatforms } = useGlobalPageExporter();
-
   const [rawSeries, setRawSeries] =
     useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
 
@@ -261,28 +221,6 @@ export default function FacebookPage() {
     loadFacebook();
   }, []);
 
-  function filterByRange(pts: LinePoint[], range: DateRangeValue) {
-    if (!pts.length || range.id === "all") return pts;
-
-    if (range.id === "custom" && range.start && range.end) {
-      const startStr = range.start.toISOString().slice(0, 10);
-      const endStr = range.end.toISOString().slice(0, 10);
-      return pts.filter((p) => p.date >= startStr && p.date <= endStr);
-    }
-
-    const end = new Date(pts[pts.length - 1].date);
-    const start = new Date(end);
-
-    if (range.id === "7d") start.setDate(start.getDate() - 6);
-    if (range.id === "30d") start.setDate(start.getDate() - 29);
-    if (range.id === "1y") start.setFullYear(start.getFullYear() - 1);
-
-    const startStr = start.toISOString().slice(0, 10);
-    const endStr = end.toISOString().slice(0, 10);
-
-    return pts.filter((p) => p.date >= startStr && p.date <= endStr);
-  }
-
   const computed = useMemo(() => {
     const out = {} as Record<
       MetricKey,
@@ -321,50 +259,11 @@ export default function FacebookPage() {
 
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="size-7"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
-          </button>
-
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
-            Facebook
-          </h1>
-        </div>
-
-        <div className="flex flex-row items-center space-x-4 mt-2 lg:mt-0">
-          <a
-            href="https://www.facebook.com/schoolonwheels"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-semibold"
-          >
-            Go to Account
-          </a>
-
-          <ExportButton onExport={exportByPlatforms} />
-        </div>
-      </div>
-
-      <div className="text-sm text-gray-600">
-        Last updated: {lastUpdated ?? "No imported data yet"}
-      </div>
+      <SocialMediaHeader
+        lastUpdated={lastUpdated}
+        Title={"Facebook"}
+        Link={"https://www.facebook.com/schoolonwheels"}
+      />
 
       <div className="grid grid-cols-1 xl:grid-cols-[2.1fr_1.3fr_1fr] gap-4">
         <div className="flex flex-col gap-4">
@@ -495,7 +394,7 @@ export default function FacebookPage() {
                 {recentPosts.map((post) => (
                   <div
                     key={post.date}
-                    className="rounded-lg border border-[#E5E5E5] p-3 font-poppins"
+                    className="rounded-lg border border-neutral-200 p-3 font-poppins"
                   >
                     <p className="font-semibold text-sm">{post.date}</p>
                     <p className="text-sm text-gray-600">

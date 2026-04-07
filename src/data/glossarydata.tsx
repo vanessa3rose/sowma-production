@@ -90,36 +90,23 @@ export const GLOSSARY_ITEMS = [
     platforms: ["Google Analytics"],
   },
   {
-    key: "sent",
-    term: "Emails Sent",
-    definition:
-      "The total number of emails that were sent from your Constant Contact campaigns.",
+    key: "email_flow",
+    term: "Email Flow",
+    definition: "End-to-end journey from sent to final action.",
     platforms: ["Constant Contact"],
   },
   {
-    key: "delivered",
-    term: "Emails Delivered",
-    definition:
-      "The number of sent emails that successfully reached recipients' inboxes.",
-    platforms: ["Constant Contact"],
-  },
-  {
-    key: "opened",
+    key: "email_opens",
     term: "Emails Opened",
-    definition: "The number of delivered emails that recipients opened.",
-    platforms: ["Constant Contact"],
-  },
-  {
-    key: "clicked",
-    term: "Emails Clicked",
-    definition: "The number of times recipients clicked links within an email.",
-    platforms: ["Constant Contact"],
-  },
-  {
-    key: "unsubscribed",
-    term: "Emails Unsubscribed",
     definition:
-      "The number of recipients who unsubscribed from the mailing list after receiving an email.",
+      "Unique Opens shows distinct openers; Total Opens includes re-opens.",
+    platforms: ["Constant Contact"],
+  },
+  {
+    key: "email_clicks",
+    term: "Emails Clicked",
+    definition:
+      "Unique Clicks shows distinct clickers; Total Clicks includes repeat clicks.",
     platforms: ["Constant Contact"],
   },
   {
@@ -150,10 +137,10 @@ export const GLOSSARY_ITEMS = [
 ] as const;
 
 // List of Keys present
-export const GLOSSARY_KEYS = GLOSSARY_ITEMS.map((item) => item.key);
+const GLOSSARY_KEYS = GLOSSARY_ITEMS.map((item) => item.key);
 
 // MAP conversion
-export const GLOSSARY_MAP = Object.fromEntries(
+const GLOSSARY_MAP = Object.fromEntries(
   GLOSSARY_ITEMS.map((item) => [item.key, item]),
 ) as Record<
   (typeof GLOSSARY_ITEMS)[number]["key"],
@@ -169,8 +156,4 @@ export function isGlossaryKey(
 
 export function getGlossaryDefinition(key: keyof typeof GLOSSARY_MAP): string {
   return GLOSSARY_MAP[key]?.definition ?? "";
-}
-
-export function getGlossaryItem(key: keyof typeof GLOSSARY_MAP) {
-  return GLOSSARY_MAP[key];
 }

@@ -3,8 +3,7 @@ import { PrismaClient } from "../src/generated/prisma/index.js";
 import * as nodemailer from "nodemailer";
 import { randomUUID } from "node:crypto";
 import { requireAdminApi } from "./_auth.js";
-
-const SOWMA_BLUE = "#2872b0";
+import { COLORS } from "../src/data/colors.js";
 
 // ---------------- Runtime and DB configuration ----------------
 function getDatabaseUrl(): string | null {
@@ -322,7 +321,7 @@ async function sendWaitlistInviteEmail(
           style="
             display: inline-block;
             padding: 10px 16px;
-            background: ${SOWMA_BLUE};
+            background: ${COLORS.SOWMA_BLUE};
             color: #ffffff;
             text-decoration: none;
             border-radius: 8px;
@@ -336,7 +335,7 @@ async function sendWaitlistInviteEmail(
         If the button doesn't work, copy and paste this URL into your browser:
       </p>
       <p style="margin: 0 0 16px; font-size: 13px; word-break: break-all;">
-        <a href="${inviteUrl}" style="color: ${SOWMA_BLUE};">${inviteUrl}</a>
+        <a href="${inviteUrl}" style="color: ${COLORS.SOWMA_BLUE};">${inviteUrl}</a>
       </p>
       <p style="margin: 0; color: #6b7280; font-size: 13px;">
         If you were not expecting this email, you can ignore it.

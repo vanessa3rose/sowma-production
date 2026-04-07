@@ -173,7 +173,7 @@ export default function APIData() {
             type="button"
             onClick={handleLinkedInUpload}
             disabled={isUploading || files.length === 0}
-            className="rounded-full bg-[#4e8bcc] text-white font-poppins font-semibold px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-full bg-sowma-light-blue text-white font-poppins font-semibold px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isUploading ? "Uploading..." : "Upload File(s)"}
           </button>
@@ -291,7 +291,7 @@ export default function APIData() {
                 <button
                   type="button"
                   onClick={() => setSubmittedText(text)}
-                  className="rounded-3xl bg-[#4e8bcc] text-white text-xl font-bold px-10 py-2"
+                  className="rounded-3xl bg-sowma-light-blue text-white text-xl font-bold px-10 py-2"
                 >
                   Submit
                 </button>

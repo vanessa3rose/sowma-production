@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { GLOSSARY_ITEMS } from "../data/glossarydata.tsx";
+import { COLORS } from "../data/colors.js";
 
 export default function GlossaryPage() {
   const platformRoutes: Record<string, string> = {
@@ -8,6 +9,14 @@ export default function GlossaryPage() {
     Instagram: "/social/instagram",
     Twitter: "/social/twitter",
     "Constant Contact": "/social/constant-contact",
+  };
+
+  const platformColors: Record<string, string> = {
+    "Google Analytics": COLORS.SOWMA_GREEN,
+    Facebook: COLORS.SOWMA_LIGHT_BLUE,
+    Instagram: COLORS.SOWMA_LIGHTER_BLUE,
+    Twitter: COLORS.SOWMA_DARK_BLUE,
+    "Constant Contact": COLORS.SOWMA_DARK_GREEN,
   };
 
   return (
@@ -81,7 +90,12 @@ export default function GlossaryPage() {
                           <Link
                             key={index}
                             href={platformRoutes[platform]}
-                            className="text-sm bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full font-medium whitespace-nowrap"
+                            className="text-sm px-4 py-1.5 rounded-full font-medium whitespace-nowrap"
+                            style={{
+                              backgroundColor: `${platformColors[platform] ?? COLORS.SOWMA_GRAY}26`,
+                              color:
+                                platformColors[platform] ?? COLORS.SOWMA_GRAY,
+                            }}
                           >
                             {platform}
                           </Link>

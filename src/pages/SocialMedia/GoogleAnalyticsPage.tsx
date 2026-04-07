@@ -1,6 +1,6 @@
-// drop down menu for home page
-
 import { useEffect, useState } from "react";
+
+import SocialMediaHeader from "../../components/SocialMediaHeader";
 
 // Cards
 import BigCard from "../../components/cards/BigCard";
@@ -21,10 +21,8 @@ import DateDropdown, {
   DateRangeId,
   DateRangeValue,
 } from "../../components/charts/DateButton";
-import ExportButton from "../../components/export-pdf/ExportButton";
 
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
-import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import {
   formatAbsoluteChange,
@@ -32,6 +30,13 @@ import {
 } from "../../utils/metricChange";
 
 import { getGlossaryDefinition } from "../../data/glossarydata";
+import {
+  type LinePoint as Point,
+  type MetricSummary,
+  toLinePoints,
+  summarizeSeries,
+  getBounds,
+} from "../../utils/seriesUtils";
 
 // Types
 export type GAMetrics = {
@@ -52,11 +57,6 @@ export type TimePoint = {
   engagementRate?: number;
 };
 
-type MetricSummary = {
-  current: number | null;
-  prev: number | null;
-};
-
 type MetricKey =
   | "activeUsers"
   | "screenPageViews"
@@ -64,8 +64,6 @@ type MetricKey =
   | "engagementRate"
   | "newUsers"
   | "engagementTime";
-
-type Point = { date: string; value: number };
 
 const provider = "GOOGLE_ANALYTICS";
 const defaultStartDate = "2024-01-01";
@@ -186,16 +184,6 @@ function toShareOfTotalIntensity(countyVisits: Record<CountyId, number>): {
 // -----------------------------
 // Helpers for time series / cards
 // -----------------------------
-function getBounds(pts: Point[]) {
-  if (!pts.length)
-    return { min: null as Date | null, max: null as Date | null };
-  const dates = pts
-    .map((p) => p.date)
-    .slice()
-    .sort();
-  return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
-}
-
 function filterByRangeAnchoredToToday(pts: Point[], range: DateRangeId) {
   if (!pts.length) return pts;
 
@@ -237,32 +225,6 @@ function filterMetricRowsByRangeAnchoredToToday(
   });
 }
 
-function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
-  return raw
-    .filter((m) => m.metricDate || m.lastSynced)
-    .slice()
-    .sort((a, b) =>
-      (a.metricDate ?? a.lastSynced)!.localeCompare(
-        (b.metricDate ?? b.lastSynced)!,
-      ),
-    );
-}
-
-function toLinePoints(raw: SocialMediaMetric[]): Point[] {
-  return sortByDate(raw).map((m) => {
-    const timestamp = (m.metricDate ?? m.lastSynced)!;
-    return { date: timestamp.slice(0, 10), value: m.metricValue };
-  });
-}
-
-function summarizeSeries(pts: Point[]): MetricSummary {
-  if (pts.length === 0) return { current: null, prev: null };
-  if (pts.length === 1) return { current: pts[0].value, prev: null };
-  const latest = pts[pts.length - 1].value;
-  const prev = pts[pts.length - 2].value;
-  return { current: latest, prev };
-}
-
 function mergeUsersAnd7Day(active: Point[], active7: Point[]): TimePoint[] {
   const map: Record<string, TimePoint> = {};
   active.forEach((p) => {
@@ -289,8 +251,6 @@ function formatPercentChange(summary?: MetricSummary | null): string {
 // Component
 // -----------------------------
 export default function GoogleAnalyticsPage() {
-  const { exportByPlatforms } = useGlobalPageExporter();
-
   const [metrics, setMetrics] = useState<GAMetrics | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
@@ -713,50 +673,13 @@ export default function GoogleAnalyticsPage() {
   // ---------------------
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
-        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="size-7"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
-          </button>
-
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-wrap">
-            Google Analytics
-          </h1>
-        </div>
-
-        <div className="flex flex-row justify-center items-center mt-2 lg:mt-0 lg:space-x-2 space-x-4">
-          <a
-            href="https://analytics.google.com/analytics/web/#/p393011442/reports/intelligenthome"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
-          >
-            Go to Account
-          </a>
-          <ExportButton onExport={exportByPlatforms} />
-        </div>
-      </div>
-
-      <div className="px-4 font-poppins text-sm text-gray-600">
-        Last updated: {lastUpdated ?? "No imported data yet"}
-      </div>
+      <SocialMediaHeader
+        lastUpdated={lastUpdated}
+        Title={"Google Analytics"}
+        Link={
+          "https://analytics.google.com/analytics/web/#/p393011442/reports/intelligenthome"
+        }
+      />
 
       {/* Row 1: Top small cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

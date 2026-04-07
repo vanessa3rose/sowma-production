@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(Object.keys\\(p.dependencies || {}\\).join\\('\\\\n'\\)\\);\")",
+      "Bash(node -e \"const p = require\\('./src/generated/prisma/package.json'\\); console.log\\(p.version\\)\")"
+    ]
+  }
+}

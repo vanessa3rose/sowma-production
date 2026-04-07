@@ -12,7 +12,7 @@ export default function AdminRejection() {
 
         <button
           onClick={() => setLocation("/")}
-          className="w-full sm:w-auto rounded-full bg-[#4781C2] px-8 sm:px-10 py-4 sm:py-5 text-lg sm:text-xl text-white shadow hover:bg-[#3b6ea6] transition"
+          className="w-full sm:w-auto rounded-full bg-sowma-light-blue px-8 sm:px-10 py-4 sm:py-5 text-lg sm:text-xl text-white shadow hover:bg-[#3b6ea6] transition"
         >
           Redirect to homepage
         </button>

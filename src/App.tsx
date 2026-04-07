@@ -129,10 +129,6 @@ const App = () => {
               component={() => <ProtectedRoute component={GlossaryPage} />}
             />
             <Route
-              path="/error/tiktok"
-              component={() => <ProtectedRoute component={ErrorPage} />}
-            />
-            <Route
               path="/error/linkedin"
               component={() => <ProtectedRoute component={ErrorPage} />}
             />

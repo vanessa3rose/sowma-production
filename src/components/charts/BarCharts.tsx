@@ -9,6 +9,8 @@ import {
 } from "recharts";
 import { useMemo } from "react";
 
+import { COLORS } from "../../data/colors.js";
+
 import ChartTooltip from "./ChartTooltip";
 
 type OtherBreakdownItem = {
@@ -59,7 +61,7 @@ const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
     return Math.min(180, Math.max(80, Math.ceil(maxWidth) + 12));
   }, [data, xAxisKey]);
 
-  const leftMargin = Math.max(16, yAxisWidth - 64);
+  const leftMargin = 8;
 
   const CustomTooltip = (props: any) => {
     const { active, payload, label } = props;
@@ -122,12 +124,13 @@ const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
           type="category"
           dataKey={xAxisKey}
           width={yAxisWidth}
+          interval={0}
           tick={{ fontFamily: "Poppins, sans-serif", fontSize: 12 }}
         />
         {/* Fix: wrap tooltip in any */}
         <Tooltip content={(props: any) => <CustomTooltip {...props} />} />
         {dataKeys.map((key) => (
-          <Bar key={key} dataKey={key} fill="#7987FF" />
+          <Bar key={key} dataKey={key} fill={COLORS.SOWMA_LIGHT_BLUE} />
         ))}
       </BarChart>
     </ResponsiveContainer>
