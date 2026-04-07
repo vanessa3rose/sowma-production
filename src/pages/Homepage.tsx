@@ -8,6 +8,8 @@ import BigCard from "../components/cards/BigCard";
 import PlatformMetricCard from "../components/cards/PlatformMetricCard";
 import DateDropdown, { DateRangeValue } from "../components/charts/DateButton";
 
+import { COLORS } from "../data/colors.js";
+
 type PlatformMetricPoint = {
   date: string;
   facebook: number | null;
@@ -545,7 +547,7 @@ export default function Homepage() {
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
       <div className="flex flex-wrap w-full justify-between items-center gap-4">
-        <h1 className="font-poppins text-[#4781C2] text-2xl font-semibold">
+        <h1 className="font-poppins text-sowma-light-blue text-2xl font-semibold">
           Dashboard
         </h1>
         <ExportButton onExport={exportByPlatforms} />
@@ -570,7 +572,7 @@ export default function Homepage() {
               label: "Facebook",
               value: impressionsChange.facebook,
               change: impressionsChange.fbChange,
-              color: "#4781C2",
+              color: COLORS.SOWMA_LIGHT_BLUE,
               sinceDate: formatSinceDate(
                 impressionsChange.fbSince,
                 impressionsRange,
@@ -580,7 +582,7 @@ export default function Homepage() {
               label: "Instagram",
               value: impressionsChange.instagram,
               change: impressionsChange.igChange,
-              color: "#4CAF86",
+              color: COLORS.SOWMA_GREEN,
               sinceDate: formatSinceDate(
                 impressionsChange.igSince,
                 impressionsRange,
@@ -607,21 +609,21 @@ export default function Homepage() {
               label: "Facebook",
               value: postsChange.facebook,
               change: postsChange.fbChange,
-              color: "#4781C2",
+              color: COLORS.SOWMA_LIGHT_BLUE,
               sinceDate: formatSinceDate(postsChange.fbSince, daysPostedRange),
             },
             {
               label: "Instagram",
               value: postsChange.instagram,
               change: postsChange.igChange,
-              color: "#4CAF86",
+              color: COLORS.SOWMA_GREEN,
               sinceDate: formatSinceDate(postsChange.igSince, daysPostedRange),
             },
             {
               label: "Twitter",
               value: postsChange.twitter,
               change: postsChange.twChange,
-              color: "#2D5A8A",
+              color: COLORS.SOWMA_DARK_BLUE,
               sinceDate: formatSinceDate(postsChange.twSince, daysPostedRange),
             },
           ]}
@@ -683,7 +685,7 @@ export default function Homepage() {
               label: "Facebook",
               value: followerChange.facebook,
               change: followerChange.fbChange,
-              color: "#4781C2",
+              color: COLORS.SOWMA_LIGHT_BLUE,
               sinceDate: formatSinceDate(
                 followerChange.fbSince,
                 followersRange,
@@ -693,7 +695,7 @@ export default function Homepage() {
               label: "Instagram",
               value: followerChange.instagram,
               change: followerChange.igChange,
-              color: "#4CAF86",
+              color: COLORS.SOWMA_GREEN,
               sinceDate: formatSinceDate(
                 followerChange.igSince,
                 followersRange,
@@ -703,7 +705,7 @@ export default function Homepage() {
               label: "Twitter",
               value: followerChange.twitter,
               change: followerChange.twChange,
-              color: "#2D5A8A",
+              color: COLORS.SOWMA_DARK_BLUE,
               sinceDate: formatSinceDate(
                 followerChange.twSince,
                 followersRange,

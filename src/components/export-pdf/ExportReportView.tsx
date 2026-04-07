@@ -11,6 +11,7 @@ import {
   type ExportMetricFormat,
 } from "../../../scripts/export-pdf/exportMetricsConfig.js";
 import type { Platform } from "../../config/chartConfigs";
+import { COLORS } from "../../data/colors.js";
 
 export type ExportReportViewProps = {
   selections: ExportCardSelection[];
@@ -105,7 +106,7 @@ function MetricRow({
         <div
           key={item.label}
           style={{
-            backgroundColor: "#ffffff",
+            backgroundColor: "white",
             border: "1px solid #E5E5E5",
             borderBottom: "3px solid #D1D5DB",
             borderRight: "2px solid #D1D5DB",
@@ -114,14 +115,14 @@ function MetricRow({
             fontFamily: "Poppins, sans-serif",
           }}
         >
-          <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+          <div style={{ fontWeight: 500, fontSize: "16px", color: "black" }}>
             {item.label}
           </div>
           <div
             style={{
               fontSize: "32px",
               fontWeight: 400,
-              color: "#3B82F6",
+              color: COLORS.SOWMA_LIGHT_BLUE,
               marginTop: "4px",
             }}
           >
@@ -131,10 +132,10 @@ function MetricRow({
             style={{
               fontSize: "14px",
               color: item.delta.includes("+")
-                ? "#10B981"
+                ? COLORS.SOWMA_BRIGHT_GREEN
                 : item.delta.includes("-")
-                  ? "#EF4444"
-                  : "#6B7280",
+                  ? COLORS.SOWMA_BRIGHT_RED
+                  : COLORS.SOWMA_GRAY,
               marginTop: "4px",
             }}
           >
@@ -160,7 +161,7 @@ function ChartBlock({
     <div
       className="flex flex-col h-[200px]"
       style={{
-        backgroundColor: "#ffffff",
+        backgroundColor: "white",
         border: "1px solid #E5E5E5",
         borderBottom: "3px solid #D1D5DB",
         borderRight: "2px solid #D1D5DB",
@@ -169,7 +170,7 @@ function ChartBlock({
         fontFamily: "Poppins, sans-serif",
       }}
     >
-      <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+      <div style={{ fontWeight: 500, fontSize: "16px", color: "black" }}>
         {title}
       </div>
       {hasData ? (
@@ -192,7 +193,7 @@ function ChartBlock({
 }
 
 const PDF_CARD_STYLE: React.CSSProperties = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "white",
   border: "1px solid #E5E5E5",
   borderBottom: "3px solid #D1D5DB",
   borderRight: "2px solid #D1D5DB",
@@ -214,15 +215,21 @@ function GoogleSmallMetricCard({
 }) {
   return (
     <div style={PDF_CARD_STYLE}>
-      <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+      <div style={{ fontWeight: 500, fontSize: "16px", color: "black" }}>
         {title}
       </div>
       <div className="mt-1 flex items-baseline gap-2 flex-wrap">
-        <span style={{ fontSize: "32px", fontWeight: 400, color: "#3B82F6" }}>
+        <span
+          style={{
+            fontSize: "32px",
+            fontWeight: 400,
+            color: COLORS.SOWMA_LIGHT_BLUE,
+          }}
+        >
           {value}
         </span>
         {valueNote ? (
-          <span style={{ fontSize: "14px", color: "#6B7280" }}>
+          <span style={{ fontSize: "14px", color: COLORS.SOWMA_GRAY }}>
             {valueNote}
           </span>
         ) : null}
@@ -231,10 +238,10 @@ function GoogleSmallMetricCard({
         style={{
           fontSize: "14px",
           color: delta.includes("+")
-            ? "#10B981"
+            ? COLORS.SOWMA_BRIGHT_GREEN
             : delta.includes("-")
-              ? "#EF4444"
-              : "#6B7280",
+              ? COLORS.SOWMA_BRIGHT_RED
+              : COLORS.SOWMA_GRAY,
           marginTop: "4px",
         }}
       >
@@ -265,7 +272,7 @@ function GoogleChartCard({
       }}
     >
       <div className="flex items-center justify-between">
-        <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+        <div style={{ fontWeight: 500, fontSize: "16px", color: "black" }}>
           {title}
         </div>
         {subtitle ? (
@@ -614,7 +621,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       style={{
                         marginTop: "4px",
                         fontSize: "12px",
-                        color: "#6B7280",
+                        color: COLORS.SOWMA_GRAY,
                       }}
                     >
                       Delta values compare the latest point in range to the
@@ -625,7 +632,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       style={{
                         marginTop: "4px",
                         fontSize: "12px",
-                        color: "#6B7280",
+                        color: COLORS.SOWMA_GRAY,
                       }}
                     >
                       Delta values compare the latest point in range to the
@@ -1024,7 +1031,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       style={{
                         marginTop: "4px",
                         fontSize: "12px",
-                        color: "#6B7280",
+                        color: COLORS.SOWMA_GRAY,
                       }}
                     >
                       Delta values compare the latest point in range to the
@@ -1035,7 +1042,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       style={{
                         marginTop: "4px",
                         fontSize: "12px",
-                        color: "#6B7280",
+                        color: COLORS.SOWMA_GRAY,
                       }}
                     >
                       Delta values compare the latest point in range to the

@@ -1,5 +1,6 @@
 import React from "react";
 import TitleTooltip from "../charts/TitleTooltip";
+import { COLORS } from "../../data/colors.js";
 
 interface PlatformMetric {
   label: string;
@@ -28,7 +29,7 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
     <div
       className={className}
       style={{
-        backgroundColor: "#ffffff",
+        backgroundColor: "white",
         border: "1px solid #E5E5E5",
         borderRadius: "12px",
         boxShadow: "0px 4px 4px #1e1e1e64",
@@ -42,7 +43,7 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
               fontFamily: "Poppins, sans-serif",
               fontWeight: 500,
               fontSize: "16px",
-              color: "#000000",
+              color: "black",
             }}
           >
             {title}
@@ -93,9 +94,9 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                         fontWeight: 500,
                         color:
                           change > 0
-                            ? "#10B981"
+                            ? COLORS.SOWMA_BRIGHT_GREEN
                             : change < 0
-                              ? "#EF4444"
+                              ? COLORS.SOWMA_BRIGHT_RED
                               : "#9CA3AF",
                       }}
                     >
@@ -131,7 +132,11 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                       >
                         <path
                           d="M2 8L14 8M14 8L8 2M14 8L8 14"
-                          stroke={change > 0 ? "#10B981" : "#EF4444"}
+                          stroke={
+                            change > 0
+                              ? COLORS.SOWMA_BRIGHT_GREEN
+                              : COLORS.SOWMA_BRIGHT_RED
+                          }
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"

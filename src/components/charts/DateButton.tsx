@@ -3,6 +3,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format, differenceInDays, subYears } from "date-fns";
 
+import { COLORS } from "../../data/colors.js";
+
 export type DateRangeId = "7d" | "30d" | "1y" | "all" | "custom";
 
 type Preset = {
@@ -223,7 +225,10 @@ export default function DateDropdown({
                 ].join(" ")}
                 style={
                   activePreset === preset.id
-                    ? { backgroundColor: "#4781C2", borderColor: "#4781C2" }
+                    ? {
+                        backgroundColor: COLORS.SOWMA_LIGHT_BLUE,
+                        borderColor: COLORS.SOWMA_LIGHT_BLUE,
+                      }
                     : undefined
                 }
               >

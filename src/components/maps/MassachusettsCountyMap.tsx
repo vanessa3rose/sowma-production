@@ -44,7 +44,7 @@ function clamp01(value: number): number {
 
 function colorFromIntensity(intensity: number): string {
   const clamped = clamp01(intensity);
-  // Interpolate from #90B4D8 (light blue) to #2D5A8A (dark blue)
+  // Interpolate from #90B4D8 (lightest blue) to #2D5A8A (dark blue)
   const r = Math.round(144 - clamped * (144 - 45));
   const g = Math.round(180 - clamped * (180 - 90));
   const b = Math.round(216 - clamped * (216 - 138));

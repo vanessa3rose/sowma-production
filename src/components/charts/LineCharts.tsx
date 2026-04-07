@@ -12,19 +12,20 @@ import {
 
 import ChartTooltip from "./ChartTooltip";
 
+import { COLORS } from "../../data/colors.js";
 const PLATFORM_COLORS: Record<string, string> = {
-  facebook: "#4781C2",
-  instagram: "#4CAF86",
-  twitter: "#2D5A8A",
+  facebook: COLORS.SOWMA_LIGHT_BLUE,
+  instagram: COLORS.SOWMA_GREEN,
+  twitter: COLORS.SOWMA_DARK_BLUE,
 };
 
 const getSeriesColor = (key: string) => {
   const k = key.toLowerCase();
 
-  if (k.includes("unique")) return "#4781C2";
-  if (k.includes("total")) return "#4CAF86";
+  if (k.includes("unique")) return COLORS.SOWMA_LIGHT_BLUE;
+  if (k.includes("total")) return COLORS.SOWMA_GREEN;
 
-  return PLATFORM_COLORS[k] || "#4781C2";
+  return PLATFORM_COLORS[k] || COLORS.SOWMA_LIGHT_BLUE;
 };
 
 type LineChartProps = {

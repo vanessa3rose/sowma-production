@@ -394,7 +394,7 @@ export default function FacebookPage() {
                 {recentPosts.map((post) => (
                   <div
                     key={post.date}
-                    className="rounded-lg border border-[#E5E5E5] p-3 font-poppins"
+                    className="rounded-lg border border-neutral-200 p-3 font-poppins"
                   >
                     <p className="font-semibold text-sm">{post.date}</p>
                     <p className="text-sm text-gray-600">
