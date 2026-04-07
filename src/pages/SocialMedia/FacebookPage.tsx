@@ -9,8 +9,6 @@ import LineCharts from "../../components/charts/LineCharts";
 import DateDropdown, {
   DateRangeValue,
 } from "../../components/charts/DateButton";
-import ExportButton from "../../components/export-pdf/ExportButton";
-import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import { fetchMetrics } from "../../utils/fetchMetrics";
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import {
@@ -19,6 +17,7 @@ import {
 } from "../../utils/metricChange";
 
 import { getGlossaryDefinition, isGlossaryKey } from "../../data/glossarydata";
+import SocialMediaHeader from "../../components/SocialMediaHeader";
 import {
   type LinePoint,
   type MetricSummary,
@@ -146,8 +145,6 @@ function buildRecentPosts(points: LinePoint[], count = 6) {
 /* ---------- component ---------- */
 
 export default function FacebookPage() {
-  const { exportByPlatforms } = useGlobalPageExporter();
-
   const [rawSeries, setRawSeries] =
     useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
 
@@ -262,50 +259,11 @@ export default function FacebookPage() {
 
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="size-7"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
-          </button>
-
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
-            Facebook
-          </h1>
-        </div>
-
-        <div className="flex flex-row items-center space-x-4 mt-2 lg:mt-0">
-          <a
-            href="https://www.facebook.com/schoolonwheels"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#4781C2] px-4 py-1.5 text-[#4781C2] font-semibold"
-          >
-            Go to Account
-          </a>
-
-          <ExportButton onExport={exportByPlatforms} />
-        </div>
-      </div>
-
-      <div className="text-sm text-gray-600">
-        Last updated: {lastUpdated ?? "No imported data yet"}
-      </div>
+      <SocialMediaHeader
+        lastUpdated={lastUpdated}
+        Title={"Facebook"}
+        Link={"https://www.facebook.com/schoolonwheels"}
+      />
 
       <div className="grid grid-cols-1 xl:grid-cols-[2.1fr_1.3fr_1fr] gap-4">
         <div className="flex flex-col gap-4">
@@ -436,7 +394,7 @@ export default function FacebookPage() {
                 {recentPosts.map((post) => (
                   <div
                     key={post.date}
-                    className="rounded-lg border border-[#E5E5E5] p-3 font-poppins"
+                    className="rounded-lg border border-neutral-200 p-3 font-poppins"
                   >
                     <p className="font-semibold text-sm">{post.date}</p>
                     <p className="text-sm text-gray-600">

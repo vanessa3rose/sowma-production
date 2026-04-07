@@ -11,6 +11,7 @@ import {
   type ExportMetricFormat,
 } from "../../../scripts/export-pdf/exportMetricsConfig.js";
 import type { Platform } from "../../config/chartConfigs";
+import { COLORS } from "../../data/colors.js";
 
 export type ExportReportViewProps = {
   selections: ExportCardSelection[];
@@ -105,7 +106,7 @@ function MetricRow({
         <div
           key={item.label}
           style={{
-            backgroundColor: "#ffffff",
+            backgroundColor: "white",
             border: "1px solid #E5E5E5",
             borderBottom: "3px solid #D1D5DB",
             borderRight: "2px solid #D1D5DB",
@@ -114,14 +115,14 @@ function MetricRow({
             fontFamily: "Poppins, sans-serif",
           }}
         >
-          <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+          <div style={{ fontWeight: 500, fontSize: "16px", color: "black" }}>
             {item.label}
           </div>
           <div
             style={{
               fontSize: "32px",
               fontWeight: 400,
-              color: "#3B82F6",
+              color: COLORS.SOWMA_LIGHT_BLUE,
               marginTop: "4px",
             }}
           >
@@ -131,10 +132,10 @@ function MetricRow({
             style={{
               fontSize: "14px",
               color: item.delta.includes("+")
-                ? "#10B981"
+                ? COLORS.SOWMA_BRIGHT_GREEN
                 : item.delta.includes("-")
-                  ? "#EF4444"
-                  : "#6B7280",
+                  ? COLORS.SOWMA_BRIGHT_RED
+                  : COLORS.SOWMA_GRAY,
               marginTop: "4px",
             }}
           >
@@ -160,7 +161,7 @@ function ChartBlock({
     <div
       className="flex flex-col h-[200px]"
       style={{
-        backgroundColor: "#ffffff",
+        backgroundColor: "white",
         border: "1px solid #E5E5E5",
         borderBottom: "3px solid #D1D5DB",
         borderRight: "2px solid #D1D5DB",
@@ -169,7 +170,7 @@ function ChartBlock({
         fontFamily: "Poppins, sans-serif",
       }}
     >
-      <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+      <div style={{ fontWeight: 500, fontSize: "16px", color: "black" }}>
         {title}
       </div>
       {hasData ? (
@@ -192,7 +193,7 @@ function ChartBlock({
 }
 
 const PDF_CARD_STYLE: React.CSSProperties = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "white",
   border: "1px solid #E5E5E5",
   borderBottom: "3px solid #D1D5DB",
   borderRight: "2px solid #D1D5DB",
@@ -214,15 +215,21 @@ function GoogleSmallMetricCard({
 }) {
   return (
     <div style={PDF_CARD_STYLE}>
-      <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+      <div style={{ fontWeight: 500, fontSize: "16px", color: "black" }}>
         {title}
       </div>
       <div className="mt-1 flex items-baseline gap-2 flex-wrap">
-        <span style={{ fontSize: "32px", fontWeight: 400, color: "#3B82F6" }}>
+        <span
+          style={{
+            fontSize: "32px",
+            fontWeight: 400,
+            color: COLORS.SOWMA_LIGHT_BLUE,
+          }}
+        >
           {value}
         </span>
         {valueNote ? (
-          <span style={{ fontSize: "14px", color: "#6B7280" }}>
+          <span style={{ fontSize: "14px", color: COLORS.SOWMA_GRAY }}>
             {valueNote}
           </span>
         ) : null}
@@ -231,10 +238,10 @@ function GoogleSmallMetricCard({
         style={{
           fontSize: "14px",
           color: delta.includes("+")
-            ? "#10B981"
+            ? COLORS.SOWMA_BRIGHT_GREEN
             : delta.includes("-")
-              ? "#EF4444"
-              : "#6B7280",
+              ? COLORS.SOWMA_BRIGHT_RED
+              : COLORS.SOWMA_GRAY,
           marginTop: "4px",
         }}
       >
@@ -265,7 +272,7 @@ function GoogleChartCard({
       }}
     >
       <div className="flex items-center justify-between">
-        <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+        <div style={{ fontWeight: 500, fontSize: "16px", color: "black" }}>
           {title}
         </div>
         {subtitle ? (
@@ -482,19 +489,6 @@ function mergeChartData(
   );
 }
 
-function computeRatePoints(
-  numerator: { date: string; value: number }[],
-  denominator: { date: string; value: number }[],
-  key: string,
-): Record<string, unknown>[] {
-  const denomMap = new Map(denominator.map((p) => [p.date, p.value]));
-  return numerator.flatMap((p) => {
-    const denom = denomMap.get(p.date) ?? 0;
-    if (denom === 0) return [];
-    return [{ date: p.date, [key]: Math.round((p.value / denom) * 1000) / 10 }];
-  });
-}
-
 function ExportPage({ children }: { children: ReactNode }) {
   return (
     <div
@@ -627,7 +621,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       style={{
                         marginTop: "4px",
                         fontSize: "12px",
-                        color: "#6B7280",
+                        color: COLORS.SOWMA_GRAY,
                       }}
                     >
                       Delta values compare the latest point in range to the
@@ -638,7 +632,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       style={{
                         marginTop: "4px",
                         fontSize: "12px",
-                        color: "#6B7280",
+                        color: COLORS.SOWMA_GRAY,
                       }}
                     >
                       Delta values compare the latest point in range to the
@@ -792,73 +786,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
 
         if (platformKey === "constantcontact") {
           const chartDataMap = selection.data.chartDataMap;
-          const metricSummaries = selection.data.metricSummaries;
           const latestDate = latestPointDate(chartDataMap);
-
-          const sentSummary = metricSummaries.EMAILS_SENT ?? {
-            current: 0,
-            prev: 0,
-          };
-          const deliveredSummary = metricSummaries.EMAILS_DELIVERED ?? {
-            current: 0,
-            prev: 0,
-          };
-          const openedSummary = metricSummaries.EMAIL_OPENED ?? {
-            current: 0,
-            prev: 0,
-          };
-          const clickedSummary = metricSummaries.EMAILS_CLICKED ?? {
-            current: 0,
-            prev: 0,
-          };
-
-          const openRate =
-            (deliveredSummary.current ?? 0) > 0
-              ? Math.round(
-                  ((openedSummary.current ?? 0) /
-                    (deliveredSummary.current ?? 0)) *
-                    1000,
-                ) / 10
-              : 0;
-          const prevOpenRate =
-            (deliveredSummary.prev ?? 0) > 0
-              ? Math.round(
-                  ((openedSummary.prev ?? 0) / (deliveredSummary.prev ?? 0)) *
-                    1000,
-                ) / 10
-              : 0;
-
-          const ctor =
-            (openedSummary.current ?? 0) > 0
-              ? Math.round(
-                  ((clickedSummary.current ?? 0) /
-                    (openedSummary.current ?? 0)) *
-                    1000,
-                ) / 10
-              : 0;
-          const prevCtor =
-            (openedSummary.prev ?? 0) > 0
-              ? Math.round(
-                  ((clickedSummary.prev ?? 0) / (openedSummary.prev ?? 0)) *
-                    1000,
-                ) / 10
-              : 0;
-
-          const deliveryRate =
-            (sentSummary.current ?? 0) > 0
-              ? Math.round(
-                  ((deliveredSummary.current ?? 0) /
-                    (sentSummary.current ?? 0)) *
-                    1000,
-                ) / 10
-              : 0;
-          const prevDeliveryRate =
-            (sentSummary.prev ?? 0) > 0
-              ? Math.round(
-                  ((deliveredSummary.prev ?? 0) / (sentSummary.prev ?? 0)) *
-                    1000,
-                ) / 10
-              : 0;
 
           // Sankey totals — sum all points for each metric
           const ccSankeyVals: Record<string, number> = {};
@@ -892,21 +820,6 @@ export default function e({ selections, range }: ExportReportViewProps) {
             "uniqueClicks",
             chartDataMap.EMAIL_TOTAL_CLICKS ?? [],
             "totalClicks",
-          );
-          const openRateData = computeRatePoints(
-            chartDataMap.EMAIL_OPENED ?? [],
-            chartDataMap.EMAILS_DELIVERED ?? [],
-            "openRate",
-          );
-          const ctorData = computeRatePoints(
-            chartDataMap.EMAILS_CLICKED ?? [],
-            chartDataMap.EMAIL_OPENED ?? [],
-            "ctorRate",
-          );
-          const deliveryRateData = computeRatePoints(
-            chartDataMap.EMAILS_DELIVERED ?? [],
-            chartDataMap.EMAILS_SENT ?? [],
-            "deliveryRate",
           );
 
           return (
@@ -951,40 +864,6 @@ export default function e({ selections, range }: ExportReportViewProps) {
                   )}
                 </GoogleChartCard>
 
-                {/* KPI row: Sent, Delivered, Open Rate %, CTOR %, Delivery Rate % */}
-                <div className="grid grid-cols-5 gap-4">
-                  <GoogleSmallMetricCard
-                    title="Emails Sent"
-                    value={formatValue(sentSummary.current ?? 0)}
-                    delta={formatDelta(
-                      (sentSummary.current ?? 0) - (sentSummary.prev ?? 0),
-                    )}
-                  />
-                  <GoogleSmallMetricCard
-                    title="Emails Delivered"
-                    value={formatValue(deliveredSummary.current ?? 0)}
-                    delta={formatDelta(
-                      (deliveredSummary.current ?? 0) -
-                        (deliveredSummary.prev ?? 0),
-                    )}
-                  />
-                  <GoogleSmallMetricCard
-                    title="Open Rate"
-                    value={`${openRate}%`}
-                    delta={`${formatSigned(openRate - prevOpenRate, 1)}pp`}
-                  />
-                  <GoogleSmallMetricCard
-                    title="Click-to-Open Rate"
-                    value={`${ctor}%`}
-                    delta={`${formatSigned(ctor - prevCtor, 1)}pp`}
-                  />
-                  <GoogleSmallMetricCard
-                    title="Delivery Rate"
-                    value={`${deliveryRate}%`}
-                    delta={`${formatSigned(deliveryRate - prevDeliveryRate, 1)}pp`}
-                  />
-                </div>
-
                 {/* Opens vs Clicks comparison */}
                 <div className="mt-3 grid grid-cols-2 gap-4">
                   <GoogleChartCard
@@ -1009,118 +888,6 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       data={clicksData}
                       xAxisKey="date"
                       dataKeys={["uniqueClicks", "totalClicks"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                </div>
-
-                {/* Rate charts */}
-                <div className="mt-3 grid grid-cols-3 gap-4">
-                  <GoogleChartCard
-                    title="Open Rate %"
-                    subtitle={rangeLabel}
-                    height={200}
-                  >
-                    <LineCharts
-                      data={openRateData}
-                      xAxisKey="date"
-                      dataKeys={["openRate"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                  <GoogleChartCard
-                    title="Click-to-Open Rate %"
-                    subtitle={rangeLabel}
-                    height={200}
-                  >
-                    <LineCharts
-                      data={ctorData}
-                      xAxisKey="date"
-                      dataKeys={["ctorRate"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                  <GoogleChartCard
-                    title="Delivery Rate %"
-                    subtitle={rangeLabel}
-                    height={200}
-                  >
-                    <LineCharts
-                      data={deliveryRateData}
-                      xAxisKey="date"
-                      dataKeys={["deliveryRate"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                </div>
-
-                {/* Individual metrics */}
-                <div className="mt-3 grid grid-cols-3 gap-4">
-                  <GoogleChartCard
-                    title="Emails Sent"
-                    subtitle={rangeLabel}
-                    height={200}
-                  >
-                    <LineCharts
-                      data={chartDataMap.EMAILS_SENT ?? []}
-                      xAxisKey="date"
-                      dataKeys={["value"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                  <GoogleChartCard
-                    title="Emails Delivered"
-                    subtitle={rangeLabel}
-                    height={200}
-                  >
-                    <LineCharts
-                      data={chartDataMap.EMAILS_DELIVERED ?? []}
-                      xAxisKey="date"
-                      dataKeys={["value"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                  <GoogleChartCard
-                    title="Unsubscribed"
-                    subtitle={rangeLabel}
-                    height={200}
-                  >
-                    <LineCharts
-                      data={chartDataMap.EMAILS_UNSUBSCRIBED ?? []}
-                      xAxisKey="date"
-                      dataKeys={["value"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                  <GoogleChartCard
-                    title="Bounced"
-                    subtitle={rangeLabel}
-                    height={200}
-                  >
-                    <LineCharts
-                      data={chartDataMap.EMAIL_BOUNCED ?? []}
-                      xAxisKey="date"
-                      dataKeys={["value"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                  <GoogleChartCard
-                    title="Abuse / Spam"
-                    subtitle={rangeLabel}
-                    height={200}
-                  >
-                    <LineCharts
-                      data={chartDataMap.EMAIL_ABUSE ?? []}
-                      xAxisKey="date"
-                      dataKeys={["value"]}
                       showArea
                       compact
                     />
@@ -1264,7 +1031,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       style={{
                         marginTop: "4px",
                         fontSize: "12px",
-                        color: "#6B7280",
+                        color: COLORS.SOWMA_GRAY,
                       }}
                     >
                       Delta values compare the latest point in range to the
@@ -1275,7 +1042,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       style={{
                         marginTop: "4px",
                         fontSize: "12px",
-                        color: "#6B7280",
+                        color: COLORS.SOWMA_GRAY,
                       }}
                     >
                       Delta values compare the latest point in range to the

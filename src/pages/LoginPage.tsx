@@ -150,7 +150,7 @@ export default function LoginPage() {
             >
               Welcome to the
               <br />
-              <span className="font-bold text-[#4781C2] whitespace-normal">
+              <span className="font-bold text-sowma-light-blue whitespace-normal">
                 SOWMA Analytics Dashboard
               </span>
             </h1>
@@ -165,7 +165,7 @@ export default function LoginPage() {
                 onClick={() => handleTabChange("waitlist")}
                 className={`px-6 py-2 rounded-full font-medium transition-colors ${
                   activeTab === "waitlist"
-                    ? "bg-sowma-blue text-white"
+                    ? "bg-sowma-light-blue text-white"
                     : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
@@ -176,7 +176,7 @@ export default function LoginPage() {
                 onClick={() => handleTabChange("signin")}
                 className={`px-6 py-2 rounded-full font-medium transition-colors ${
                   activeTab === "signin"
-                    ? "bg-sowma-blue text-white"
+                    ? "bg-sowma-light-blue text-white"
                     : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
@@ -199,7 +199,7 @@ export default function LoginPage() {
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         placeholder="Jane"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sowma-blue focus:border-transparent outline-none transition-all"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sowma-light-blue focus:border-transparent outline-none transition-all"
                         required
                       />
                     </div>
@@ -212,7 +212,7 @@ export default function LoginPage() {
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         placeholder="Doe"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sowma-blue focus:border-transparent outline-none transition-all"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sowma-light-blue focus:border-transparent outline-none transition-all"
                         required
                       />
                     </div>
@@ -227,7 +227,7 @@ export default function LoginPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="someone@gmail.com"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sowma-blue focus:border-transparent outline-none transition-all"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sowma-light-blue focus:border-transparent outline-none transition-all"
                         required
                       />
                       {email && isValidEmail(email) && (
@@ -267,7 +267,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full px-6 py-3 bg-sowma-blue text-white font-medium rounded-lg hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="w-full px-6 py-3 bg-sowma-light-blue text-white font-medium rounded-lg hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     {isSubmitting ? "Joining..." : "Join"}
                   </button>
@@ -280,7 +280,8 @@ export default function LoginPage() {
                       elements: {
                         rootBox: "max-w-full justify-center items-center",
                         card: "w-full p-8 rounded-2xl shadow-md border border-gray-200",
-                        formButtonPrimary: "hover:bg-sowma-blue text-white",
+                        formButtonPrimary:
+                          "hover:bg-sowma-light-blue text-white",
                       },
                     }}
                   />

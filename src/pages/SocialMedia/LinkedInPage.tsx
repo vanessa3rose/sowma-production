@@ -7,8 +7,6 @@ import LineCharts from "../../components/charts/LineCharts";
 import DateDropdown, {
   DateRangeValue,
 } from "../../components/charts/DateButton";
-import ExportButton from "../../components/export-pdf/ExportButton";
-import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import { fetchMetrics } from "../../utils/fetchMetrics";
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import {
@@ -16,6 +14,7 @@ import {
   getSmallCardSinceLabel,
 } from "../../utils/metricChange";
 import { getGlossaryDefinition, isGlossaryKey } from "../../data/glossarydata";
+import SocialMediaHeader from "../../components/SocialMediaHeader";
 import {
   type LinePoint,
   type MetricSummary,
@@ -37,7 +36,6 @@ type MetricConfig = {
   id: MetricKey;
   metric: string;
   title: string;
-  label: string;
 };
 
 const PROVIDER = "LINKEDIN";
@@ -49,22 +47,19 @@ const METRICS: MetricConfig[] = [
     id: "followers",
     metric: "FOLLOWERS",
     title: "New Followers",
-    label: "new followers",
   },
-  { id: "views", metric: "VIEWS", title: "Views", label: "views" },
-  { id: "likes", metric: "LIKES", title: "Reactions", label: "reactions" },
+  { id: "views", metric: "VIEWS", title: "Views" },
+  { id: "likes", metric: "LIKES", title: "Reactions" },
   {
     id: "comments",
     metric: "COMMENTS",
     title: "Comments",
-    label: "comments",
   },
-  { id: "shares", metric: "SHARES", title: "Reposts", label: "reposts" },
+  { id: "shares", metric: "SHARES", title: "Reposts" },
   {
     id: "interactions",
     metric: "TOTAL_INTERACTIONS",
     title: "Total Interactions",
-    label: "interactions",
   },
 ];
 
@@ -101,7 +96,6 @@ function formatPercentChange(summary?: MetricSummary | null): string {
 }
 
 export default function LinkedInPage() {
-  const { exportByPlatforms } = useGlobalPageExporter();
   const [rawSeries, setRawSeries] =
     useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
   const [ranges, setRanges] =
@@ -179,50 +173,11 @@ export default function LinkedInPage() {
 
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="size-7"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
-          </button>
-
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
-            LinkedIn
-          </h1>
-        </div>
-
-        <div className="flex flex-row items-center space-x-4 mt-2 lg:mt-0">
-          <a
-            href="https://www.linkedin.com/company/schoolonwheelsofmasschusetts/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#4781C2] px-4 py-1.5 text-[#4781C2] font-poppins font-semibold inline-block"
-          >
-            Go to Account
-          </a>
-          <ExportButton onExport={exportByPlatforms} />
-        </div>
-      </div>
-
-      <div className="font-poppins text-sm text-gray-600">
-        Last updated: {lastUpdated ?? "No imported data yet"}
-      </div>
+      <SocialMediaHeader
+        lastUpdated={lastUpdated}
+        Title={"LinkedIn"}
+        Link={"https://www.linkedin.com/company/schoolonwheelsofmasschusetts/"}
+      />
 
       {/* small cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

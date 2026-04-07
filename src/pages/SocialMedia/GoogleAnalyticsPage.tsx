@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import SocialMediaHeader from "../../components/SocialMediaHeader";
+
 // Cards
 import BigCard from "../../components/cards/BigCard";
 import SmallCard from "../../components/cards/SmallCard";
@@ -19,10 +21,8 @@ import DateDropdown, {
   DateRangeId,
   DateRangeValue,
 } from "../../components/charts/DateButton";
-import ExportButton from "../../components/export-pdf/ExportButton";
 
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
-import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import {
   formatAbsoluteChange,
@@ -251,8 +251,6 @@ function formatPercentChange(summary?: MetricSummary | null): string {
 // Component
 // -----------------------------
 export default function GoogleAnalyticsPage() {
-  const { exportByPlatforms } = useGlobalPageExporter();
-
   const [metrics, setMetrics] = useState<GAMetrics | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
@@ -675,50 +673,13 @@ export default function GoogleAnalyticsPage() {
   // ---------------------
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
-        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="size-7"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
-          </button>
-
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-wrap">
-            Google Analytics
-          </h1>
-        </div>
-
-        <div className="flex flex-row items-center space-x-4 mt-2 lg:mt-0">
-          <a
-            href="https://analytics.google.com/analytics/web/#/p393011442/reports/intelligenthome"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#4781C2] px-4 py-1.5 text-[#4781C2] font-poppins font-semibold inline-block"
-          >
-            Go to Account
-          </a>
-          <ExportButton onExport={exportByPlatforms} />
-        </div>
-      </div>
-
-      <div className="px-4 font-poppins text-sm text-gray-600">
-        Last updated: {lastUpdated ?? "No imported data yet"}
-      </div>
+      <SocialMediaHeader
+        lastUpdated={lastUpdated}
+        Title={"Google Analytics"}
+        Link={
+          "https://analytics.google.com/analytics/web/#/p393011442/reports/intelligenthome"
+        }
+      />
 
       {/* Row 1: Top small cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

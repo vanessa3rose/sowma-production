@@ -18,15 +18,16 @@ const socialLinks = [
     label: "Google Analytics",
     icon: googleAnalytics,
   },
-  { slug: "instagram", label: "Instagram", icon: instagram },
-  { slug: "facebook", label: "Facebook", icon: facebook },
-  { slug: "linkedin", label: "LinkedIn", icon: linkedin },
-  { slug: "twitter", label: "Twitter/X", icon: twitter },
   {
     slug: "constant-contact",
     label: "Constant Contact",
     icon: constantContact,
   },
+  { slug: "facebook", label: "Facebook", icon: facebook },
+  { slug: "instagram", label: "Instagram", icon: instagram },
+
+  { slug: "linkedin", label: "LinkedIn", icon: linkedin },
+  { slug: "twitter", label: "Twitter/X", icon: twitter },
 ];
 
 const LeftSidebar = ({
@@ -131,7 +132,7 @@ const LeftSidebar = ({
                     ? "w-12 h-12 justify-center rounded-xl mx-auto"
                     : "w-full gap-x-4 p-2 rounded-xl"
                 }
-                ${isDashboardActive ? "bg-[#4781C2] text-white shadow-md" : "hover:bg-gray-100 text-[#000000]"}
+                ${isDashboardActive ? "bg-sowma-light-blue text-white shadow-md" : "hover:bg-gray-100 text-black"}
               `}
             >
               <div className="w-8 h-8 flex items-center justify-center shrink-0">
@@ -167,7 +168,7 @@ const LeftSidebar = ({
                     ? "w-12 h-12 justify-center rounded-xl mx-auto"
                     : "w-full gap-x-4 p-2 rounded-xl"
                 }
-                ${isGlossaryActive ? "bg-[#4781C2] text-white shadow-md" : "hover:bg-gray-100 text-[#000000]"}
+                ${isGlossaryActive ? "bg-sowma-light-blue text-white shadow-md" : "hover:bg-gray-100 text-black"}
               `}
             >
               <div className="w-8 h-8 flex items-center justify-center shrink-0">
@@ -206,8 +207,8 @@ const LeftSidebar = ({
                   }
                   ${
                     isAdminActive
-                      ? "bg-[#4781C2] text-white shadow-md"
-                      : "hover:bg-gray-100 text-[#000000]"
+                      ? "bg-sowma-light-blue text-white shadow-md"
+                      : "hover:bg-gray-100 text-black"
                   }
                 `}
               >
@@ -277,7 +278,7 @@ const LeftSidebar = ({
                       </p>
                     )}
                     {isActive && (
-                      <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-[#4781C2] rounded-r-full" />
+                      <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-sowma-light-blue rounded-r-full" />
                     )}
                   </div>
                 </Link>

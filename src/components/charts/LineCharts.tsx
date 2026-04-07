@@ -12,10 +12,20 @@ import {
 
 import ChartTooltip from "./ChartTooltip";
 
+import { COLORS } from "../../data/colors.js";
 const PLATFORM_COLORS: Record<string, string> = {
-  facebook: "#4781C2",
-  instagram: "#4CAF86",
-  twitter: "#2D5A8A",
+  facebook: COLORS.SOWMA_LIGHT_BLUE,
+  instagram: COLORS.SOWMA_GREEN,
+  twitter: COLORS.SOWMA_DARK_BLUE,
+};
+
+const getSeriesColor = (key: string) => {
+  const k = key.toLowerCase();
+
+  if (k.includes("unique")) return COLORS.SOWMA_LIGHT_BLUE;
+  if (k.includes("total")) return COLORS.SOWMA_GREEN;
+
+  return PLATFORM_COLORS[k] || COLORS.SOWMA_LIGHT_BLUE;
 };
 
 type LineChartProps = {
@@ -78,7 +88,7 @@ const LineCharts = ({
         >
           <defs>
             {dataKeys.map((key) => {
-              const color = PLATFORM_COLORS[key.toLowerCase()] || "#4781C2";
+              const color = getSeriesColor(key);
               return (
                 <linearGradient
                   key={key}
@@ -120,7 +130,7 @@ const LineCharts = ({
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#4781C2"}
+              stroke={getSeriesColor(key)}
               strokeWidth={compact ? 2.5 : 3}
               fill={`url(#gradient-${key})`}
               fillOpacity={1}
@@ -161,7 +171,7 @@ const LineCharts = ({
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#4781C2"}
+              stroke={getSeriesColor(key)}
               strokeWidth={compact ? 2.5 : 3}
               dot={compact ? false : { r: 4 }}
               activeDot={false}
