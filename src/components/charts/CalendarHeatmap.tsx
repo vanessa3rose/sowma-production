@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 type LinePoint = { date: string; value: number };
 
@@ -12,11 +12,12 @@ function buildPostingActivity(points: LinePoint[]): Map<string, number> {
   return activity;
 }
 
+import { COLORS } from "../../data/colors.js";
 function heatColor(level: number): { bg: string; text: string } {
-  if (level <= 0) return { bg: "#989b9f", text: "#ffffff" };
-  if (level === 1) return { bg: "#7987ff", text: "#ffffff" };
-  if (level === 2) return { bg: "#6772d7", text: "#ffffff" };
-  return { bg: "#545dae", text: "#ffffff" };
+  if (level <= 0) return { bg: COLORS.SOWMA_LIGHTEST_BLUE, text: "black" };
+  if (level === 1) return { bg: COLORS.SOWMA_LIGHTER_BLUE, text: "black" };
+  if (level === 2) return { bg: COLORS.SOWMA_LIGHT_BLUE, text: "black" };
+  return { bg: COLORS.SOWMA_DARK_BLUE, text: "black" };
 }
 
 function activityToLevel(value: number, allValues: number[]): number {
@@ -30,25 +31,26 @@ function activityToLevel(value: number, allValues: number[]): number {
   return 3;
 }
 
-export function CalendarHeatmap({ points }: { points: LinePoint[] }) {
+interface CalendarHeatmapProps {
+  points: LinePoint[];
+  offset: number;
+  onOffsetChange: (offset: number) => void;
+  minOffset: number;
+}
+
+export function CalendarHeatmap({
+  points,
+  offset,
+  onOffsetChange,
+  minOffset,
+}: CalendarHeatmapProps) {
   const today = new Date();
-  const [offset, setOffset] = useState(0);
 
   const activity = useMemo(() => buildPostingActivity(points), [points]);
   const allActivityValues = useMemo(
     () => Array.from(activity.values()),
     [activity],
   );
-
-  const minOffset = useMemo(() => {
-    if (!points.length) return -12;
-    const earliest = points[0].date.slice(0, 7);
-    const eYear = parseInt(earliest.slice(0, 4));
-    const eMonth = parseInt(earliest.slice(5, 7)) - 1;
-    const monthsDiff =
-      (today.getFullYear() - eYear) * 12 + (today.getMonth() - eMonth);
-    return -monthsDiff;
-  }, [points]);
 
   const viewDate = new Date(today.getFullYear(), today.getMonth() + offset, 1);
 
@@ -83,7 +85,7 @@ export function CalendarHeatmap({ points }: { points: LinePoint[] }) {
       {/* Month nav */}
       <div className="flex items-center justify-between px-1">
         <button
-          onClick={() => setOffset((o) => Math.max(minOffset, o - 1))}
+          onClick={() => onOffsetChange(Math.max(minOffset, offset - 1))}
           disabled={offset <= minOffset}
           className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100 disabled:opacity-30"
         >
@@ -95,7 +97,7 @@ export function CalendarHeatmap({ points }: { points: LinePoint[] }) {
         </span>
 
         <button
-          onClick={() => setOffset((o) => Math.min(0, o + 1))}
+          onClick={() => onOffsetChange(Math.min(0, offset + 1))}
           disabled={offset >= 0}
           className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100 disabled:opacity-30"
         >

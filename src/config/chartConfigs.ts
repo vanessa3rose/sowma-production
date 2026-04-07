@@ -91,6 +91,46 @@ export const CHART_CONFIGS: Record<string, ChartConfig[]> = {
     },
   ],
 
+  linkedin: [
+    // LinkedIn charts mirror imported CSV-backed daily KPIs.
+    {
+      id: "new_followers",
+      title: "New Followers",
+      type: "line",
+      metric: "FOLLOWERS",
+    },
+    {
+      id: "views",
+      title: "Views",
+      type: "line",
+      metric: "VIEWS",
+    },
+    {
+      id: "likes",
+      title: "Reactions",
+      type: "line",
+      metric: "LIKES",
+    },
+    {
+      id: "comments",
+      title: "Comments",
+      type: "line",
+      metric: "COMMENTS",
+    },
+    {
+      id: "shares",
+      title: "Reposts",
+      type: "line",
+      metric: "SHARES",
+    },
+    {
+      id: "total_interactions",
+      title: "Total Interactions",
+      type: "line",
+      metric: "TOTAL_INTERACTIONS",
+    },
+  ],
+
   google: [
     {
       id: "activeUsers",
@@ -150,6 +190,30 @@ export const CHART_CONFIGS: Record<string, ChartConfig[]> = {
       type: "line",
       metric: "EMAILS_UNSUBSCRIBED",
     },
+    {
+      id: "email_bounced",
+      title: "Bounced",
+      type: "line",
+      metric: "EMAIL_BOUNCED",
+    },
+    {
+      id: "email_forwarded",
+      title: "Forwarded",
+      type: "line",
+      metric: "EMAIL_FORWARDED",
+    },
+    {
+      id: "email_not_opened",
+      title: "Not Opened",
+      type: "line",
+      metric: "EMAIL_NOT_OPENED",
+    },
+    {
+      id: "email_abuse",
+      title: "Abuse / Spam",
+      type: "line",
+      metric: "EMAIL_ABUSE",
+    },
   ],
 };
 
@@ -162,6 +226,7 @@ export const PLATFORM_LABELS: Record<Platform, string> = {
   instagram: "Instagram",
   twitter: "Twitter",
   facebook: "Facebook",
+  linkedin: "LinkedIn",
   google: "Google Analytics",
   constantcontact: "Constant Contact",
 };

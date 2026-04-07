@@ -1,5 +1,6 @@
 import React from "react";
 import TitleTooltip from "../charts/TitleTooltip";
+import { COLORS } from "../../data/colors.js";
 
 // Type definitions - consistent with BigCard
 type DisplayMode = "both" | "metric-only";
@@ -9,7 +10,6 @@ interface SmallCardProps {
   subtitle?: string;
   chart?: React.ReactNode;
   metricValue?: number;
-  metricValueNote?: string;
   metricLabel?: string;
   metricChange?: string;
   displayMode: DisplayMode;
@@ -23,7 +23,6 @@ const SmallCard: React.FC<SmallCardProps> = ({
   subtitle,
   chart,
   metricValue,
-  metricValueNote,
   metricLabel,
   metricChange,
   displayMode = "metric-only",
@@ -33,12 +32,19 @@ const SmallCard: React.FC<SmallCardProps> = ({
   const shouldShowChart = displayMode === "both";
   const shouldShowMetric =
     displayMode === "both" || displayMode === "metric-only";
+  const isPositiveChange = metricChange?.startsWith("+") ?? false;
+  const isNegativeChange = metricChange?.startsWith("-") ?? false;
+  const metricChangeColor = isPositiveChange
+    ? COLORS.SOWMA_BRIGHT_GREEN
+    : isNegativeChange
+      ? COLORS.SOWMA_BRIGHT_RED
+      : COLORS.SOWMA_GRAY;
 
   return (
     <div
-      className={className}
+      className={`h-full flex flex-col ${className}`}
       style={{
-        backgroundColor: "#ffffff",
+        backgroundColor: "white",
         border: "1px solid #E5E5E5",
         borderRadius: "12px",
         boxShadow: "0px 4px 4px #1e1e1e64",
@@ -54,7 +60,7 @@ const SmallCard: React.FC<SmallCardProps> = ({
               fontFamily: "Poppins, sans-serif",
               fontWeight: 500,
               fontSize: "16px",
-              color: "#000000",
+              color: "black",
             }}
           >
             {title}
@@ -71,7 +77,7 @@ const SmallCard: React.FC<SmallCardProps> = ({
                 lineHeight: "100%",
                 letterSpacing: "0%",
                 textAlign: "right",
-                color: "#000000",
+                color: "black",
               }}
             >
               {subtitle}
@@ -85,7 +91,7 @@ const SmallCard: React.FC<SmallCardProps> = ({
               style={{
                 width: "12px",
                 height: "12px",
-                color: "#000000",
+                color: "black",
               }}
             >
               <path
@@ -100,11 +106,11 @@ const SmallCard: React.FC<SmallCardProps> = ({
 
       {/* Content area - flexible layout based on displayMode */}
       <div
-        className={shouldShowChart ? "flex items-start justify-between" : ""}
+        className={`flex-1 ${shouldShowChart ? "flex h-full items-start justify-between" : ""}`}
       >
         {/* Left side - Metric Display */}
         {shouldShowMetric && metricValue !== undefined && (
-          <div className="flex flex-col">
+          <div className="flex flex-col h-full justify-between">
             {/* Main metric value */}
             <div
               className="flex items-baseline gap-2 flex-wrap"
@@ -117,25 +123,11 @@ const SmallCard: React.FC<SmallCardProps> = ({
                   fontSize: "32px",
                   lineHeight: "100%",
                   letterSpacing: "-1%",
-                  color: "#3B82F6",
+                  color: COLORS.SOWMA_LIGHT_BLUE,
                 }}
               >
                 {metricValue}
               </span>
-              {metricValueNote && (
-                <span
-                  style={{
-                    fontFamily: "Poppins, sans-serif",
-                    fontWeight: 400,
-                    fontSize: "14px",
-                    lineHeight: "100%",
-                    letterSpacing: "0%",
-                    color: "#6B7280",
-                  }}
-                >
-                  {metricValueNote}
-                </span>
-              )}
             </div>
 
             {/* Metric change and label on same line with wrapping */}
@@ -152,20 +144,12 @@ const SmallCard: React.FC<SmallCardProps> = ({
                       fontSize: displayMode === "both" ? "12px" : "14px",
                       lineHeight: "100%",
                       letterSpacing: "0%",
-                      color:
-                        metricChange.includes("increase") ||
-                        metricChange.startsWith("+")
-                          ? "#10B981"
-                          : metricChange.includes("decrease") ||
-                              metricChange.startsWith("-")
-                            ? "#EF4444"
-                            : "#10B981",
+                      color: metricChangeColor,
                     }}
                   >
                     {metricChange}
                   </span>
-                  {(metricChange.includes("increase") ||
-                    metricChange.startsWith("+")) && (
+                  {isPositiveChange && (
                     <svg
                       width={displayMode === "both" ? "12" : "16"}
                       height={displayMode === "both" ? "12" : "16"}
@@ -175,7 +159,7 @@ const SmallCard: React.FC<SmallCardProps> = ({
                     >
                       <path
                         d="M2 8L14 8M14 8L8 2M14 8L8 14"
-                        stroke="#10B981"
+                        stroke={COLORS.SOWMA_BRIGHT_GREEN}
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -194,7 +178,7 @@ const SmallCard: React.FC<SmallCardProps> = ({
                     fontSize: "14px",
                     lineHeight: "100%",
                     letterSpacing: "0%",
-                    color: "#6B7280",
+                    color: COLORS.SOWMA_GRAY,
                   }}
                 >
                   {metricLabel}

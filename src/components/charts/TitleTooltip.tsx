@@ -45,7 +45,7 @@ const TitleTooltip: React.FC<TitleTooltipProps> = ({ description }) => {
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 50,
-            backgroundColor: "#ffffff",
+            backgroundColor: "white",
             border: "1px solid #E5E7EB",
             borderRadius: "12px",
             boxShadow: "0px 4px 12px rgba(0,0,0,0.12)",

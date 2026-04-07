@@ -70,7 +70,6 @@ export default function DateDropdown({
     }
     if (!minDate || !maxDate) return ALL_OPTIONS; // if unknown, show all
     const spanDays = daysBetween(minDate, maxDate) + 1;
-
     return ALL_OPTIONS.filter((opt) => {
       if (opt.id === "all") return true;
       if (opt.id === "7d") return spanDays >= 7;

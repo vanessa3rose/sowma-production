@@ -53,6 +53,15 @@ const FACEBOOK_METRICS: ExportMetricDefinition[] = [
   { id: "WEBSITE_CLICKS", label: "Website Clicks" },
 ];
 
+const LINKEDIN_METRICS: ExportMetricDefinition[] = [
+  { id: "FOLLOWERS", label: "New Followers" },
+  { id: "VIEWS", label: "Views" },
+  { id: "LIKES", label: "Reactions" },
+  { id: "COMMENTS", label: "Comments" },
+  { id: "SHARES", label: "Reposts" },
+  { id: "TOTAL_INTERACTIONS", label: "Total Interactions" },
+];
+
 const TWITTER_METRICS: ExportMetricDefinition[] = [
   { id: "FOLLOWERS", label: "Followers" },
   { id: "POSTS", label: "Posts" },
@@ -64,6 +73,14 @@ const CONSTANT_CONTACT_METRICS: ExportMetricDefinition[] = [
   { id: "EMAIL_OPENED", label: "Emails Opened" },
   { id: "EMAILS_CLICKED", label: "Emails Clicked" },
   { id: "EMAILS_UNSUBSCRIBED", label: "Unsubscribed" },
+  { id: "EMAIL_BOUNCED", label: "Bounced" },
+  { id: "EMAIL_ABUSE", label: "Abuse / Spam" },
+  { id: "EMAIL_NOT_OPENED", label: "Not Opened" },
+  { id: "EMAIL_FORWARDED", label: "Forwarded" },
+  { id: "EMAIL_UNIQUE_OPENS", label: "Unique Opens" },
+  { id: "EMAIL_TOTAL_OPENS", label: "Total Opens" },
+  { id: "EMAIL_UNIQUE_CLICKS", label: "Unique Clicks" },
+  { id: "EMAIL_TOTAL_CLICKS", label: "Total Clicks" },
 ];
 
 export const EXPORT_PLATFORM_CONFIGS: Record<Platform, ExportPlatformConfig> = {
@@ -93,6 +110,17 @@ export const EXPORT_PLATFORM_CONFIGS: Record<Platform, ExportPlatformConfig> = {
       metricId: metric.id,
       title: metric.label,
     })),
+  },
+  linkedin: {
+    platform: "linkedin",
+    label: PLATFORM_LABELS.linkedin,
+    metrics: LINKEDIN_METRICS,
+    // Keep chart count/order aligned to the LinkedIn page (not one chart per KPI).
+    charts: [
+      { metricId: "FOLLOWERS", title: "New Followers" },
+      { metricId: "VIEWS", title: "Views" },
+      { metricId: "TOTAL_INTERACTIONS", title: "Total Interactions" },
+    ],
   },
   twitter: {
     platform: "twitter",

@@ -11,11 +11,12 @@ import {
 
 import ChartTooltip from "./ChartTooltip";
 
-const COLORS = [
-  "#7987FF", // blue
-  "#F765A3", // pink
-  "#FFA9D0", // light pink
-  "#A155B9", // purple
+import { COLORS } from "../../data/colors.js";
+const PIE_COLORS = [
+  COLORS.SOWMA_LIGHT_BLUE,
+  COLORS.SOWMA_GREEN,
+  COLORS.SOWMA_LIGHT_GREEN,
+  COLORS.SOWMA_DARK_GREEN,
 ];
 
 type PieChartsProps = {
@@ -58,17 +59,41 @@ const PieCharts = ({
   }, []);
 
   const compact = useMemo(() => {
-    // If we don't have a measurement yet, assume compact to avoid label overflow.
     if (!size.width || !size.height) return true;
     return size.width < 320 || size.height < 160;
   }, [size.width, size.height]);
+
+  const validData = data.filter((entry) => entry[dataKey] > 0);
+
+  const tooltipSeries = Object.fromEntries(
+    validData.map((entry, index) => [
+      entry[nameKey],
+      { color: PIE_COLORS[index % PIE_COLORS.length] },
+    ]),
+  );
+
+  if (!validData.length) {
+    return (
+      <div
+        ref={wrapperRef}
+        className="w-full h-full flex items-center justify-center"
+      >
+        <p
+          style={{ fontFamily: "Poppins, sans-serif" }}
+          className="text-sm text-gray-400"
+        >
+          No data available
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div ref={wrapperRef} className="w-full h-full lg:p-4 overflow-visible">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
-            data={data}
+            data={validData}
             dataKey={dataKey}
             nameKey={nameKey}
             outerRadius={compact ? "65%" : "70%"}
@@ -79,15 +104,17 @@ const PieCharts = ({
             cy="50%"
             isAnimationActive={!disableAnimation}
           >
-            {data.map((_: any, index: number) => (
+            {validData.map((_: any, index: number) => (
               <Cell
                 key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
+                fill={PIE_COLORS[index % PIE_COLORS.length]}
               />
             ))}
           </Pie>
 
-          <Tooltip content={<ChartTooltip hideZeroValues />} />
+          <Tooltip
+            content={<ChartTooltip hideZeroValues series={tooltipSeries} />}
+          />
 
           <Legend
             verticalAlign="bottom"

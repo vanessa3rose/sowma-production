@@ -1,9 +1,9 @@
 import { clerkClient } from "@clerk/express";
 import { PrismaClient } from "../src/generated/prisma/index.js";
-import nodemailer from "nodemailer";
+import * as nodemailer from "nodemailer";
 import { randomUUID } from "node:crypto";
-
-const SOWMA_BLUE = "#2872b0";
+import { requireAdminApi } from "./_auth.js";
+import { COLORS } from "../src/data/colors.js";
 
 // ---------------- Runtime and DB configuration ----------------
 function getDatabaseUrl(): string | null {
@@ -321,7 +321,7 @@ async function sendWaitlistInviteEmail(
           style="
             display: inline-block;
             padding: 10px 16px;
-            background: ${SOWMA_BLUE};
+            background: ${COLORS.SOWMA_BLUE};
             color: #ffffff;
             text-decoration: none;
             border-radius: 8px;
@@ -335,7 +335,7 @@ async function sendWaitlistInviteEmail(
         If the button doesn't work, copy and paste this URL into your browser:
       </p>
       <p style="margin: 0 0 16px; font-size: 13px; word-break: break-all;">
-        <a href="${inviteUrl}" style="color: ${SOWMA_BLUE};">${inviteUrl}</a>
+        <a href="${inviteUrl}" style="color: ${COLORS.SOWMA_BLUE};">${inviteUrl}</a>
       </p>
       <p style="margin: 0; color: #6b7280; font-size: 13px;">
         If you were not expecting this email, you can ignore it.
@@ -364,6 +364,9 @@ export default async function handler(req: any, res: any) {
 
   if (method === "GET") {
     // Return the full queue for the admin waitlist table.
+    const auth = await requireAdminApi(req, res);
+    if (!auth) return;
+
     try {
       const [entries, invitations] = await Promise.all([
         getWaitlistEntries(),
@@ -446,6 +449,9 @@ export default async function handler(req: any, res: any) {
     }
   } else if (method === "PATCH") {
     // Approve or deny a waitlist user from the admin tab.
+    const auth = await requireAdminApi(req, res);
+    if (!auth) return;
+
     try {
       const action = String(req.body?.action ?? "")
         .trim()
@@ -593,6 +599,9 @@ export default async function handler(req: any, res: any) {
     }
   } else if (method === "DELETE") {
     // Remove a waitlist user directly from the admin tab.
+    const auth = await requireAdminApi(req, res);
+    if (!auth) return;
+
     try {
       const email: string = normalizeEmail(req.body?.email);
 

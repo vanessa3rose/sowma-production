@@ -7,11 +7,25 @@ import BigCard from "../../components/cards/BigCard";
 import SmallCard from "../../components/cards/SmallCard";
 import LineCharts from "../../components/charts/LineCharts";
 import DateDropdown, {
-  DateRangeId,
-} from "../../components/charts/DateDropdown";
-import ExportButton from "../../components/export-pdf/ExportButton";
-import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
-import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+  DateRangeValue,
+} from "../../components/charts/DateButton";
+import { fetchMetrics } from "../../utils/fetchMetrics";
+import { getLatestImportedDate } from "../../utils/latestImportedDate";
+import {
+  formatAbsoluteChange,
+  getSmallCardSinceLabel,
+} from "../../utils/metricChange";
+
+import { getGlossaryDefinition, isGlossaryKey } from "../../data/glossarydata";
+import SocialMediaHeader from "../../components/SocialMediaHeader";
+import {
+  type LinePoint,
+  type MetricSummary,
+  toLinePoints,
+  summarizeSeries,
+  getBounds,
+  filterByRange,
+} from "../../utils/seriesUtils";
 
 type MetricKey =
   | "followers"
@@ -23,13 +37,10 @@ type MetricKey =
   | "videoViews"
   | "websiteClicks";
 
-type LinePoint = { date: string; value: number };
-type MetricSummary = { current: number | null; prev: number | null };
 type MetricConfig = {
   id: MetricKey;
   metric: string;
   title: string;
-  label: string;
 };
 
 const PROVIDER = "FACEBOOK";
@@ -41,24 +52,41 @@ const METRICS: MetricConfig[] = [
     id: "followers",
     metric: "FOLLOWERS",
     title: "Followers",
-    label: "followers",
   },
-  { id: "likes", metric: "LIKES", title: "Reactions / Likes", label: "likes" },
-  { id: "views", metric: "VIEWS", title: "Views", label: "views" },
-  { id: "comments", metric: "COMMENTS", title: "Comments", label: "comments" },
-  { id: "posts", metric: "POSTS", title: "Posts", label: "posts" },
-  { id: "shares", metric: "SHARES", title: "Shares", label: "shares" },
+  {
+    id: "likes",
+    metric: "LIKES",
+    title: "Reactions / Likes",
+  },
+  {
+    id: "views",
+    metric: "VIEWS",
+    title: "Views",
+  },
+  {
+    id: "comments",
+    metric: "COMMENTS",
+    title: "Comments",
+  },
+  {
+    id: "posts",
+    metric: "POSTS",
+    title: "Posts",
+  },
+  {
+    id: "shares",
+    metric: "SHARES",
+    title: "Shares",
+  },
   {
     id: "videoViews",
     metric: "VIDEO_VIEWS",
     title: "Video Views",
-    label: "video views",
   },
   {
     id: "websiteClicks",
     metric: "WEBSITE_CLICKS",
     title: "Website Clicks",
-    label: "website clicks",
   },
 ];
 
@@ -72,53 +100,19 @@ const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
   videoViews: [],
   websiteClicks: [],
 };
-const INITIAL_RANGES: Record<MetricKey, DateRangeId> = {
-  followers: "30d",
-  likes: "30d",
-  views: "30d",
-  comments: "30d",
-  posts: "30d",
-  shares: "30d",
-  videoViews: "30d",
-  websiteClicks: "30d",
-};
-const METRIC_DESCRIPTIONS: Record<MetricKey, string> = {
-  followers: "Cumulative count",
-  likes: "Cumulative count",
-  views: "Cumulative count",
-  comments: "Cumulative count",
-  posts: "Green squares indicate days with posts",
-  shares: "Cumulative count",
-  videoViews: "Cumulative count of video views",
-  websiteClicks: "Cumulative count of clicks to the website from Facebook",
+
+const INITIAL_RANGES: Record<MetricKey, DateRangeValue> = {
+  followers: { id: "30d" },
+  likes: { id: "30d" },
+  views: { id: "30d" },
+  comments: { id: "30d" },
+  posts: { id: "30d" },
+  shares: { id: "30d" },
+  videoViews: { id: "30d" },
+  websiteClicks: { id: "30d" },
 };
 
-function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
-  return raw
-    .filter((m) => m.metricDate || m.lastSynced)
-    .slice()
-    .sort((a, b) =>
-      (a.metricDate ?? a.lastSynced)!.localeCompare(
-        (b.metricDate ?? b.lastSynced)!,
-      ),
-    );
-}
-
-function toLinePoints(raw: SocialMediaMetric[]): LinePoint[] {
-  return sortByDate(raw).map((m) => {
-    const ts = (m.metricDate ?? m.lastSynced)!;
-    return { date: ts.slice(0, 10), value: m.metricValue };
-  });
-}
-
-function summarizeSeries(points: LinePoint[]): MetricSummary {
-  if (!points.length) return { current: null, prev: null };
-  if (points.length === 1) return { current: points[0].value, prev: null };
-  return {
-    current: points[points.length - 1].value,
-    prev: points[points.length - 2].value,
-  };
-}
+/* ---------- helpers ---------- */
 
 function formatPercentChange(summary?: MetricSummary | null): string {
   if (
@@ -128,44 +122,35 @@ function formatPercentChange(summary?: MetricSummary | null): string {
     summary.prev === 0
   )
     return "+ 0%";
+
   const pct = ((summary.current - summary.prev) / summary.prev) * 100;
   return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
 }
 
-function getBounds(pts: LinePoint[]) {
-  if (!pts.length)
-    return { min: null as Date | null, max: null as Date | null };
-  const dates = pts
-    .map((p) => p.date)
-    .slice()
-    .sort();
-  return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
-}
-
-function filterByRange(pts: LinePoint[], range: DateRangeId) {
-  if (!pts.length || range === "all") return pts;
-  const end = new Date(pts[pts.length - 1].date);
-  const start = new Date(end);
-  if (range === "7d") start.setDate(start.getDate() - 6);
-  if (range === "30d") start.setDate(start.getDate() - 29);
-  if (range === "1y") start.setFullYear(start.getFullYear() - 1);
-  const startStr = start.toISOString().slice(0, 10);
-  const endStr = end.toISOString().slice(0, 10);
-  return pts.filter((p) => p.date >= startStr && p.date <= endStr);
-}
-
 function buildPostingActivity(points: LinePoint[]): Map<string, number> {
   if (points.length < 2) return new Map();
+
   const activity = new Map<string, number>();
+
   for (let i = 1; i < points.length; i++) {
     const delta = points[i].value - points[i - 1].value;
     activity.set(points[i].date, Math.max(0, delta));
   }
+
   return activity;
+}
+
+function calculateWeeksNeeded(year: number, month: number): number {
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const totalDays = lastDay.getDate();
+  const paddedDays = firstDay.getDay() + totalDays;
+  return Math.ceil(paddedDays / 7);
 }
 
 function buildRecentPosts(points: LinePoint[], count = 6) {
   const activity = buildPostingActivity(points);
+
   return Array.from(activity.entries())
     .filter(([, value]) => value > 0)
     .sort((a, b) => b[0].localeCompare(a[0]))
@@ -173,13 +158,51 @@ function buildRecentPosts(points: LinePoint[], count = 6) {
     .map(([date, value]) => ({ date, value }));
 }
 
-// ── Page ────────────────────────────────────────────────────────────────────
+/* ---------- component ---------- */
+
 export default function FacebookPage() {
-  const { exportByPlatforms } = useGlobalPageExporter();
   const [rawSeries, setRawSeries] =
     useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
+
   const [ranges, setRanges] =
-    useState<Record<MetricKey, DateRangeId>>(INITIAL_RANGES);
+    useState<Record<MetricKey, DateRangeValue>>(INITIAL_RANGES);
+
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [calendarOffset, setCalendarOffset] = useState(0);
+  const [isXl, setIsXl] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1280px)");
+    setIsXl(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsXl(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const today = new Date();
+
+  const minCalendarOffset = useMemo(() => {
+    if (!rawSeries.posts.length) return -12;
+    const earliest = rawSeries.posts[0].date.slice(0, 7);
+    const eYear = parseInt(earliest.slice(0, 4));
+    const eMonth = parseInt(earliest.slice(5, 7)) - 1;
+    const monthsDiff =
+      (today.getFullYear() - eYear) * 12 + (today.getMonth() - eMonth);
+    return -monthsDiff;
+  }, [rawSeries.posts]);
+
+  const weeksNeeded = useMemo(() => {
+    const viewDate = new Date(
+      today.getFullYear(),
+      today.getMonth() + calendarOffset,
+      1,
+    );
+    return calculateWeeksNeeded(viewDate.getFullYear(), viewDate.getMonth());
+  }, [calendarOffset]);
+
+  const sharedCardHeight = isXl
+    ? 360 + Math.max(0, weeksNeeded - 5) * 60
+    : undefined;
 
   useEffect(() => {
     async function loadFacebook() {
@@ -194,15 +217,23 @@ export default function FacebookPage() {
             }).then((rows) => ({ id: cfg.id, rows })),
           ),
         );
+
         const next = { ...INITIAL_SERIES };
+
         results.forEach(({ id, rows }) => {
           next[id] = toLinePoints(rows);
         });
+
+        setLastUpdated(
+          getLatestImportedDate(results.map(({ rows }) => rows).flat()),
+        );
+
         setRawSeries(next);
       } catch (err) {
         console.error("Error loading Facebook metrics:", err);
       }
     }
+
     loadFacebook();
   }, []);
 
@@ -211,94 +242,63 @@ export default function FacebookPage() {
       MetricKey,
       {
         filtered: LinePoint[];
+        fullSummary: MetricSummary;
         summary: MetricSummary;
         bounds: { min: Date | null; max: Date | null };
       }
     >;
+
     METRICS.forEach((cfg) => {
       const full = rawSeries[cfg.id] ?? [];
-      const filtered = filterByRange(full, ranges[cfg.id] ?? "30d");
+      const filtered = filterByRange(full, ranges[cfg.id]);
+
       out[cfg.id] = {
         filtered,
+        fullSummary: summarizeSeries(full),
         summary: summarizeSeries(filtered),
         bounds: getBounds(full),
       };
     });
+
     return out;
   }, [rawSeries, ranges]);
 
   const topSmallCards = [
-    { title: "Shares", key: "shares" as MetricKey, label: "from last year" },
-    { title: "Reactions", key: "likes" as MetricKey, label: "from last year" },
-    {
-      title: "Comments",
-      key: "comments" as MetricKey,
-      label: "from last year",
-    },
-    { title: "Likes", key: "likes" as MetricKey, label: "from last year" },
+    { title: "Shares", key: "shares" as MetricKey },
+    { title: "Reactions", key: "likes" as MetricKey },
+    { title: "Comments", key: "comments" as MetricKey },
+    { title: "Likes", key: "likes" as MetricKey },
   ];
 
-  // Use ALL posts data (not range-filtered) for the calendar so past months work
   const allPostsPoints = rawSeries.posts ?? [];
   const recentPosts = buildRecentPosts(computed.posts?.filtered ?? []);
 
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px] flex items-center justify-center"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-7 h-7"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
-          </button>
-
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl">
-            Facebook
-          </h1>
-        </div>
-        <div className="flex flex-row justify-center items-center mt-2 lg:flex-row lg:mt-0 lg:space-x-2 space-x-4">
-          <a
-            href="https://www.facebook.com/schoolonwheels"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
-          >
-            Go to Account
-          </a>
-          <ExportButton onExport={exportByPlatforms} />
-        </div>
-      </div>
+      <SocialMediaHeader
+        lastUpdated={lastUpdated}
+        Title={"Facebook"}
+        Link={"https://www.facebook.com/schoolonwheels"}
+      />
 
       <div className="grid grid-cols-1 xl:grid-cols-[2.1fr_1.3fr_1fr] gap-4">
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {topSmallCards.map((card, idx) => {
-              const item = computed[card.key];
+            {topSmallCards.map(({ title, key }, idx) => {
+              const item = computed[key];
+
               return (
                 <SmallCard
-                  key={`${card.title}-${idx}`}
-                  title={card.title}
-                  titleTooltip={METRIC_DESCRIPTIONS[card.key]}
-                  subtitle="Total"
+                  key={`${title}-${idx}`}
+                  title={title}
+                  titleTooltip={
+                    isGlossaryKey(key) ? getGlossaryDefinition(key) : ""
+                  }
                   displayMode="metric-only"
                   className="w-full min-h-[172px]"
-                  metricValue={item?.summary.current ?? 0}
-                  metricChange={formatPercentChange(item?.summary)}
-                  metricLabel={card.label}
+                  metricValue={item?.fullSummary.current ?? 0}
+                  metricChange={formatAbsoluteChange(item?.fullSummary)}
+                  metricLabel={getSmallCardSinceLabel(rawSeries[key])}
                 />
               );
             })}
@@ -306,7 +306,6 @@ export default function FacebookPage() {
 
           <BigCard
             title="Followers"
-            titleTooltip={METRIC_DESCRIPTIONS.followers}
             subtitle={
               <DateDropdown
                 value={ranges.followers}
@@ -326,6 +325,7 @@ export default function FacebookPage() {
                   data={computed.followers.filtered}
                   xAxisKey="date"
                   dataKeys={["value"]}
+                  labels={{ value: "Followers" }}
                   showArea
                 />
               ) : (
@@ -335,14 +335,16 @@ export default function FacebookPage() {
               )
             }
             displayMode="both"
-            className="h-[360px]"
+            className=""
+            style={
+              sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined
+            }
           />
         </div>
 
         <div className="flex flex-col gap-4">
           <BigCard
             title="Views"
-            titleTooltip={METRIC_DESCRIPTIONS.views}
             subtitle={
               <DateDropdown
                 value={ranges.views}
@@ -360,6 +362,7 @@ export default function FacebookPage() {
                   data={computed.views.filtered}
                   xAxisKey="date"
                   dataKeys={["value"]}
+                  labels={{ value: "Views" }}
                   showArea
                 />
               ) : (
@@ -374,11 +377,16 @@ export default function FacebookPage() {
 
           <BigCard
             title="Days Posted"
-            titleTooltip={METRIC_DESCRIPTIONS.posts}
+            titleTooltip={getGlossaryDefinition("daysPosted")}
             subtitle={<HeatmapLegend />}
             chart={
               allPostsPoints.length ? (
-                <CalendarHeatmap points={allPostsPoints} />
+                <CalendarHeatmap
+                  points={allPostsPoints}
+                  offset={calendarOffset}
+                  onOffsetChange={setCalendarOffset}
+                  minOffset={minCalendarOffset}
+                />
               ) : (
                 <div className="flex items-center justify-center text-gray-500">
                   No post activity data
@@ -386,20 +394,23 @@ export default function FacebookPage() {
               )
             }
             displayMode="chart-only"
-            className="lmd:h-[500px] g:h-[400px] xl:h-[360px]"
+            className=""
+            style={
+              sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined
+            }
           />
         </div>
 
         <BigCard
           title="Recent Posts"
-          titleTooltip="Displays the date and quantity of most recent posts"
+          titleTooltip={getGlossaryDefinition("recentPosts")}
           chart={
             recentPosts.length ? (
               <div className="w-full flex flex-col gap-2 pt-2">
                 {recentPosts.map((post) => (
                   <div
                     key={post.date}
-                    className="rounded-lg border border-[#E5E5E5] p-3 font-poppins"
+                    className="rounded-lg border border-neutral-200 p-3 font-poppins"
                   >
                     <p className="font-semibold text-sm">{post.date}</p>
                     <p className="text-sm text-gray-600">
@@ -415,7 +426,7 @@ export default function FacebookPage() {
             )
           }
           displayMode="chart-only"
-          className="xl:h-[736px]"
+          className="h-full"
         />
       </div>
 

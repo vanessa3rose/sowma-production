@@ -73,7 +73,10 @@
     "@mui/material": "^7.3.5",
     "@prisma/client": "^6.19.1",
     "cron": "^4.3.3",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
+    "echarts": "^6.0.0",
+    "echarts-for-react": "^3.0.6",
     "fdir": "^6.5.0",
     "git-filter-repo": "^0.0.30",
     "html2canvas": "^1.4.1",
@@ -89,7 +92,8 @@
     "react-simple-maps": "^3.0.0",
     "recharts": "^3.7.0",
     "us-atlas": "^3.0.1",
-    "wouter": "^3.1.3"
+    "wouter": "^3.1.3",
+    "xlsx": "^0.18.5"
   },
   "overrides": {
     "prisma": "6.19.1",

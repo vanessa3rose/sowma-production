@@ -1,25 +1,25 @@
+import { fileURLToPath } from "node:url";
 import { getAuthBySocialMediaId } from "../../db/social-media-auth.js";
 import fetch from "node-fetch";
 import "dotenv/config";
 import { PrismaClient, Metric } from "../../src/generated/prisma/index.js";
-import { startOfDay, endOfDay, formatISODate } from "../../src/utils/dates.js";
+import {
+  startOfDay,
+  endOfDay,
+  toUnixTimestamp,
+  formatISODate,
+} from "../../src/utils/dates.js";
 
 /* -------------------------------------------------
-   Prisma setup (serverless-friendly)
+   Prisma setup
 -------------------------------------------------- */
-const prisma = (globalThis as any).prisma ?? new PrismaClient();
-if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
+const prisma = new PrismaClient();
 
 /* -------------------------------------------------
    Constants
 -------------------------------------------------- */
 const INSTAGRAM_USER_ID = process.env.INSTAGRAM_BUSINESS_PAGE_ID!;
-
-const REQUIRED_IG_METRICS: Metric[] = [
-  Metric.LIKES,
-  Metric.COMMENTS,
-  Metric.DAYS_POSTED,
-];
+const FB_GRAPH_VERSION = "v24.0";
 
 type MediaItem = {
   id: string;
@@ -28,171 +28,233 @@ type MediaItem = {
   comments_count?: number;
 };
 
-type DailyMetrics = {
-  likes: number;
-  comments: number;
-  daysPosted: number;
-};
-
 type IGApiResponse = {
   data?: MediaItem[];
   paging?: { next?: string };
 };
 
 /* -------------------------------------------------
-   Helpers
--------------------------------------------------- */
-async function allMetricsStoredForDay(socialMediaId: string, date: Date) {
-  const metricsForDay = await prisma.socialMediaMetrics.findMany({
-    where: {
-      socialMediaId,
-      metricDate: date,
-      breakdownKey: null,
-      breakdownValue: null,
-    },
-    select: { metricName: true },
-  });
-
-  const existingMetricNames = new Set(
-    metricsForDay.map((m: any) => m.metricName),
-  );
-
-  return REQUIRED_IG_METRICS.every((metric) => existingMetricNames.has(metric));
-}
-
-/* -------------------------------------------------
    Fetch ALL Instagram media with pagination
 -------------------------------------------------- */
 async function fetchAllMedia(accessToken: string): Promise<MediaItem[]> {
   let url: string | null =
-    `https://graph.facebook.com/v20.0/${INSTAGRAM_USER_ID}/media` +
+    `https://graph.facebook.com/${FB_GRAPH_VERSION}/${INSTAGRAM_USER_ID}/media` +
     `?fields=id,like_count,comments_count,timestamp` +
     `&limit=50&access_token=${accessToken}`;
   const all: MediaItem[] = [];
 
   while (url) {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`Media fetch failed: ${await res.text()}`);
-
-    // cast json to a typed interface
+    if (!res.ok)
+      throw new Error(`[IG] media fetch failed: ${await res.text()}`);
     const json = (await res.json()) as IGApiResponse;
-
     all.push(...(json.data ?? []));
-    url = json.paging?.next ?? null; // string | null ✅
+    url = json.paging?.next ?? null;
   }
 
   return all;
 }
 
 /* -------------------------------------------------
-   Group media → daily metrics
+   Fetch daily insights for a single day
 -------------------------------------------------- */
-function buildDailyMetrics(media: MediaItem[]): Map<string, DailyMetrics> {
-  const map = new Map<string, DailyMetrics>();
+async function fetchDailyInsights(
+  date: Date,
+  accessToken: string,
+): Promise<Record<string, number>> {
+  const since = toUnixTimestamp(startOfDay(date));
+  const until = toUnixTimestamp(endOfDay(date));
 
-  for (const m of media) {
-    const day = formatISODate(new Date(m.timestamp));
-    if (!map.has(day)) map.set(day, { likes: 0, comments: 0, daysPosted: 0 });
+  const url =
+    `https://graph.facebook.com/${FB_GRAPH_VERSION}/${INSTAGRAM_USER_ID}/insights` +
+    `?metric=views,reach,total_interactions,shares,saves,profile_views,website_clicks` +
+    `&period=day` +
+    `&metric_type=total_value` +
+    `&since=${since}&until=${until}` +
+    `&access_token=${accessToken}`;
 
-    const entry = map.get(day)!;
-    entry.likes += m.like_count ?? 0;
-    entry.comments += m.comments_count ?? 0;
-    entry.daysPosted = 1;
+  const res = await fetch(url);
+  if (!res.ok) {
+    // Insights may not be available for old dates — treat as empty rather than crashing
+    console.warn(
+      `[IG] insights unavailable for ${formatISODate(date)}: ${res.status}`,
+    );
+    return {};
   }
 
-  return map;
+  const json = (await res.json()) as {
+    data?: Array<{ name: string; total_value?: { value?: number } }>;
+  };
+
+  const out: Record<string, number> = {};
+  for (const row of json.data ?? []) {
+    out[row.name] = row.total_value?.value ?? 0;
+  }
+  return out;
 }
 
 /* -------------------------------------------------
-   Backfill (DAY-BY-DAY ONLY)
+   Fetch current account totals (snapshot only)
+-------------------------------------------------- */
+async function fetchAccountTotals(
+  accessToken: string,
+): Promise<{ followers_count?: number; media_count?: number }> {
+  const url =
+    `https://graph.facebook.com/${FB_GRAPH_VERSION}/${INSTAGRAM_USER_ID}` +
+    `?fields=followers_count,media_count` +
+    `&access_token=${accessToken}`;
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    console.warn(`[IG] account totals failed: ${res.status}`);
+    return {};
+  }
+  return (await res.json()) as {
+    followers_count?: number;
+    media_count?: number;
+  };
+}
+
+/* -------------------------------------------------
+   Upsert helper — skip if already stored
+-------------------------------------------------- */
+async function upsertMetric(
+  socialMediaId: string,
+  metricName: Metric,
+  metricValue: number,
+  metricDate: Date,
+) {
+  const existing = await prisma.socialMediaMetrics.findFirst({
+    where: {
+      socialMediaId,
+      metricName,
+      metricDate: { gte: startOfDay(metricDate), lt: endOfDay(metricDate) },
+      breakdownKey: null,
+      breakdownValue: null,
+    },
+  });
+
+  if (existing) return;
+
+  await prisma.socialMediaMetrics.create({
+    data: {
+      socialMediaId,
+      metricName,
+      metricValue,
+      metricDate,
+      breakdownKey: null,
+      breakdownValue: null,
+    },
+  });
+}
+
+/* -------------------------------------------------
+   Backfill
 -------------------------------------------------- */
 export async function backfillInstagram() {
   const account = await prisma.socialMedia.findFirst({
     where: { provider: "INSTAGRAM" },
   });
+  if (!account) throw new Error("[IG] No Instagram account found");
 
-  if (!account) throw new Error("No Instagram account found");
-
-  // gets FACEBOOK_PAGE_TOKEN
   const fbAccount = await prisma.socialMedia.findFirst({
     where: { provider: "FACEBOOK" },
   });
   const fbAuth = fbAccount ? await getAuthBySocialMediaId(fbAccount.id) : null;
 
-  // Instagram can share Facebook Page token (Setup A)
-  if (!fbAuth || !fbAuth.accessToken) {
-    console.error(
-      "[IG] No access token found in DB for this Instagram account",
-    );
-    return;
+  if (!fbAuth?.accessToken) {
+    throw new Error("[IG] No Facebook access token found in DB");
   }
 
   const ACCESS_TOKEN = fbAuth.accessToken;
 
+  // ── Media-based metrics (likes, comments) ──────────────────────────────
   console.log("[IG] Fetching all media...");
   const media = await fetchAllMedia(ACCESS_TOKEN);
   console.log(`[IG] ${media.length} media items fetched`);
 
-  const dailyMetrics = buildDailyMetrics(media);
-  const days = Array.from(dailyMetrics.keys()).sort();
+  // Group by day
+  const byDay = new Map<string, { likes: number; comments: number }>();
+  for (const m of media) {
+    const day = formatISODate(new Date(m.timestamp));
+    const entry = byDay.get(day) ?? { likes: 0, comments: 0 };
+    entry.likes += m.like_count ?? 0;
+    entry.comments += m.comments_count ?? 0;
+    byDay.set(day, entry);
+  }
+
+  const days = Array.from(byDay.keys()).sort();
+  console.log(`[IG] Backfilling ${days.length} days...`);
 
   for (const day of days) {
     const date = startOfDay(new Date(day));
+    const { likes, comments } = byDay.get(day)!;
 
-    if (await allMetricsStoredForDay(account.id, date)) {
-      continue;
-    }
+    await upsertMetric(account.id, Metric.LIKES, likes, date);
+    await upsertMetric(account.id, Metric.COMMENTS, comments, date);
 
-    const metrics = dailyMetrics.get(day)!;
+    // ── Insights metrics (one API call per day) ──────────────────────────
+    const insights = await fetchDailyInsights(date, ACCESS_TOKEN);
 
-    const metricsToInsert = [
-      { metricName: Metric.LIKES, metricValue: metrics.likes },
-      { metricName: Metric.COMMENTS, metricValue: metrics.comments },
-      { metricName: Metric.DAYS_POSTED, metricValue: metrics.daysPosted },
-    ];
+    if (insights.views !== undefined)
+      await upsertMetric(account.id, Metric.VIEWS, insights.views, date);
+    if (insights.reach !== undefined)
+      await upsertMetric(account.id, Metric.REACH, insights.reach, date);
+    if (insights.total_interactions !== undefined)
+      await upsertMetric(
+        account.id,
+        Metric.TOTAL_INTERACTIONS,
+        insights.total_interactions,
+        date,
+      );
+    if (insights.shares !== undefined)
+      await upsertMetric(account.id, Metric.SHARES, insights.shares, date);
+    if (insights.saves !== undefined)
+      await upsertMetric(account.id, Metric.SAVES, insights.saves, date);
+    if (insights.profile_views !== undefined)
+      await upsertMetric(
+        account.id,
+        Metric.PROFILE_VIEWS,
+        insights.profile_views,
+        date,
+      );
+    if (insights.website_clicks !== undefined)
+      await upsertMetric(
+        account.id,
+        Metric.WEBSITE_CLICKS,
+        insights.website_clicks,
+        date,
+      );
 
-    for (const m of metricsToInsert) {
-      const existing = await prisma.socialMediaMetrics.findFirst({
-        where: {
-          socialMediaId: account.id,
-          metricName: m.metricName,
-          metricDate: {
-            gte: startOfDay(date),
-            lt: endOfDay(date),
-          },
-          breakdownKey: null,
-          breakdownValue: null,
-        },
-      });
-
-      if (!existing) {
-        await prisma.socialMediaMetrics.create({
-          data: {
-            socialMediaId: account.id,
-            metricName: m.metricName,
-            metricValue: m.metricValue,
-            metricDate: date,
-            breakdownKey: null,
-            breakdownValue: null,
-          },
-        });
-      }
-    }
-
-    console.log(`[IG] Backfilled ${day}`);
+    console.log(
+      `[IG] ${day} — likes=${likes} comments=${comments} reach=${insights.reach ?? "?"} views=${insights.views ?? "?"}`,
+    );
   }
+
+  // ── Account snapshot (today only — can't backfill historical) ──────────
+  const totals = await fetchAccountTotals(ACCESS_TOKEN);
+  const today = startOfDay(new Date());
+  if (totals.followers_count !== undefined)
+    await upsertMetric(
+      account.id,
+      Metric.FOLLOWERS,
+      totals.followers_count,
+      today,
+    );
+  if (totals.media_count !== undefined)
+    await upsertMetric(account.id, Metric.POSTS, totals.media_count, today);
 
   console.log("[IG] Backfill complete");
 }
 
 /* -------------------------------------------------
-   Entrypoint for standalone run
+   Entrypoint
 -------------------------------------------------- */
-(async () => {
-  try {
-    await backfillInstagram();
-  } catch (err) {
-    console.error(err);
-    process.exitCode = 1;
-  }
-})();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  backfillInstagram()
+    .catch((err) => {
+      console.error(err);
+      process.exitCode = 1;
+    })
+    .finally(() => prisma.$disconnect());
+}

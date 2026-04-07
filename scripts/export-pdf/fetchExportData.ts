@@ -2,8 +2,9 @@ import { fetchMetrics, SocialMediaMetric } from "../../src/utils/fetchMetrics";
 import { GoogleAnalyticsExportBundle } from "../../src/types/exportTypes";
 import {
   computeRangeDates,
-  type DateRangeId,
-} from "../../src/components/charts/DateDropdown";
+  type DateRangeValue,
+} from "../../src/components/charts/DateButton";
+
 import { EXPORT_PLATFORM_CONFIGS } from "./exportMetricsConfig";
 
 // ---------- Helpers ----------
@@ -59,12 +60,17 @@ function summarizeSeries(series: { value: number }[]) {
 // ========== FETCH GOOGLE ANALYTICS EXPORT DATA ==========
 
 export async function fetchGoogleExportBundle(
-  range: DateRangeId,
+  range: DateRangeValue,
 ): Promise<GoogleAnalyticsExportBundle> {
   const provider = "GOOGLE_ANALYTICS";
   const maxDate = new Date();
   maxDate.setHours(0, 0, 0, 0);
-  const { startDate, endDate } = computeRangeDates(range, maxDate);
+  const { startDate, endDate } = computeRangeDates(
+    range.id,
+    maxDate,
+    range.start,
+    range.end,
+  );
 
   const metrics = EXPORT_PLATFORM_CONFIGS.google.metrics;
 

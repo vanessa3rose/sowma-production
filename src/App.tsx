@@ -13,12 +13,12 @@ import TwitterPage from "./pages/SocialMedia/TwitterPage";
 import FacebookPage from "./pages/SocialMedia/FacebookPage";
 import InstagramPage from "./pages/SocialMedia/InstagramPage";
 import ConstantContactPage from "./pages/SocialMedia/ConstantContactPage";
+import LinkedInPage from "./pages/SocialMedia/LinkedInPage";
 import AdminPage from "./pages/AdminPage";
 import AdminRejection from "./pages/AdminRejection";
 
 import GlossaryPage from "./pages/Glossary";
 import ErrorPage from "./pages/ErrorPage";
-import Newsletter from "./pages/Newsletter";
 
 import { ProtectedRoute } from "./components/routes/ProtectedRoute";
 import { AdminRoute } from "./components/routes/AdminRoute";
@@ -114,16 +114,18 @@ const App = () => {
               )}
             />
             <Route
+              path="/social/linkedin"
+              component={() => <ProtectedRoute component={LinkedInPage} />}
+            />
+            <Route
               path="/newsletter"
-              component={() => <ProtectedRoute component={Newsletter} />}
+              component={() => (
+                <ProtectedRoute component={ConstantContactPage} />
+              )}
             />
             <Route
               path="/glossary"
               component={() => <ProtectedRoute component={GlossaryPage} />}
-            />
-            <Route
-              path="/error/tiktok"
-              component={() => <ProtectedRoute component={ErrorPage} />}
             />
             <Route
               path="/error/linkedin"

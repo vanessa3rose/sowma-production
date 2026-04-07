@@ -1,151 +1,298 @@
 import { useEffect, useMemo, useState } from "react";
+import ReactECharts from "echarts-for-react";
 
-// Cards
 import BigCard from "../../components/cards/BigCard";
-import SmallCard from "../../components/cards/SmallCard";
-
-// Charts
 import LineCharts from "../../components/charts/LineCharts";
-import PieCharts from "../../components/charts/PieCharts";
-
-// Buttons
 import DateDropdown, {
-  DateRangeId,
-} from "../../components/charts/DateDropdown";
-import ExportButton from "../../components/export-pdf/ExportButton";
-
-import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
-import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
+  DateRangeValue,
+} from "../../components/charts/DateButton";
+import { getLatestImportedDate } from "../../utils/latestImportedDate";
+import { fetchMetrics } from "../../utils/fetchMetrics";
+import SocialMediaHeader from "../../components/SocialMediaHeader";
+import { getGlossaryDefinition } from "../../data/glossarydata";
 
 /* ---------- types ---------- */
 
-type LinePoint = { date: string; value: number };
+import {
+  type LinePoint,
+  toLinePoints,
+  getBounds,
+  filterByRange,
+} from "../../utils/seriesUtils";
 
-type MetricSummary = {
-  current: number | null;
-  prev: number | null;
-};
+/* ---------- types ---------- */
 
 type MetricConfig = {
   id: string;
   title: string;
   metric: string;
-  metricLabel?: string;
 };
 
+/* ---------- config ---------- */
+
 const PROVIDER = "CONSTANT_CONTACT";
-const DEFAULT_START_DATE = "2024-01-01";
+const DEFAULT_START_DATE = "2020-01-01";
 const DEFAULT_END_DATE = "3000-01-01";
 
 const METRICS: MetricConfig[] = [
-  { id: "sent", title: "Emails Sent", metric: "EMAILS_SENT", metricLabel: "" },
   {
-    id: "delivered",
+    id: "emails_sent",
+    title: "Emails Sent",
+    metric: "EMAILS_SENT",
+  },
+  {
+    id: "emails_delivered",
     title: "Emails Delivered",
     metric: "EMAILS_DELIVERED",
-    metricLabel: "",
   },
   {
-    id: "opened",
+    id: "emails_opened",
     title: "Emails Opened",
-    metric: "EMAILS_OPENED",
-    metricLabel: "",
+    metric: "EMAIL_OPENED",
   },
   {
-    id: "clicked",
+    id: "emails_clicked",
     title: "Emails Clicked",
     metric: "EMAILS_CLICKED",
-    metricLabel: "",
   },
   {
-    id: "unsubscribed",
-    title: "Emails Unsubscribed",
+    id: "emails_unsubscribed",
+    title: "Unsubscribed",
     metric: "EMAILS_UNSUBSCRIBED",
-    metricLabel: "",
+  },
+  {
+    id: "emails_bounced",
+    title: "Bounced",
+    metric: "EMAIL_BOUNCED",
+  },
+  {
+    id: "emails_forwarded",
+    title: "Forwarded",
+    metric: "EMAIL_FORWARDED",
+  },
+  {
+    id: "emails_not_opened",
+    title: "Not Opened",
+    metric: "EMAIL_NOT_OPENED",
+  },
+  {
+    id: "email_abuse",
+    title: "Abuse / Spam",
+    metric: "EMAIL_ABUSE",
+  },
+  {
+    id: "email_unique_opens",
+    title: "Unique Opens",
+    metric: "EMAIL_UNIQUE_OPENS",
+  },
+  {
+    id: "email_total_opens",
+    title: "Total Opens",
+    metric: "EMAIL_TOTAL_OPENS",
+  },
+  {
+    id: "email_unique_clicks",
+    title: "Unique Clicks",
+    metric: "EMAIL_UNIQUE_CLICKS",
+  },
+  {
+    id: "email_total_clicks",
+    title: "Total Clicks",
+    metric: "EMAIL_TOTAL_CLICKS",
   },
 ];
 
 /* ---------- helpers ---------- */
 
-function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
-  return raw
-    .filter((m) => m.metricDate || m.lastSynced)
-    .slice()
-    .sort((a, b) =>
-      (a.metricDate ?? a.lastSynced)!.localeCompare(
-        (b.metricDate ?? b.lastSynced)!,
-      ),
-    );
-}
-
-function toLinePoints(raw: SocialMediaMetric[]): LinePoint[] {
-  return sortByDate(raw).map((m) => {
-    const ts = (m.metricDate ?? m.lastSynced)!;
-    return { date: ts.slice(0, 10), value: m.metricValue };
-  });
-}
-
-function summarizeSeries(points: LinePoint[]): MetricSummary {
-  if (points.length === 0) return { current: null, prev: null };
-  if (points.length === 1) return { current: points[0].value, prev: null };
-  return {
-    current: points[points.length - 1].value,
-    prev: points[points.length - 2].value,
-  };
-}
-
-function formatPercentChange(summary?: MetricSummary | null) {
-  if (
-    !summary ||
-    summary.current == null ||
-    summary.prev == null ||
-    summary.prev === 0
-  ) {
-    return "+ 0%";
+function mergeByDate(
+  aPoints: LinePoint[],
+  aKey: string,
+  bPoints: LinePoint[],
+  bKey: string,
+): Record<string, number | string>[] {
+  const map = new Map<string, Record<string, number | string>>();
+  for (const p of aPoints) {
+    map.set(p.date, { date: p.date, [aKey]: p.value });
   }
-  const pct = ((summary.current - summary.prev) / summary.prev) * 100;
-  return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}% vs. prev.`;
+  for (const p of bPoints) {
+    const existing = map.get(p.date);
+    if (existing) existing[bKey] = p.value;
+    else map.set(p.date, { date: p.date, [bKey]: p.value });
+  }
+  return Array.from(map.values()).sort((a, b) =>
+    String(a.date).localeCompare(String(b.date)),
+  );
 }
 
-function getBounds(pts: LinePoint[]) {
-  if (!pts.length)
-    return { min: null as Date | null, max: null as Date | null };
-  const dates = pts
-    .map((p) => p.date)
-    .slice()
-    .sort();
-  return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
+/* ---------- Sankey helpers ---------- */
+
+function fmt(n: number): string {
+  return n.toLocaleString();
 }
 
-function filterByRange(pts: LinePoint[], range: DateRangeId) {
-  if (!pts.length) return pts;
-  if (range === "all") return pts;
+type SankeyNode = { name: string; itemStyle: { color: string } };
+type SankeyLink = {
+  source: string;
+  target: string;
+  value: number;
+  lineStyle: { color: string; opacity: number };
+};
 
-  const end = new Date();
-  end.setHours(0, 0, 0, 0);
-  const start = new Date(end);
+function buildSankeyOption(vals: Record<string, number>) {
+  const sent = vals.emails_sent ?? 0;
+  const delivered = vals.emails_delivered ?? 0;
+  const bounced = vals.emails_bounced ?? 0;
+  const opened = vals.emails_opened ?? 0;
+  const notOpened = vals.emails_not_opened ?? 0;
+  const clicked = vals.emails_clicked ?? 0;
+  const unsubscribed = vals.emails_unsubscribed ?? 0;
+  const abuse = vals.email_abuse ?? 0;
+  const forwarded = vals.emails_forwarded ?? 0;
 
-  if (range === "7d") start.setDate(start.getDate() - 6);
-  if (range === "30d") start.setDate(start.getDate() - 29);
-  if (range === "1y") start.setFullYear(start.getFullYear() - 1);
+  const nodes: SankeyNode[] = [
+    { name: `Sent\n${fmt(sent)}`, itemStyle: { color: "#5B8FF9" } },
+    { name: `Delivered\n${fmt(delivered)}`, itemStyle: { color: "#9DC96A" } },
+    { name: `Bounced\n${fmt(bounced)}`, itemStyle: { color: "#C5C5C5" } },
+    { name: `Opened\n${fmt(opened)}`, itemStyle: { color: "#A78BFA" } },
+    { name: `Not Opened\n${fmt(notOpened)}`, itemStyle: { color: "#F472B6" } },
+    { name: `Clicked\n${fmt(clicked)}`, itemStyle: { color: "#60A5FA" } },
+  ];
 
-  const startStr = start.toISOString().slice(0, 10);
-  const endStr = end.toISOString().slice(0, 10);
+  const links: SankeyLink[] = [
+    {
+      source: `Sent\n${fmt(sent)}`,
+      target: `Delivered\n${fmt(delivered)}`,
+      value: delivered,
+      lineStyle: { color: "#9DC96A", opacity: 0.35 },
+    },
+  ];
 
-  return pts.filter((p) => p.date >= startStr && p.date <= endStr);
+  if (bounced > 0) {
+    links.push({
+      source: `Sent\n${fmt(sent)}`,
+      target: `Bounced\n${fmt(bounced)}`,
+      value: bounced,
+      lineStyle: { color: "#C5C5C5", opacity: 0.35 },
+    });
+  }
+  if (opened > 0) {
+    links.push({
+      source: `Delivered\n${fmt(delivered)}`,
+      target: `Opened\n${fmt(opened)}`,
+      value: opened,
+      lineStyle: { color: "#A78BFA", opacity: 0.35 },
+    });
+  }
+  if (notOpened > 0) {
+    links.push({
+      source: `Delivered\n${fmt(delivered)}`,
+      target: `Not Opened\n${fmt(notOpened)}`,
+      value: notOpened,
+      lineStyle: { color: "#F472B6", opacity: 0.35 },
+    });
+  }
+  if (clicked > 0) {
+    links.push({
+      source: `Opened\n${fmt(opened)}`,
+      target: `Clicked\n${fmt(clicked)}`,
+      value: clicked,
+      lineStyle: { color: "#60A5FA", opacity: 0.35 },
+    });
+  }
+  if (unsubscribed > 0) {
+    nodes.push({
+      name: `Unsubscribed\n${fmt(unsubscribed)}`,
+      itemStyle: { color: "#FB923C" },
+    });
+    links.push({
+      source: `Opened\n${fmt(opened)}`,
+      target: `Unsubscribed\n${fmt(unsubscribed)}`,
+      value: unsubscribed,
+      lineStyle: { color: "#FB923C", opacity: 0.35 },
+    });
+  }
+  if (abuse > 0) {
+    nodes.push({
+      name: `Spam\n${fmt(abuse)}`,
+      itemStyle: { color: "#F87171" },
+    });
+    links.push({
+      source: `Delivered\n${fmt(delivered)}`,
+      target: `Spam\n${fmt(abuse)}`,
+      value: abuse,
+      lineStyle: { color: "#F87171", opacity: 0.35 },
+    });
+  }
+  if (forwarded > 0) {
+    nodes.push({
+      name: `Forwarded\n${fmt(forwarded)}`,
+      itemStyle: { color: "#34D399" },
+    });
+    links.push({
+      source: `Opened\n${fmt(opened)}`,
+      target: `Forwarded\n${fmt(forwarded)}`,
+      value: forwarded,
+      lineStyle: { color: "#34D399", opacity: 0.35 },
+    });
+  }
+
+  return {
+    tooltip: {
+      trigger: "item",
+      triggerOn: "mousemove",
+      formatter: (params: {
+        dataType: string;
+        data: {
+          source?: string;
+          target?: string;
+          value?: number;
+          name?: string;
+        };
+      }) => {
+        if (params.dataType === "edge") {
+          const src = params.data.source?.split("\n")[0] ?? "";
+          const tgt = params.data.target?.split("\n")[0] ?? "";
+          return `${src} → ${tgt}: <strong>${fmt(params.data.value ?? 0)}</strong>`;
+        }
+        return `<strong>${params.data.name?.replace("\n", ": ")}</strong>`;
+      },
+    },
+    series: [
+      {
+        type: "sankey",
+        layout: "none",
+        emphasis: { focus: "adjacency" },
+        nodeWidth: 18,
+        nodeGap: 28,
+        left: "2%",
+        right: "18%",
+        top: "8%",
+        bottom: "8%",
+        data: nodes,
+        links,
+        label: {
+          color: "#374151",
+          fontFamily: "inherit",
+          fontSize: 12,
+          fontWeight: 500,
+        },
+        lineStyle: { curveness: 0.5 },
+      },
+    ],
+  };
 }
 
 /* ---------- component ---------- */
 
-export default function ConstantContactPage() {
-  const { exportByPlatforms } = useGlobalPageExporter();
+const ALL_RANGE: DateRangeValue = { id: "all" };
 
+export default function ConstantContactPage() {
   const [rawSeries, setRawSeries] = useState<Record<string, LinePoint[]>>({});
-  const [ranges, setRanges] = useState<Record<string, DateRangeId>>(() => {
-    const init: Record<string, DateRangeId> = {};
-    METRICS.forEach((m) => (init[m.id] = "30d"));
-    return init;
-  });
+  const [sankeyRange, setSankeyRange] = useState<DateRangeValue>(ALL_RANGE);
+  const [opensRange, setOpensRange] = useState<DateRangeValue>(ALL_RANGE);
+  const [clicksRange, setClicksRange] = useState<DateRangeValue>(ALL_RANGE);
+
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -161,6 +308,10 @@ export default function ConstantContactPage() {
           ),
         );
 
+        setLastUpdated(
+          getLatestImportedDate(results.map(({ rows }) => rows).flat()),
+        );
+
         const nextRaw: Record<string, LinePoint[]> = {};
         for (const { cfg, rows } of results) {
           nextRaw[cfg.id] = toLinePoints(rows);
@@ -170,172 +321,161 @@ export default function ConstantContactPage() {
         console.error("Error loading Constant Contact metrics:", err);
       }
     }
-
     load();
   }, []);
 
-  const computed = useMemo(() => {
-    return METRICS.reduce(
-      (acc, cfg) => {
-        const full = rawSeries[cfg.id] ?? [];
-        const filtered = filterByRange(full, ranges[cfg.id] ?? "30d");
-        const summary = summarizeSeries(filtered);
-        const bounds = getBounds(full);
-        acc[cfg.id] = { full, filtered, summary, bounds };
-        return acc;
-      },
-      {} as Record<
-        string,
-        {
-          full: LinePoint[];
-          filtered: LinePoint[];
-          summary: MetricSummary;
-          bounds: { min: Date | null; max: Date | null };
-        }
-      >,
+  // Sankey: sum all values over the selected sankeyRange
+  const sankeyVals = useMemo(() => {
+    const v: Record<string, number> = {};
+    METRICS.forEach((cfg) => {
+      const filtered = filterByRange(rawSeries[cfg.id] ?? [], sankeyRange);
+      v[cfg.id] = filtered.reduce((sum, p) => sum + p.value, 0);
+    });
+    return v;
+  }, [rawSeries, sankeyRange]);
+
+  const sankeyBounds = getBounds(rawSeries["emails_sent"] ?? []);
+  const hasSankeyData = sankeyVals.emails_sent > 0;
+
+  // Opens comparison: Unique vs Total
+  const opensData = useMemo(() => {
+    const unique = filterByRange(
+      rawSeries["email_unique_opens"] ?? [],
+      opensRange,
     );
-  }, [rawSeries, ranges]);
+    const total = filterByRange(
+      rawSeries["email_total_opens"] ?? [],
+      opensRange,
+    );
+    return mergeByDate(unique, "uniqueOpens", total, "totalOpens");
+  }, [rawSeries, opensRange]);
 
-  // Pie data
-  const sentNow = computed["sent"]?.summary.current ?? 0;
-  const deliveredNow = computed["delivered"]?.summary.current ?? 0;
-  const openedNow = computed["opened"]?.summary.current ?? 0;
-  const clickedNow = computed["clicked"]?.summary.current ?? 0;
-  const unsubscribedNow = computed["unsubscribed"]?.summary.current ?? 0;
+  const opensBounds = getBounds([
+    ...(rawSeries["email_unique_opens"] ?? []),
+    ...(rawSeries["email_total_opens"] ?? []),
+  ]);
 
-  const engagementMix = [
-    { label: "Sent", value: sentNow },
-    { label: "Delivered", value: deliveredNow },
-    { label: "Opened", value: openedNow },
-    { label: "Clicked", value: clickedNow },
-    { label: "Unsubscribed", value: unsubscribedNow },
-  ];
+  // Clicks comparison: Unique vs Total
+  const clicksData = useMemo(() => {
+    const unique = filterByRange(
+      rawSeries["email_unique_clicks"] ?? [],
+      clicksRange,
+    );
+    const total = filterByRange(
+      rawSeries["email_total_clicks"] ?? [],
+      clicksRange,
+    );
+    return mergeByDate(unique, "uniqueClicks", total, "totalClicks");
+  }, [rawSeries, clicksRange]);
+
+  const clicksBounds = getBounds([
+    ...(rawSeries["email_unique_clicks"] ?? []),
+    ...(rawSeries["email_total_clicks"] ?? []),
+  ]);
+
   return (
-    <div className="w-full min-h-screen lg:h-full bg-white flex flex-col gap-4">
-      {/* Header */}
-      <div className="w-full flex items-center px-4 py-2">
-        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="size-7"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
-          </button>
+    <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
+      <SocialMediaHeader
+        lastUpdated={lastUpdated}
+        Title={"Constant Contact"}
+        Link={"https://app.constantcontact.com"}
+      />
 
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-nowrap">
-            Constant Contact
-          </h1>
-        </div>
-
-        <div className="ml-auto">
-          <ExportButton onExport={exportByPlatforms} />
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex flex-col gap-4 px-4 lg:h-full">
-        {/* Top band: 2x2 small cards + pie chart */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {["sent", "delivered", "opened", "clicked", "unsubscribed"].map(
-              (id) => {
-                const cfg = METRICS.find((m) => m.id === id)!;
-                const s = computed[id]?.summary;
-
-                return (
-                  <SmallCard
-                    key={id}
-                    title={cfg.title}
-                    displayMode="metric-only"
-                    className="w-full h-full"
-                    metricValue={s?.current ?? 0}
-                    metricLabel={cfg.metricLabel ?? ""}
-                    metricChange={formatPercentChange(s)}
-                  />
-                );
-              },
-            )}
-          </div>
-
-          {/* Pie chart */}
-          <div className="lg:col-span-1">
-            <BigCard
-              title="Engagement Mix"
-              chart={
-                <div className="w-full h-64">
-                  <PieCharts
-                    data={engagementMix}
-                    dataKey="value"
-                    nameKey="label"
-                  />
-                </div>
-              }
-              displayMode="both"
-              className="w-full h-full"
+      <div className="flex flex-col gap-4">
+        {/* ── Email Flow Sankey — first ── */}
+        <BigCard
+          title="Email Flow"
+          titleTooltip={getGlossaryDefinition("email_flow")}
+          subtitle={
+            <DateDropdown
+              value={sankeyRange}
+              onChange={setSankeyRange}
+              minDate={sankeyBounds.min}
+              maxDate={sankeyBounds.max}
             />
-          </div>
-        </div>
-
-        {/* Only Posts BigCard */}
-        <div className="w-full grid grid-cols-1  gap-4 lg:h-full">
-          {METRICS.filter((cfg) => cfg.id === "likes").map((cfg) => {
-            const item = computed[cfg.id];
-            const filtered = item?.filtered ?? [];
-            const bounds = item?.bounds ?? { min: null, max: null };
-            const summary = item?.summary ?? { current: 0, prev: null };
-
-            return (
-              <div key={cfg.id}>
-                <BigCard
-                  title={cfg.title}
-                  subtitle={
-                    <DateDropdown
-                      value={ranges[cfg.id] ?? "30d"}
-                      onChange={(r) =>
-                        setRanges((prev) => ({ ...prev, [cfg.id]: r }))
-                      }
-                      minDate={bounds.min}
-                      maxDate={bounds.max}
-                    />
-                  }
-                  metricValue={summary.current ?? 0}
-                  metricLabel="total"
-                  metricChange={formatPercentChange(summary)}
-                  chart={
-                    filtered.length ? (
-                      <div className="w-full h-64">
-                        <LineCharts
-                          data={filtered}
-                          xAxisKey="date"
-                          dataKeys={["value"]}
-                          showArea
-                        />
-                      </div>
-                    ) : (
-                      <div className="h-64 flex items-center justify-center text-gray-500">
-                        No data available
-                      </div>
-                    )
-                  }
-                  displayMode="both"
-                  className="w-full h-full"
+          }
+          chart={
+            hasSankeyData ? (
+              <div className="flex w-full justify-center items-center">
+                <ReactECharts
+                  option={buildSankeyOption(sankeyVals)}
+                  style={{ height: "100%", width: "95%" }}
+                  opts={{ renderer: "svg" }}
                 />
               </div>
-            );
-          })}
+            ) : (
+              <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
+                No data available
+              </div>
+            )
+          }
+          displayMode="chart-only"
+          className="w-full h-[360px]"
+        />
+
+        {/* ── Opens + Clicks comparison ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <BigCard
+            title="Opens: Unique vs Total"
+            titleTooltip={getGlossaryDefinition("email_opens")}
+            subtitle={
+              <DateDropdown
+                value={opensRange}
+                onChange={setOpensRange}
+                minDate={opensBounds.min}
+                maxDate={opensBounds.max}
+              />
+            }
+            chart={
+              opensData.length > 0 ? (
+                <div className="w-full h-full">
+                  <LineCharts
+                    data={opensData}
+                    xAxisKey="date"
+                    dataKeys={["uniqueOpens", "totalOpens"]}
+                    showArea
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center text-gray-500">
+                  No data available
+                </div>
+              )
+            }
+            displayMode="chart-only"
+            className="w-full h-[360px]"
+          />
+
+          <BigCard
+            title="Clicks: Unique vs Total"
+            titleTooltip={getGlossaryDefinition("email_clicks")}
+            subtitle={
+              <DateDropdown
+                value={clicksRange}
+                onChange={setClicksRange}
+                minDate={clicksBounds.min}
+                maxDate={clicksBounds.max}
+              />
+            }
+            chart={
+              clicksData.length > 0 ? (
+                <div className="w-full h-full">
+                  <LineCharts
+                    data={clicksData}
+                    xAxisKey="date"
+                    dataKeys={["uniqueClicks", "totalClicks"]}
+                    showArea
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center text-gray-500">
+                  No data available
+                </div>
+              )
+            }
+            displayMode="chart-only"
+            className="w-full h-[360px]"
+          />
         </div>
       </div>
     </div>

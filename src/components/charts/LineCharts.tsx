@@ -12,17 +12,27 @@ import {
 
 import ChartTooltip from "./ChartTooltip";
 
+import { COLORS } from "../../data/colors.js";
 const PLATFORM_COLORS: Record<string, string> = {
-  facebook: "#F765A3",
-  instagram: "#E4405F",
-  twitter: "#FFA9D0",
-  tiktok: "#A155B9",
+  facebook: COLORS.SOWMA_LIGHT_BLUE,
+  instagram: COLORS.SOWMA_GREEN,
+  twitter: COLORS.SOWMA_DARK_BLUE,
+};
+
+const getSeriesColor = (key: string) => {
+  const k = key.toLowerCase();
+
+  if (k.includes("unique")) return COLORS.SOWMA_LIGHT_BLUE;
+  if (k.includes("total")) return COLORS.SOWMA_GREEN;
+
+  return PLATFORM_COLORS[k] || COLORS.SOWMA_LIGHT_BLUE;
 };
 
 type LineChartProps = {
   data: any[];
   xAxisKey: string;
   dataKeys: string[];
+  labels?: Record<string, string>;
   showArea?: boolean;
   autoAdjustYAxis?: boolean;
   compact?: boolean;
@@ -32,10 +42,16 @@ const LineCharts = ({
   data,
   xAxisKey,
   dataKeys,
+  labels,
   showArea,
   autoAdjustYAxis = true,
   compact = false,
 }: LineChartProps) => {
+  const series = labels
+    ? Object.fromEntries(
+        Object.entries(labels).map(([k, v]) => [k, { label: v }]),
+      )
+    : undefined;
   const values: number[] = [];
   if (autoAdjustYAxis) {
     data.forEach((row) => {
@@ -72,7 +88,7 @@ const LineCharts = ({
         >
           <defs>
             {dataKeys.map((key) => {
-              const color = PLATFORM_COLORS[key.toLowerCase()] || "#7987FF";
+              const color = getSeriesColor(key);
               return (
                 <linearGradient
                   key={key}
@@ -107,14 +123,14 @@ const LineCharts = ({
             domain={yDomain}
             allowDecimals={false}
           />
-          <Tooltip content={<ChartTooltip />} />
+          <Tooltip content={<ChartTooltip series={series} />} />
 
           {dataKeys.map((key) => (
             <Area
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#7987FF"}
+              stroke={getSeriesColor(key)}
               strokeWidth={compact ? 2.5 : 3}
               fill={`url(#gradient-${key})`}
               fillOpacity={1}
@@ -149,13 +165,13 @@ const LineCharts = ({
             domain={yDomain}
             allowDecimals={false}
           />
-          <Tooltip content={<ChartTooltip />} />
+          <Tooltip content={<ChartTooltip series={series} />} />
           {dataKeys.map((key) => (
             <Line
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={PLATFORM_COLORS[key.toLowerCase()] || "#7987FF"}
+              stroke={getSeriesColor(key)}
               strokeWidth={compact ? 2.5 : 3}
               dot={compact ? false : { r: 4 }}
               activeDot={false}
