@@ -210,7 +210,12 @@ export default function MassachusettsCountyMap({
           <div className="mb-1 text-[11px] font-[Poppins] font-semibold text-gray-800">
             Visit Intensity
           </div>
-          <div className="h-2 w-28 rounded" style={{ background: "linear-gradient(to right, #90B4D8, #2D5A8A)" }} />
+          <div
+            className="h-2 w-28 rounded"
+            style={{
+              background: "linear-gradient(to right, #90B4D8, #2D5A8A)",
+            }}
+          />
           <div className="mt-1 flex justify-between text-[10px] font-[Poppins] text-gray-600">
             <span>Low</span>
             <span>High</span>

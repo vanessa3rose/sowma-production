@@ -6,7 +6,7 @@ import BigCard from "../../components/cards/BigCard";
 import SmallCard from "../../components/cards/SmallCard";
 import LineCharts from "../../components/charts/LineCharts";
 import PieCharts from "../../components/charts/PieCharts";
-import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+import { fetchMetrics } from "../../utils/fetchMetrics";
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import {
   formatAbsoluteChange,

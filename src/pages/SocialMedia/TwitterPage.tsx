@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { DateRangeValue } from "../../components/charts/DateButton";
 import DateDropdown from "../../components/charts/DateButton";
-import ExportButton from "../../components/export-pdf/ExportButton";
-import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import BigCard from "../../components/cards/BigCard";
 import LineCharts from "../../components/charts/LineCharts";
 import { fetchMetrics } from "../../utils/fetchMetrics";
@@ -32,7 +30,6 @@ function formatPercentChange(summary?: MetricSummary | null): string {
 }
 
 export default function TwitterPage() {
-  const { exportByPlatforms } = useGlobalPageExporter();
   const [followersOverTimeAll, setFollowersOverTimeAll] = useState<
     { date: string; value: number }[]
   >([]);

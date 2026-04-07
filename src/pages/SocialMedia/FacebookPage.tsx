@@ -9,7 +9,7 @@ import LineCharts from "../../components/charts/LineCharts";
 import DateDropdown, {
   DateRangeValue,
 } from "../../components/charts/DateButton";
-import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
+import { fetchMetrics } from "../../utils/fetchMetrics";
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import {
   formatAbsoluteChange,

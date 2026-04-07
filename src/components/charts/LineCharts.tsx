@@ -21,10 +21,10 @@ const PLATFORM_COLORS: Record<string, string> = {
 const getSeriesColor = (key: string) => {
   const k = key.toLowerCase();
 
-  if (k.includes("unique")) return "#7987FF";
-  if (k.includes("total")) return "#E4405F";
+  if (k.includes("unique")) return "#4781C2";
+  if (k.includes("total")) return "#4CAF86";
 
-  return PLATFORM_COLORS[k] || "#7987FF";
+  return PLATFORM_COLORS[k] || "#4781C2";
 };
 
 type LineChartProps = {
