@@ -108,14 +108,18 @@ export default function ExportModal({
     );
 
     if (selectedPlatforms.length === 0) {
-      // Nothing selected: you could show a message here if desired.
       setIsLoading(false);
       return;
     }
 
-    await onExport(selectedPlatforms, range);
-    setIsLoading(false);
-    setIsOpen(false);
+    try {
+      await onExport(selectedPlatforms, range);
+      setIsOpen(false);
+    } catch (err) {
+      console.error("Export failed:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

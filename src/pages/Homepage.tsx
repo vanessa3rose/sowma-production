@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchMetrics, SocialMediaMetric } from "../utils/fetchMetrics";
 import ExportButton from "../components/export-pdf/ExportButton";
-import { useGlobalPageExporter } from "../components/export-pdf/GlobalPageExportProvider";
+import { useGlobalPageExporter } from "../components/export-pdf/useGlobalPageExporter";
 
 import LineCharts from "../components/charts/LineCharts";
 import BigCard from "../components/cards/BigCard";

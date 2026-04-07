@@ -1,5 +1,5 @@
 import ExportButton from "./export-pdf/ExportButton";
-import { useGlobalPageExporter } from "./export-pdf/GlobalPageExportProvider";
+import { useGlobalPageExporter } from "./export-pdf/useGlobalPageExporter";
 
 type SocialMediaHeaderProps = {
   lastUpdated: string | null;

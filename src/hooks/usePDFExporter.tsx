@@ -75,7 +75,7 @@ export async function exportCardsToPDF(
   container.style.minHeight = "900px";
   container.style.zIndex = "-1";
   container.style.background = "white";
-  container.style.overflow = "hidden";
+  container.style.overflow = "visible";
 
   const root = ReactDOM.createRoot(container);
   root.render(<ExportReportView selections={selections} range={range} />);

@@ -174,7 +174,7 @@ function ChartBlock({
         {title}
       </div>
       {hasData ? (
-        <div className="flex w-full h-[200px] min-h-0">
+        <div className="flex flex-1 w-full min-h-0">
           <LineCharts
             data={data}
             xAxisKey="date"
@@ -550,7 +550,7 @@ function buildChartPages<T>(
   return pages;
 }
 
-export default function e({ selections, range }: ExportReportViewProps) {
+export default function ExportReportView({ selections, range }: ExportReportViewProps) {
   const timestamp = new Date().toLocaleString();
   const rangeLabel = getRangeLabel(range);
 
@@ -781,6 +781,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
           );
         }
 
+        if (selection.type !== "social") return null;
         const platformKey = selection.platform as Platform;
         const config = EXPORT_PLATFORM_CONFIGS[platformKey];
 
