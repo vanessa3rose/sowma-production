@@ -170,7 +170,7 @@ export default function FacebookPage() {
   }, [calendarOffset]);
 
   const sharedCardHeight = isXl
-    ? 360 + Math.max(0, weeksNeeded - 5) * 60
+    ? 400 + Math.max(0, weeksNeeded - 5) * 60
     : undefined;
 
   useEffect(() => {
@@ -240,7 +240,6 @@ export default function FacebookPage() {
   ];
 
   const allPostsPoints = rawSeries.posts ?? [];
-  // const recentPosts = buildRecentPosts(computed.posts?.filtered ?? []);
 
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
@@ -250,7 +249,7 @@ export default function FacebookPage() {
         Link={"https://www.facebook.com/schoolonwheels"}
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-[2.1fr_1.3fr_1fr] gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-[2.1fr_1.3fr] gap-4">
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {topSmallCards.map(({ title, key }, idx) => {
@@ -304,9 +303,22 @@ export default function FacebookPage() {
               )
             }
             displayMode="both"
+            className="h-[360px]"
+          />
+
+          <BigCard
+            title="Facebook Feed"
+            chart={
+              <div className="w-full overflow-x-hidden">
+                <FacebookEmbed />
+              </div>
+            }
+            displayMode="chart-only"
             className=""
             style={
-              sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined
+              sharedCardHeight
+                ? { height: `${sharedCardHeight}px` }
+                : { minHeight: 600 }
             }
           />
         </div>
@@ -345,33 +357,6 @@ export default function FacebookPage() {
           />
 
           <BigCard
-            title="Days Posted"
-            titleTooltip={getGlossaryDefinition("daysPosted")}
-            subtitle={<HeatmapLegend />}
-            chart={
-              allPostsPoints.length ? (
-                <CalendarHeatmap
-                  points={allPostsPoints}
-                  offset={calendarOffset}
-                  onOffsetChange={setCalendarOffset}
-                  minOffset={minCalendarOffset}
-                />
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No post activity data
-                </div>
-              )
-            }
-            displayMode="chart-only"
-            className=""
-            style={
-              sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined
-            }
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <BigCard
             title="Video Views"
             titleTooltip={getGlossaryDefinition("videoViews")}
             subtitle={
@@ -404,18 +389,30 @@ export default function FacebookPage() {
             displayMode="both"
             className="h-[360px]"
           />
-        </div>
 
-        <div className="mt-4 w-full">
           <BigCard
-            title="Facebook Feed"
+            title="Days Posted"
+            titleTooltip={getGlossaryDefinition("daysPosted")}
+            subtitle={<HeatmapLegend />}
             chart={
-              <div className="w-full overflow-x-hidden">
-                <FacebookEmbed />
-              </div>
+              allPostsPoints.length ? (
+                <CalendarHeatmap
+                  points={allPostsPoints}
+                  offset={calendarOffset}
+                  onOffsetChange={setCalendarOffset}
+                  minOffset={minCalendarOffset}
+                />
+              ) : (
+                <div className="flex items-center justify-center text-gray-500">
+                  No post activity data
+                </div>
+              )
             }
             displayMode="chart-only"
-            className="min-h-[600px]"
+            className=""
+            style={
+              sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined
+            }
           />
         </div>
       </div>
