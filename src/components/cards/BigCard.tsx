@@ -170,7 +170,7 @@ const BigCard: React.FC<BigCardProps> = ({
             ${
               !useFullChartHeight
                 ? `h-[300px] w-full ${scrollable ? "overflow-y-auto" : "overflow-hidden"}`
-                : "flex h-full w-full justify-center items-center"
+                : "h-full w-full min-h-0 overflow-hidden"
             }`}
         >
           {chart}

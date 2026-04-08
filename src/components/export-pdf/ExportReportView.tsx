@@ -489,11 +489,30 @@ function mergeChartData(
   );
 }
 
-function ExportPage({ children }: { children: ReactNode }) {
+function computeRatePoints(
+  numerator: { date: string; value: number }[],
+  denominator: { date: string; value: number }[],
+  key: string,
+): Record<string, unknown>[] {
+  const denomMap = new Map(denominator.map((p) => [p.date, p.value]));
+  return numerator.flatMap((p) => {
+    const denom = denomMap.get(p.date) ?? 0;
+    if (denom === 0) return [];
+    return [{ date: p.date, [key]: Math.round((p.value / denom) * 1000) / 10 }];
+  });
+}
+
+function ExportPage({
+  children,
+  widthClass = "w-[1000px]",
+}: {
+  children: ReactNode;
+  widthClass?: string;
+}) {
   return (
     <div
       data-export-page
-      className="w-[1000px] bg-white px-8 py-6 font-sans text-gray-900"
+      className={`${widthClass} bg-white px-6 py-6 font-sans text-gray-900`}
     >
       {children}
     </div>
@@ -515,8 +534,137 @@ const LINKEDIN_SMALL_KPIS = [
   { id: "LIKES", title: "Reactions" },
   { id: "COMMENTS", title: "Comments" },
   { id: "SHARES", title: "Reposts" },
-  { id: "TOTAL_INTERACTIONS", title: "Total Interactions" },
 ];
+const LINKEDIN_EXPORT_CARD_HEIGHT = 235;
+const LINKEDIN_EXPORT_PIE_HEIGHT = 310;
+const LINKEDIN_KPI_CARD_HEIGHT = 117;
+const LINKEDIN_KPI_ROW_HEIGHT = 382;
+
+function LinkedInMiniMetricCard({
+  title,
+  value,
+  delta,
+  note,
+}: {
+  title: string;
+  value: string;
+  delta: string;
+  note: string;
+}) {
+  return (
+    <div
+      style={{
+        ...PDF_CARD_STYLE,
+        padding: "14px 18px",
+        minHeight: `${LINKEDIN_KPI_CARD_HEIGHT}px`,
+        height: `${LINKEDIN_KPI_CARD_HEIGHT}px`,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          gap: "6px",
+          minHeight: "0",
+        }}
+      >
+        <div style={{ fontWeight: 500, fontSize: "15px", color: "#000000" }}>
+          {title}
+        </div>
+        <div
+          style={{
+            fontSize: "26px",
+            fontWeight: 400,
+            color: "#3B82F6",
+            lineHeight: 1.05,
+            wordBreak: "break-word",
+          }}
+        >
+          {value}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            flexWrap: "wrap",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "12px",
+              lineHeight: 1.15,
+              color: delta.includes("+")
+                ? "#10B981"
+                : delta.includes("-")
+                  ? "#EF4444"
+                  : "#6B7280",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span>
+              {delta}
+              {delta.includes("+") ? " ↗" : ""}
+              {delta.includes("-") ? " ↘" : ""}
+            </span>
+          </div>
+          <div
+            style={{ fontSize: "11px", lineHeight: 1.1, color: "#6B7280" }}
+          >
+            {note}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function normalizeBreakdownChartData(
+  totals: Record<string, number> | undefined,
+  formatter: (label: string) => string = toTitleCaseLabel,
+) {
+  return Object.entries(totals ?? {})
+    .sort((a, b) => b[1] - a[1])
+    .map(([label, value]) => ({
+      label: formatter(label),
+      value,
+    }));
+}
+
+function condenseChartData(
+  data: Array<{ label: string; value: number }>,
+  keepCount: number,
+  sourceSliceCount = keepCount,
+) {
+  const merged = Array.from(
+    data.reduce((acc, entry) => {
+      if (!Number.isFinite(entry.value) || entry.value <= 0) return acc;
+      acc.set(entry.label, (acc.get(entry.label) ?? 0) + entry.value);
+      return acc;
+    }, new Map<string, number>()),
+  )
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value);
+
+  const source = merged.slice(0, sourceSliceCount);
+
+  if (source.length <= keepCount) return source;
+
+  const top = source.slice(0, keepCount);
+  const otherValue = source
+    .slice(keepCount)
+    .reduce((sum, entry) => sum + entry.value, 0);
+  return otherValue > 0
+    ? [...top, { label: "Other", value: otherValue }]
+    : top;
+}
 
 function buildChartPages<T>(
   charts: T[],
@@ -899,15 +1047,55 @@ export default function e({ selections, range }: ExportReportViewProps) {
         }
 
         if (platformKey === "linkedin") {
-          // LinkedIn has a custom layout in PDF so it matches the live page:
-          // 2x2 small KPI grid (top-left), one top-right chart, and two charts below.
+          // LinkedIn uses a page-specific PDF layout so the export mirrors
+          // the live dashboard rather than the generic social template.
           const chartDataMap = selection.data.chartDataMap;
           const metricSummaries = selection.data.metricSummaries;
           const latestDate = latestPointDate(chartDataMap);
+          const breakdownTotals = selection.data.breakdownTotals ?? {};
+
+          const visitorDemographicData = condenseChartData(
+            normalizeBreakdownChartData(breakdownTotals.visitorIndustry),
+            4,
+            6,
+          );
+          const followerDemographicData = condenseChartData(
+            normalizeBreakdownChartData(breakdownTotals.followerIndustry),
+            4,
+            6,
+          );
+          const interactionMixData = [
+            {
+              label: "Reactions",
+              value: (chartDataMap.LIKES ?? []).reduce(
+                (sum, point) => sum + point.value,
+                0,
+              ),
+            },
+            {
+              label: "Comments",
+              value: (chartDataMap.COMMENTS ?? []).reduce(
+                (sum, point) => sum + point.value,
+                0,
+              ),
+            },
+            {
+              label: "Reposts",
+              value: (chartDataMap.SHARES ?? []).reduce(
+                (sum, point) => sum + point.value,
+                0,
+              ),
+            },
+          ];
+          const engagementRateData = computeRatePoints(
+            chartDataMap.TOTAL_INTERACTIONS ?? [],
+            chartDataMap.VIEWS ?? [],
+            "engagementRate",
+          );
 
           return (
             <div key={`${selection.type}-${index}`}>
-              <ExportPage>
+              <ExportPage widthClass="w-[1160px]">
                 {index === 0 ? (
                   <div className="mb-6 border-b border-gray-200 pb-4">
                     <div className="text-2xl font-semibold">
@@ -928,8 +1116,8 @@ export default function e({ selections, range }: ExportReportViewProps) {
                   Last updated: {latestDate ?? "No imported data"}
                 </div>
 
-                <div className="mt-3 grid grid-cols-2 gap-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="mt-3 flex gap-4">
+                  <div className="w-1/3 flex flex-col gap-4">
                     {LINKEDIN_SMALL_KPIS.map((card) => {
                       const summary = metricSummaries[card.id] ?? {
                         current: 0,
@@ -938,23 +1126,119 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       const delta =
                         (summary.current ?? 0) - (summary.prev ?? 0);
                       return (
-                        <GoogleSmallMetricCard
+                        <LinkedInMiniMetricCard
                           key={card.id}
                           title={card.title}
                           value={formatValue(summary.current ?? 0, "number")}
                           delta={formatDelta(delta, "number")}
+                          note={`since ${latestDate ?? "N/A"}`}
                         />
                       );
                     })}
                   </div>
 
+                  <div className="w-2/3">
+                    <GoogleChartCard
+                      title="Views"
+                      subtitle={rangeLabel}
+                      height={LINKEDIN_KPI_ROW_HEIGHT}
+                    >
+                      <LineCharts
+                        data={chartDataMap.VIEWS ?? []}
+                        xAxisKey="date"
+                        dataKeys={["value"]}
+                        showArea
+                        compact
+                      />
+                    </GoogleChartCard>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid grid-cols-3 gap-4">
                   <GoogleChartCard
-                    title="Total Interactions"
+                    title="Follower Demographics"
+                    subtitle="Industry"
+                    height={LINKEDIN_EXPORT_PIE_HEIGHT}
+                  >
+                    {followerDemographicData.length ? (
+                      <div className="h-full [&_.recharts-default-legend]:!text-[8px] [&_.recharts-default-legend]:leading-tight [&_.recharts-legend-item-text]:!text-[8px] [&_.recharts-legend-item]:mr-1">
+                        <PieCharts
+                          data={followerDemographicData}
+                          dataKey="value"
+                          nameKey="label"
+                          disableAnimation
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                        No data in range
+                      </div>
+                    )}
+                  </GoogleChartCard>
+
+                  <GoogleChartCard
+                    title="Interaction Mix"
                     subtitle={rangeLabel}
-                    height={290}
+                    height={LINKEDIN_EXPORT_PIE_HEIGHT}
+                  >
+                    {interactionMixData.some((entry) => entry.value > 0) ? (
+                      <PieCharts
+                        data={interactionMixData}
+                        dataKey="value"
+                        nameKey="label"
+                        disableAnimation
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                        No data in range
+                      </div>
+                    )}
+                  </GoogleChartCard>
+
+                  <GoogleChartCard
+                    title="Visitor Demographics"
+                    subtitle="Industry"
+                    height={LINKEDIN_EXPORT_PIE_HEIGHT}
+                  >
+                    {visitorDemographicData.length ? (
+                      <div className="h-full [&_.recharts-default-legend]:!text-[8px] [&_.recharts-default-legend]:leading-tight [&_.recharts-legend-item-text]:!text-[8px] [&_.recharts-legend-item]:mr-1">
+                        <PieCharts
+                          data={visitorDemographicData}
+                          dataKey="value"
+                          nameKey="label"
+                          disableAnimation
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                        No data in range
+                      </div>
+                    )}
+                  </GoogleChartCard>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-4">
+                  <GoogleChartCard
+                    title="Unique Visitors"
+                    subtitle={rangeLabel}
+                    height={LINKEDIN_EXPORT_CARD_HEIGHT}
                   >
                     <LineCharts
-                      data={chartDataMap.TOTAL_INTERACTIONS ?? []}
+                      data={chartDataMap.TOTAL_USERS ?? []}
+                      xAxisKey="date"
+                      dataKeys={["value"]}
+                      showArea
+                      compact
+                    />
+                  </GoogleChartCard>
+
+                  <GoogleChartCard
+                    title="New Followers"
+                    subtitle={rangeLabel}
+                    height={LINKEDIN_EXPORT_CARD_HEIGHT}
+                  >
+                    <LineCharts
+                      data={chartDataMap.FOLLOWERS ?? []}
                       xAxisKey="date"
                       dataKeys={["value"]}
                       showArea
@@ -965,12 +1249,12 @@ export default function e({ selections, range }: ExportReportViewProps) {
 
                 <div className="mt-3 grid grid-cols-2 gap-4">
                   <GoogleChartCard
-                    title="New Followers"
+                    title="Total Interactions"
                     subtitle={rangeLabel}
-                    height={220}
+                    height={LINKEDIN_EXPORT_CARD_HEIGHT}
                   >
                     <LineCharts
-                      data={chartDataMap.FOLLOWERS ?? []}
+                      data={chartDataMap.TOTAL_INTERACTIONS ?? []}
                       xAxisKey="date"
                       dataKeys={["value"]}
                       showArea
@@ -979,14 +1263,14 @@ export default function e({ selections, range }: ExportReportViewProps) {
                   </GoogleChartCard>
 
                   <GoogleChartCard
-                    title="Views"
+                    title="Engagement Rate"
                     subtitle={rangeLabel}
-                    height={220}
+                    height={LINKEDIN_EXPORT_CARD_HEIGHT}
                   >
                     <LineCharts
-                      data={chartDataMap.VIEWS ?? []}
+                      data={engagementRateData}
                       xAxisKey="date"
-                      dataKeys={["value"]}
+                      dataKeys={["engagementRate"]}
                       showArea
                       compact
                     />
