@@ -91,7 +91,6 @@ async function fetchDailyInsights(date: Date, accessToken: string) {
     views: out.page_media_view ?? 0,
     likes: out.page_actions_post_reactions_like_total ?? 0,
     videoViews: out.page_video_views ?? 0,
-    websiteClicks: out.page_total_actions ?? 0,
   };
 }
 
@@ -174,10 +173,6 @@ export async function runDailyFacebookSync() {
         { metricName: Metric.SHARES, metricValue: dailyShares },
         { metricName: Metric.DAYS_POSTED, metricValue: daysPosted },
         { metricName: Metric.VIDEO_VIEWS, metricValue: insights.videoViews },
-        {
-          metricName: Metric.WEBSITE_CLICKS,
-          metricValue: insights.websiteClicks,
-        },
       ] as const;
 
       await prisma.$transaction(async (tx) => {

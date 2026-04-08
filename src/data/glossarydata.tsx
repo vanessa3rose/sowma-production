@@ -140,13 +140,6 @@ export const GLOSSARY_ITEMS = [
     definition: "Cumulative count of the number of views your videos have.",
     platforms: ["Facebook"],
   },
-  {
-    key: "websiteClicks",
-    term: "WebsiteClicks",
-    definition:
-      "Cumulative count of the number of clicks to your website from Facebook.",
-    platforms: ["Facebook"],
-  },
 ] as const;
 
 // List of Keys present

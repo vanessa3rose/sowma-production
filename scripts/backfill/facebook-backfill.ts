@@ -30,7 +30,6 @@ const REQUIRED_FB_METRICS: Metric[] = [
   Metric.SHARES,
   Metric.COMMENTS,
   Metric.VIDEO_VIEWS,
-  Metric.WEBSITE_CLICKS,
 ];
 
 /* -------------------------------------------------
@@ -79,7 +78,6 @@ async function fetchDailyInsights(date: Date, accessToken: string) {
     "page_actions_post_reactions_like_total",
     "page_media_view",
     "page_video_views",
-    "page_website_clicks",
   ];
   const out: Record<string, number> = {};
 
@@ -203,10 +201,6 @@ export async function runDailyFacebookSync() {
         {
           metricName: Metric.VIDEO_VIEWS,
           metricValue: insights.page_video_views,
-        },
-        {
-          metricName: Metric.WEBSITE_CLICKS,
-          metricValue: insights.page_website_clicks,
         },
       ];
 

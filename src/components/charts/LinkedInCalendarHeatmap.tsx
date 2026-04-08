@@ -13,7 +13,7 @@ const EMPTY_CELL: Cell = { day: null, level: -2, isFuture: false };
 
 import { COLORS } from "../../data/colors.js";
 function heatColor(level: number): { bg: string; text: string } {
-  if (level <= 0) return { bg: COLORS.SOWMA_LIGHTEST_BLUE, text: "black" };
+  if (level <= 0) return { bg: COLORS.SOWMA_LIGHT_GRAY, text: "black" };
   if (level === 1) return { bg: COLORS.SOWMA_LIGHTER_BLUE, text: "black" };
   if (level === 2) return { bg: COLORS.SOWMA_LIGHT_BLUE, text: "black" };
   return { bg: COLORS.SOWMA_DARK_BLUE, text: "black" };

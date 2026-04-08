@@ -34,8 +34,7 @@ type MetricKey =
   | "comments"
   | "posts"
   | "shares"
-  | "videoViews"
-  | "websiteClicks";
+  | "videoViews";
 
 type MetricConfig = {
   id: MetricKey;
@@ -83,11 +82,6 @@ const METRICS: MetricConfig[] = [
     metric: "VIDEO_VIEWS",
     title: "Video Views",
   },
-  {
-    id: "websiteClicks",
-    metric: "WEBSITE_CLICKS",
-    title: "Website Clicks",
-  },
 ];
 
 const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
@@ -98,7 +92,6 @@ const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
   posts: [],
   shares: [],
   videoViews: [],
-  websiteClicks: [],
 };
 
 const INITIAL_RANGES: Record<MetricKey, DateRangeValue> = {
@@ -109,7 +102,6 @@ const INITIAL_RANGES: Record<MetricKey, DateRangeValue> = {
   posts: { id: "30d" },
   shares: { id: "30d" },
   videoViews: { id: "30d" },
-  websiteClicks: { id: "30d" },
 };
 
 /* ---------- helpers ---------- */
@@ -451,40 +443,6 @@ export default function FacebookPage() {
             computed.videoViews?.filtered.length ? (
               <LineCharts
                 data={computed.videoViews.filtered}
-                xAxisKey="date"
-                dataKeys={["value"]}
-                showArea
-              />
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                No data available
-              </div>
-            )
-          }
-          displayMode="both"
-          className="h-[360px]"
-        />
-
-        <BigCard
-          title="Website Clicks"
-          titleTooltip={getGlossaryDefinition("websiteClicks")}
-          subtitle={
-            <DateDropdown
-              value={ranges.websiteClicks}
-              onChange={(r) =>
-                setRanges((prev) => ({ ...prev, websiteClicks: r }))
-              }
-              minDate={computed.websiteClicks?.bounds.min}
-              maxDate={computed.websiteClicks?.bounds.max}
-            />
-          }
-          metricValue={computed.websiteClicks?.summary.current ?? 0}
-          metricLabel="website clicks"
-          metricChange={formatPercentChange(computed.websiteClicks?.summary)}
-          chart={
-            computed.websiteClicks?.filtered.length ? (
-              <LineCharts
-                data={computed.websiteClicks.filtered}
                 xAxisKey="date"
                 dataKeys={["value"]}
                 showArea
