@@ -320,13 +320,13 @@ export default function LinkedInPage() {
             metricLabel="latest imported day"
             metricChange={formatPercentChange(computed.followers?.summary)}
             chart={
-                <LineCharts
-                  data={computed.followers.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  labels={{ value: "New Followers" }}
-                  showArea
-                />
+              <LineCharts
+                data={computed.followers.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                labels={{ value: "New Followers" }}
+                showArea
+              />
             }
             displayMode="both"
             className="h-[360px]"
@@ -348,13 +348,13 @@ export default function LinkedInPage() {
             metricLabel="latest imported day"
             metricChange={formatPercentChange(computed.views?.summary)}
             chart={
-                <LineCharts
-                  data={computed.views.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  labels={{ value: "Views" }}
-                  showArea
-                />
+              <LineCharts
+                data={computed.views.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                labels={{ value: "Views" }}
+                showArea
+              />
             }
             displayMode="both"
             className="h-[360px]"
@@ -379,13 +379,13 @@ export default function LinkedInPage() {
             metricLabel="latest imported day"
             metricChange={formatPercentChange(computed.interactions?.summary)}
             chart={
-                <LineCharts
-                  data={computed.interactions.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  labels={{ value: "Total Interactions" }}
-                  showArea
-                />
+              <LineCharts
+                data={computed.interactions.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                labels={{ value: "Total Interactions" }}
+                showArea
+              />
             }
             displayMode="both"
             className="h-[360px]"
@@ -395,9 +395,7 @@ export default function LinkedInPage() {
             title="Engagement Calendar"
             titleTooltip="Interaction intensity by calendar day. Darker means more interactions."
             subtitle={<HeatmapLegend />}
-            chart={
-                <LinkedInCalendarHeatmap points={rawSeries.interactions} />
-            }
+            chart={<LinkedInCalendarHeatmap points={rawSeries.interactions} />}
             displayMode="chart-only"
             className="h-[360px]"
           />

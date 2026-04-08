@@ -183,9 +183,12 @@ const BigCard: React.FC<BigCardProps> = ({
         >
           {data !== undefined && !hasData(data) ? (
             <div className="flex h-full w-full items-center justify-center">
-            <span className="font-poppins" style={{ fontWeight: 400, fontSize: "14px", color: "#6B7280" }}>
-              No data available
-            </span>
+              <span
+                className="font-poppins"
+                style={{ fontWeight: 400, fontSize: "14px", color: "#6B7280" }}
+              >
+                No data available
+              </span>
             </div>
           ) : (
             chart

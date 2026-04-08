@@ -405,13 +405,13 @@ export default function FacebookPage() {
             metricLabel="followers"
             metricChange={formatPercentChange(computed.followers?.summary)}
             chart={
-                <LineCharts
-                  data={computed.followers.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  labels={{ value: "Followers" }}
-                  showArea
-                />
+              <LineCharts
+                data={computed.followers.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                labels={{ value: "Followers" }}
+                showArea
+              />
             }
             displayMode="both"
             className=""
@@ -436,13 +436,13 @@ export default function FacebookPage() {
             metricLabel="from last week"
             metricChange={formatPercentChange(computed.views?.summary)}
             chart={
-                <LineCharts
-                  data={computed.views.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  labels={{ value: "Views" }}
-                  showArea
-                />
+              <LineCharts
+                data={computed.views.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                labels={{ value: "Views" }}
+                showArea
+              />
             }
             displayMode="both"
             className="h-[360px]"
@@ -453,12 +453,12 @@ export default function FacebookPage() {
             titleTooltip={getGlossaryDefinition("daysPosted")}
             subtitle={<HeatmapLegend />}
             chart={
-                <CalendarHeatmap
-                  points={allPostsPoints}
-                  offset={calendarOffset}
-                  onOffsetChange={setCalendarOffset}
-                  minOffset={minCalendarOffset}
-                />
+              <CalendarHeatmap
+                points={allPostsPoints}
+                offset={calendarOffset}
+                onOffsetChange={setCalendarOffset}
+                minOffset={minCalendarOffset}
+              />
             }
             displayMode="chart-only"
             className=""
@@ -472,19 +472,19 @@ export default function FacebookPage() {
           title="Recent Posts"
           titleTooltip={getGlossaryDefinition("recentPosts")}
           chart={
-              <div className="w-full flex flex-col gap-2 pt-2">
-                {recentPosts.map((post) => (
-                  <div
-                    key={post.date}
-                    className="rounded-lg border border-[#E5E5E5] p-3 font-poppins"
-                  >
-                    <p className="font-semibold text-sm">{post.date}</p>
-                    <p className="text-sm text-gray-600">
-                      {post.value} new post(s)
-                    </p>
-                  </div>
-                ))}
-              </div>
+            <div className="w-full flex flex-col gap-2 pt-2">
+              {recentPosts.map((post) => (
+                <div
+                  key={post.date}
+                  className="rounded-lg border border-[#E5E5E5] p-3 font-poppins"
+                >
+                  <p className="font-semibold text-sm">{post.date}</p>
+                  <p className="text-sm text-gray-600">
+                    {post.value} new post(s)
+                  </p>
+                </div>
+              ))}
+            </div>
           }
           displayMode="chart-only"
           className="h-full"

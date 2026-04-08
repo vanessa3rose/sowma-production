@@ -272,13 +272,13 @@ export default function InstagramPage() {
         metricLabel={metricLabel}
         metricChange={metricChange}
         chart={
-            <LineCharts
-              data={chartData}
-              xAxisKey="date"
-              dataKeys={["value"]}
-              labels={{ value: cfg.title }}
-              showArea
-            />
+          <LineCharts
+            data={chartData}
+            xAxisKey="date"
+            dataKeys={["value"]}
+            labels={{ value: cfg.title }}
+            showArea
+          />
         }
         displayMode="both"
         className="w-full h-[360px]"

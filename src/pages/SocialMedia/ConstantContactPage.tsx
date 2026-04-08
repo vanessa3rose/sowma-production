@@ -641,14 +641,14 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-                <div className="w-full h-full">
-                  <LineCharts
-                    data={openRateData}
-                    xAxisKey="date"
-                    dataKeys={["openRate"]}
-                    showArea
-                  />
-                </div>
+              <div className="w-full h-full">
+                <LineCharts
+                  data={openRateData}
+                  xAxisKey="date"
+                  dataKeys={["openRate"]}
+                  showArea
+                />
+              </div>
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
@@ -666,14 +666,14 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-                <div className="w-full h-full">
-                  <LineCharts
-                    data={ctorData}
-                    xAxisKey="date"
-                    dataKeys={["ctorRate"]}
-                    showArea
-                  />
-                </div>
+              <div className="w-full h-full">
+                <LineCharts
+                  data={ctorData}
+                  xAxisKey="date"
+                  dataKeys={["ctorRate"]}
+                  showArea
+                />
+              </div>
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
@@ -694,14 +694,14 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-                <div className="w-full h-full">
-                  <LineCharts
-                    data={opensData}
-                    xAxisKey="date"
-                    dataKeys={["uniqueOpens", "totalOpens"]}
-                    showArea
-                  />
-                </div>
+              <div className="w-full h-full">
+                <LineCharts
+                  data={opensData}
+                  xAxisKey="date"
+                  dataKeys={["uniqueOpens", "totalOpens"]}
+                  showArea
+                />
+              </div>
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
@@ -719,14 +719,14 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-                <div className="w-full h-full">
-                  <LineCharts
-                    data={clicksData}
-                    xAxisKey="date"
-                    dataKeys={["uniqueClicks", "totalClicks"]}
-                    showArea
-                  />
-                </div>
+              <div className="w-full h-full">
+                <LineCharts
+                  data={clicksData}
+                  xAxisKey="date"
+                  dataKeys={["uniqueClicks", "totalClicks"]}
+                  showArea
+                />
+              </div>
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
@@ -761,14 +761,14 @@ export default function ConstantContactPage() {
                 metricLabel="total"
                 metricChange={formatPercentChange(summary)}
                 chart={
-                    <div className="w-full h-full">
-                      <LineCharts
-                        data={filtered}
-                        xAxisKey="date"
-                        dataKeys={["value"]}
-                        showArea
-                      />
-                    </div>
+                  <div className="w-full h-full">
+                    <LineCharts
+                      data={filtered}
+                      xAxisKey="date"
+                      dataKeys={["value"]}
+                      showArea
+                    />
+                  </div>
                 }
                 displayMode="both"
                 className="w-full h-[360px]"
@@ -787,14 +787,14 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-                <div className="w-full h-full">
-                  <LineCharts
-                    data={deliveryRateData}
-                    xAxisKey="date"
-                    dataKeys={["deliveryRate"]}
-                    showArea
-                  />
-                </div>
+              <div className="w-full h-full">
+                <LineCharts
+                  data={deliveryRateData}
+                  xAxisKey="date"
+                  dataKeys={["deliveryRate"]}
+                  showArea
+                />
+              </div>
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
