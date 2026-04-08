@@ -1,14 +1,14 @@
 import {
   Metric,
-  PrismaClient,
   Provider,
   Prisma,
 } from "../src/generated/prisma/index.js";
 import * as XLSX from "xlsx";
 import { startOfDay } from "../src/utils/dates.js";
 import { requireAdminApi } from "./_auth.js";
+import { createPrismaClient } from "./_db.js";
 
-const prisma = (globalThis as any).prisma ?? new PrismaClient();
+const prisma = (globalThis as any).prisma ?? createPrismaClient();
 if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
 
 type CsvImportRow = {

@@ -10,7 +10,10 @@ import DateDropdown, { DateRangeValue } from "../components/charts/DateButton";
 
 import { COLORS } from "../data/colors.js";
 import BarCharts from "../components/charts/BarCharts";
-import { HEAR_ABOUT_US_DATA } from "../data/tuftsHearAboutUs";
+import {
+  HEAR_ABOUT_US_DATA,
+  HearAboutUsEntry,
+} from "../data/tuftsHearAboutUs";
 
 type PlatformMetricPoint = {
   date: string;
@@ -36,6 +39,9 @@ export default function Homepage() {
   const [followerCountData, setFollowerCountData] = useState<
     PlatformMetricPoint[]
   >([]);
+  const [hearAboutUsData, setHearAboutUsData] = useState<HearAboutUsEntry[]>(
+    HEAR_ABOUT_US_DATA,
+  );
 
   // Per-card date ranges (now using DateRangeValue)
   const [impressionsRange, setImpressionsRange] = useState<DateRangeValue>({
@@ -337,6 +343,22 @@ export default function Homepage() {
     }
   }
 
+  async function loadHearAboutUs() {
+    try {
+      const response = await fetch("/api/hear-about-us-report");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch report: ${response.statusText}`);
+      }
+
+      const data = (await response.json()) as HearAboutUsEntry[];
+      if (Array.isArray(data) && data.length > 0) {
+        setHearAboutUsData(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   useEffect(() => {
     loadImpressions();
   }, []);
@@ -348,6 +370,9 @@ export default function Homepage() {
   }, []);
   useEffect(() => {
     loadFollowers();
+  }, []);
+  useEffect(() => {
+    loadHearAboutUs();
   }, []);
 
   const impressionsBounds = useMemo(
@@ -724,7 +749,7 @@ export default function Homepage() {
           chart={
             <div className="w-full pb-4">
               <BarCharts
-                data={HEAR_ABOUT_US_DATA.map((d) => ({
+                data={hearAboutUsData.map((d) => ({
                   source: d.source,
                   count: d.count,
                 }))}
