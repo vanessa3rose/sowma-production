@@ -621,7 +621,7 @@ export default function ConstantContactPage() {
               opts={{ renderer: "svg" }}
             />
           ) : (
-            <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
+            <div className="flex items-center font-poppins justify-center h-64 text-gray-400 text-sm">
               No data available
             </div>
           )}

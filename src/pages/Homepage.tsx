@@ -644,22 +644,17 @@ export default function Homepage() {
               />
             </div>
           }
+          data={sessionsFiltered}
           chart={
-            sessionsFiltered.length > 0 ? (
-              <div className="w-full h-full">
-                <LineCharts
-                  data={sessionsFiltered}
-                  xAxisKey="date"
-                  dataKeys={["sessions"]}
-                  showArea
-                  autoAdjustYAxis
-                />
-              </div>
-            ) : (
-              <div className="w-full flex items-center justify-center text-sm text-gray-500">
-                No website sessions data available.
-              </div>
-            )
+            <div className="w-full h-full">
+              <LineCharts
+                data={sessionsFiltered}
+                xAxisKey="date"
+                dataKeys={["sessions"]}
+                showArea
+                autoAdjustYAxis
+              />
+            </div>
           }
         />
       </div>
@@ -717,11 +712,8 @@ export default function Homepage() {
           subtitle=""
           displayMode="both"
           className="flex-1 w-full max-h-[320px]"
-          chart={
-            <div className="w-full flex items-center justify-center text-sm text-gray-500">
-              No data available.
-            </div>
-          }
+          data={[]}
+          chart={<></>}
         />
       </div>
     </div>
