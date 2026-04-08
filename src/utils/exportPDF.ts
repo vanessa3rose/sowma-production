@@ -36,7 +36,7 @@ export async function exportPDF(
       const canvas = await html2canvas(pageEl, {
         scale: renderScale,
         useCORS: true,
-        backgroundColor: "#ffffff",
+        backgroundColor: "white",
       });
 
       const fitScale = Math.min(maxW / canvas.width, maxH / canvas.height, 1);
@@ -62,7 +62,7 @@ export async function exportPDF(
   const canvas = await html2canvas(element, {
     scale: renderScale,
     useCORS: true,
-    backgroundColor: "#ffffff",
+    backgroundColor: "white",
   });
   const imgData = canvas.toDataURL("image/png");
 

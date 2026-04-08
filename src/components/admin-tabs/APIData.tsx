@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
+import Dropdown from "../Dropdown";
 import "react-datepicker/dist/react-datepicker.css";
 
 type UploadResult = {
@@ -43,7 +44,7 @@ const SOCIAL_MEDIA_METRICS = [
     metrics: ["Followers", "Likes", "Views", "Posts", "Shares", "Comments"],
   },
   {
-    socialMedia: "TikTok",
+    socialMedia: "Constant Contact",
     metrics: [],
   },
   {
@@ -173,7 +174,7 @@ export default function APIData() {
             type="button"
             onClick={handleLinkedInUpload}
             disabled={isUploading || files.length === 0}
-            className="rounded-full bg-[#4e8bcc] text-white font-poppins font-semibold px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-full bg-sowma-light-blue text-white font-poppins font-semibold px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isUploading ? "Uploading..." : "Upload File(s)"}
           </button>
@@ -218,41 +219,36 @@ export default function APIData() {
         <div className="font-poppins font-[400] lg:text-2xl text-lg grid grid-rows gap-6 py-6 items-start">
           <div className="flex flex-col lg:flex-row lg:items-center items-start gap-2 lg:gap-6">
             <p className="text-gray-500">Select a platform</p>
-            <select
+            <Dropdown<string>
+              items={SOCIAL_MEDIA_METRICS.map((p) => p.socialMedia)}
               value={platform}
-              onChange={(e) => {
-                setPlatform(e.target.value);
+              onChange={(val) => {
+                setPlatform(val);
                 setMetric("");
               }}
-              className="rounded-2xl border-gray-500 border-2 px-3 py-2 lg:text-xl"
-            >
-              {SOCIAL_MEDIA_METRICS.map((p) => (
-                <option key={p.socialMedia} value={p.socialMedia}>
-                  {p.socialMedia}
-                </option>
-              ))}
-            </select>
+              getLabel={(val) => val}
+              getKey={(val) => val}
+              className="rounded-2xl border-sowma-gray  border-2 px-3 py-2"
+              openClassName="rounded-t-2xl border-sowma-gray border-2 px-3 pt-2 -pb-2 mb-2 lg:text-[14px]"
+            />
           </div>
 
           <div className="flex flex-col lg:flex-row lg:items-center items-start gap-2 lg:gap-6">
             <p className="text-gray-500">
               Which metric would you like to change?
             </p>
-            <select
+            <Dropdown<string>
+              items={selectedPlatform?.metrics || []}
               value={metric}
-              onChange={(e) => setMetric(e.target.value)}
-              disabled={!selectedPlatform}
-              className="rounded-2xl border-gray-500 border-2 px-3 py-2 lg:text-xl disabled:opacity-50"
-            >
-              <option value="" disabled>
-                Select metric
-              </option>
-              {selectedPlatform?.metrics.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => {
+                setMetric(val);
+              }}
+              getLabel={(val) => val}
+              getKey={(val) => val}
+              defaultValue="select metric"
+              className={`rounded-2xl  ${metric ? "border-sowma-gray" : "border-sowma-light-gray"} border-2 px-3 py-2`}
+              openClassName="rounded-t-2xl border-sowma-gray border-2 px-3 pt-2 -pb-2 mb-2 lg:text-[14px]"
+            />
           </div>
 
           <div className="flex flex-col gap-10">
@@ -277,7 +273,7 @@ export default function APIData() {
                   onChange={(e) => {
                     setText(e.target.value);
                   }}
-                  className="rounded-3xl border-2 border-gray-500 px-4 py-2 lg:text-xl"
+                  className="rounded-3xl border-2 border-sowma-gray px-4 py-2 lg:text-xl"
                 />
 
                 {submittedText ? (
@@ -291,7 +287,7 @@ export default function APIData() {
                 <button
                   type="button"
                   onClick={() => setSubmittedText(text)}
-                  className="rounded-3xl bg-[#4e8bcc] text-white text-xl font-bold px-10 py-2"
+                  className="rounded-3xl bg-sowma-light-blue text-white text-xl font-bold px-10 py-2"
                 >
                   Submit
                 </button>

@@ -190,6 +190,30 @@ export const CHART_CONFIGS: Record<string, ChartConfig[]> = {
       type: "line",
       metric: "EMAILS_UNSUBSCRIBED",
     },
+    {
+      id: "email_bounced",
+      title: "Bounced",
+      type: "line",
+      metric: "EMAIL_BOUNCED",
+    },
+    {
+      id: "email_forwarded",
+      title: "Forwarded",
+      type: "line",
+      metric: "EMAIL_FORWARDED",
+    },
+    {
+      id: "email_not_opened",
+      title: "Not Opened",
+      type: "line",
+      metric: "EMAIL_NOT_OPENED",
+    },
+    {
+      id: "email_abuse",
+      title: "Abuse / Spam",
+      type: "line",
+      metric: "EMAIL_ABUSE",
+    },
   ],
 };
 

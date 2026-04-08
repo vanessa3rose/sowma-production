@@ -1,5 +1,6 @@
 import React from "react";
 import TitleTooltip from "../charts/TitleTooltip";
+import { COLORS } from "../../data/colors.js";
 
 type DisplayMode = "both" | "chart-only";
 
@@ -14,6 +15,8 @@ interface BigCardProps {
   className: string;
   dropdown?: React.ReactNode;
   titleTooltip?: string;
+  style?: React.CSSProperties;
+  scrollable?: boolean;
 }
 
 const BigCard: React.FC<BigCardProps> = ({
@@ -27,24 +30,26 @@ const BigCard: React.FC<BigCardProps> = ({
   className = "",
   dropdown,
   titleTooltip,
+  style,
+  scrollable = false,
 }) => {
   const shouldShowChart =
     displayMode === "both" || displayMode === "chart-only";
   const shouldShowMetric = displayMode === "both";
   const useFullChartHeight =
-    displayMode === "chart-only" ||
-    title === "Days Posted" ||
-    title === "Engagement Calendar";
+    displayMode === "chart-only" &&
+    (title === "Days Posted" || title === "Engagement Calendar");
 
   return (
     <div
       className={className}
       style={{
-        backgroundColor: "#ffffff",
+        backgroundColor: "white",
         border: "1px solid #E5E5E5",
         borderRadius: "12px",
         boxShadow: "0px 4px 4px #1e1e1e64",
         padding: "20px",
+        ...style,
       }}
     >
       {/* Header with title, subtitle, and optional dropdown */}
@@ -55,7 +60,7 @@ const BigCard: React.FC<BigCardProps> = ({
               fontFamily: "Poppins, sans-serif",
               fontWeight: 500,
               fontSize: "16px",
-              color: "#000000",
+              color: "black",
             }}
           >
             {title}
@@ -74,7 +79,7 @@ const BigCard: React.FC<BigCardProps> = ({
                   lineHeight: "100%",
                   letterSpacing: "0%",
                   textAlign: "right",
-                  color: "#000000",
+                  color: "black",
                 }}
               >
                 {subtitle}
@@ -91,49 +96,63 @@ const BigCard: React.FC<BigCardProps> = ({
         <div className="mb-4">
           <div className="flex items-baseline gap-2 flex-wrap opacity-100">
             <span
-              className=""
               style={{
                 fontFamily: "Poppins, sans-serif",
                 fontWeight: 400,
                 fontSize: "32px",
                 lineHeight: "100%",
-                letterSpacing: "-3.75%",
-                color: "#4781C2",
+                letterSpacing: "-1%",
+                color: COLORS.SOWMA_LIGHT_BLUE,
               }}
             >
               {metricValue}
             </span>
             {metricChange && (
-              <span
-                className={
-                  metricChange.includes("increase") ||
-                  metricChange.startsWith("+")
-                    ? "text-green-500"
-                    : metricChange.includes("decrease") ||
-                        metricChange.startsWith("-")
-                      ? "text-red-500"
-                      : "text-green-500"
-                }
-                style={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: 400,
-                  fontSize: "14px",
-                  lineHeight: "100%",
-                  letterSpacing: "0%",
-                }}
-              >
-                {metricChange}
-              </span>
+              <div className="flex items-center gap-1">
+                <span
+                  style={{
+                    fontFamily: "Poppins, sans-serif",
+                    fontWeight: 400,
+                    fontSize: "14px",
+                    lineHeight: "100%",
+                    letterSpacing: "0%",
+                    color: metricChange.startsWith("+")
+                      ? COLORS.SOWMA_BRIGHT_GREEN
+                      : metricChange.startsWith("-")
+                        ? COLORS.SOWMA_BRIGHT_RED
+                        : COLORS.SOWMA_GRAY,
+                  }}
+                >
+                  {metricChange}
+                </span>
+                {metricChange.startsWith("+") && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    style={{ transform: "rotate(-45deg)" }}
+                  >
+                    <path
+                      d="M2 8L14 8M14 8L8 2M14 8L8 14"
+                      stroke={COLORS.SOWMA_BRIGHT_GREEN}
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </div>
             )}
             {metricLabel && (
               <span
-                className="text-gray-500"
                 style={{
                   fontFamily: "Poppins, sans-serif",
                   fontWeight: 400,
                   fontSize: "14px",
                   lineHeight: "100%",
                   letterSpacing: "0%",
+                  color: COLORS.SOWMA_GRAY,
                 }}
               >
                 {metricLabel}
@@ -147,10 +166,10 @@ const BigCard: React.FC<BigCardProps> = ({
       {shouldShowChart && chart && (
         <div
           className={`
-            flex 
+            flex
             ${
               !useFullChartHeight
-                ? "h-[300px] w-full overflow-hidden"
+                ? `h-[300px] w-full ${scrollable ? "overflow-y-auto" : "overflow-hidden"}`
                 : "flex h-full w-full justify-center items-center"
             }`}
         >

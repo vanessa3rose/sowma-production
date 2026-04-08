@@ -16,10 +16,10 @@ import ConstantContactPage from "./pages/SocialMedia/ConstantContactPage";
 import LinkedInPage from "./pages/SocialMedia/LinkedInPage";
 import AdminPage from "./pages/AdminPage";
 import AdminRejection from "./pages/AdminRejection";
+import NotFoundPage from "./pages/NotFound";
 
 import GlossaryPage from "./pages/Glossary";
 import ErrorPage from "./pages/ErrorPage";
-import Newsletter from "./pages/Newsletter";
 
 import { ProtectedRoute } from "./components/routes/ProtectedRoute";
 import { AdminRoute } from "./components/routes/AdminRoute";
@@ -120,15 +120,13 @@ const App = () => {
             />
             <Route
               path="/newsletter"
-              component={() => <ProtectedRoute component={Newsletter} />}
+              component={() => (
+                <ProtectedRoute component={ConstantContactPage} />
+              )}
             />
             <Route
               path="/glossary"
               component={() => <ProtectedRoute component={GlossaryPage} />}
-            />
-            <Route
-              path="/error/tiktok"
-              component={() => <ProtectedRoute component={ErrorPage} />}
             />
             <Route
               path="/error/linkedin"
@@ -151,10 +149,7 @@ const App = () => {
             <Route path="/login" component={LoginPage} />
             <Route path="/accept-invite" component={AcceptInvitePage} />
             <Route path="/accept-invite/:rest*" component={AcceptInvitePage} />
-
-            <Route>
-              <p className="p-4 text-black">404: Page Not Found</p>
-            </Route>
+            <Route component={NotFoundPage} />
           </Switch>
         </div>
       </div>

@@ -6,6 +6,7 @@ import {
 } from "../src/generated/prisma/index.js";
 import * as XLSX from "xlsx";
 import { startOfDay } from "../src/utils/dates.js";
+import { requireAdminApi } from "./_auth.js";
 
 const prisma = (globalThis as any).prisma ?? new PrismaClient();
 if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
@@ -328,6 +329,9 @@ export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
+
+  const auth = await requireAdminApi(req, res);
+  if (!auth) return;
 
   try {
     const csvText = String(req.body?.csvText ?? "");

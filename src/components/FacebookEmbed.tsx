@@ -51,10 +51,7 @@ export default function FacebookEmbed() {
 
   return (
     <div style={{ width: "100%", maxWidth: "100%", overflowX: "hidden" }}>
-      <div
-        className="sk-ww-facebook-page-posts"
-        data-embed-id="25667963"
-      />
+      <div className="sk-ww-facebook-page-posts" data-embed-id="25667963" />
     </div>
   );
 }

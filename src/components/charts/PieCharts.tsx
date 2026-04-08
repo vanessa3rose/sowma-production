@@ -11,11 +11,12 @@ import {
 
 import ChartTooltip from "./ChartTooltip";
 
-const COLORS = [
-  "#7987FF", // blue
-  "#F765A3", // pink
-  "#FFA9D0", // light pink
-  "#A155B9", // purple
+import { COLORS } from "../../data/colors.js";
+const PIE_COLORS = [
+  COLORS.SOWMA_LIGHT_BLUE,
+  COLORS.SOWMA_GREEN,
+  COLORS.SOWMA_LIGHT_GREEN,
+  COLORS.SOWMA_DARK_GREEN,
 ];
 
 type PieChartsProps = {
@@ -64,6 +65,13 @@ const PieCharts = ({
 
   const validData = data.filter((entry) => entry[dataKey] > 0);
 
+  const tooltipSeries = Object.fromEntries(
+    validData.map((entry, index) => [
+      entry[nameKey],
+      { color: PIE_COLORS[index % PIE_COLORS.length] },
+    ]),
+  );
+
   if (!validData.length) {
     return (
       <div
@@ -99,12 +107,14 @@ const PieCharts = ({
             {validData.map((_: any, index: number) => (
               <Cell
                 key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
+                fill={PIE_COLORS[index % PIE_COLORS.length]}
               />
             ))}
           </Pie>
 
-          <Tooltip content={<ChartTooltip hideZeroValues />} />
+          <Tooltip
+            content={<ChartTooltip hideZeroValues series={tooltipSeries} />}
+          />
 
           <Legend
             verticalAlign="bottom"

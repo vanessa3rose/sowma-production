@@ -1,6 +1,6 @@
-// drop down menu for home page
-
 import { useEffect, useState } from "react";
+
+import SocialMediaHeader from "../../components/SocialMediaHeader";
 
 // Cards
 import BigCard from "../../components/cards/BigCard";
@@ -21,15 +21,22 @@ import DateDropdown, {
   DateRangeId,
   DateRangeValue,
 } from "../../components/charts/DateButton";
-import ExportButton from "../../components/export-pdf/ExportButton";
 
 import { fetchMetrics, SocialMediaMetric } from "../../utils/fetchMetrics";
-import { useGlobalPageExporter } from "../../components/export-pdf/GlobalPageExportProvider";
 import { getLatestImportedDate } from "../../utils/latestImportedDate";
 import {
   formatAbsoluteChange,
   getSmallCardSinceLabel,
 } from "../../utils/metricChange";
+
+import { getGlossaryDefinition } from "../../data/glossarydata";
+import {
+  type LinePoint as Point,
+  type MetricSummary,
+  toLinePoints,
+  summarizeSeries,
+  getBounds,
+} from "../../utils/seriesUtils";
 
 // Types
 export type GAMetrics = {
@@ -50,11 +57,6 @@ export type TimePoint = {
   engagementRate?: number;
 };
 
-type MetricSummary = {
-  current: number | null;
-  prev: number | null;
-};
-
 type MetricKey =
   | "activeUsers"
   | "screenPageViews"
@@ -63,25 +65,9 @@ type MetricKey =
   | "newUsers"
   | "engagementTime";
 
-type Point = { date: string; value: number };
-
 const provider = "GOOGLE_ANALYTICS";
 const defaultStartDate = "2024-01-01";
 const defaultEndDate = "3000-01-01";
-const GA_CARD_TOOLTIPS = {
-  pageViews: "Total page and screen views.",
-  active7DayUsers: "Users active in the last 7 days.",
-  avgEngagementTime: "Average engagement time per user (seconds).",
-  countyVisitors: "Total site visitors by Massachusetts county.",
-  newVsReturning:
-    "Users who have never been to the site vs. users who are returning.",
-  sessionsByDevice: "Types of devices accessing the site.",
-  activeUsers:
-    "Users who were on the site for more than 10 seconds, or visited multiple pages.",
-  trafficSources: "How each user got to the site.",
-  engagementRate:
-    "Percent of sessions that lasted more than 10 seconds, or visited 2+ pages.",
-} as const;
 
 // -----------------------------
 // Today-anchored date helpers
@@ -198,16 +184,6 @@ function toShareOfTotalIntensity(countyVisits: Record<CountyId, number>): {
 // -----------------------------
 // Helpers for time series / cards
 // -----------------------------
-function getBounds(pts: Point[]) {
-  if (!pts.length)
-    return { min: null as Date | null, max: null as Date | null };
-  const dates = pts
-    .map((p) => p.date)
-    .slice()
-    .sort();
-  return { min: new Date(dates[0]), max: new Date(dates[dates.length - 1]) };
-}
-
 function filterByRangeAnchoredToToday(pts: Point[], range: DateRangeId) {
   if (!pts.length) return pts;
 
@@ -249,32 +225,6 @@ function filterMetricRowsByRangeAnchoredToToday(
   });
 }
 
-function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
-  return raw
-    .filter((m) => m.metricDate || m.lastSynced)
-    .slice()
-    .sort((a, b) =>
-      (a.metricDate ?? a.lastSynced)!.localeCompare(
-        (b.metricDate ?? b.lastSynced)!,
-      ),
-    );
-}
-
-function toLinePoints(raw: SocialMediaMetric[]): Point[] {
-  return sortByDate(raw).map((m) => {
-    const timestamp = (m.metricDate ?? m.lastSynced)!;
-    return { date: timestamp.slice(0, 10), value: m.metricValue };
-  });
-}
-
-function summarizeSeries(pts: Point[]): MetricSummary {
-  if (pts.length === 0) return { current: null, prev: null };
-  if (pts.length === 1) return { current: pts[0].value, prev: null };
-  const latest = pts[pts.length - 1].value;
-  const prev = pts[pts.length - 2].value;
-  return { current: latest, prev };
-}
-
 function mergeUsersAnd7Day(active: Point[], active7: Point[]): TimePoint[] {
   const map: Record<string, TimePoint> = {};
   active.forEach((p) => {
@@ -301,8 +251,6 @@ function formatPercentChange(summary?: MetricSummary | null): string {
 // Component
 // -----------------------------
 export default function GoogleAnalyticsPage() {
-  const { exportByPlatforms } = useGlobalPageExporter();
-
   const [metrics, setMetrics] = useState<GAMetrics | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
@@ -540,7 +488,7 @@ export default function GoogleAnalyticsPage() {
 
   // ---------------------
   // Fetch county sessions breakdown + compute % of total
-  // ✅ date dropdown on map, anchored to TODAY
+  // date dropdown on map, anchored to TODAY
   // ---------------------
   useEffect(() => {
     async function loadBreakdownsAllTime() {
@@ -699,21 +647,21 @@ export default function GoogleAnalyticsPage() {
   const topSmallCards = [
     {
       title: "Page Views",
-      tooltip: GA_CARD_TOOLTIPS.pageViews,
+      tooltip: getGlossaryDefinition("pageViews"),
       value: smallCardSummaries.screenPageViews?.current ?? 0,
       label: getSmallCardSinceLabel(smallCardSeries.screenPageViews),
       change: formatAbsoluteChange(smallCardSummaries.screenPageViews),
     },
     {
       title: "Active 7-Day Users",
-      tooltip: GA_CARD_TOOLTIPS.active7DayUsers,
+      tooltip: getGlossaryDefinition("active7DayUsers"),
       value: smallCardSummaries.active7DayUsers?.current ?? 0,
       label: getSmallCardSinceLabel(smallCardSeries.active7DayUsers),
       change: formatAbsoluteChange(smallCardSummaries.active7DayUsers),
     },
     {
       title: "Avg Engagement Time",
-      tooltip: GA_CARD_TOOLTIPS.avgEngagementTime,
+      tooltip: getGlossaryDefinition("avgEngagementTime"),
       value: Math.round(smallCardSummaries.engagementTime?.current ?? 0),
       label: getSmallCardSinceLabel(smallCardSeries.engagementTime),
       change: formatAbsoluteChange(smallCardSummaries.engagementTime),
@@ -725,52 +673,16 @@ export default function GoogleAnalyticsPage() {
   // ---------------------
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
-      {/* Header */}
-      <div className="w-full flex items-center justify-between px-4 py-2">
-        <div className="flex items-center space-x-2 mr-2 lg:mr-0">
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="w-[40px] h-[40px]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="size-7"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
-          </button>
-
-          <h1 className="font-poppins font-semibold text-3xl lg:text-4xl whitespace-wrap">
-            Google Analytics
-          </h1>
-        </div>
-
-        <div className="flex flex-row justify-center items-center mt-2 lg:mt-0 lg:space-x-2 space-x-4">
-          <a
-            href="https://analytics.google.com/analytics/web/#/p393011442/reports/intelligenthome"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-[15px] border border-[#0A86D9] px-4 py-1.5 text-[#0A86D9] font-poppins font-semibold inline-block"
-          >
-            Go to Account
-          </a>
-          <ExportButton onExport={exportByPlatforms} />
-        </div>
-      </div>
-      <div className="px-4 font-poppins text-sm text-gray-600">
-        Last updated: {lastUpdated ?? "No imported data yet"}
-      </div>
+      <SocialMediaHeader
+        lastUpdated={lastUpdated}
+        Title={"Google Analytics"}
+        Link={
+          "https://analytics.google.com/analytics/web/#/p393011442/reports/intelligenthome"
+        }
+      />
 
       {/* Row 1: Top small cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {topSmallCards.map((card) => (
           <SmallCard
             key={card.title}
@@ -786,11 +698,11 @@ export default function GoogleAnalyticsPage() {
       </div>
 
       {/* Row 2: Map + New vs Returning */}
-      <div className="flex lg:flex-row flex-col gap-4 px-4">
+      <div className="flex lg:flex-row flex-col gap-4">
         <div className="lg:w-3/5 w-full">
           <BigCard
             title="Massachusetts Visitors by County"
-            titleTooltip={GA_CARD_TOOLTIPS.countyVisitors}
+            titleTooltip={getGlossaryDefinition("countyVisitors")}
             subtitle={
               <DateDropdown
                 value={{ id: countyRange }}
@@ -817,7 +729,7 @@ export default function GoogleAnalyticsPage() {
         <div className="lg:w-2/5 w-full">
           <BigCard
             title="New vs Returning Users"
-            titleTooltip={GA_CARD_TOOLTIPS.newVsReturning}
+            titleTooltip={getGlossaryDefinition("newVsReturning")}
             subtitle={
               <DateDropdown
                 value={{ id: newVsReturningRange }}
@@ -841,11 +753,11 @@ export default function GoogleAnalyticsPage() {
       </div>
 
       {/* Row 3: Device category + Active users */}
-      <div className="flex lg:flex-row flex-col gap-4 px-4">
+      <div className="flex lg:flex-row flex-col gap-4">
         <div className="lg:w-2/5 w-full">
           <BigCard
             title="Sessions by Device Category"
-            titleTooltip={GA_CARD_TOOLTIPS.sessionsByDevice}
+            titleTooltip={getGlossaryDefinition("sessionsByDevice")}
             subtitle={
               <DateDropdown
                 value={{ id: deviceRange }}
@@ -869,7 +781,7 @@ export default function GoogleAnalyticsPage() {
         <div className="lg:w-3/5 w-full">
           <BigCard
             title="Active Users"
-            titleTooltip={GA_CARD_TOOLTIPS.activeUsers}
+            titleTooltip={getGlossaryDefinition("activeUsers")}
             subtitle={
               <DateDropdown
                 value={{ id: activeUsersRange }}
@@ -897,10 +809,10 @@ export default function GoogleAnalyticsPage() {
       </div>
 
       {/* Row 4: Source + Engagement side-by-side equal */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 pb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-4">
         <BigCard
           title="Traffic Source Breakdown"
-          titleTooltip={GA_CARD_TOOLTIPS.trafficSources}
+          titleTooltip={getGlossaryDefinition("trafficSources")}
           subtitle={
             <DateDropdown
               value={{ id: sourceRange }}
@@ -924,7 +836,7 @@ export default function GoogleAnalyticsPage() {
         />
         <BigCard
           title="Engagement Rate"
-          titleTooltip={GA_CARD_TOOLTIPS.engagementRate}
+          titleTooltip={getGlossaryDefinition("engagementRate")}
           subtitle={
             <DateDropdown
               value={{ id: engagementRange }}

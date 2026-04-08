@@ -4,6 +4,7 @@ import {
   Provider,
 } from "../src/generated/prisma/index.js";
 import "dotenv/config";
+import { requireSignedInApi } from "./_auth.js";
 
 // Reuse Prisma client in serverless
 const prisma = (globalThis as any).prisma ?? new PrismaClient();
@@ -15,6 +16,9 @@ export default async function handler(req: any, res: any) {
     res.status(405).json({ error: "Method not allowed" });
     return;
   }
+
+  const auth = await requireSignedInApi(req, res);
+  if (!auth) return;
 
   const { provider, metric, startDate, endDate } = req.query;
 
@@ -99,7 +103,6 @@ export default async function handler(req: any, res: any) {
 
     if (debug) console.log("[/api/metrics] rows:", filteredMetrics.length);
 
-    res.setHeader("Access-Control-Allow-Origin", "*"); // allow frontend requests
     res.status(200).json(filteredMetrics);
   } catch (error) {
     console.error(error);

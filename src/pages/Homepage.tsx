@@ -8,6 +8,10 @@ import BigCard from "../components/cards/BigCard";
 import PlatformMetricCard from "../components/cards/PlatformMetricCard";
 import DateDropdown, { DateRangeValue } from "../components/charts/DateButton";
 
+import { COLORS } from "../data/colors.js";
+import BarCharts from "../components/charts/BarCharts";
+import { HEAR_ABOUT_US_DATA } from "../data/tuftsHearAboutUs";
+
 type PlatformMetricPoint = {
   date: string;
   facebook: number | null;
@@ -545,7 +549,7 @@ export default function Homepage() {
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
       <div className="flex flex-wrap w-full justify-between items-center gap-4">
-        <h1 className="font-poppins text-[#4781C2] text-2xl font-semibold">
+        <h1 className="font-poppins text-sowma-light-blue text-2xl font-semibold">
           Dashboard
         </h1>
         <ExportButton onExport={exportByPlatforms} />
@@ -570,7 +574,7 @@ export default function Homepage() {
               label: "Facebook",
               value: impressionsChange.facebook,
               change: impressionsChange.fbChange,
-              color: "#A155B9",
+              color: COLORS.SOWMA_LIGHT_BLUE,
               sinceDate: formatSinceDate(
                 impressionsChange.fbSince,
                 impressionsRange,
@@ -580,7 +584,7 @@ export default function Homepage() {
               label: "Instagram",
               value: impressionsChange.instagram,
               change: impressionsChange.igChange,
-              color: "#7987FF",
+              color: COLORS.SOWMA_GREEN,
               sinceDate: formatSinceDate(
                 impressionsChange.igSince,
                 impressionsRange,
@@ -607,21 +611,21 @@ export default function Homepage() {
               label: "Facebook",
               value: postsChange.facebook,
               change: postsChange.fbChange,
-              color: "#A155B9",
+              color: COLORS.SOWMA_LIGHT_BLUE,
               sinceDate: formatSinceDate(postsChange.fbSince, daysPostedRange),
             },
             {
               label: "Instagram",
               value: postsChange.instagram,
               change: postsChange.igChange,
-              color: "#7987FF",
+              color: COLORS.SOWMA_GREEN,
               sinceDate: formatSinceDate(postsChange.igSince, daysPostedRange),
             },
             {
               label: "Twitter",
               value: postsChange.twitter,
               change: postsChange.twChange,
-              color: "#F765A3",
+              color: COLORS.SOWMA_DARK_BLUE,
               sinceDate: formatSinceDate(postsChange.twSince, daysPostedRange),
             },
           ]}
@@ -683,7 +687,7 @@ export default function Homepage() {
               label: "Facebook",
               value: followerChange.facebook,
               change: followerChange.fbChange,
-              color: "#A155B9",
+              color: COLORS.SOWMA_LIGHT_BLUE,
               sinceDate: formatSinceDate(
                 followerChange.fbSince,
                 followersRange,
@@ -693,7 +697,7 @@ export default function Homepage() {
               label: "Instagram",
               value: followerChange.instagram,
               change: followerChange.igChange,
-              color: "#7987FF",
+              color: COLORS.SOWMA_GREEN,
               sinceDate: formatSinceDate(
                 followerChange.igSince,
                 followersRange,
@@ -703,7 +707,7 @@ export default function Homepage() {
               label: "Twitter",
               value: followerChange.twitter,
               change: followerChange.twChange,
-              color: "#F765A3",
+              color: COLORS.SOWMA_DARK_BLUE,
               sinceDate: formatSinceDate(
                 followerChange.twSince,
                 followersRange,
@@ -715,11 +719,18 @@ export default function Homepage() {
         <BigCard
           title="How did you hear about us?"
           subtitle=""
-          displayMode="both"
+          displayMode="chart-only"
           className="flex-1 w-full max-h-[320px]"
           chart={
-            <div className="w-full flex items-center justify-center text-sm text-gray-500">
-              No data available.
+            <div className="w-full pb-4">
+              <BarCharts
+                data={HEAR_ABOUT_US_DATA.map((d) => ({
+                  source: d.source,
+                  count: d.count,
+                }))}
+                xAxisKey="source"
+                dataKeys={["count"]}
+              />
             </div>
           }
         />

@@ -11,11 +11,12 @@ type LinkedInCalendarHeatmapProps = {
 
 const EMPTY_CELL: Cell = { day: null, level: -2, isFuture: false };
 
+import { COLORS } from "../../data/colors.js";
 function heatColor(level: number): { bg: string; text: string } {
-  if (level <= 0) return { bg: "#989b9f", text: "#ffffff" };
-  if (level === 1) return { bg: "#7987ff", text: "#ffffff" };
-  if (level === 2) return { bg: "#6772d7", text: "#ffffff" };
-  return { bg: "#545dae", text: "#ffffff" };
+  if (level <= 0) return { bg: COLORS.SOWMA_LIGHT_GRAY, text: "black" };
+  if (level === 1) return { bg: COLORS.SOWMA_LIGHTER_BLUE, text: "black" };
+  if (level === 2) return { bg: COLORS.SOWMA_LIGHT_BLUE, text: "black" };
+  return { bg: COLORS.SOWMA_DARK_BLUE, text: "black" };
 }
 
 function activityToLevel(value: number, allValues: number[]): number {

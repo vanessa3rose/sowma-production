@@ -11,9 +11,9 @@ datasource db {
 model Waitlist {
   id        String   @id @default(cuid())
   email     String   @unique
+  createdAt DateTime @default(now())
   firstName String?
   lastName  String?
-  createdAt DateTime @default(now())
 }
 
 model SocialMedia {
@@ -106,6 +106,18 @@ enum Metric {
   EMAIL_OPENED
   EMAILS_CLICKED
   EMAILS_UNSUBSCRIBED
+  VIDEO_VIEWS
+  WEBSITE_CLICKS
+  EMAIL_BOUNCED
+  EMAIL_FORWARDED
+  EMAIL_NOT_OPENED
+  EMAIL_ABUSE
+  SAVES
+  PROFILE_VIEWS
+  EMAIL_UNIQUE_OPENS
+  EMAIL_UNIQUE_CLICKS
+  EMAIL_TOTAL_OPENS
+  EMAIL_TOTAL_CLICKS
 }
 
 enum Count {
