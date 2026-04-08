@@ -176,7 +176,11 @@ export function LinkedInCalendarHeatmap({
             return (
               <div
                 key={idx}
-                className={compact ? "rounded-md bg-transparent" : "rounded-md bg-transparent aspect-square"}
+                className={
+                  compact
+                    ? "rounded-md bg-transparent"
+                    : "rounded-md bg-transparent aspect-square"
+                }
                 style={compact ? { width: 24, height: 18 } : undefined}
               />
             );

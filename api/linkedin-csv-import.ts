@@ -429,7 +429,9 @@ function parseRows(rows: string[][]): CsvImportRow[] {
     }
 
     for (const { index, header } of uniqueVisitorPageHeaders) {
-      const match = header.match(/^(overview|life|jobs) unique visitors total$/);
+      const match = header.match(
+        /^(overview|life|jobs) unique visitors total$/,
+      );
       if (!match) continue;
       const metricValue = parseNumber(row[index]);
       const write = buildBreakdownWrite(
@@ -449,7 +451,9 @@ function parseRows(rows: string[][]): CsvImportRow[] {
       shares,
       views: viewsIdx >= 0 ? parseNumber(row[viewsIdx]) : undefined,
       uniqueVisitors:
-        uniqueVisitorsIdx >= 0 ? parseNumber(row[uniqueVisitorsIdx]) : undefined,
+        uniqueVisitorsIdx >= 0
+          ? parseNumber(row[uniqueVisitorsIdx])
+          : undefined,
       totalInteractions,
       daysPosted: postsCount != null ? (postsCount > 0 ? 1 : 0) : undefined,
       writes,
@@ -490,11 +494,12 @@ function parseLinkedInImportBuffer(
   for (const [sheetName, breakdownKey] of Object.entries(
     DEMOGRAPHIC_BREAKDOWN_KEYS,
   )) {
-    const sheet = workbook.Sheets[
-      Object.keys(workbook.Sheets).find(
-        (name) => normalizeHeader(name) === sheetName,
-      ) ?? ""
-    ];
+    const sheet =
+      workbook.Sheets[
+        Object.keys(workbook.Sheets).find(
+          (name) => normalizeHeader(name) === sheetName,
+        ) ?? ""
+      ];
     if (!sheet) continue;
 
     const sheetRows = parseCsv(XLSX.utils.sheet_to_csv(sheet));

@@ -84,13 +84,11 @@ const METRICS: MetricConfig[] = [
     id: "uniqueVisitors",
     metric: "TOTAL_USERS",
     title: "Unique Visitors",
-    label: "unique visitors",
   },
   {
     id: "daysPosted",
     metric: "DAYS_POSTED",
     title: "Days Posted",
-    label: "days posted",
   },
 ];
 
@@ -238,7 +236,10 @@ function calculateWeeksNeeded(year: number, month: number): number {
 }
 
 function getLatestDateAcrossSeries(series: LinePoint[][]): Date | null {
-  const dates = series.flat().map((point) => point.date).sort();
+  const dates = series
+    .flat()
+    .map((point) => point.date)
+    .sort();
   if (!dates.length) return null;
   const latest = new Date(dates[dates.length - 1]);
   return Number.isNaN(latest.getTime()) ? null : latest;
@@ -420,9 +421,9 @@ export default function LinkedInPage() {
   const { exportByPlatforms } = useGlobalPageExporter();
   const [rawSeries, setRawSeries] =
     useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
-  const [uniqueVisitorRows, setUniqueVisitorRows] = useState<SocialMediaMetric[]>(
-    [],
-  );
+  const [uniqueVisitorRows, setUniqueVisitorRows] = useState<
+    SocialMediaMetric[]
+  >([]);
   const [followerRows, setFollowerRows] = useState<SocialMediaMetric[]>([]);
   const [ranges, setRanges] =
     useState<Record<RangeKey, DateRangeValue>>(INITIAL_RANGES);
@@ -566,7 +567,10 @@ export default function LinkedInPage() {
   }, [ranges.pageDestinations, uniqueVisitorRows]);
 
   const visitorDemographicData = useMemo<PieDatum[]>(() => {
-    const totals = aggregateBreakdownTotals(uniqueVisitorRows, visitorDemographic);
+    const totals = aggregateBreakdownTotals(
+      uniqueVisitorRows,
+      visitorDemographic,
+    );
     return buildTopBreakdownChartData(totals, 4, 6);
   }, [uniqueVisitorRows, visitorDemographic]);
 
@@ -746,7 +750,12 @@ export default function LinkedInPage() {
             <BigCard
               title="Follower Demographics"
               titleTooltip="Audience composition from LinkedIn follower export breakdowns."
-              subtitle={<ChartControlSelect value={followerDemographic} onChange={setFollowerDemographic} />}
+              subtitle={
+                <ChartControlSelect
+                  value={followerDemographic}
+                  onChange={setFollowerDemographic}
+                />
+              }
               chart={
                 followerDemographicData.some((entry) => entry.value > 0) ? (
                   <PieCharts
@@ -769,7 +778,12 @@ export default function LinkedInPage() {
             <BigCard
               title="Visitor Demographics"
               titleTooltip="Audience composition from LinkedIn visitor export breakdowns."
-              subtitle={<ChartControlSelect value={visitorDemographic} onChange={setVisitorDemographic} />}
+              subtitle={
+                <ChartControlSelect
+                  value={visitorDemographic}
+                  onChange={setVisitorDemographic}
+                />
+              }
               chart={
                 visitorDemographicData.some((entry) => entry.value > 0) ? (
                   <PieCharts
@@ -911,9 +925,7 @@ export default function LinkedInPage() {
               }
               metricValue={computed.interactions?.summary.current ?? 0}
               metricLabel="latest imported day"
-              metricChange={formatPercentChange(
-                computed.interactions?.summary,
-              )}
+              metricChange={formatPercentChange(computed.interactions?.summary)}
               chart={
                 computed.interactions?.filtered.length ? (
                   <LineCharts

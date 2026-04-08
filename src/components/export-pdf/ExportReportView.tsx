@@ -615,9 +615,7 @@ function LinkedInMiniMetricCard({
               {delta.includes("-") ? " ↘" : ""}
             </span>
           </div>
-          <div
-            style={{ fontSize: "11px", lineHeight: 1.1, color: "#6B7280" }}
-          >
+          <div style={{ fontSize: "11px", lineHeight: 1.1, color: "#6B7280" }}>
             {note}
           </div>
         </div>
@@ -661,9 +659,7 @@ function condenseChartData(
   const otherValue = source
     .slice(keepCount)
     .reduce((sum, entry) => sum + entry.value, 0);
-  return otherValue > 0
-    ? [...top, { label: "Other", value: otherValue }]
-    : top;
+  return otherValue > 0 ? [...top, { label: "Other", value: otherValue }] : top;
 }
 
 function buildChartPages<T>(
