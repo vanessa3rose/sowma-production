@@ -631,45 +631,7 @@ export default function Homepage() {
           ]}
         />
 
-        {/* GA Website Session */}
-        <BigCard
-          title="Google Analytics Website Sessions"
-          titleTooltip="A session is all the actions a user takes during one visit"
-          subtitle=""
-          displayMode="both"
-          className="flex-1 w-full max-h-[320px]"
-          dropdown={
-            <div className="flex items-center gap-2">
-              <DateDropdown
-                value={sessionsRange}
-                onChange={setSessionsRange}
-                minDate={sessionsBounds.min}
-                maxDate={sessionsBounds.max}
-              />
-            </div>
-          }
-          chart={
-            sessionsFiltered.length > 0 ? (
-              <div className="w-full h-full">
-                <LineCharts
-                  data={sessionsFiltered}
-                  xAxisKey="date"
-                  dataKeys={["sessions"]}
-                  showArea
-                  autoAdjustYAxis
-                />
-              </div>
-            ) : (
-              <div className="w-full flex items-center justify-center text-sm text-gray-500">
-                No website sessions data available.
-              </div>
-            )
-          }
-        />
-      </div>
-
-      {/* Follower Count */}
-      <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
+        {/* Follower Count */}
         <PlatformMetricCard
           title="Follower Count"
           titleTooltip="Follower count across all platforms"
@@ -715,7 +677,48 @@ export default function Homepage() {
             },
           ]}
         />
+      </div>
 
+      {/* Follower Count */}
+      <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
+
+        {/* GA Website Session */}
+        <BigCard
+          title="Google Analytics Website Sessions"
+          titleTooltip="A session is all the actions a user takes during one visit"
+          subtitle=""
+          displayMode="both"
+          className="flex-1 w-full max-h-[320px]"
+          dropdown={
+            <div className="flex items-center gap-2">
+              <DateDropdown
+                value={sessionsRange}
+                onChange={setSessionsRange}
+                minDate={sessionsBounds.min}
+                maxDate={sessionsBounds.max}
+              />
+            </div>
+          }
+          chart={
+            sessionsFiltered.length > 0 ? (
+              <div className="w-full h-full">
+                <LineCharts
+                  data={sessionsFiltered}
+                  xAxisKey="date"
+                  dataKeys={["sessions"]}
+                  showArea
+                  autoAdjustYAxis
+                />
+              </div>
+            ) : (
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">
+                No website sessions data available.
+              </div>
+            )
+          }
+        />
+
+        {/* How Did You Hear About Us */}
         <BigCard
           title="How did you hear about us?"
           subtitle=""
