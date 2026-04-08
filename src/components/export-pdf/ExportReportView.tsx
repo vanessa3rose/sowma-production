@@ -568,7 +568,7 @@ function LinkedInMiniMetricCard({
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          gap: "3px",
+          gap: "6px",
           minHeight: "0",
         }}
       >
@@ -588,19 +588,38 @@ function LinkedInMiniMetricCard({
         </div>
         <div
           style={{
-            fontSize: "12px",
-            lineHeight: 1.15,
-            color: delta.includes("+")
-              ? "#10B981"
-              : delta.includes("-")
-                ? "#EF4444"
-                : "#6B7280",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            flexWrap: "wrap",
           }}
         >
-          {delta}
-        </div>
-        <div style={{ fontSize: "11px", lineHeight: 1.1, color: "#6B7280" }}>
-          {note}
+          <div
+            style={{
+              fontSize: "12px",
+              lineHeight: 1.15,
+              color: delta.includes("+")
+                ? "#10B981"
+                : delta.includes("-")
+                  ? "#EF4444"
+                  : "#6B7280",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span>
+              {delta}
+              {delta.includes("+") ? " ↗" : ""}
+              {delta.includes("-") ? " ↘" : ""}
+            </span>
+          </div>
+          <div
+            style={{ fontSize: "11px", lineHeight: 1.1, color: "#6B7280" }}
+          >
+            {note}
+          </div>
         </div>
       </div>
     </div>
