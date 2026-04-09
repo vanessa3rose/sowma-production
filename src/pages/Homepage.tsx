@@ -722,14 +722,16 @@ export default function Homepage() {
           displayMode="chart-only"
           className="flex-1 w-full max-h-[320px]"
           chart={
-            <BarCharts
-              data={HEAR_ABOUT_US_DATA.map((d) => ({
-                source: d.source,
-                count: d.count,
-              }))}
-              xAxisKey="source"
-              dataKeys={["count"]}
-            />
+            <div className="w-full pb-4">
+              <BarCharts
+                data={HEAR_ABOUT_US_DATA.map((d) => ({
+                  source: d.source,
+                  count: d.count,
+                }))}
+                xAxisKey="source"
+                dataKeys={["count"]}
+              />
+            </div>
           }
         />
       </div>

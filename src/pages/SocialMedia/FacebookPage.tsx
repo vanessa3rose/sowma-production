@@ -33,7 +33,8 @@ type MetricKey =
   | "views"
   | "comments"
   | "posts"
-  | "shares";
+  | "shares"
+  | "videoViews";
 
 type MetricConfig = {
   id: MetricKey;
@@ -76,6 +77,11 @@ const METRICS: MetricConfig[] = [
     metric: "SHARES",
     title: "Shares",
   },
+  {
+    id: "videoViews",
+    metric: "VIDEO_VIEWS",
+    title: "Video Views",
+  },
 ];
 
 const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
@@ -85,6 +91,7 @@ const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
   comments: [],
   posts: [],
   shares: [],
+  videoViews: [],
 };
 
 const INITIAL_RANGES: Record<MetricKey, DateRangeValue> = {
@@ -94,6 +101,7 @@ const INITIAL_RANGES: Record<MetricKey, DateRangeValue> = {
   comments: { id: "30d" },
   posts: { id: "30d" },
   shares: { id: "30d" },
+  videoViews: { id: "30d" },
 };
 
 /* ---------- helpers ---------- */
@@ -411,6 +419,42 @@ export default function FacebookPage() {
           }
           displayMode="chart-only"
           className="h-full"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <BigCard
+          title="Video Views"
+          titleTooltip={getGlossaryDefinition("videoViews")}
+          subtitle={
+            <DateDropdown
+              value={ranges.videoViews}
+              onChange={(r) =>
+                setRanges((prev) => ({ ...prev, videoViews: r }))
+              }
+              minDate={computed.videoViews?.bounds.min}
+              maxDate={computed.videoViews?.bounds.max}
+            />
+          }
+          metricValue={computed.videoViews?.summary.current ?? 0}
+          metricLabel="video views"
+          metricChange={formatPercentChange(computed.videoViews?.summary)}
+          chart={
+            computed.videoViews?.filtered.length ? (
+              <LineCharts
+                data={computed.videoViews.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                showArea
+              />
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-500">
+                No data available
+              </div>
+            )
+          }
+          displayMode="both"
+          className="h-[360px]"
         />
       </div>
     </div>

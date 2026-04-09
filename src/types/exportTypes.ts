@@ -20,6 +20,7 @@ export interface SocialExportBundle {
   platform: string;
   chartDataMap: Record<string, { date: string; value: number }[]>;
   metricSummaries: Record<string, { current: number; prev: number }>;
+  breakdownTotals?: Record<string, Record<string, number>>;
 }
 
 // ---------- Union used by PDF exporter ----------

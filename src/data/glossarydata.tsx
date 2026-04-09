@@ -134,6 +134,12 @@ export const GLOSSARY_ITEMS = [
     definition: "Displays the date and quantity of most recent posts.",
     platforms: ["Facebook"],
   },
+  {
+    key: "videoViews",
+    term: "Video Views",
+    definition: "Cumulative count of the number of views your videos have.",
+    platforms: ["Facebook"],
+  },
 ] as const;
 
 // List of Keys present

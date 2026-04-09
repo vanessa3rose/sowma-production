@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import Dropdown from "../Dropdown";
 
+const roles = ["ADMIN", "USER", "VIEWER"] as Role[];
 type Role = "ADMIN" | "USER" | "VIEWER";
 
 interface User {
@@ -89,7 +91,7 @@ export default function UsersRoles() {
         <div className="w-[30%]">Name</div>
         <div className="w-[30%]">Email</div>
         <div className="w-[20%]">Role</div>
-        <div className="w-[20%]" />
+        <div className="w-[20%]">Actions</div>
       </div>
 
       {/* Rows */}
@@ -116,16 +118,16 @@ export default function UsersRoles() {
               </div>
 
               {/* Role */}
-              <div className="flex w-[20%] justify-center">
-                <select
+              <div className="flex w-[20%] justify-center items-center">
+                <Dropdown<Role>
+                  items={roles}
                   value={user.role}
-                  onChange={(e) => updateRole(user.id, e.target.value as Role)}
-                  className="lg:px-6 px-2 py-2 mx-1 rounded-full border-2 border-neutral-500 text-xs md:text-lg leading-none"
-                >
-                  <option value="ADMIN">Admin</option>
-                  <option value="USER">User</option>
-                  <option value="VIEWER">Viewer</option>
-                </select>
+                  onChange={(role) => updateRole(user.id, role)}
+                  getLabel={(role) => role}
+                  getKey={(role) => role}
+                  className="w-7/12"
+                  openClassName="w-7/12 border-t border-x border-sowma-lighter-gray shadow-lg"
+                />
               </div>
 
               {/* Remove */}
