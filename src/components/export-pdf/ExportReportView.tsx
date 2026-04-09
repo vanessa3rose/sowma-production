@@ -596,14 +596,14 @@ function LinkedInMiniMetricCard({
           minHeight: "0",
         }}
       >
-        <div style={{ fontWeight: 500, fontSize: "15px", color: "#000000" }}>
+        <div style={{ fontWeight: 500, fontSize: "15px", color: "black" }}>
           {title}
         </div>
         <div
           style={{
             fontSize: "26px",
             fontWeight: 400,
-            color: "#3B82F6",
+            color: COLORS.SOWMA_BLUE,
             lineHeight: 1.05,
             wordBreak: "break-word",
           }}
@@ -623,10 +623,10 @@ function LinkedInMiniMetricCard({
               fontSize: "12px",
               lineHeight: 1.15,
               color: delta.includes("+")
-                ? "#10B981"
+                ? COLORS.SOWMA_BRIGHT_GREEN
                 : delta.includes("-")
-                  ? "#EF4444"
-                  : "#6B7280",
+                  ? COLORS.SOWMA_BRIGHT_RED
+                  : COLORS.SOWMA_MEDIUM_GRAY,
               display: "flex",
               alignItems: "center",
               gap: "4px",
@@ -639,7 +639,13 @@ function LinkedInMiniMetricCard({
               {delta.includes("-") ? " ↘" : ""}
             </span>
           </div>
-          <div style={{ fontSize: "11px", lineHeight: 1.1, color: "#6B7280" }}>
+          <div
+            style={{
+              fontSize: "11px",
+              lineHeight: 1.1,
+              color: COLORS.SOWMA_MEDIUM_GRAY,
+            }}
+          >
             {note}
           </div>
         </div>
