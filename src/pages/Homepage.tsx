@@ -17,6 +17,7 @@ type PlatformMetricPoint = {
   facebook: number | null;
   instagram: number | null;
   twitter: number | null;
+  linkedin: number | null;
 };
 
 type WebsiteSessionsPoint = { date: string; sessions: number };
@@ -125,7 +126,7 @@ export default function Homepage() {
 
   async function loadImpressions() {
     try {
-      const [fbRaw, igRaw] = await Promise.all([
+      const [fbRaw, igRaw, liRaw] = await Promise.all([
         fetchMetrics({
           provider: "FACEBOOK",
           metric: "VIEWS",
@@ -138,11 +139,20 @@ export default function Homepage() {
           startDate: defaultStartDate,
           endDate: defaultEndDate,
         }),
+        fetchMetrics({
+          provider: "LINKEDIN",
+          metric: "VIEWS",
+          startDate: defaultStartDate,
+          endDate: defaultEndDate,
+        }),
       ]);
 
       const mergedMap = new Map<string, PlatformMetricPoint>();
 
-      const add = (raw: SocialMediaMetric[], key: "facebook" | "instagram") => {
+      const add = (
+        raw: SocialMediaMetric[],
+        key: "facebook" | "instagram" | "linkedin",
+      ) => {
         for (const m of raw) {
           const date = (
             m.metricDate ??
@@ -154,6 +164,7 @@ export default function Homepage() {
             date,
             facebook: null,
             instagram: null,
+            linkedin: null,
             twitter: null,
           };
 
@@ -163,6 +174,7 @@ export default function Homepage() {
 
       add(fbRaw, "facebook");
       add(igRaw, "instagram");
+      add(liRaw, "linkedin");
 
       const merged = Array.from(mergedMap.values()).sort((a, b) =>
         a.date.localeCompare(b.date),
@@ -212,6 +224,7 @@ export default function Homepage() {
           date,
           facebook: null,
           instagram: null,
+          linkedin: null,
           twitter: null,
         };
         mergedMap.set(date, { ...existing, facebook: fbTotal });
@@ -229,6 +242,7 @@ export default function Homepage() {
           facebook: null,
           instagram: null,
           twitter: null,
+          linkedin: null,
         };
         mergedMap.set(date, { ...existing, instagram: m.metricValue });
       }
@@ -245,6 +259,7 @@ export default function Homepage() {
           facebook: null,
           instagram: null,
           twitter: null,
+          linkedin: null,
         };
         mergedMap.set(date, { ...existing, twitter: m.metricValue });
       }
@@ -301,6 +316,7 @@ export default function Homepage() {
           facebook: number | null;
           instagram: number | null;
           twitter: number | null;
+          linkedin: number | null;
         }
       >();
 
@@ -318,6 +334,7 @@ export default function Homepage() {
             facebook: null,
             instagram: null,
             twitter: null,
+            linkedin: null,
           };
           mergedMap.set(date, { ...existing, [key]: m.metricValue });
         }
@@ -389,34 +406,43 @@ export default function Homepage() {
       return {
         facebook: null,
         instagram: null,
+        linkedin: null,
         fbChange: null,
         igChange: null,
+        liChange: null,
         fbSince: null,
         igSince: null,
+        liSince: null,
       };
 
-    const getFirst = (key: "facebook" | "instagram") =>
+    const getFirst = (key: "facebook" | "instagram" | "linkedin") =>
       impressionsFiltered.find((p) => p[key] !== null);
 
-    const getLast = (key: "facebook" | "instagram") =>
+    const getLast = (key: "facebook" | "instagram" | "linkedin") =>
       [...impressionsFiltered].reverse().find((p) => p[key] !== null)?.[key] ??
       null;
 
     const fbFirst = getFirst("facebook");
     const igFirst = getFirst("instagram");
+    const liFirst = getFirst("linkedin");
 
     const fbLast = getLast("facebook");
     const igLast = getLast("instagram");
+    const liLast = getLast("linkedin");
 
     return {
       facebook: fbLast,
       instagram: igLast,
+      linkedin: liLast,
       fbChange:
         fbFirst && fbLast !== null ? fbLast - (fbFirst.facebook ?? 0) : null,
       igChange:
         igFirst && igLast !== null ? igLast - (igFirst.instagram ?? 0) : null,
+      liChange:
+        liFirst && liLast !== null ? liLast - (liFirst.linkedin ?? 0) : null,
       fbSince: fbFirst?.date ?? null,
       igSince: igFirst?.date ?? null,
+      liSince: liFirst?.date ?? null,
     };
   }, [impressionsFiltered]);
 
@@ -570,6 +596,16 @@ export default function Homepage() {
             />
           }
           metrics={[
+            {
+              label: "LinkedIn",
+              value: impressionsChange.linkedin,
+              change: impressionsChange.liChange,
+              color: COLORS.SOWMA_LINKEDIN,
+              sinceDate: formatSinceDate(
+                impressionsChange.liSince,
+                impressionsRange,
+              ),
+            },
             {
               label: "Facebook",
               value: impressionsChange.facebook,
