@@ -1,4 +1,5 @@
 import React from "react";
+import { COLORS } from "../../data/colors.js";
 
 type SeriesMeta = {
   label?: string;
@@ -180,7 +181,7 @@ export default function ChartTooltip(props: ChartTooltipProps) {
             <div className="flex min-w-0 items-start gap-2">
               <span
                 className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: r.color ?? "#FFA9D0" }}
+                style={{ backgroundColor: r.color ?? COLORS.SOWMA_MEDIUM_GRAY }}
               />
               <div className="min-w-0">
                 <div className="truncate text-xs text-gray-700">

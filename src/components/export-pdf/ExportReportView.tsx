@@ -107,9 +107,9 @@ function MetricRow({
           key={item.label}
           style={{
             backgroundColor: "white",
-            border: "1px solid #E5E5E5",
-            borderBottom: "3px solid #D1D5DB",
-            borderRight: "2px solid #D1D5DB",
+            border: `1px solid ${COLORS.SOWMA_LIGHTER_GRAY}`,
+            borderBottom: `3px solid ${COLORS.SOWMA_LIGHT_GRAY}`,
+            borderRight: `2px solid ${COLORS.SOWMA_LIGHT_GRAY}`,
             borderRadius: "12px",
             padding: "20px",
             fontFamily: "Poppins, sans-serif",
@@ -122,7 +122,7 @@ function MetricRow({
             style={{
               fontSize: "32px",
               fontWeight: 400,
-              color: COLORS.SOWMA_LIGHT_BLUE,
+              color: COLORS.SOWMA_BLUE,
               marginTop: "4px",
             }}
           >
@@ -135,7 +135,7 @@ function MetricRow({
                 ? COLORS.SOWMA_BRIGHT_GREEN
                 : item.delta.includes("-")
                   ? COLORS.SOWMA_BRIGHT_RED
-                  : COLORS.SOWMA_GRAY,
+                  : COLORS.SOWMA_MEDIUM_GRAY,
               marginTop: "4px",
             }}
           >
@@ -162,9 +162,9 @@ function ChartBlock({
       className="flex flex-col h-[200px]"
       style={{
         backgroundColor: "white",
-        border: "1px solid #E5E5E5",
-        borderBottom: "3px solid #D1D5DB",
-        borderRight: "2px solid #D1D5DB",
+        border: `1px solid ${COLORS.SOWMA_LIGHTER_GRAY}`,
+        borderBottom: `3px solid ${COLORS.SOWMA_LIGHT_GRAY}`,
+        borderRight: `2px solid ${COLORS.SOWMA_LIGHT_GRAY}`,
         borderRadius: "12px",
         padding: "20px",
         fontFamily: "Poppins, sans-serif",
@@ -194,9 +194,9 @@ function ChartBlock({
 
 const PDF_CARD_STYLE: React.CSSProperties = {
   backgroundColor: "white",
-  border: "1px solid #E5E5E5",
-  borderBottom: "3px solid #D1D5DB",
-  borderRight: "2px solid #D1D5DB",
+  border: `1px solid ${COLORS.SOWMA_LIGHTER_GRAY}`,
+  borderBottom: `3px solid ${COLORS.SOWMA_LIGHT_GRAY}`,
+  borderRight: `2px solid ${COLORS.SOWMA_LIGHT_GRAY}`,
   borderRadius: "12px",
   padding: "20px",
   fontFamily: "Poppins, sans-serif",
@@ -223,13 +223,13 @@ function GoogleSmallMetricCard({
           style={{
             fontSize: "32px",
             fontWeight: 400,
-            color: COLORS.SOWMA_LIGHT_BLUE,
+            color: COLORS.SOWMA_BLUE,
           }}
         >
           {value}
         </span>
         {valueNote ? (
-          <span style={{ fontSize: "14px", color: COLORS.SOWMA_GRAY }}>
+          <span style={{ fontSize: "14px", color: COLORS.SOWMA_MEDIUM_GRAY }}>
             {valueNote}
           </span>
         ) : null}
@@ -241,7 +241,7 @@ function GoogleSmallMetricCard({
             ? COLORS.SOWMA_BRIGHT_GREEN
             : delta.includes("-")
               ? COLORS.SOWMA_BRIGHT_RED
-              : COLORS.SOWMA_GRAY,
+              : COLORS.SOWMA_MEDIUM_GRAY,
           marginTop: "4px",
         }}
       >
@@ -276,7 +276,13 @@ function GoogleChartCard({
           {title}
         </div>
         {subtitle ? (
-          <div style={{ fontSize: "12px", fontWeight: 500, color: "#4B5563" }}>
+          <div
+            style={{
+              fontSize: "12px",
+              fontWeight: 500,
+              color: COLORS.SOWMA_DARK_GRAY,
+            }}
+          >
             {subtitle}
           </div>
         ) : null}
@@ -362,12 +368,30 @@ function buildCCSankeyOption(vals: Record<string, number>) {
   };
 
   const nodes: SankeyNode[] = [
-    { name: `Sent\n${fmtN(sent)}`, itemStyle: { color: "#5B8FF9" } },
-    { name: `Delivered\n${fmtN(delivered)}`, itemStyle: { color: "#9DC96A" } },
-    { name: `Bounced\n${fmtN(bounced)}`, itemStyle: { color: "#C5C5C5" } },
-    { name: `Opened\n${fmtN(opened)}`, itemStyle: { color: "#A78BFA" } },
-    { name: `Not Opened\n${fmtN(notOpened)}`, itemStyle: { color: "#F472B6" } },
-    { name: `Clicked\n${fmtN(clicked)}`, itemStyle: { color: "#60A5FA" } },
+    {
+      name: `Sent\n${fmtN(sent)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_SENT },
+    },
+    {
+      name: `Delivered\n${fmtN(delivered)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_DELIVERED },
+    },
+    {
+      name: `Bounced\n${fmtN(bounced)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_BOUNCED },
+    },
+    {
+      name: `Opened\n${fmtN(opened)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_OPENED },
+    },
+    {
+      name: `Not Opened\n${fmtN(notOpened)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_NOT_OPENED },
+    },
+    {
+      name: `Clicked\n${fmtN(clicked)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_CLICKED },
+    },
   ];
 
   const links: SankeyLink[] = [
@@ -375,7 +399,7 @@ function buildCCSankeyOption(vals: Record<string, number>) {
       source: `Sent\n${fmtN(sent)}`,
       target: `Delivered\n${fmtN(delivered)}`,
       value: delivered,
-      lineStyle: { color: "#9DC96A", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_DELIVERED, opacity: 0.35 },
     },
   ];
 
@@ -384,63 +408,63 @@ function buildCCSankeyOption(vals: Record<string, number>) {
       source: `Sent\n${fmtN(sent)}`,
       target: `Bounced\n${fmtN(bounced)}`,
       value: bounced,
-      lineStyle: { color: "#C5C5C5", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_BOUNCED, opacity: 0.35 },
     });
   if (opened > 0)
     links.push({
       source: `Delivered\n${fmtN(delivered)}`,
       target: `Opened\n${fmtN(opened)}`,
       value: opened,
-      lineStyle: { color: "#A78BFA", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_OPENED, opacity: 0.35 },
     });
   if (notOpened > 0)
     links.push({
       source: `Delivered\n${fmtN(delivered)}`,
       target: `Not Opened\n${fmtN(notOpened)}`,
       value: notOpened,
-      lineStyle: { color: "#F472B6", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_NOT_OPENED, opacity: 0.35 },
     });
   if (clicked > 0)
     links.push({
       source: `Opened\n${fmtN(opened)}`,
       target: `Clicked\n${fmtN(clicked)}`,
       value: clicked,
-      lineStyle: { color: "#60A5FA", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_CLICKED, opacity: 0.35 },
     });
   if (unsubscribed > 0) {
     nodes.push({
       name: `Unsubscribed\n${fmtN(unsubscribed)}`,
-      itemStyle: { color: "#FB923C" },
+      itemStyle: { color: COLORS.SOWMA_SANKEY_UNSUBSCRIBED },
     });
     links.push({
       source: `Opened\n${fmtN(opened)}`,
       target: `Unsubscribed\n${fmtN(unsubscribed)}`,
       value: unsubscribed,
-      lineStyle: { color: "#FB923C", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_UNSUBSCRIBED, opacity: 0.35 },
     });
   }
   if (abuse > 0) {
     nodes.push({
       name: `Spam\n${fmtN(abuse)}`,
-      itemStyle: { color: "#F87171" },
+      itemStyle: { color: COLORS.SOWMA_SANKEY_ABUSE },
     });
     links.push({
       source: `Delivered\n${fmtN(delivered)}`,
       target: `Spam\n${fmtN(abuse)}`,
       value: abuse,
-      lineStyle: { color: "#F87171", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_ABUSE, opacity: 0.35 },
     });
   }
   if (forwarded > 0) {
     nodes.push({
       name: `Forwarded\n${fmtN(forwarded)}`,
-      itemStyle: { color: "#34D399" },
+      itemStyle: { color: COLORS.SOWMA_SANKEY_FORWARDED },
     });
     links.push({
       source: `Opened\n${fmtN(opened)}`,
       target: `Forwarded\n${fmtN(forwarded)}`,
       value: forwarded,
-      lineStyle: { color: "#34D399", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_FORWARDED, opacity: 0.35 },
     });
   }
 
@@ -460,7 +484,7 @@ function buildCCSankeyOption(vals: Record<string, number>) {
         data: nodes,
         links,
         label: {
-          color: "#374151",
+          color: COLORS.SOWMA_DARKER_GRAY,
           fontFamily: "inherit",
           fontSize: 11,
           fontWeight: 500,
@@ -572,14 +596,14 @@ function LinkedInMiniMetricCard({
           minHeight: "0",
         }}
       >
-        <div style={{ fontWeight: 500, fontSize: "15px", color: "#000000" }}>
+        <div style={{ fontWeight: 500, fontSize: "15px", color: "black" }}>
           {title}
         </div>
         <div
           style={{
             fontSize: "26px",
             fontWeight: 400,
-            color: "#3B82F6",
+            color: COLORS.SOWMA_BLUE,
             lineHeight: 1.05,
             wordBreak: "break-word",
           }}
@@ -599,10 +623,10 @@ function LinkedInMiniMetricCard({
               fontSize: "12px",
               lineHeight: 1.15,
               color: delta.includes("+")
-                ? "#10B981"
+                ? COLORS.SOWMA_BRIGHT_GREEN
                 : delta.includes("-")
-                  ? "#EF4444"
-                  : "#6B7280",
+                  ? COLORS.SOWMA_BRIGHT_RED
+                  : COLORS.SOWMA_MEDIUM_GRAY,
               display: "flex",
               alignItems: "center",
               gap: "4px",
@@ -615,7 +639,13 @@ function LinkedInMiniMetricCard({
               {delta.includes("-") ? " ↘" : ""}
             </span>
           </div>
-          <div style={{ fontSize: "11px", lineHeight: 1.1, color: "#6B7280" }}>
+          <div
+            style={{
+              fontSize: "11px",
+              lineHeight: 1.1,
+              color: COLORS.SOWMA_MEDIUM_GRAY,
+            }}
+          >
             {note}
           </div>
         </div>
@@ -765,7 +795,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       style={{
                         marginTop: "4px",
                         fontSize: "12px",
-                        color: COLORS.SOWMA_GRAY,
+                        color: COLORS.SOWMA_MEDIUM_GRAY,
                       }}
                     >
                       Delta values compare the latest point in range to the
@@ -776,7 +806,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       style={{
                         marginTop: "4px",
                         fontSize: "12px",
-                        color: COLORS.SOWMA_GRAY,
+                        color: COLORS.SOWMA_MEDIUM_GRAY,
                       }}
                     >
                       Delta values compare the latest point in range to the
@@ -1311,7 +1341,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       style={{
                         marginTop: "4px",
                         fontSize: "12px",
-                        color: COLORS.SOWMA_GRAY,
+                        color: COLORS.SOWMA_MEDIUM_GRAY,
                       }}
                     >
                       Delta values compare the latest point in range to the
@@ -1322,7 +1352,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       style={{
                         marginTop: "4px",
                         fontSize: "12px",
-                        color: COLORS.SOWMA_GRAY,
+                        color: COLORS.SOWMA_MEDIUM_GRAY,
                       }}
                     >
                       Delta values compare the latest point in range to the

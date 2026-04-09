@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { COLORS } from "../../data/colors.js";
 
 interface TitleTooltipProps {
   description: string;
@@ -25,7 +26,7 @@ const TitleTooltip: React.FC<TitleTooltipProps> = ({ description }) => {
         height="14"
         viewBox="0 0 24 24"
         fill="none"
-        stroke="#9CA3AF"
+        stroke={COLORS.SOWMA_MEDIUM_GRAY}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -46,7 +47,7 @@ const TitleTooltip: React.FC<TitleTooltipProps> = ({ description }) => {
             transform: "translateX(-50%)",
             zIndex: 50,
             backgroundColor: "white",
-            border: "1px solid #E5E7EB",
+            border: `1px solid ${COLORS.SOWMA_LIGHTER_GRAY}`,
             borderRadius: "12px",
             boxShadow: "0px 4px 12px rgba(0,0,0,0.12)",
             padding: "8px 12px",
@@ -55,7 +56,7 @@ const TitleTooltip: React.FC<TitleTooltipProps> = ({ description }) => {
             fontFamily: "Poppins, sans-serif",
             fontSize: "12px",
             lineHeight: "1.5",
-            color: "#374151",
+            color: COLORS.SOWMA_DARKER_GRAY,
             whiteSpace: "normal",
             pointerEvents: "none",
           }}

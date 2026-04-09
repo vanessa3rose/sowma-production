@@ -549,7 +549,7 @@ export default function Homepage() {
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
       <div className="flex flex-wrap w-full justify-between items-center gap-4">
-        <h1 className="font-poppins text-sowma-light-blue text-2xl font-semibold">
+        <h1 className="font-poppins text-sowma-blue text-2xl font-semibold">
           Dashboard
         </h1>
         <ExportButton onExport={exportByPlatforms} />
@@ -574,7 +574,7 @@ export default function Homepage() {
               label: "Facebook",
               value: impressionsChange.facebook,
               change: impressionsChange.fbChange,
-              color: COLORS.SOWMA_LIGHT_BLUE,
+              color: COLORS.SOWMA_FACEBOOK,
               sinceDate: formatSinceDate(
                 impressionsChange.fbSince,
                 impressionsRange,
@@ -584,7 +584,7 @@ export default function Homepage() {
               label: "Instagram",
               value: impressionsChange.instagram,
               change: impressionsChange.igChange,
-              color: COLORS.SOWMA_GREEN,
+              color: COLORS.SOWMA_INSTAGRAM,
               sinceDate: formatSinceDate(
                 impressionsChange.igSince,
                 impressionsRange,
@@ -611,21 +611,21 @@ export default function Homepage() {
               label: "Facebook",
               value: postsChange.facebook,
               change: postsChange.fbChange,
-              color: COLORS.SOWMA_LIGHT_BLUE,
+              color: COLORS.SOWMA_FACEBOOK,
               sinceDate: formatSinceDate(postsChange.fbSince, daysPostedRange),
             },
             {
               label: "Instagram",
               value: postsChange.instagram,
               change: postsChange.igChange,
-              color: COLORS.SOWMA_GREEN,
+              color: COLORS.SOWMA_INSTAGRAM,
               sinceDate: formatSinceDate(postsChange.igSince, daysPostedRange),
             },
             {
               label: "Twitter",
               value: postsChange.twitter,
               change: postsChange.twChange,
-              color: COLORS.SOWMA_DARK_BLUE,
+              color: COLORS.SOWMA_TWITTER,
               sinceDate: formatSinceDate(postsChange.twSince, daysPostedRange),
             },
           ]}
@@ -649,7 +649,7 @@ export default function Homepage() {
               label: "Facebook",
               value: followerChange.facebook,
               change: followerChange.fbChange,
-              color: COLORS.SOWMA_LIGHT_BLUE,
+              color: COLORS.SOWMA_FACEBOOK,
               sinceDate: formatSinceDate(
                 followerChange.fbSince,
                 followersRange,
@@ -659,7 +659,7 @@ export default function Homepage() {
               label: "Instagram",
               value: followerChange.instagram,
               change: followerChange.igChange,
-              color: COLORS.SOWMA_GREEN,
+              color: COLORS.SOWMA_INSTAGRAM,
               sinceDate: formatSinceDate(
                 followerChange.igSince,
                 followersRange,
@@ -669,7 +669,7 @@ export default function Homepage() {
               label: "Twitter",
               value: followerChange.twitter,
               change: followerChange.twChange,
-              color: COLORS.SOWMA_DARK_BLUE,
+              color: COLORS.SOWMA_TWITTER,
               sinceDate: formatSinceDate(
                 followerChange.twSince,
                 followersRange,

@@ -13,7 +13,7 @@ import ChartTooltip from "./ChartTooltip";
 
 import { COLORS } from "../../data/colors.js";
 const PIE_COLORS = [
-  COLORS.SOWMA_LIGHT_BLUE,
+  COLORS.SOWMA_BLUE,
   COLORS.SOWMA_GREEN,
   COLORS.SOWMA_LIGHT_GREEN,
   COLORS.SOWMA_DARK_GREEN,

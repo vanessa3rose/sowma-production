@@ -49,7 +49,7 @@ export default function SocialMediaHeader({
             href={Link}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-[15px] border border-sowma-light-blue px-4 py-1.5 text-sowma-light-blue font-poppins font-semibold inline-block"
+            className="rounded-[15px] border border-sowma-blue px-4 py-1.5 text-sowma-blue font-poppins font-semibold inline-block"
           >
             Go to Account
           </a>

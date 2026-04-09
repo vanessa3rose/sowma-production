@@ -135,7 +135,7 @@ export default function UsersRoles() {
                 {isLastAdmin ? null : (
                   <button
                     aria-label={`Remove ${user.firstName} ${user.lastName}`}
-                    className="flex h-10 w-10 items-center justify-center rounded-md bg-[#ad3a3b] text-white"
+                    className="flex h-10 w-10 items-center justify-center rounded-md bg-sowma-red text-white"
                     onClick={() => removeUser(user.id)}
                   >
                     <svg
