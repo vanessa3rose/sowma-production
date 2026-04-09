@@ -403,7 +403,7 @@ export default function ConstantContactPage() {
         {/* ── Email Flow Sankey — first ── */}
         <BigCard
           title="Email Flow"
-          data={sankeyVals}
+          data={opensData}
           titleTooltip={getGlossaryDefinition("email_flow")}
           subtitle={
             <DateDropdown
@@ -414,13 +414,11 @@ export default function ConstantContactPage() {
             />
           }
           chart={
-            <div className="flex w-full justify-center items-center">
-              <ReactECharts
-                option={buildSankeyOption(sankeyVals)}
-                style={{ height: "100%", width: "95%" }}
-                opts={{ renderer: "svg" }}
-              />
-            </div>
+            <ReactECharts
+              option={buildSankeyOption(sankeyVals)}
+              style={{ height: "100%", width: "95%" }}
+              opts={{ renderer: "svg" }}
+            />
           }
           displayMode="chart-only"
           className="w-full h-[360px]"
@@ -430,6 +428,7 @@ export default function ConstantContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <BigCard
             title="Opens: Unique vs Total"
+            data={opensData}
             titleTooltip={getGlossaryDefinition("email_opens")}
             subtitle={
               <DateDropdown
@@ -440,14 +439,12 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-              <div className="w-full h-full">
-                <LineCharts
-                  data={opensData}
-                  xAxisKey="date"
-                  dataKeys={["uniqueOpens", "totalOpens"]}
-                  showArea
-                />
-              </div>
+              <LineCharts
+                data={opensData}
+                xAxisKey="date"
+                dataKeys={["uniqueOpens", "totalOpens"]}
+                showArea
+              />
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
@@ -455,6 +452,7 @@ export default function ConstantContactPage() {
 
           <BigCard
             title="Clicks: Unique vs Total"
+            data={clicksData}
             titleTooltip={getGlossaryDefinition("email_clicks")}
             subtitle={
               <DateDropdown
@@ -465,14 +463,12 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-              <div className="w-full h-full">
-                <LineCharts
-                  data={clicksData}
-                  xAxisKey="date"
-                  dataKeys={["uniqueClicks", "totalClicks"]}
-                  showArea
-                />
-              </div>
+              <LineCharts
+                data={clicksData}
+                xAxisKey="date"
+                dataKeys={["uniqueClicks", "totalClicks"]}
+                showArea
+              />
             }
             displayMode="chart-only"
             className="w-full h-[360px]"

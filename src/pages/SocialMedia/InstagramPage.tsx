@@ -275,7 +275,7 @@ export default function InstagramPage() {
         </div>
 
         {/* Followers + Reach + Total Likes */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           {(() => {
             const item = computed["followers"];
             const filtered = item?.filtered ?? [];

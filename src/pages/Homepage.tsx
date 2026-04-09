@@ -751,6 +751,7 @@ export default function Homepage() {
         {/* How Did You Hear About Us */}
         <BigCard
           title="How did you hear about us?"
+          data={HEAR_ABOUT_US_DATA}
           subtitle=""
           displayMode="chart-only"
           className="flex-1 w-full max-h-[320px]"
