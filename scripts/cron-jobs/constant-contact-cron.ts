@@ -52,13 +52,9 @@ type CampaignDetailsResponse = {
   }>;
 };
 
-type ActivityReport = {
-  campaign_id: string;
-  campaign_activity_id: string;
-  tracking_counts?: {
-    opens?: number;
-    clicks?: number;
-  };
+type TrackingEventsResponse = {
+  tracking_activities?: Array<{ contact_id: string }>;
+  _links?: { next?: { href?: string } };
 };
 
 /* -------------------------------------------------
@@ -113,22 +109,29 @@ async function fetchCampaignDetails(
   return (await res.json()) as CampaignDetailsResponse;
 }
 
-async function fetchActivityReport(
+async function countTrackingEvents(
   accessToken: string,
   activityId: string,
-): Promise<ActivityReport> {
-  const res = await fetch(`${BASE_URL}/reports/email_reports/${activityId}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: "application/json",
-    },
-  });
-  if (!res.ok) {
-    throw new Error(
-      `[CC] activity report failed: ${res.status} ${await res.text()}`,
-    );
+  type: "opens" | "clicks",
+): Promise<number> {
+  let count = 0;
+  let url: string | undefined =
+    `${BASE_URL}/reports/email_reports/${activityId}/tracking/${type}`;
+
+  while (url) {
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+    });
+    if (!res.ok) {
+      throw new Error(`[CC] tracking/${type} failed: ${res.status} ${await res.text()}`);
+    }
+    const data = (await res.json()) as TrackingEventsResponse;
+    count += data.tracking_activities?.length ?? 0;
+    const next = data._links?.next?.href;
+    url = next ? (next.startsWith("http") ? next : `https://api.cc.email${next}`) : undefined;
   }
-  return (await res.json()) as ActivityReport;
+
+  return count;
 }
 
 async function fetchSummariesPage(accessToken: string, nextHref?: string) {
@@ -230,13 +233,17 @@ export async function runDailyConstantContactSync() {
       try {
         const details = await fetchCampaignDetails(accessToken, s.campaign_id);
         for (const activity of details.campaign_activities ?? []) {
-          if (activity.current_status === "DONE") {
-            const report = await fetchActivityReport(
+          if (activity.role === "primary_email") {
+            emailTotalOpens += await countTrackingEvents(
               accessToken,
               activity.campaign_activity_id,
+              "opens",
             );
-            emailTotalOpens += report.tracking_counts?.opens ?? 0;
-            emailTotalClicks += report.tracking_counts?.clicks ?? 0;
+            emailTotalClicks += await countTrackingEvents(
+              accessToken,
+              activity.campaign_activity_id,
+              "clicks",
+            );
           }
         }
       } catch (err) {

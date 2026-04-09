@@ -347,7 +347,7 @@ export default function ConstantContactPage() {
       rawSeries["email_total_opens"] ?? [],
       opensRange,
     );
-    return mergeByDate(unique, "uniqueOpens", total, "totalOpens");
+    return mergeByDate(total, "totalOpens", unique, "uniqueOpens");
   }, [rawSeries, opensRange]);
 
   const opensBounds = getBounds([
@@ -365,7 +365,7 @@ export default function ConstantContactPage() {
       rawSeries["email_total_clicks"] ?? [],
       clicksRange,
     );
-    return mergeByDate(unique, "uniqueClicks", total, "totalClicks");
+    return mergeByDate(total, "totalClicks", unique, "uniqueClicks");
   }, [rawSeries, clicksRange]);
 
   const clicksBounds = getBounds([
