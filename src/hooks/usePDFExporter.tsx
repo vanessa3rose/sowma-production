@@ -71,7 +71,7 @@ export async function exportCardsToPDF(
   container.style.position = "fixed";
   container.style.left = "-9999px";
   container.style.top = "0";
-  container.style.width = "1000px";
+  container.style.width = "1220px";
   container.style.minHeight = "900px";
   container.style.zIndex = "-1";
   container.style.background = "white";

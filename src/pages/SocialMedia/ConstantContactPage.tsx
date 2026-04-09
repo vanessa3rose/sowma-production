@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
+import { COLORS } from "../../data/colors.js";
 
 import BigCard from "../../components/cards/BigCard";
 import LineCharts from "../../components/charts/LineCharts";
@@ -150,12 +151,30 @@ function buildSankeyOption(vals: Record<string, number>) {
   const forwarded = vals.emails_forwarded ?? 0;
 
   const nodes: SankeyNode[] = [
-    { name: `Sent\n${fmt(sent)}`, itemStyle: { color: "#5B8FF9" } },
-    { name: `Delivered\n${fmt(delivered)}`, itemStyle: { color: "#9DC96A" } },
-    { name: `Bounced\n${fmt(bounced)}`, itemStyle: { color: "#C5C5C5" } },
-    { name: `Opened\n${fmt(opened)}`, itemStyle: { color: "#A78BFA" } },
-    { name: `Not Opened\n${fmt(notOpened)}`, itemStyle: { color: "#F472B6" } },
-    { name: `Clicked\n${fmt(clicked)}`, itemStyle: { color: "#60A5FA" } },
+    {
+      name: `Sent\n${fmt(sent)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_SENT },
+    },
+    {
+      name: `Delivered\n${fmt(delivered)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_DELIVERED },
+    },
+    {
+      name: `Bounced\n${fmt(bounced)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_BOUNCED },
+    },
+    {
+      name: `Opened\n${fmt(opened)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_OPENED },
+    },
+    {
+      name: `Not Opened\n${fmt(notOpened)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_NOT_OPENED },
+    },
+    {
+      name: `Clicked\n${fmt(clicked)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_CLICKED },
+    },
   ];
 
   const links: SankeyLink[] = [
@@ -163,7 +182,7 @@ function buildSankeyOption(vals: Record<string, number>) {
       source: `Sent\n${fmt(sent)}`,
       target: `Delivered\n${fmt(delivered)}`,
       value: delivered,
-      lineStyle: { color: "#9DC96A", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_DELIVERED, opacity: 0.35 },
     },
   ];
 
@@ -172,7 +191,7 @@ function buildSankeyOption(vals: Record<string, number>) {
       source: `Sent\n${fmt(sent)}`,
       target: `Bounced\n${fmt(bounced)}`,
       value: bounced,
-      lineStyle: { color: "#C5C5C5", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_BOUNCED, opacity: 0.35 },
     });
   }
   if (opened > 0) {
@@ -180,7 +199,7 @@ function buildSankeyOption(vals: Record<string, number>) {
       source: `Delivered\n${fmt(delivered)}`,
       target: `Opened\n${fmt(opened)}`,
       value: opened,
-      lineStyle: { color: "#A78BFA", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_OPENED, opacity: 0.35 },
     });
   }
   if (notOpened > 0) {
@@ -188,7 +207,7 @@ function buildSankeyOption(vals: Record<string, number>) {
       source: `Delivered\n${fmt(delivered)}`,
       target: `Not Opened\n${fmt(notOpened)}`,
       value: notOpened,
-      lineStyle: { color: "#F472B6", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_NOT_OPENED, opacity: 0.35 },
     });
   }
   if (clicked > 0) {
@@ -196,43 +215,43 @@ function buildSankeyOption(vals: Record<string, number>) {
       source: `Opened\n${fmt(opened)}`,
       target: `Clicked\n${fmt(clicked)}`,
       value: clicked,
-      lineStyle: { color: "#60A5FA", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_CLICKED, opacity: 0.35 },
     });
   }
   if (unsubscribed > 0) {
     nodes.push({
       name: `Unsubscribed\n${fmt(unsubscribed)}`,
-      itemStyle: { color: "#FB923C" },
+      itemStyle: { color: COLORS.SOWMA_SANKEY_UNSUBSCRIBED },
     });
     links.push({
       source: `Opened\n${fmt(opened)}`,
       target: `Unsubscribed\n${fmt(unsubscribed)}`,
       value: unsubscribed,
-      lineStyle: { color: "#FB923C", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_UNSUBSCRIBED, opacity: 0.35 },
     });
   }
   if (abuse > 0) {
     nodes.push({
       name: `Spam\n${fmt(abuse)}`,
-      itemStyle: { color: "#F87171" },
+      itemStyle: { color: COLORS.SOWMA_SANKEY_ABUSE },
     });
     links.push({
       source: `Delivered\n${fmt(delivered)}`,
       target: `Spam\n${fmt(abuse)}`,
       value: abuse,
-      lineStyle: { color: "#F87171", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_ABUSE, opacity: 0.35 },
     });
   }
   if (forwarded > 0) {
     nodes.push({
       name: `Forwarded\n${fmt(forwarded)}`,
-      itemStyle: { color: "#34D399" },
+      itemStyle: { color: COLORS.SOWMA_SANKEY_FORWARDED },
     });
     links.push({
       source: `Opened\n${fmt(opened)}`,
       target: `Forwarded\n${fmt(forwarded)}`,
       value: forwarded,
-      lineStyle: { color: "#34D399", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_FORWARDED, opacity: 0.35 },
     });
   }
 
@@ -271,7 +290,7 @@ function buildSankeyOption(vals: Record<string, number>) {
         data: nodes,
         links,
         label: {
-          color: "#374151",
+          color: COLORS.SOWMA_DARKER_GRAY,
           fontFamily: "inherit",
           fontSize: 12,
           fontWeight: 500,
@@ -335,7 +354,6 @@ export default function ConstantContactPage() {
   }, [rawSeries, sankeyRange]);
 
   const sankeyBounds = getBounds(rawSeries["emails_sent"] ?? []);
-  const hasSankeyData = sankeyVals.emails_sent > 0;
 
   // Opens comparison: Unique vs Total
   const opensData = useMemo(() => {
@@ -385,6 +403,7 @@ export default function ConstantContactPage() {
         {/* ── Email Flow Sankey — first ── */}
         <BigCard
           title="Email Flow"
+          data={opensData}
           titleTooltip={getGlossaryDefinition("email_flow")}
           subtitle={
             <DateDropdown
@@ -395,19 +414,11 @@ export default function ConstantContactPage() {
             />
           }
           chart={
-            hasSankeyData ? (
-              <div className="flex w-full justify-center items-center">
-                <ReactECharts
-                  option={buildSankeyOption(sankeyVals)}
-                  style={{ height: "100%", width: "95%" }}
-                  opts={{ renderer: "svg" }}
-                />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
-                No data available
-              </div>
-            )
+            <ReactECharts
+              option={buildSankeyOption(sankeyVals)}
+              style={{ height: "100%", width: "95%" }}
+              opts={{ renderer: "svg" }}
+            />
           }
           displayMode="chart-only"
           className="w-full h-[360px]"
@@ -417,6 +428,7 @@ export default function ConstantContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <BigCard
             title="Opens: Unique vs Total"
+            data={opensData}
             titleTooltip={getGlossaryDefinition("email_opens")}
             subtitle={
               <DateDropdown
@@ -427,20 +439,12 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-              opensData.length > 0 ? (
-                <div className="w-full h-full">
-                  <LineCharts
-                    data={opensData}
-                    xAxisKey="date"
-                    dataKeys={["uniqueOpens", "totalOpens"]}
-                    showArea
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
+              <LineCharts
+                data={opensData}
+                xAxisKey="date"
+                dataKeys={["uniqueOpens", "totalOpens"]}
+                showArea
+              />
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
@@ -448,6 +452,7 @@ export default function ConstantContactPage() {
 
           <BigCard
             title="Clicks: Unique vs Total"
+            data={clicksData}
             titleTooltip={getGlossaryDefinition("email_clicks")}
             subtitle={
               <DateDropdown
@@ -458,20 +463,12 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-              clicksData.length > 0 ? (
-                <div className="w-full h-full">
-                  <LineCharts
-                    data={clicksData}
-                    xAxisKey="date"
-                    dataKeys={["uniqueClicks", "totalClicks"]}
-                    showArea
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
+              <LineCharts
+                data={clicksData}
+                xAxisKey="date"
+                dataKeys={["uniqueClicks", "totalClicks"]}
+                showArea
+              />
             }
             displayMode="chart-only"
             className="w-full h-[360px]"

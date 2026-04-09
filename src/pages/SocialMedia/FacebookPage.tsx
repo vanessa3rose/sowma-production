@@ -33,7 +33,8 @@ type MetricKey =
   | "views"
   | "comments"
   | "posts"
-  | "shares";
+  | "shares"
+  | "videoViews";
 
 type MetricConfig = {
   id: MetricKey;
@@ -76,6 +77,11 @@ const METRICS: MetricConfig[] = [
     metric: "SHARES",
     title: "Shares",
   },
+  {
+    id: "videoViews",
+    metric: "VIDEO_VIEWS",
+    title: "Video Views",
+  },
 ];
 
 const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
@@ -85,6 +91,7 @@ const INITIAL_SERIES: Record<MetricKey, LinePoint[]> = {
   comments: [],
   posts: [],
   shares: [],
+  videoViews: [],
 };
 
 const INITIAL_RANGES: Record<MetricKey, DateRangeValue> = {
@@ -94,6 +101,7 @@ const INITIAL_RANGES: Record<MetricKey, DateRangeValue> = {
   comments: { id: "30d" },
   posts: { id: "30d" },
   shares: { id: "30d" },
+  videoViews: { id: "30d" },
 };
 
 /* ---------- helpers ---------- */
@@ -290,6 +298,7 @@ export default function FacebookPage() {
 
           <BigCard
             title="Followers"
+            data={computed.followers.filtered}
             subtitle={
               <DateDropdown
                 value={ranges.followers}
@@ -304,19 +313,13 @@ export default function FacebookPage() {
             metricLabel="followers"
             metricChange={formatPercentChange(computed.followers?.summary)}
             chart={
-              computed.followers?.filtered.length ? (
-                <LineCharts
-                  data={computed.followers.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  labels={{ value: "Followers" }}
-                  showArea
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
+              <LineCharts
+                data={computed.followers.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                labels={{ value: "Followers" }}
+                showArea
+              />
             }
             displayMode="both"
             className=""
@@ -329,6 +332,7 @@ export default function FacebookPage() {
         <div className="flex flex-col gap-4">
           <BigCard
             title="Views"
+            data={computed.views.filtered}
             subtitle={
               <DateDropdown
                 value={ranges.views}
@@ -341,19 +345,13 @@ export default function FacebookPage() {
             metricLabel="from last week"
             metricChange={formatPercentChange(computed.views?.summary)}
             chart={
-              computed.views?.filtered.length ? (
-                <LineCharts
-                  data={computed.views.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  labels={{ value: "Views" }}
-                  showArea
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
+              <LineCharts
+                data={computed.views.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                labels={{ value: "Views" }}
+                showArea
+              />
             }
             displayMode="both"
             className="h-[360px]"
@@ -364,18 +362,12 @@ export default function FacebookPage() {
             titleTooltip={getGlossaryDefinition("daysPosted")}
             subtitle={<HeatmapLegend />}
             chart={
-              allPostsPoints.length ? (
-                <CalendarHeatmap
-                  points={allPostsPoints}
-                  offset={calendarOffset}
-                  onOffsetChange={setCalendarOffset}
-                  minOffset={minCalendarOffset}
-                />
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No post activity data
-                </div>
-              )
+              <CalendarHeatmap
+                points={allPostsPoints}
+                offset={calendarOffset}
+                onOffsetChange={setCalendarOffset}
+                minOffset={minCalendarOffset}
+              />
             }
             displayMode="chart-only"
             className=""
@@ -388,29 +380,55 @@ export default function FacebookPage() {
         <BigCard
           title="Recent Posts"
           titleTooltip={getGlossaryDefinition("recentPosts")}
+          data={recentPosts}
           chart={
-            recentPosts.length ? (
-              <div className="w-full flex flex-col gap-2 pt-2">
-                {recentPosts.map((post) => (
-                  <div
-                    key={post.date}
-                    className="rounded-lg border border-neutral-200 p-3 font-poppins"
-                  >
-                    <p className="font-semibold text-sm">{post.date}</p>
-                    <p className="text-sm text-gray-600">
-                      {post.value} new post(s)
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                No recent post data
-              </div>
-            )
+            <div className="w-full flex flex-col gap-2 pt-2">
+              {recentPosts.map((post) => (
+                <div
+                  key={post.date}
+                  className="rounded-lg border border-neutral-200 p-3 font-poppins"
+                >
+                  <p className="font-semibold text-sm">{post.date}</p>
+                  <p className="text-sm text-gray-600">
+                    {post.value} new post(s)
+                  </p>
+                </div>
+              ))}
+            </div>
           }
           displayMode="chart-only"
           className="h-full"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <BigCard
+          title="Video Views"
+          data={computed.videoViews.filtered}
+          titleTooltip={getGlossaryDefinition("videoViews")}
+          subtitle={
+            <DateDropdown
+              value={ranges.videoViews}
+              onChange={(r) =>
+                setRanges((prev) => ({ ...prev, videoViews: r }))
+              }
+              minDate={computed.videoViews?.bounds.min}
+              maxDate={computed.videoViews?.bounds.max}
+            />
+          }
+          metricValue={computed.videoViews?.summary.current ?? 0}
+          metricLabel="video views"
+          metricChange={formatPercentChange(computed.videoViews?.summary)}
+          chart={
+            <LineCharts
+              data={computed.videoViews.filtered}
+              xAxisKey="date"
+              dataKeys={["value"]}
+              showArea
+            />
+          }
+          displayMode="both"
+          className="h-[360px]"
         />
       </div>
     </div>

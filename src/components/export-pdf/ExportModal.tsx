@@ -136,7 +136,7 @@ export default function ExportModal({
               <DateDropdown
                 value={range}
                 onChange={setRange}
-                className="p-1 border-[#A1A1A1] border-[0.9px] rounded-[9px]"
+                className="p-1 border-neutral-400 border-[0.9px] rounded-[9px]"
               />
             </>
           ) : (

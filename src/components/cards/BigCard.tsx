@@ -4,6 +4,26 @@ import { COLORS } from "../../data/colors.js";
 
 type DisplayMode = "both" | "chart-only";
 
+function hasData(data: unknown): boolean {
+  if (data === null || data === undefined) return false;
+  if (Array.isArray(data)) {
+    if (data.length === 0) return false;
+    // treat array of objects with all-zero numeric values as empty
+    if (
+      data.every(
+        (item) =>
+          typeof item === "object" &&
+          item !== null &&
+          Object.values(item).every((v) => v === 0 || typeof v === "string"),
+      )
+    )
+      return false;
+    return true;
+  }
+  if (typeof data === "object") return Object.keys(data).length > 0;
+  return true;
+}
+
 interface BigCardProps {
   title: string;
   subtitle?: React.ReactNode;
@@ -16,6 +36,7 @@ interface BigCardProps {
   dropdown?: React.ReactNode;
   titleTooltip?: string;
   style?: React.CSSProperties;
+  data?: unknown;
   scrollable?: boolean;
 }
 
@@ -31,6 +52,7 @@ const BigCard: React.FC<BigCardProps> = ({
   dropdown,
   titleTooltip,
   style,
+  data,
   scrollable = false,
 }) => {
   const shouldShowChart =
@@ -45,10 +67,12 @@ const BigCard: React.FC<BigCardProps> = ({
       className={className}
       style={{
         backgroundColor: "white",
-        border: "1px solid #E5E5E5",
+        border: `1px solid ${COLORS.SOWMA_LIGHTER_GRAY}`,
         borderRadius: "12px",
         boxShadow: "0px 4px 4px #1e1e1e64",
         padding: "20px",
+        display: "flex",
+        flexDirection: "column",
         ...style,
       }}
     >
@@ -87,12 +111,16 @@ const BigCard: React.FC<BigCardProps> = ({
             </div>
           )}
 
-          {dropdown && <div>{dropdown}</div>}
+          {dropdown && (
+            <div className="flex flex-1 w-full justify-end items-center">
+              {dropdown}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Metric Display - shown above chart when both are present */}
-      {shouldShowMetric && metricValue !== undefined && (
+      {shouldShowMetric && metricValue !== undefined && hasData(data) && (
         <div className="mb-4">
           <div className="flex items-baseline gap-2 flex-wrap opacity-100">
             <span
@@ -102,7 +130,7 @@ const BigCard: React.FC<BigCardProps> = ({
                 fontSize: "32px",
                 lineHeight: "100%",
                 letterSpacing: "-1%",
-                color: COLORS.SOWMA_LIGHT_BLUE,
+                color: COLORS.SOWMA_BLUE,
               }}
             >
               {metricValue}
@@ -120,7 +148,7 @@ const BigCard: React.FC<BigCardProps> = ({
                       ? COLORS.SOWMA_BRIGHT_GREEN
                       : metricChange.startsWith("-")
                         ? COLORS.SOWMA_BRIGHT_RED
-                        : COLORS.SOWMA_GRAY,
+                        : COLORS.SOWMA_MEDIUM_GRAY,
                   }}
                 >
                   {metricChange}
@@ -152,7 +180,7 @@ const BigCard: React.FC<BigCardProps> = ({
                   fontSize: "14px",
                   lineHeight: "100%",
                   letterSpacing: "0%",
-                  color: COLORS.SOWMA_GRAY,
+                  color: COLORS.SOWMA_MEDIUM_GRAY,
                 }}
               >
                 {metricLabel}
@@ -163,17 +191,28 @@ const BigCard: React.FC<BigCardProps> = ({
       )}
 
       {/* Chart Display */}
-      {shouldShowChart && chart && (
+      {shouldShowChart && (
         <div
           className={`
-            flex
+            flex items-center justify-center
             ${
               !useFullChartHeight
-                ? `h-[300px] w-full ${scrollable ? "overflow-y-auto" : "overflow-hidden"}`
-                : "flex h-full w-full justify-center items-center"
+                ? `min-h-[300px] flex-1 w-full ${scrollable ? "overflow-y-auto" : "overflow-hidden"}`
+                : "h-full w-full"
             }`}
         >
-          {chart}
+          {data !== undefined && !hasData(data) ? (
+            <div className="flex h-full w-full items-center justify-center">
+              <span
+                className="font-poppins"
+                style={{ fontWeight: 400, fontSize: "14px", color: "#6B7280" }}
+              >
+                No data available
+              </span>
+            </div>
+          ) : (
+            chart
+          )}
         </div>
       )}
     </div>
