@@ -15,6 +15,7 @@ const TitleTooltip: React.FC<TitleTooltipProps> = ({ description }) => {
         display: "inline-flex",
         alignItems: "center",
         marginLeft: "6px",
+        marginRight: "6px",
       }}
       onMouseEnter={() => setVisible(true)}
       onMouseLeave={() => setVisible(false)}

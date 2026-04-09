@@ -87,7 +87,11 @@ const BigCard: React.FC<BigCardProps> = ({
             </div>
           )}
 
-          {dropdown && <div>{dropdown}</div>}
+          {dropdown && (
+            <div className="flex flex-1 w-full justify-end items-center">
+              {dropdown}
+            </div>
+          )}
         </div>
       </div>
 

@@ -560,7 +560,7 @@ export default function Homepage() {
         <PlatformMetricCard
           title="Impressions"
           titleTooltip="Number of users who saw your content"
-          className="flex-1 w-full max-h-[320px]"
+          className="flex-1 w-full"
           dropdown={
             <DateDropdown
               value={impressionsRange}
@@ -597,7 +597,7 @@ export default function Homepage() {
         <PlatformMetricCard
           title="Total Posts"
           titleTooltip="Total posts made"
-          className="flex-1 w-full max-h-[320px]"
+          className="flex-1 w-full"
           dropdown={
             <DateDropdown
               value={daysPostedRange}
@@ -635,7 +635,7 @@ export default function Homepage() {
         <PlatformMetricCard
           title="Follower Count"
           titleTooltip="Follower count across all platforms"
-          className="flex-1 w-full max-h-[320px]"
+          className="flex-1 w-full"
           dropdown={
             <DateDropdown
               value={followersRange}
@@ -681,7 +681,6 @@ export default function Homepage() {
 
       {/* Follower Count */}
       <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
-
         {/* GA Website Session */}
         <BigCard
           title="Google Analytics Website Sessions"
