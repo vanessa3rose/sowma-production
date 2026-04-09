@@ -53,6 +53,8 @@ const FACEBOOK_METRICS: ExportMetricDefinition[] = [
 ];
 
 const LINKEDIN_METRICS: ExportMetricDefinition[] = [
+  { id: "TOTAL_USERS", label: "Unique Visitors" },
+  { id: "DAYS_POSTED", label: "Days Posted" },
   { id: "FOLLOWERS", label: "New Followers" },
   { id: "VIEWS", label: "Views" },
   { id: "LIKES", label: "Reactions" },

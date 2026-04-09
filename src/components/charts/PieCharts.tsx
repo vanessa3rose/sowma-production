@@ -68,7 +68,10 @@ const PieCharts = ({
   const tooltipSeries = Object.fromEntries(
     validData.map((entry, index) => [
       entry[nameKey],
-      { color: PIE_COLORS[index % PIE_COLORS.length] },
+      {
+        color: PIE_COLORS[index % PIE_COLORS.length],
+        description: entry.tooltipDetails,
+      },
     ]),
   );
 
