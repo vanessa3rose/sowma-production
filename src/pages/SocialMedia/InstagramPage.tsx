@@ -271,6 +271,7 @@ export default function InstagramPage() {
         metricValue={metricValue}
         metricLabel={metricLabel}
         metricChange={metricChange}
+        data={chartData}
         chart={
           <LineCharts
             data={chartData}

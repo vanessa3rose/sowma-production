@@ -391,6 +391,7 @@ export default function FacebookPage() {
 
           <BigCard
             title="Followers"
+            data={computed.followers.filtered}
             subtitle={
               <DateDropdown
                 value={ranges.followers}
@@ -424,6 +425,7 @@ export default function FacebookPage() {
         <div className="flex flex-col gap-4">
           <BigCard
             title="Views"
+            data={computed.views.filtered}
             subtitle={
               <DateDropdown
                 value={ranges.views}
@@ -471,6 +473,7 @@ export default function FacebookPage() {
         <BigCard
           title="Recent Posts"
           titleTooltip={getGlossaryDefinition("recentPosts")}
+          data={recentPosts}
           chart={
             <div className="w-full flex flex-col gap-2 pt-2">
               {recentPosts.map((post) => (

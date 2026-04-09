@@ -306,6 +306,7 @@ export default function LinkedInPage() {
         <div className="flex flex-col gap-4">
           <BigCard
             title="New Followers"
+            data={computed.followers.filtered}
             subtitle={
               <DateDropdown
                 value={ranges.followers}
@@ -334,6 +335,7 @@ export default function LinkedInPage() {
 
           <BigCard
             title="Views"
+            data={computed.views.filtered}
             subtitle={
               <DateDropdown
                 value={ranges.views}
@@ -364,6 +366,7 @@ export default function LinkedInPage() {
         <div className="flex flex-col gap-4">
           <BigCard
             title="Total Interactions"
+            data={computed.interactions.filtered}
             titleTooltip={getGlossaryDefinition("interactions")}
             subtitle={
               <DateDropdown
@@ -393,6 +396,7 @@ export default function LinkedInPage() {
 
           <BigCard
             title="Engagement Calendar"
+            data={rawSeries.interactions}
             titleTooltip="Interaction intensity by calendar day. Darker means more interactions."
             subtitle={<HeatmapLegend />}
             chart={<LinkedInCalendarHeatmap points={rawSeries.interactions} />}

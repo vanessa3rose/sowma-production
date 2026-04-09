@@ -5,7 +5,14 @@ type DisplayMode = "both" | "chart-only";
 
 function hasData(data: unknown): boolean {
   if (data === null || data === undefined) return false;
-  if (Array.isArray(data)) return data.length > 0;
+  if (Array.isArray(data)) {
+    if (data.length === 0) return false;
+    // treat array of objects with all-zero numeric values as empty
+    if (data.every((item) => typeof item === "object" && item !== null &&
+      Object.values(item).every((v) => v === 0 || typeof v === "string")
+    )) return false;
+    return true;
+  }
   if (typeof data === "object") return Object.keys(data).length > 0;
   return true;
 }
@@ -57,6 +64,8 @@ const BigCard: React.FC<BigCardProps> = ({
         borderRadius: "12px",
         boxShadow: "0px 4px 4px #1e1e1e64",
         padding: "20px",
+        display: "flex",
+        flexDirection: "column",
         ...style,
       }}
     >
@@ -100,7 +109,7 @@ const BigCard: React.FC<BigCardProps> = ({
       </div>
 
       {/* Metric Display - shown above chart when both are present */}
-      {shouldShowMetric && metricValue !== undefined && (
+      {shouldShowMetric && metricValue !== undefined && hasData(data) && (
         <div className="mb-4">
           <div className="flex items-baseline gap-2 flex-wrap opacity-100">
             <span
@@ -174,19 +183,16 @@ const BigCard: React.FC<BigCardProps> = ({
       {shouldShowChart && (
         <div
           className={`
-            flex
+            flex items-center justify-center
             ${
               !useFullChartHeight
-                ? `h-[300px] w-full ${scrollable ? "overflow-y-auto" : "overflow-hidden"}`
-                : "flex h-full w-full justify-center items-center"
+                ? `min-h-0 flex-1 w-full ${scrollable ? "overflow-y-auto" : "overflow-hidden"}`
+                : "h-full w-full"
             }`}
         >
           {data !== undefined && !hasData(data) ? (
             <div className="flex h-full w-full items-center justify-center">
-              <span
-                className="font-poppins"
-                style={{ fontWeight: 400, fontSize: "14px", color: "#6B7280" }}
-              >
+              <span className="font-poppins" style={{ fontWeight: 400, fontSize: "14px", color: "#6B7280" }}>
                 No data available
               </span>
             </div>

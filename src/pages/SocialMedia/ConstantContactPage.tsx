@@ -631,6 +631,7 @@ export default function ConstantContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <BigCard
             title="Open Rate %"
+            data={openRateData}
             titleTooltip="Percentage of delivered emails that were opened (Opened ÷ Delivered × 100)"
             subtitle={
               <DateDropdown
@@ -656,6 +657,7 @@ export default function ConstantContactPage() {
 
           <BigCard
             title="Click-to-Open Rate %"
+            data={ctorData}
             titleTooltip="Of people who opened, the percentage who clicked a link (Clicked ÷ Opened × 100)"
             subtitle={
               <DateDropdown
@@ -684,6 +686,7 @@ export default function ConstantContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <BigCard
             title="Opens: Unique vs Total"
+            data={opensData}
             titleTooltip="Unique Opens (purple) shows distinct openers; Total Opens (pink) includes re-opens"
             subtitle={
               <DateDropdown
@@ -709,6 +712,7 @@ export default function ConstantContactPage() {
 
           <BigCard
             title="Clicks: Unique vs Total"
+            data={clicksData}
             titleTooltip="Unique Clicks (purple) shows distinct clickers; Total Clicks (pink) includes repeat clicks"
             subtitle={
               <DateDropdown
@@ -741,10 +745,11 @@ export default function ConstantContactPage() {
             const filtered = item?.filtered ?? [];
             const bounds = item?.bounds ?? { min: null, max: null };
             const summary = item?.summary ?? { current: null, prev: null };
-
+            
             return (
               <BigCard
                 key={id}
+                data={filtered}
                 title={cfg.title}
                 titleTooltip={cfg.description}
                 subtitle={
@@ -778,6 +783,7 @@ export default function ConstantContactPage() {
 
           <BigCard
             title="Delivery Rate %"
+            data={deliveryRateData}
             subtitle={
               <DateDropdown
                 value={deliveryRateRange}

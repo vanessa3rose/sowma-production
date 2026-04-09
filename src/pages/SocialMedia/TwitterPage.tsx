@@ -201,6 +201,7 @@ export default function TwitterPage() {
           <div className="flex flex-col gap-4 w-full">
             <BigCard
               title="Tweets"
+              data={tweetsOverTime}
               subtitle={
                 <DateDropdown
                   value={tweetsRange}
@@ -227,6 +228,7 @@ export default function TwitterPage() {
             <div className="flex flex-col gap-4 w-full">
               <BigCard
                 title="Followers"
+                data={followersOverTime}
                 subtitle={
                   <DateDropdown
                     value={followersRange}

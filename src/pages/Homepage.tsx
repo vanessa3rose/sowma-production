@@ -630,10 +630,11 @@ export default function Homepage() {
         {/* GA Website Session */}
         <BigCard
           title="Google Analytics Website Sessions"
+          data={sessionsFiltered}
           titleTooltip="A session is all the actions a user takes during one visit"
           subtitle=""
-          displayMode="both"
-          className="flex-1 w-full max-h-[320px]"
+          displayMode="chart-only"
+          className="flex-1 w-full max-h-[320px] h-[320px]"
           dropdown={
             <div className="flex items-center gap-2">
               <DateDropdown
@@ -644,7 +645,6 @@ export default function Homepage() {
               />
             </div>
           }
-          data={sessionsFiltered}
           chart={
             <div className="w-full h-full">
               <LineCharts
