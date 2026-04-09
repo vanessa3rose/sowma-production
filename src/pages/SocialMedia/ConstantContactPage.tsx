@@ -354,7 +354,6 @@ export default function ConstantContactPage() {
   }, [rawSeries, sankeyRange]);
 
   const sankeyBounds = getBounds(rawSeries["emails_sent"] ?? []);
-  const hasSankeyData = sankeyVals.emails_sent > 0;
 
   // Opens comparison: Unique vs Total
   const opensData = useMemo(() => {
@@ -404,6 +403,7 @@ export default function ConstantContactPage() {
         {/* ── Email Flow Sankey — first ── */}
         <BigCard
           title="Email Flow"
+          data={sankeyVals}
           titleTooltip={getGlossaryDefinition("email_flow")}
           subtitle={
             <DateDropdown
@@ -414,19 +414,13 @@ export default function ConstantContactPage() {
             />
           }
           chart={
-            hasSankeyData ? (
-              <div className="flex w-full justify-center items-center">
-                <ReactECharts
-                  option={buildSankeyOption(sankeyVals)}
-                  style={{ height: "100%", width: "95%" }}
-                  opts={{ renderer: "svg" }}
-                />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
-                No data available
-              </div>
-            )
+            <div className="flex w-full justify-center items-center">
+              <ReactECharts
+                option={buildSankeyOption(sankeyVals)}
+                style={{ height: "100%", width: "95%" }}
+                opts={{ renderer: "svg" }}
+              />
+            </div>
           }
           displayMode="chart-only"
           className="w-full h-[360px]"

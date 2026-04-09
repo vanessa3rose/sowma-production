@@ -404,6 +404,7 @@ export default function FacebookPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <BigCard
           title="Video Views"
+          data={computed.videoViews.filtered}
           titleTooltip={getGlossaryDefinition("videoViews")}
           subtitle={
             <DateDropdown
@@ -419,18 +420,12 @@ export default function FacebookPage() {
           metricLabel="video views"
           metricChange={formatPercentChange(computed.videoViews?.summary)}
           chart={
-            computed.videoViews?.filtered.length ? (
-              <LineCharts
-                data={computed.videoViews.filtered}
-                xAxisKey="date"
-                dataKeys={["value"]}
-                showArea
-              />
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                No data available
-              </div>
-            )
+            <LineCharts
+              data={computed.videoViews.filtered}
+              xAxisKey="date"
+              dataKeys={["value"]}
+              showArea
+            />
           }
           displayMode="both"
           className="h-[360px]"
