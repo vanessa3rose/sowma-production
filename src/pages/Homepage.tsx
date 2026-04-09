@@ -20,6 +20,7 @@ type PlatformMetricPoint = {
   facebook: number | null;
   instagram: number | null;
   twitter: number | null;
+  linkedin: number | null;
 };
 
 type WebsiteSessionsPoint = { date: string; sessions: number };
@@ -131,7 +132,7 @@ export default function Homepage() {
 
   async function loadImpressions() {
     try {
-      const [fbRaw, igRaw] = await Promise.all([
+      const [fbRaw, igRaw, liRaw] = await Promise.all([
         fetchMetrics({
           provider: "FACEBOOK",
           metric: "VIEWS",
@@ -144,11 +145,20 @@ export default function Homepage() {
           startDate: defaultStartDate,
           endDate: defaultEndDate,
         }),
+        fetchMetrics({
+          provider: "LINKEDIN",
+          metric: "VIEWS",
+          startDate: defaultStartDate,
+          endDate: defaultEndDate,
+        }),
       ]);
 
       const mergedMap = new Map<string, PlatformMetricPoint>();
 
-      const add = (raw: SocialMediaMetric[], key: "facebook" | "instagram") => {
+      const add = (
+        raw: SocialMediaMetric[],
+        key: "facebook" | "instagram" | "linkedin",
+      ) => {
         for (const m of raw) {
           const date = (
             m.metricDate ??
@@ -160,6 +170,7 @@ export default function Homepage() {
             date,
             facebook: null,
             instagram: null,
+            linkedin: null,
             twitter: null,
           };
 
@@ -169,6 +180,7 @@ export default function Homepage() {
 
       add(fbRaw, "facebook");
       add(igRaw, "instagram");
+      add(liRaw, "linkedin");
 
       const merged = Array.from(mergedMap.values()).sort((a, b) =>
         a.date.localeCompare(b.date),
@@ -218,6 +230,7 @@ export default function Homepage() {
           date,
           facebook: null,
           instagram: null,
+          linkedin: null,
           twitter: null,
         };
         mergedMap.set(date, { ...existing, facebook: fbTotal });
@@ -235,6 +248,7 @@ export default function Homepage() {
           facebook: null,
           instagram: null,
           twitter: null,
+          linkedin: null,
         };
         mergedMap.set(date, { ...existing, instagram: m.metricValue });
       }
@@ -251,6 +265,7 @@ export default function Homepage() {
           facebook: null,
           instagram: null,
           twitter: null,
+          linkedin: null,
         };
         mergedMap.set(date, { ...existing, twitter: m.metricValue });
       }
@@ -307,6 +322,7 @@ export default function Homepage() {
           facebook: number | null;
           instagram: number | null;
           twitter: number | null;
+          linkedin: number | null;
         }
       >();
 
@@ -324,6 +340,7 @@ export default function Homepage() {
             facebook: null,
             instagram: null,
             twitter: null,
+            linkedin: null,
           };
           mergedMap.set(date, { ...existing, [key]: m.metricValue });
         }
@@ -414,34 +431,43 @@ export default function Homepage() {
       return {
         facebook: null,
         instagram: null,
+        linkedin: null,
         fbChange: null,
         igChange: null,
+        liChange: null,
         fbSince: null,
         igSince: null,
+        liSince: null,
       };
 
-    const getFirst = (key: "facebook" | "instagram") =>
+    const getFirst = (key: "facebook" | "instagram" | "linkedin") =>
       impressionsFiltered.find((p) => p[key] !== null);
 
-    const getLast = (key: "facebook" | "instagram") =>
+    const getLast = (key: "facebook" | "instagram" | "linkedin") =>
       [...impressionsFiltered].reverse().find((p) => p[key] !== null)?.[key] ??
       null;
 
     const fbFirst = getFirst("facebook");
     const igFirst = getFirst("instagram");
+    const liFirst = getFirst("linkedin");
 
     const fbLast = getLast("facebook");
     const igLast = getLast("instagram");
+    const liLast = getLast("linkedin");
 
     return {
       facebook: fbLast,
       instagram: igLast,
+      linkedin: liLast,
       fbChange:
         fbFirst && fbLast !== null ? fbLast - (fbFirst.facebook ?? 0) : null,
       igChange:
         igFirst && igLast !== null ? igLast - (igFirst.instagram ?? 0) : null,
+      liChange:
+        liFirst && liLast !== null ? liLast - (liFirst.linkedin ?? 0) : null,
       fbSince: fbFirst?.date ?? null,
       igSince: igFirst?.date ?? null,
+      liSince: liFirst?.date ?? null,
     };
   }, [impressionsFiltered]);
 
@@ -574,7 +600,7 @@ export default function Homepage() {
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
       <div className="flex flex-wrap w-full justify-between items-center gap-4">
-        <h1 className="font-poppins text-sowma-light-blue text-2xl font-semibold">
+        <h1 className="font-poppins text-sowma-blue text-2xl font-semibold">
           Dashboard
         </h1>
         <ExportButton onExport={exportByPlatforms} />
@@ -585,7 +611,7 @@ export default function Homepage() {
         <PlatformMetricCard
           title="Impressions"
           titleTooltip="Number of users who saw your content"
-          className="flex-1 w-full max-h-[320px]"
+          className="flex-1 w-full"
           dropdown={
             <DateDropdown
               value={impressionsRange}
@@ -596,10 +622,20 @@ export default function Homepage() {
           }
           metrics={[
             {
+              label: "LinkedIn",
+              value: impressionsChange.linkedin,
+              change: impressionsChange.liChange,
+              color: COLORS.SOWMA_LINKEDIN,
+              sinceDate: formatSinceDate(
+                impressionsChange.liSince,
+                impressionsRange,
+              ),
+            },
+            {
               label: "Facebook",
               value: impressionsChange.facebook,
               change: impressionsChange.fbChange,
-              color: COLORS.SOWMA_LIGHT_BLUE,
+              color: COLORS.SOWMA_FACEBOOK,
               sinceDate: formatSinceDate(
                 impressionsChange.fbSince,
                 impressionsRange,
@@ -609,7 +645,7 @@ export default function Homepage() {
               label: "Instagram",
               value: impressionsChange.instagram,
               change: impressionsChange.igChange,
-              color: COLORS.SOWMA_GREEN,
+              color: COLORS.SOWMA_INSTAGRAM,
               sinceDate: formatSinceDate(
                 impressionsChange.igSince,
                 impressionsRange,
@@ -622,7 +658,7 @@ export default function Homepage() {
         <PlatformMetricCard
           title="Total Posts"
           titleTooltip="Total posts made"
-          className="flex-1 w-full max-h-[320px]"
+          className="flex-1 w-full"
           dropdown={
             <DateDropdown
               value={daysPostedRange}
@@ -636,26 +672,76 @@ export default function Homepage() {
               label: "Facebook",
               value: postsChange.facebook,
               change: postsChange.fbChange,
-              color: COLORS.SOWMA_LIGHT_BLUE,
+              color: COLORS.SOWMA_FACEBOOK,
               sinceDate: formatSinceDate(postsChange.fbSince, daysPostedRange),
             },
             {
               label: "Instagram",
               value: postsChange.instagram,
               change: postsChange.igChange,
-              color: COLORS.SOWMA_GREEN,
+              color: COLORS.SOWMA_INSTAGRAM,
               sinceDate: formatSinceDate(postsChange.igSince, daysPostedRange),
             },
             {
               label: "Twitter",
               value: postsChange.twitter,
               change: postsChange.twChange,
-              color: COLORS.SOWMA_DARK_BLUE,
+              color: COLORS.SOWMA_TWITTER,
               sinceDate: formatSinceDate(postsChange.twSince, daysPostedRange),
             },
           ]}
         />
 
+        {/* Follower Count */}
+        <PlatformMetricCard
+          title="Follower Count"
+          titleTooltip="Follower count across all platforms"
+          className="flex-1 w-full"
+          dropdown={
+            <DateDropdown
+              value={followersRange}
+              onChange={setFollowersRange}
+              minDate={followersBounds.min}
+              maxDate={followersBounds.max}
+            />
+          }
+          metrics={[
+            {
+              label: "Facebook",
+              value: followerChange.facebook,
+              change: followerChange.fbChange,
+              color: COLORS.SOWMA_FACEBOOK,
+              sinceDate: formatSinceDate(
+                followerChange.fbSince,
+                followersRange,
+              ),
+            },
+            {
+              label: "Instagram",
+              value: followerChange.instagram,
+              change: followerChange.igChange,
+              color: COLORS.SOWMA_INSTAGRAM,
+              sinceDate: formatSinceDate(
+                followerChange.igSince,
+                followersRange,
+              ),
+            },
+            {
+              label: "Twitter",
+              value: followerChange.twitter,
+              change: followerChange.twChange,
+              color: COLORS.SOWMA_TWITTER,
+              sinceDate: formatSinceDate(
+                followerChange.twSince,
+                followersRange,
+              ),
+            },
+          ]}
+        />
+      </div>
+
+      {/* Follower Count */}
+      <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
         {/* GA Website Session */}
         <BigCard
           title="Google Analytics Website Sessions"
@@ -691,56 +777,8 @@ export default function Homepage() {
             )
           }
         />
-      </div>
 
-      {/* Follower Count */}
-      <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
-        <PlatformMetricCard
-          title="Follower Count"
-          titleTooltip="Follower count across all platforms"
-          className="flex-1 w-full max-h-[320px]"
-          dropdown={
-            <DateDropdown
-              value={followersRange}
-              onChange={setFollowersRange}
-              minDate={followersBounds.min}
-              maxDate={followersBounds.max}
-            />
-          }
-          metrics={[
-            {
-              label: "Facebook",
-              value: followerChange.facebook,
-              change: followerChange.fbChange,
-              color: COLORS.SOWMA_LIGHT_BLUE,
-              sinceDate: formatSinceDate(
-                followerChange.fbSince,
-                followersRange,
-              ),
-            },
-            {
-              label: "Instagram",
-              value: followerChange.instagram,
-              change: followerChange.igChange,
-              color: COLORS.SOWMA_GREEN,
-              sinceDate: formatSinceDate(
-                followerChange.igSince,
-                followersRange,
-              ),
-            },
-            {
-              label: "Twitter",
-              value: followerChange.twitter,
-              change: followerChange.twChange,
-              color: COLORS.SOWMA_DARK_BLUE,
-              sinceDate: formatSinceDate(
-                followerChange.twSince,
-                followersRange,
-              ),
-            },
-          ]}
-        />
-
+        {/* How Did You Hear About Us */}
         <BigCard
           title="How did you hear about us?"
           subtitle=""

@@ -13,7 +13,7 @@ import ChartTooltip from "./ChartTooltip";
 
 import { COLORS } from "../../data/colors.js";
 const PIE_COLORS = [
-  COLORS.SOWMA_LIGHT_BLUE,
+  COLORS.SOWMA_BLUE,
   COLORS.SOWMA_GREEN,
   COLORS.SOWMA_LIGHT_GREEN,
   COLORS.SOWMA_DARK_GREEN,
@@ -68,7 +68,10 @@ const PieCharts = ({
   const tooltipSeries = Object.fromEntries(
     validData.map((entry, index) => [
       entry[nameKey],
-      { color: PIE_COLORS[index % PIE_COLORS.length] },
+      {
+        color: PIE_COLORS[index % PIE_COLORS.length],
+        description: entry.tooltipDetails,
+      },
     ]),
   );
 

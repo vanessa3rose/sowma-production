@@ -27,17 +27,17 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
 }) => {
   return (
     <div
-      className={className}
+      className={`${className}`}
       style={{
         backgroundColor: "white",
-        border: "1px solid #E5E5E5",
+        border: `1px solid ${COLORS.SOWMA_LIGHTER_GRAY}`,
         borderRadius: "12px",
         boxShadow: "0px 4px 4px #1e1e1e64",
         padding: "24px 28px",
       }}
     >
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-1">
+      <div className="flex w-full justify-between items-center">
+        <div className="flex items-center">
           <h3
             style={{
               fontFamily: "Poppins, sans-serif",
@@ -50,20 +50,24 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
           </h3>
           {titleTooltip && <TitleTooltip description={titleTooltip} />}
         </div>
-        {dropdown && <div className="flex items-center">{dropdown}</div>}
+        {dropdown && (
+          <div className="flex flex-1 w-full justify-end items-center">
+            {dropdown}
+          </div>
+        )}
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 my-6">
         {metrics.map(({ label, value, change, color, sinceDate }, index) => (
           <div key={label}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className="flex items-end justify-between">
+              <div className="flex flex-row justify-center items-center md:flex-row lg:flex-col xl:flex-row md:items-center lg:items-start xl:items-center gap-3">
                 <span
                   style={{
                     fontFamily: "Poppins, sans-serif",
                     fontSize: "12px",
                     fontWeight: 500,
-                    color: "#9CA3AF",
+                    color: COLORS.SOWMA_GRAY,
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
                     width: "72px",
@@ -75,8 +79,7 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                   style={{
                     fontFamily: "Poppins, sans-serif",
                     fontSize: "28px",
-                    // FIX: Removed the condition that turned the number gray when change === 0
-                    color: value === null ? "#9CA3AF" : color,
+                    color: value === null ? COLORS.SOWMA_GRAY : color,
                     fontWeight: 600,
                     lineHeight: "1",
                   }}
@@ -84,7 +87,7 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                   {value !== null ? value.toLocaleString() : "—"}
                 </span>
               </div>
-              <div className="flex flex-col items-end gap-0.5">
+              <div className="flex flex-col h-full items-end gap-0.5">
                 {change !== null && (
                   <div className="flex items-center gap-1">
                     <span
@@ -97,19 +100,18 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                             ? COLORS.SOWMA_BRIGHT_GREEN
                             : change < 0
                               ? COLORS.SOWMA_BRIGHT_RED
-                              : "#9CA3AF",
+                              : COLORS.SOWMA_GRAY,
                       }}
                     >
                       {change > 0 ? "+" : ""}
                       {change.toLocaleString()}
                     </span>
                     {change === 0 ? (
-                      /* FIX: Smaller font size and fixed width to match the SVG arrow scale */
                       <span
                         style={{
                           fontSize: "10px",
                           fontWeight: 800,
-                          color: "#9CA3AF",
+                          color: COLORS.SOWMA_GRAY,
                           lineHeight: "1",
                           display: "inline-flex",
                           alignItems: "center",
@@ -147,6 +149,7 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                 )}
                 {sinceDate && (
                   <span
+                    className="text-right pl-1"
                     style={{
                       fontFamily: "Poppins, sans-serif",
                       fontSize: "11px",
@@ -162,7 +165,7 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
             {index < metrics.length - 1 && (
               <div
                 style={{
-                  borderBottom: "1px solid #F0F0F0",
+                  borderBottom: `1px solid ${COLORS.SOWMA_LIGHTEST_GRAY}`,
                   marginTop: "16px",
                 }}
               />

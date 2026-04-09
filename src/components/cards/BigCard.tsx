@@ -45,7 +45,7 @@ const BigCard: React.FC<BigCardProps> = ({
       className={className}
       style={{
         backgroundColor: "white",
-        border: "1px solid #E5E5E5",
+        border: `1px solid ${COLORS.SOWMA_LIGHTER_GRAY}`,
         borderRadius: "12px",
         boxShadow: "0px 4px 4px #1e1e1e64",
         padding: "20px",
@@ -87,7 +87,11 @@ const BigCard: React.FC<BigCardProps> = ({
             </div>
           )}
 
-          {dropdown && <div>{dropdown}</div>}
+          {dropdown && (
+            <div className="flex flex-1 w-full justify-end items-center">
+              {dropdown}
+            </div>
+          )}
         </div>
       </div>
 
@@ -102,7 +106,7 @@ const BigCard: React.FC<BigCardProps> = ({
                 fontSize: "32px",
                 lineHeight: "100%",
                 letterSpacing: "-1%",
-                color: COLORS.SOWMA_LIGHT_BLUE,
+                color: COLORS.SOWMA_BLUE,
               }}
             >
               {metricValue}
@@ -120,7 +124,7 @@ const BigCard: React.FC<BigCardProps> = ({
                       ? COLORS.SOWMA_BRIGHT_GREEN
                       : metricChange.startsWith("-")
                         ? COLORS.SOWMA_BRIGHT_RED
-                        : COLORS.SOWMA_GRAY,
+                        : COLORS.SOWMA_MEDIUM_GRAY,
                   }}
                 >
                   {metricChange}
@@ -152,7 +156,7 @@ const BigCard: React.FC<BigCardProps> = ({
                   fontSize: "14px",
                   lineHeight: "100%",
                   letterSpacing: "0%",
-                  color: COLORS.SOWMA_GRAY,
+                  color: COLORS.SOWMA_MEDIUM_GRAY,
                 }}
               >
                 {metricLabel}
@@ -170,7 +174,7 @@ const BigCard: React.FC<BigCardProps> = ({
             ${
               !useFullChartHeight
                 ? `h-[300px] w-full ${scrollable ? "overflow-y-auto" : "overflow-hidden"}`
-                : "flex h-full w-full justify-center items-center"
+                : "h-full w-full min-h-0 overflow-hidden"
             }`}
         >
           {chart}

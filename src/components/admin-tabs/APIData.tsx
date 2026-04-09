@@ -397,7 +397,7 @@ export default function APIData() {
                 <button
                   type="button"
                   onClick={() => setSubmittedText(text)}
-                  className="rounded-3xl bg-sowma-light-blue text-white text-xl font-bold px-10 py-2"
+                  className="rounded-3xl bg-sowma-blue text-white text-xl font-bold px-10 py-2"
                 >
                   Submit
                 </button>

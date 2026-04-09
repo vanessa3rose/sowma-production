@@ -38,14 +38,14 @@ const SmallCard: React.FC<SmallCardProps> = ({
     ? COLORS.SOWMA_BRIGHT_GREEN
     : isNegativeChange
       ? COLORS.SOWMA_BRIGHT_RED
-      : COLORS.SOWMA_GRAY;
+      : COLORS.SOWMA_MEDIUM_GRAY;
 
   return (
     <div
       className={`h-full flex flex-col ${className}`}
       style={{
         backgroundColor: "white",
-        border: "1px solid #E5E5E5",
+        border: `1px solid ${COLORS.SOWMA_LIGHTER_GRAY}`,
         borderRadius: "12px",
         boxShadow: "0px 4px 4px #1e1e1e64",
         padding: "20px",
@@ -123,7 +123,7 @@ const SmallCard: React.FC<SmallCardProps> = ({
                   fontSize: "32px",
                   lineHeight: "100%",
                   letterSpacing: "-1%",
-                  color: COLORS.SOWMA_LIGHT_BLUE,
+                  color: COLORS.SOWMA_BLUE,
                 }}
               >
                 {metricValue}
@@ -178,7 +178,7 @@ const SmallCard: React.FC<SmallCardProps> = ({
                     fontSize: "14px",
                     lineHeight: "100%",
                     letterSpacing: "0%",
-                    color: COLORS.SOWMA_GRAY,
+                    color: COLORS.SOWMA_MEDIUM_GRAY,
                   }}
                 >
                   {metricLabel}

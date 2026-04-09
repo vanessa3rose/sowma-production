@@ -18,13 +18,21 @@ type CsvImportRow = {
   comments?: number;
   shares?: number;
   views?: number;
+  uniqueVisitors?: number;
   totalInteractions?: number;
   daysPosted?: number;
+  writes?: MetricWrite[];
 };
 
 type MetricWrite = {
   metricName: Metric;
   metricValue: number;
+  breakdownKey?: string;
+  breakdownValue?: string;
+};
+
+type PreparedMetricWrite = MetricWrite & {
+  metricDate: Date | null;
 };
 
 function normalizeHeader(value: string): string {
@@ -126,30 +134,74 @@ function decodeBase64ToBuffer(raw: string): Buffer {
   return Buffer.from(cleaned, "base64");
 }
 
-function parseSpreadsheetRowsFromBuffer(
-  fileBuffer: Buffer,
-  filename: string,
-): string[][] {
-  const extension = getFileExtension(filename);
-  if (extension === "csv") {
-    return parseCsv(fileBuffer.toString("utf8"));
+const DEMOGRAPHIC_BREAKDOWN_KEYS: Record<string, string> = {
+  location: "location",
+  "job function": "jobFunction",
+  seniority: "seniority",
+  industry: "industry",
+  "company size": "companySize",
+};
+
+function mergeDaysPostedRows(
+  rows: CsvImportRow[],
+  daysPostedDates: Date[],
+): CsvImportRow[] {
+  if (!daysPostedDates.length) return rows;
+
+  const byDate = new Map<string, CsvImportRow>();
+  for (const row of rows) {
+    byDate.set(row.date.toISOString().slice(0, 10), row);
   }
 
-  if (extension !== "xls" && extension !== "xlsx") {
-    throw new Error("Unsupported file type. Please upload CSV, XLS, or XLSX.");
+  for (const postedDate of daysPostedDates) {
+    const key = postedDate.toISOString().slice(0, 10);
+    const existing = byDate.get(key);
+    if (existing) {
+      existing.daysPosted = 1;
+      continue;
+    }
+
+    byDate.set(key, {
+      date: startOfDay(postedDate),
+      daysPosted: 1,
+    });
   }
 
-  const workbook = XLSX.read(fileBuffer, { type: "buffer" });
-  const firstSheetName = workbook.SheetNames[0];
-  if (!firstSheetName) return [];
-
-  const firstSheet = workbook.Sheets[firstSheetName];
-  const csvText = XLSX.utils.sheet_to_csv(firstSheet);
-  return parseCsv(csvText);
+  return Array.from(byDate.values()).sort(
+    (a, b) => a.date.getTime() - b.date.getTime(),
+  );
 }
 
 function findHeaderIndex(headers: string[], aliases: string[]): number {
   return headers.findIndex((header) => aliases.includes(header));
+}
+
+function findHeadersByPattern(
+  headers: string[],
+  pattern: RegExp,
+): Array<{ index: number; header: string }> {
+  return headers.flatMap((header, index) =>
+    pattern.test(header) ? [{ index, header }] : [],
+  );
+}
+
+function normalizeBreakdownValue(value: string): string {
+  return value.replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+function buildBreakdownWrite(
+  metricName: Metric,
+  metricValue: number | undefined,
+  breakdownKey: string,
+  breakdownValue: string,
+): MetricWrite | null {
+  if (metricValue == null) return null;
+  return {
+    metricName,
+    metricValue,
+    breakdownKey,
+    breakdownValue: normalizeBreakdownValue(breakdownValue),
+  };
 }
 
 function findHeaderRowIndex(rows: string[][]): number {
@@ -160,6 +212,81 @@ function findHeaderRowIndex(rows: string[][]): number {
     if (normalized.includes("date")) return i;
   }
   return -1;
+}
+
+function parseBreakdownSheet(
+  rows: string[][],
+  metricName: Metric,
+  breakdownKey: string,
+): MetricWrite[] {
+  if (rows.length < 2) return [];
+
+  const headerRow = rows[0].map((cell) => normalizeHeader(String(cell ?? "")));
+  const labelIdx = 0;
+  const valueIdx = findHeaderIndex(headerRow, [
+    "total views",
+    "total followers",
+    "total unique visitors",
+  ]);
+
+  if (valueIdx === -1) return [];
+
+  const writes: MetricWrite[] = [];
+  for (let i = 1; i < rows.length; i += 1) {
+    const label = String(rows[i][labelIdx] ?? "").trim();
+    const metricValue = parseNumber(rows[i][valueIdx]);
+    if (!label || metricValue == null) continue;
+
+    writes.push({
+      metricName,
+      metricValue,
+      breakdownKey,
+      breakdownValue: normalizeBreakdownValue(label),
+    });
+  }
+
+  return writes;
+}
+
+function parsePostDateRows(rows: string[][]): Date[] {
+  if (rows.length < 2) return [];
+
+  let headerRowIndex = -1;
+  let createdDateIdx = -1;
+
+  for (let i = 0; i < rows.length; i += 1) {
+    const headers = rows[i].map((h) => normalizeHeader(String(h ?? "")));
+    createdDateIdx = findHeaderIndex(headers, [
+      "created date",
+      "post date",
+      "date",
+    ]);
+    if (createdDateIdx !== -1) {
+      headerRowIndex = i;
+      break;
+    }
+  }
+
+  if (headerRowIndex === -1 || createdDateIdx === -1) return [];
+
+  const seen = new Set<string>();
+  const dates: Date[] = [];
+
+  for (let i = headerRowIndex + 1; i < rows.length; i += 1) {
+    const rawDate = rows[i][createdDateIdx]?.trim();
+    if (!rawDate) continue;
+
+    const parsedDate = parseDateValue(rawDate);
+    if (!parsedDate) continue;
+
+    const day = startOfDay(parsedDate);
+    const key = day.toISOString().slice(0, 10);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    dates.push(day);
+  }
+
+  return dates.sort((a, b) => a.getTime() - b.getTime());
 }
 
 function parseRows(rows: string[][]): CsvImportRow[] {
@@ -224,6 +351,20 @@ function parseRows(rows: string[][]): CsvImportRow[] {
     "engagements",
     "total engagements",
   ]);
+  const uniqueVisitorsIdx = findHeaderIndex(headers, [
+    "total unique visitors total",
+    "unique visitors",
+    "total unique visitors",
+  ]);
+
+  const uniqueVisitorDeviceHeaders = findHeadersByPattern(
+    headers,
+    /^total unique visitors (desktop|mobile)$/,
+  );
+  const uniqueVisitorPageHeaders = findHeadersByPattern(
+    headers,
+    /^(overview|life|jobs) unique visitors total$/,
+  );
 
   const out: CsvImportRow[] = [];
 
@@ -250,6 +391,36 @@ function parseRows(rows: string[][]): CsvImportRow[] {
           : undefined;
 
     const postsCount = postsIdx >= 0 ? parseNumber(row[postsIdx]) : undefined;
+    const writes: MetricWrite[] = [];
+
+    for (const { index, header } of uniqueVisitorDeviceHeaders) {
+      const match = header.match(/^total unique visitors (desktop|mobile)$/);
+      if (!match) continue;
+      const metricValue = parseNumber(row[index]);
+      const write = buildBreakdownWrite(
+        Metric.TOTAL_USERS,
+        metricValue,
+        "deviceType",
+        match[1],
+      );
+      if (write) writes.push(write);
+    }
+
+    for (const { index, header } of uniqueVisitorPageHeaders) {
+      const match = header.match(
+        /^(overview|life|jobs) unique visitors total$/,
+      );
+      if (!match) continue;
+      const metricValue = parseNumber(row[index]);
+      const write = buildBreakdownWrite(
+        Metric.TOTAL_USERS,
+        metricValue,
+        "pageType",
+        match[1],
+      );
+      if (write) writes.push(write);
+    }
+
     out.push({
       date: startOfDay(parsedDate),
       followers: followersIdx >= 0 ? parseNumber(row[followersIdx]) : undefined,
@@ -257,12 +428,84 @@ function parseRows(rows: string[][]): CsvImportRow[] {
       comments,
       shares,
       views: viewsIdx >= 0 ? parseNumber(row[viewsIdx]) : undefined,
+      uniqueVisitors:
+        uniqueVisitorsIdx >= 0
+          ? parseNumber(row[uniqueVisitorsIdx])
+          : undefined,
       totalInteractions,
       daysPosted: postsCount != null ? (postsCount > 0 ? 1 : 0) : undefined,
+      writes,
     });
   }
 
   return out;
+}
+
+function parseLinkedInImportBuffer(
+  fileBuffer: Buffer,
+  filename: string,
+): { rows: CsvImportRow[]; supplementalWrites: MetricWrite[] } {
+  const extension = getFileExtension(filename);
+  if (extension === "csv") {
+    return {
+      rows: parseRows(parseCsv(fileBuffer.toString("utf8"))),
+      supplementalWrites: [],
+    };
+  }
+
+  if (extension !== "xls" && extension !== "xlsx") {
+    throw new Error("Unsupported file type. Please upload CSV, XLS, or XLSX.");
+  }
+
+  const workbook = XLSX.read(fileBuffer, { type: "buffer" });
+  const firstSheetName = workbook.SheetNames[0];
+  if (!firstSheetName) return { rows: [], supplementalWrites: [] };
+
+  const firstSheet = workbook.Sheets[firstSheetName];
+  const firstSheetRows = parseCsv(XLSX.utils.sheet_to_csv(firstSheet));
+  const parsedRows = parseRows(firstSheetRows);
+  const supplementalWrites: MetricWrite[] = [];
+
+  // Visitor and follower exports include non-daily audience snapshots on
+  // dedicated sheets. We store them as breakdown rows so the LinkedIn page
+  // can render demographic composition charts without a schema change.
+  for (const [sheetName, breakdownKey] of Object.entries(
+    DEMOGRAPHIC_BREAKDOWN_KEYS,
+  )) {
+    const sheet =
+      workbook.Sheets[
+        Object.keys(workbook.Sheets).find(
+          (name) => normalizeHeader(name) === sheetName,
+        ) ?? ""
+      ];
+    if (!sheet) continue;
+
+    const sheetRows = parseCsv(XLSX.utils.sheet_to_csv(sheet));
+    const metricName =
+      normalizeHeader(firstSheetName) === "new followers"
+        ? Metric.FOLLOWERS
+        : normalizeHeader(firstSheetName) === "visitor metrics"
+          ? Metric.TOTAL_USERS
+          : null;
+
+    if (!metricName) continue;
+    supplementalWrites.push(
+      ...parseBreakdownSheet(sheetRows, metricName, breakdownKey),
+    );
+  }
+
+  // LinkedIn content exports include an "All posts" sheet keyed by the
+  // actual post creation date. We merge that into DAYS_POSTED so the
+  // calendar reflects publish days rather than later engagement days.
+  const allPostsSheet = workbook.Sheets["All posts"];
+  if (!allPostsSheet) return { rows: parsedRows, supplementalWrites };
+
+  const allPostsRows = parseCsv(XLSX.utils.sheet_to_csv(allPostsSheet));
+  const daysPostedDates = parsePostDateRows(allPostsRows);
+  return {
+    rows: mergeDaysPostedRows(parsedRows, daysPostedDates),
+    supplementalWrites,
+  };
 }
 
 /**
@@ -296,9 +539,63 @@ function rowToMetricWrites(row: CsvImportRow): MetricWrite[] {
     row.views != null
       ? { metricName: Metric.VIEWS, metricValue: row.views }
       : null,
+    row.uniqueVisitors != null
+      ? { metricName: Metric.TOTAL_USERS, metricValue: row.uniqueVisitors }
+      : null,
   ];
 
-  return candidates.filter((m): m is MetricWrite => m !== null);
+  return [
+    ...candidates.filter((m): m is MetricWrite => m !== null),
+    ...(row.writes ?? []),
+  ];
+}
+
+function chunkArray<T>(items: T[], chunkSize: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += chunkSize) {
+    chunks.push(items.slice(i, i + chunkSize));
+  }
+  return chunks;
+}
+
+function prepareMetricWritesWithSupplemental(
+  rows: CsvImportRow[],
+  supplementalWrites: MetricWrite[],
+): PreparedMetricWrite[] {
+  const writesByKey = new Map<string, PreparedMetricWrite>();
+
+  for (const row of rows) {
+    for (const metric of rowToMetricWrites(row)) {
+      const metricDay = row.date.toISOString();
+      const key = [
+        metricDay,
+        metric.metricName,
+        metric.breakdownKey ?? "",
+        metric.breakdownValue ?? "",
+      ].join("::");
+
+      writesByKey.set(key, {
+        ...metric,
+        metricDate: row.date,
+      });
+    }
+  }
+
+  for (const metric of supplementalWrites) {
+    const key = [
+      "snapshot",
+      metric.metricName,
+      metric.breakdownKey ?? "",
+      metric.breakdownValue ?? "",
+    ].join("::");
+
+    writesByKey.set(key, {
+      ...metric,
+      metricDate: null,
+    });
+  }
+
+  return Array.from(writesByKey.values());
 }
 
 async function resolveLinkedInAccountId(
@@ -355,13 +652,10 @@ export default async function handler(req: any, res: any) {
 
     // Accept either raw CSV text or base64-encoded CSV/XLS/XLSX files
     // from the Admin upload UI.
-    const parsedCsv = fileBase64.trim()
-      ? parseSpreadsheetRowsFromBuffer(
-          decodeBase64ToBuffer(fileBase64),
-          filename,
-        )
-      : parseCsv(csvText);
-    const parsedRows = parseRows(parsedCsv);
+    const parsedImport = fileBase64.trim()
+      ? parseLinkedInImportBuffer(decodeBase64ToBuffer(fileBase64), filename)
+      : { rows: parseRows(parseCsv(csvText)), supplementalWrites: [] };
+    const parsedRows = parsedImport.rows;
 
     if (parsedRows.length === 0) {
       return res.status(400).json({
@@ -369,43 +663,72 @@ export default async function handler(req: any, res: any) {
       });
     }
 
-    let rowsImported = 0;
-    let metricsWritten = 0;
+    const preparedWrites = prepareMetricWritesWithSupplemental(
+      parsedRows,
+      parsedImport.supplementalWrites,
+    );
+    const rowsImported = parsedRows.filter(
+      (row) => rowToMetricWrites(row).length > 0,
+    ).length;
+    const metricsWritten = preparedWrites.length;
 
-    for (const row of parsedRows) {
-      const metricsToInsert = rowToMetricWrites(row);
+    if (preparedWrites.length === 0) {
+      return res.status(400).json({
+        error: "No valid metric rows found in CSV.",
+      });
+    }
 
-      if (metricsToInsert.length === 0) {
-        continue;
-      }
+    const datedWrites = preparedWrites.filter(
+      (write): write is PreparedMetricWrite & { metricDate: Date } =>
+        write.metricDate instanceof Date,
+    );
+    const undatedWrites = preparedWrites.filter((write) => !write.metricDate);
+    const metricDates = Array.from(
+      new Set(datedWrites.map((write) => write.metricDate.toISOString())),
+    ).map((value) => new Date(value));
+    const datedMetricNames = Array.from(
+      new Set(datedWrites.map((write) => write.metricName)),
+    );
+    const undatedMetricNames = Array.from(
+      new Set(undatedWrites.map((write) => write.metricName)),
+    );
+    const now = new Date();
 
-      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      if (metricDates.length && datedMetricNames.length) {
         await tx.socialMediaMetrics.deleteMany({
           where: {
             socialMediaId,
-            metricDate: row.date,
-            metricName: { in: metricsToInsert.map((m) => m.metricName) },
+            metricDate: { in: metricDates },
+            metricName: { in: datedMetricNames },
           },
         });
+      }
 
-        await Promise.all(
-          metricsToInsert.map((m) =>
-            tx.socialMediaMetrics.create({
-              data: {
-                socialMediaId,
-                metricName: m.metricName,
-                metricValue: m.metricValue,
-                metricDate: row.date,
-                lastSynced: new Date(),
-              },
-            }),
-          ),
-        );
-      });
+      if (undatedMetricNames.length) {
+        await tx.socialMediaMetrics.deleteMany({
+          where: {
+            socialMediaId,
+            metricDate: null,
+            metricName: { in: undatedMetricNames },
+          },
+        });
+      }
 
-      rowsImported += 1;
-      metricsWritten += metricsToInsert.length;
-    }
+      for (const chunk of chunkArray(preparedWrites, 500)) {
+        await tx.socialMediaMetrics.createMany({
+          data: chunk.map((write) => ({
+            socialMediaId,
+            metricName: write.metricName,
+            metricValue: write.metricValue,
+            breakdownKey: write.breakdownKey ?? null,
+            breakdownValue: write.breakdownValue ?? null,
+            metricDate: write.metricDate,
+            lastSynced: now,
+          })),
+        });
+      }
+    });
 
     return res.status(200).json({
       message: "LinkedIn CSV imported successfully",
