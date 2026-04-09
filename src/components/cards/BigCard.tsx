@@ -8,9 +8,15 @@ function hasData(data: unknown): boolean {
   if (Array.isArray(data)) {
     if (data.length === 0) return false;
     // treat array of objects with all-zero numeric values as empty
-    if (data.every((item) => typeof item === "object" && item !== null &&
-      Object.values(item).every((v) => v === 0 || typeof v === "string")
-    )) return false;
+    if (
+      data.every(
+        (item) =>
+          typeof item === "object" &&
+          item !== null &&
+          Object.values(item).every((v) => v === 0 || typeof v === "string"),
+      )
+    )
+      return false;
     return true;
   }
   if (typeof data === "object") return Object.keys(data).length > 0;
@@ -192,7 +198,10 @@ const BigCard: React.FC<BigCardProps> = ({
         >
           {data !== undefined && !hasData(data) ? (
             <div className="flex h-full w-full items-center justify-center">
-              <span className="font-poppins" style={{ fontWeight: 400, fontSize: "14px", color: "#6B7280" }}>
+              <span
+                className="font-poppins"
+                style={{ fontWeight: 400, fontSize: "14px", color: "#6B7280" }}
+              >
                 No data available
               </span>
             </div>

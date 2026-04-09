@@ -627,40 +627,6 @@ export default function Homepage() {
           ]}
         />
 
-        {/* GA Website Session */}
-        <BigCard
-          title="Google Analytics Website Sessions"
-          data={sessionsFiltered}
-          titleTooltip="A session is all the actions a user takes during one visit"
-          subtitle=""
-          displayMode="chart-only"
-          className="flex-1 w-full max-h-[320px] h-[320px]"
-          dropdown={
-            <div className="flex items-center gap-2">
-              <DateDropdown
-                value={sessionsRange}
-                onChange={setSessionsRange}
-                minDate={sessionsBounds.min}
-                maxDate={sessionsBounds.max}
-              />
-            </div>
-          }
-          chart={
-            <div className="w-full h-full">
-              <LineCharts
-                data={sessionsFiltered}
-                xAxisKey="date"
-                dataKeys={["sessions"]}
-                showArea
-                autoAdjustYAxis
-              />
-            </div>
-          }
-        />
-      </div>
-
-      {/* Follower Count */}
-      <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
         <PlatformMetricCard
           title="Follower Count"
           titleTooltip="Follower count across all platforms"
@@ -706,7 +672,40 @@ export default function Homepage() {
             },
           ]}
         />
+      </div>
 
+      {/* GA Website Session */}
+      <BigCard
+        title="Google Analytics Website Sessions"
+        data={sessionsFiltered}
+        titleTooltip="A session is all the actions a user takes during one visit"
+        subtitle=""
+        displayMode="chart-only"
+        className="flex-1 w-full max-h-[320px] h-[320px]"
+        dropdown={
+          <div className="flex items-center gap-2">
+            <DateDropdown
+              value={sessionsRange}
+              onChange={setSessionsRange}
+              minDate={sessionsBounds.min}
+              maxDate={sessionsBounds.max}
+            />
+          </div>
+        }
+        chart={
+          <div className="w-full h-full">
+            <LineCharts
+              data={sessionsFiltered}
+              xAxisKey="date"
+              dataKeys={["sessions"]}
+              showArea
+              autoAdjustYAxis
+            />
+          </div>
+        }
+      />
+
+      <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
         <BigCard
           title="How did you hear about us?"
           subtitle=""

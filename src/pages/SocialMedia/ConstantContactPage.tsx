@@ -745,7 +745,7 @@ export default function ConstantContactPage() {
             const filtered = item?.filtered ?? [];
             const bounds = item?.bounds ?? { min: null, max: null };
             const summary = item?.summary ?? { current: null, prev: null };
-            
+
             return (
               <BigCard
                 key={id}
