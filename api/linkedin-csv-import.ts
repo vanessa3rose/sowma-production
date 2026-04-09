@@ -134,28 +134,6 @@ function decodeBase64ToBuffer(raw: string): Buffer {
   return Buffer.from(cleaned, "base64");
 }
 
-function parseSpreadsheetRowsFromBuffer(
-  fileBuffer: Buffer,
-  filename: string,
-): string[][] {
-  const extension = getFileExtension(filename);
-  if (extension === "csv") {
-    return parseCsv(fileBuffer.toString("utf8"));
-  }
-
-  if (extension !== "xls" && extension !== "xlsx") {
-    throw new Error("Unsupported file type. Please upload CSV, XLS, or XLSX.");
-  }
-
-  const workbook = XLSX.read(fileBuffer, { type: "buffer" });
-  const firstSheetName = workbook.SheetNames[0];
-  if (!firstSheetName) return [];
-
-  const firstSheet = workbook.Sheets[firstSheetName];
-  const csvText = XLSX.utils.sheet_to_csv(firstSheet);
-  return parseCsv(csvText);
-}
-
 const DEMOGRAPHIC_BREAKDOWN_KEYS: Record<string, string> = {
   location: "location",
   "job function": "jobFunction",
@@ -578,16 +556,6 @@ function chunkArray<T>(items: T[], chunkSize: number): T[][] {
     chunks.push(items.slice(i, i + chunkSize));
   }
   return chunks;
-}
-
-/**
- * Flatten parsed day rows into concrete metric writes and collapse duplicates
- * inside the same upload payload. This keeps repeated uploads idempotent and
- * lets us write to the database in larger batches.
- */
-function prepareMetricWrites(rows: CsvImportRow[]): PreparedMetricWrite[] {
-  const writesByKey = new Map<string, PreparedMetricWrite>();
-  return prepareMetricWritesWithSupplemental(rows, []);
 }
 
 function prepareMetricWritesWithSupplemental(
