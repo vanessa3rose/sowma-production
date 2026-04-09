@@ -680,23 +680,18 @@ export default function LinkedInPage() {
                   maxDate={computed.views?.bounds.max}
                 />
               }
+              data={computed.views.filtered}
               metricValue={computed.views?.summary.current ?? 0}
               metricLabel="latest imported day"
               metricChange={formatPercentChange(computed.views?.summary)}
               chart={
-                computed.views?.filtered.length ? (
-                  <LineCharts
-                    data={computed.views.filtered}
-                    xAxisKey="date"
-                    dataKeys={["value"]}
-                    labels={{ value: "Views" }}
-                    showArea
-                  />
-                ) : (
-                  <div className="h-full flex items-center justify-center text-gray-500">
-                    No views data available
-                  </div>
-                )
+                <LineCharts
+                  data={computed.views.filtered}
+                  xAxisKey="date"
+                  dataKeys={["value"]}
+                  labels={{ value: "Views" }}
+                  showArea
+                />
               }
               displayMode="both"
               className="h-[396px]"
@@ -708,6 +703,7 @@ export default function LinkedInPage() {
           <div className="lg:w-1/2 w-full">
             <BigCard
               title="Follower Demographics"
+              data={followerDemographicData}
               titleTooltip="Audience composition from LinkedIn follower export breakdowns."
               subtitle={
                 <ChartControlSelect
@@ -716,17 +712,11 @@ export default function LinkedInPage() {
                 />
               }
               chart={
-                followerDemographicData.some((entry) => entry.value > 0) ? (
-                  <PieCharts
-                    data={followerDemographicData}
-                    dataKey="value"
-                    nameKey="label"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center text-gray-500">
-                    No follower demographic data available
-                  </div>
-                )
+                <PieCharts
+                  data={followerDemographicData}
+                  dataKey="value"
+                  nameKey="label"
+                />
               }
               displayMode="chart-only"
               className="h-[360px]"
@@ -736,6 +726,7 @@ export default function LinkedInPage() {
           <div className="lg:w-1/2 w-full">
             <BigCard
               title="Visitor Demographics"
+              data={followerDemographicData}
               titleTooltip="Audience composition from LinkedIn visitor export breakdowns."
               subtitle={
                 <ChartControlSelect
@@ -744,17 +735,11 @@ export default function LinkedInPage() {
                 />
               }
               chart={
-                visitorDemographicData.some((entry) => entry.value > 0) ? (
-                  <PieCharts
-                    data={visitorDemographicData}
-                    dataKey="value"
-                    nameKey="label"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center text-gray-500">
-                    No visitor demographic data available
-                  </div>
-                )
+                <PieCharts
+                  data={visitorDemographicData}
+                  dataKey="value"
+                  nameKey="label"
+                />
               }
               displayMode="chart-only"
               className="h-[360px]"
@@ -766,6 +751,7 @@ export default function LinkedInPage() {
           <div className="lg:w-2/3 w-full">
             <BigCard
               title="Unique Visitors"
+              data={computed.uniqueVisitors.filtered}
               titleTooltip="Daily total of unique visitors to the LinkedIn page from the uploaded visitor export."
               subtitle={
                 <DateDropdown
@@ -783,19 +769,13 @@ export default function LinkedInPage() {
                 computed.uniqueVisitors?.summary,
               )}
               chart={
-                computed.uniqueVisitors?.filtered.length ? (
-                  <LineCharts
-                    data={computed.uniqueVisitors.filtered}
-                    xAxisKey="date"
-                    dataKeys={["value"]}
-                    labels={{ value: "Unique Visitors" }}
-                    showArea
-                  />
-                ) : (
-                  <div className="h-full flex items-center justify-center text-gray-500">
-                    No unique visitor data available
-                  </div>
-                )
+                <LineCharts
+                  data={computed.uniqueVisitors.filtered}
+                  xAxisKey="date"
+                  dataKeys={["value"]}
+                  labels={{ value: "Unique Visitors" }}
+                  showArea
+                />
               }
               displayMode="both"
               className="h-[360px]"
@@ -805,6 +785,7 @@ export default function LinkedInPage() {
           <div className="lg:w-1/3 w-full">
             <BigCard
               title="Visitor Type"
+              data={pageDestinationData}
               titleTooltip="Share of LinkedIn unique visitors across the Overview, Life, and Jobs tabs for the selected range."
               subtitle={
                 <DateDropdown
@@ -817,17 +798,11 @@ export default function LinkedInPage() {
                 />
               }
               chart={
-                pageDestinationData.some((entry) => entry.value > 0) ? (
-                  <PieCharts
-                    data={pageDestinationData}
-                    dataKey="value"
-                    nameKey="label"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center text-gray-500">
-                    No page destination data available
-                  </div>
-                )
+                <PieCharts
+                  data={pageDestinationData}
+                  dataKey="value"
+                  nameKey="label"
+                />
               }
               displayMode="chart-only"
               className="h-[360px]"
@@ -839,6 +814,7 @@ export default function LinkedInPage() {
           <div className="lg:w-1/3 w-full">
             <BigCard
               title="Interaction Mix"
+              data={interactionMixData}
               titleTooltip="Share of engagement made up of reactions, comments, and reposts for the selected range."
               subtitle={
                 <DateDropdown
@@ -851,17 +827,11 @@ export default function LinkedInPage() {
                 />
               }
               chart={
-                interactionMixData.some((entry) => entry.value > 0) ? (
-                  <PieCharts
-                    data={interactionMixData}
-                    dataKey="value"
-                    nameKey="label"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center text-gray-500">
-                    No interaction mix data
-                  </div>
-                )
+                <PieCharts
+                  data={interactionMixData}
+                  dataKey="value"
+                  nameKey="label"
+                />
               }
               displayMode="chart-only"
               className="h-[360px]"
@@ -871,6 +841,7 @@ export default function LinkedInPage() {
           <div className="lg:w-2/3 w-full">
             <BigCard
               title="Total Interactions"
+              data={computed.interactions.filtered}
               titleTooltip={getGlossaryDefinition("interactions")}
               subtitle={
                 <DateDropdown
@@ -886,19 +857,13 @@ export default function LinkedInPage() {
               metricLabel="latest imported day"
               metricChange={formatPercentChange(computed.interactions?.summary)}
               chart={
-                computed.interactions?.filtered.length ? (
-                  <LineCharts
-                    data={computed.interactions.filtered}
-                    xAxisKey="date"
-                    dataKeys={["value"]}
-                    labels={{ value: "Total Interactions" }}
-                    showArea
-                  />
-                ) : (
-                  <div className="h-full flex items-center justify-center text-gray-500">
-                    No interactions data available
-                  </div>
-                )
+                <LineCharts
+                  data={computed.interactions.filtered}
+                  xAxisKey="date"
+                  dataKeys={["value"]}
+                  labels={{ value: "Total Interactions" }}
+                  showArea
+                />
               }
               displayMode="both"
               className="h-[360px]"
@@ -910,6 +875,7 @@ export default function LinkedInPage() {
           <div className="lg:w-2/3 w-full">
             <BigCard
               title="Engagement Rate"
+              data={engagementRate.filtered}
               titleTooltip="Daily interaction rate calculated as total interactions divided by views."
               subtitle={
                 <DateDropdown
@@ -927,19 +893,13 @@ export default function LinkedInPage() {
               metricLabel="% of views"
               metricChange={formatRateDelta(engagementRate.summary)}
               chart={
-                engagementRate.filtered.length ? (
-                  <LineCharts
-                    data={engagementRate.filtered}
-                    xAxisKey="date"
-                    dataKeys={["value"]}
-                    labels={{ value: "Engagement Rate (%)" }}
-                    showArea
-                  />
-                ) : (
-                  <div className="h-full flex items-center justify-center text-gray-500">
-                    No engagement rate data available
-                  </div>
-                )
+                <LineCharts
+                  data={engagementRate.filtered}
+                  xAxisKey="date"
+                  dataKeys={["value"]}
+                  labels={{ value: "Engagement Rate (%)" }}
+                  showArea
+                />
               }
               displayMode="both"
               className="h-[360px]"
@@ -949,6 +909,7 @@ export default function LinkedInPage() {
           <div className="lg:w-1/3 w-full">
             <BigCard
               title="Device Type"
+              data={deviceTypeData}
               titleTooltip="Desktop vs mobile share of LinkedIn unique visitors for the selected range."
               subtitle={
                 <DateDropdown
@@ -961,17 +922,11 @@ export default function LinkedInPage() {
                 />
               }
               chart={
-                deviceTypeData.some((entry) => entry.value > 0) ? (
-                  <PieCharts
-                    data={deviceTypeData}
-                    dataKey="value"
-                    nameKey="label"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center text-gray-500">
-                    No device data available
-                  </div>
-                )
+                <PieCharts
+                  data={deviceTypeData}
+                  dataKey="value"
+                  nameKey="label"
+                />
               }
               displayMode="chart-only"
               className="h-[360px]"
@@ -986,18 +941,12 @@ export default function LinkedInPage() {
               titleTooltip={getGlossaryDefinition("daysPosted")}
               subtitle={<HeatmapLegend />}
               chart={
-                daysPostedCalendarPoints.length ? (
-                  <CalendarHeatmap
-                    points={daysPostedCalendarPoints}
-                    offset={calendarOffset}
-                    onOffsetChange={setCalendarOffset}
-                    minOffset={minCalendarOffset}
-                  />
-                ) : (
-                  <div className="flex items-center justify-center text-gray-500">
-                    No post activity data
-                  </div>
-                )
+                <CalendarHeatmap
+                  points={daysPostedCalendarPoints}
+                  offset={calendarOffset}
+                  onOffsetChange={setCalendarOffset}
+                  minOffset={minCalendarOffset}
+                />
               }
               displayMode="chart-only"
               className=""
@@ -1012,6 +961,7 @@ export default function LinkedInPage() {
           <div className="lg:w-2/3 w-full">
             <BigCard
               title="New Followers"
+              data={computed.followers.filtered}
               subtitle={
                 <DateDropdown
                   value={ranges.followers}
@@ -1026,19 +976,13 @@ export default function LinkedInPage() {
               metricLabel="latest imported day"
               metricChange={formatPercentChange(computed.followers?.summary)}
               chart={
-                computed.followers?.filtered.length ? (
-                  <LineCharts
-                    data={computed.followers.filtered}
-                    xAxisKey="date"
-                    dataKeys={["value"]}
-                    labels={{ value: "New Followers" }}
-                    showArea
-                  />
-                ) : (
-                  <div className="h-full flex items-center justify-center text-gray-500">
-                    No new follower data available
-                  </div>
-                )
+                <LineCharts
+                  data={computed.followers.filtered}
+                  xAxisKey="date"
+                  dataKeys={["value"]}
+                  labels={{ value: "New Followers" }}
+                  showArea
+                />
               }
               displayMode="both"
               className=""

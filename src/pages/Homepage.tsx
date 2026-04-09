@@ -741,6 +741,7 @@ export default function Homepage() {
         {/* GA Website Session */}
         <BigCard
           title="Google Analytics Website Sessions"
+          data={sessionsFiltered}
           titleTooltip="A session is all the actions a user takes during one visit"
           subtitle=""
           displayMode="both"
@@ -756,27 +757,22 @@ export default function Homepage() {
             </div>
           }
           chart={
-            sessionsFiltered.length > 0 ? (
-              <div className="w-full h-full">
-                <LineCharts
-                  data={sessionsFiltered}
-                  xAxisKey="date"
-                  dataKeys={["sessions"]}
-                  showArea
-                  autoAdjustYAxis
-                />
-              </div>
-            ) : (
-              <div className="w-full flex items-center justify-center text-sm text-gray-500">
-                No website sessions data available.
-              </div>
-            )
+            <div className="w-full h-full">
+              <LineCharts
+                data={sessionsFiltered}
+                xAxisKey="date"
+                dataKeys={["sessions"]}
+                showArea
+                autoAdjustYAxis
+              />
+            </div>
           }
         />
 
         {/* How Did You Hear About Us */}
         <BigCard
           title="How did you hear about us?"
+          data={HEAR_ABOUT_US_DATA}
           subtitle=""
           displayMode="chart-only"
           className="flex-1 w-full max-h-[320px]"
