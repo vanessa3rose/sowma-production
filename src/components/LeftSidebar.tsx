@@ -168,7 +168,7 @@ const LeftSidebar = ({
                     ? "w-12 h-12 justify-center rounded-xl mx-auto"
                     : "w-full gap-x-4 p-2 rounded-xl"
                 }
-                ${isGlossaryActive ? "bg-sowma-blue text-white shadow-md" : "hover:bg-gray-100 text-black"}
+                ${isGlossaryActive ? "bg-sowma-blue text-white shadow-md" : "hover:bg-sowma-lighter-gray text-black"}
               `}
             >
               <div className="w-8 h-8 flex items-center justify-center shrink-0">
@@ -208,7 +208,7 @@ const LeftSidebar = ({
                   ${
                     isAdminActive
                       ? "bg-sowma-blue text-white shadow-md"
-                      : "hover:bg-gray-100 text-black"
+                      : "hover:bg-sowma-lighter-gray text-black"
                   }
                 `}
               >
@@ -262,7 +262,7 @@ const LeftSidebar = ({
                   <div
                     className={`relative flex items-center rounded-xl transition-all
                       ${collapsed && !mobile ? "w-12 h-12 justify-center mx-auto" : "w-full gap-4 p-2"}
-                      ${isActive ? "bg-sowma-lighter-gray text-black shadow-sm" : "hover:bg-lightest-gray"}
+                      ${isActive ? "bg-sowma-lighter-gray text-black shadow-sm" : "hover:bg-sowma-lightest-gray"}
                     `}
                   >
                     <div className="w-8 h-8 flex items-center justify-center shrink-0">

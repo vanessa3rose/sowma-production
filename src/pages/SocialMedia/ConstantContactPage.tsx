@@ -354,7 +354,6 @@ export default function ConstantContactPage() {
   }, [rawSeries, sankeyRange]);
 
   const sankeyBounds = getBounds(rawSeries["emails_sent"] ?? []);
-  const hasSankeyData = sankeyVals.emails_sent > 0;
 
   // Opens comparison: Unique vs Total
   const opensData = useMemo(() => {
@@ -404,6 +403,7 @@ export default function ConstantContactPage() {
         {/* ── Email Flow Sankey — first ── */}
         <BigCard
           title="Email Flow"
+          data={opensData}
           titleTooltip={getGlossaryDefinition("email_flow")}
           subtitle={
             <DateDropdown
@@ -414,19 +414,11 @@ export default function ConstantContactPage() {
             />
           }
           chart={
-            hasSankeyData ? (
-              <div className="flex w-full justify-center items-center">
-                <ReactECharts
-                  option={buildSankeyOption(sankeyVals)}
-                  style={{ height: "100%", width: "95%" }}
-                  opts={{ renderer: "svg" }}
-                />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
-                No data available
-              </div>
-            )
+            <ReactECharts
+              option={buildSankeyOption(sankeyVals)}
+              style={{ height: "100%", width: "95%" }}
+              opts={{ renderer: "svg" }}
+            />
           }
           displayMode="chart-only"
           className="w-full h-[360px]"
@@ -436,6 +428,7 @@ export default function ConstantContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <BigCard
             title="Opens: Unique vs Total"
+            data={opensData}
             titleTooltip={getGlossaryDefinition("email_opens")}
             subtitle={
               <DateDropdown
@@ -446,20 +439,12 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-              opensData.length > 0 ? (
-                <div className="w-full h-full">
-                  <LineCharts
-                    data={opensData}
-                    xAxisKey="date"
-                    dataKeys={["uniqueOpens", "totalOpens"]}
-                    showArea
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
+              <LineCharts
+                data={opensData}
+                xAxisKey="date"
+                dataKeys={["uniqueOpens", "totalOpens"]}
+                showArea
+              />
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
@@ -467,6 +452,7 @@ export default function ConstantContactPage() {
 
           <BigCard
             title="Clicks: Unique vs Total"
+            data={clicksData}
             titleTooltip={getGlossaryDefinition("email_clicks")}
             subtitle={
               <DateDropdown
@@ -477,20 +463,12 @@ export default function ConstantContactPage() {
               />
             }
             chart={
-              clicksData.length > 0 ? (
-                <div className="w-full h-full">
-                  <LineCharts
-                    data={clicksData}
-                    xAxisKey="date"
-                    dataKeys={["uniqueClicks", "totalClicks"]}
-                    showArea
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
+              <LineCharts
+                data={clicksData}
+                xAxisKey="date"
+                dataKeys={["uniqueClicks", "totalClicks"]}
+                showArea
+              />
             }
             displayMode="chart-only"
             className="w-full h-[360px]"
