@@ -130,7 +130,7 @@ const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
         {/* Fix: wrap tooltip in any */}
         <Tooltip content={(props: any) => <CustomTooltip {...props} />} />
         {dataKeys.map((key) => (
-          <Bar key={key} dataKey={key} fill={COLORS.SOWMA_LIGHT_BLUE} />
+          <Bar key={key} dataKey={key} fill={COLORS.SOWMA_BLUE} />
         ))}
       </BarChart>
     </ResponsiveContainer>

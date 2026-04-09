@@ -226,8 +226,8 @@ export default function DateDropdown({
                 style={
                   activePreset === preset.id
                     ? {
-                        backgroundColor: COLORS.SOWMA_LIGHT_BLUE,
-                        borderColor: COLORS.SOWMA_LIGHT_BLUE,
+                        backgroundColor: COLORS.SOWMA_BLUE,
+                        borderColor: COLORS.SOWMA_BLUE,
                       }
                     : undefined
                 }

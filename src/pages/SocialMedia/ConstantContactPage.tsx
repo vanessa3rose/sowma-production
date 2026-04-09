@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
+import { COLORS } from "../../data/colors.js";
 
 import BigCard from "../../components/cards/BigCard";
 import LineCharts from "../../components/charts/LineCharts";
@@ -150,12 +151,30 @@ function buildSankeyOption(vals: Record<string, number>) {
   const forwarded = vals.emails_forwarded ?? 0;
 
   const nodes: SankeyNode[] = [
-    { name: `Sent\n${fmt(sent)}`, itemStyle: { color: "#5B8FF9" } },
-    { name: `Delivered\n${fmt(delivered)}`, itemStyle: { color: "#9DC96A" } },
-    { name: `Bounced\n${fmt(bounced)}`, itemStyle: { color: "#C5C5C5" } },
-    { name: `Opened\n${fmt(opened)}`, itemStyle: { color: "#A78BFA" } },
-    { name: `Not Opened\n${fmt(notOpened)}`, itemStyle: { color: "#F472B6" } },
-    { name: `Clicked\n${fmt(clicked)}`, itemStyle: { color: "#60A5FA" } },
+    {
+      name: `Sent\n${fmt(sent)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_SENT },
+    },
+    {
+      name: `Delivered\n${fmt(delivered)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_DELIVERED },
+    },
+    {
+      name: `Bounced\n${fmt(bounced)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_BOUNCED },
+    },
+    {
+      name: `Opened\n${fmt(opened)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_OPENED },
+    },
+    {
+      name: `Not Opened\n${fmt(notOpened)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_NOT_OPENED },
+    },
+    {
+      name: `Clicked\n${fmt(clicked)}`,
+      itemStyle: { color: COLORS.SOWMA_SANKEY_CLICKED },
+    },
   ];
 
   const links: SankeyLink[] = [
@@ -163,7 +182,7 @@ function buildSankeyOption(vals: Record<string, number>) {
       source: `Sent\n${fmt(sent)}`,
       target: `Delivered\n${fmt(delivered)}`,
       value: delivered,
-      lineStyle: { color: "#9DC96A", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_DELIVERED, opacity: 0.35 },
     },
   ];
 
@@ -172,7 +191,7 @@ function buildSankeyOption(vals: Record<string, number>) {
       source: `Sent\n${fmt(sent)}`,
       target: `Bounced\n${fmt(bounced)}`,
       value: bounced,
-      lineStyle: { color: "#C5C5C5", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_BOUNCED, opacity: 0.35 },
     });
   }
   if (opened > 0) {
@@ -180,7 +199,7 @@ function buildSankeyOption(vals: Record<string, number>) {
       source: `Delivered\n${fmt(delivered)}`,
       target: `Opened\n${fmt(opened)}`,
       value: opened,
-      lineStyle: { color: "#A78BFA", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_OPENED, opacity: 0.35 },
     });
   }
   if (notOpened > 0) {
@@ -188,7 +207,7 @@ function buildSankeyOption(vals: Record<string, number>) {
       source: `Delivered\n${fmt(delivered)}`,
       target: `Not Opened\n${fmt(notOpened)}`,
       value: notOpened,
-      lineStyle: { color: "#F472B6", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_NOT_OPENED, opacity: 0.35 },
     });
   }
   if (clicked > 0) {
@@ -196,43 +215,43 @@ function buildSankeyOption(vals: Record<string, number>) {
       source: `Opened\n${fmt(opened)}`,
       target: `Clicked\n${fmt(clicked)}`,
       value: clicked,
-      lineStyle: { color: "#60A5FA", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_CLICKED, opacity: 0.35 },
     });
   }
   if (unsubscribed > 0) {
     nodes.push({
       name: `Unsubscribed\n${fmt(unsubscribed)}`,
-      itemStyle: { color: "#FB923C" },
+      itemStyle: { color: COLORS.SOWMA_SANKEY_UNSUBSCRIBED },
     });
     links.push({
       source: `Opened\n${fmt(opened)}`,
       target: `Unsubscribed\n${fmt(unsubscribed)}`,
       value: unsubscribed,
-      lineStyle: { color: "#FB923C", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_UNSUBSCRIBED, opacity: 0.35 },
     });
   }
   if (abuse > 0) {
     nodes.push({
       name: `Spam\n${fmt(abuse)}`,
-      itemStyle: { color: "#F87171" },
+      itemStyle: { color: COLORS.SOWMA_SANKEY_ABUSE },
     });
     links.push({
       source: `Delivered\n${fmt(delivered)}`,
       target: `Spam\n${fmt(abuse)}`,
       value: abuse,
-      lineStyle: { color: "#F87171", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_ABUSE, opacity: 0.35 },
     });
   }
   if (forwarded > 0) {
     nodes.push({
       name: `Forwarded\n${fmt(forwarded)}`,
-      itemStyle: { color: "#34D399" },
+      itemStyle: { color: COLORS.SOWMA_SANKEY_FORWARDED },
     });
     links.push({
       source: `Opened\n${fmt(opened)}`,
       target: `Forwarded\n${fmt(forwarded)}`,
       value: forwarded,
-      lineStyle: { color: "#34D399", opacity: 0.35 },
+      lineStyle: { color: COLORS.SOWMA_SANKEY_FORWARDED, opacity: 0.35 },
     });
   }
 
@@ -271,7 +290,7 @@ function buildSankeyOption(vals: Record<string, number>) {
         data: nodes,
         links,
         label: {
-          color: "#374151",
+          color: COLORS.SOWMA_DARKER_GRAY,
           fontFamily: "inherit",
           fontSize: 12,
           fontWeight: 500,

@@ -13,10 +13,11 @@ export default function GlossaryPage() {
 
   const platformColors: Record<string, string> = {
     "Google Analytics": COLORS.SOWMA_GREEN,
-    Facebook: COLORS.SOWMA_LIGHT_BLUE,
-    Instagram: COLORS.SOWMA_LIGHTER_BLUE,
-    Twitter: COLORS.SOWMA_DARK_BLUE,
-    "Constant Contact": COLORS.SOWMA_DARK_GREEN,
+    Facebook: COLORS.SOWMA_FACEBOOK,
+    Instagram: COLORS.SOWMA_INSTAGRAM,
+    Twitter: COLORS.SOWMA_TWITTER,
+    LinkedIn: COLORS.SOWMA_LINKEDIN,
+    "Constant Contact": COLORS.SOWMA_CONSTANT_CONTACT,
   };
 
   return (
@@ -92,9 +93,10 @@ export default function GlossaryPage() {
                             href={platformRoutes[platform]}
                             className="text-sm px-4 py-1.5 rounded-full font-medium whitespace-nowrap"
                             style={{
-                              backgroundColor: `${platformColors[platform] ?? COLORS.SOWMA_GRAY}26`,
+                              backgroundColor: `${platformColors[platform] ?? COLORS.SOWMA_MEDIUM_GRAY}26`,
                               color:
-                                platformColors[platform] ?? COLORS.SOWMA_GRAY,
+                                platformColors[platform] ??
+                                COLORS.SOWMA_MEDIUM_GRAY,
                             }}
                           >
                             {platform}
