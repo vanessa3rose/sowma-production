@@ -8,11 +8,16 @@ import BigCard from "../components/cards/BigCard";
 import PlatformMetricCard from "../components/cards/PlatformMetricCard";
 import DateDropdown, { DateRangeValue } from "../components/charts/DateButton";
 
+import { COLORS } from "../data/colors.js";
+import BarCharts from "../components/charts/BarCharts";
+import { HEAR_ABOUT_US_DATA } from "../data/tuftsHearAboutUs";
+
 type PlatformMetricPoint = {
   date: string;
   facebook: number | null;
   instagram: number | null;
   twitter: number | null;
+  linkedin: number | null;
 };
 
 type WebsiteSessionsPoint = { date: string; sessions: number };
@@ -121,7 +126,7 @@ export default function Homepage() {
 
   async function loadImpressions() {
     try {
-      const [fbRaw, igRaw] = await Promise.all([
+      const [fbRaw, igRaw, liRaw] = await Promise.all([
         fetchMetrics({
           provider: "FACEBOOK",
           metric: "VIEWS",
@@ -134,11 +139,20 @@ export default function Homepage() {
           startDate: defaultStartDate,
           endDate: defaultEndDate,
         }),
+        fetchMetrics({
+          provider: "LINKEDIN",
+          metric: "VIEWS",
+          startDate: defaultStartDate,
+          endDate: defaultEndDate,
+        }),
       ]);
 
       const mergedMap = new Map<string, PlatformMetricPoint>();
 
-      const add = (raw: SocialMediaMetric[], key: "facebook" | "instagram") => {
+      const add = (
+        raw: SocialMediaMetric[],
+        key: "facebook" | "instagram" | "linkedin",
+      ) => {
         for (const m of raw) {
           const date = (
             m.metricDate ??
@@ -150,6 +164,7 @@ export default function Homepage() {
             date,
             facebook: null,
             instagram: null,
+            linkedin: null,
             twitter: null,
           };
 
@@ -159,6 +174,7 @@ export default function Homepage() {
 
       add(fbRaw, "facebook");
       add(igRaw, "instagram");
+      add(liRaw, "linkedin");
 
       const merged = Array.from(mergedMap.values()).sort((a, b) =>
         a.date.localeCompare(b.date),
@@ -208,6 +224,7 @@ export default function Homepage() {
           date,
           facebook: null,
           instagram: null,
+          linkedin: null,
           twitter: null,
         };
         mergedMap.set(date, { ...existing, facebook: fbTotal });
@@ -225,6 +242,7 @@ export default function Homepage() {
           facebook: null,
           instagram: null,
           twitter: null,
+          linkedin: null,
         };
         mergedMap.set(date, { ...existing, instagram: m.metricValue });
       }
@@ -241,6 +259,7 @@ export default function Homepage() {
           facebook: null,
           instagram: null,
           twitter: null,
+          linkedin: null,
         };
         mergedMap.set(date, { ...existing, twitter: m.metricValue });
       }
@@ -297,6 +316,7 @@ export default function Homepage() {
           facebook: number | null;
           instagram: number | null;
           twitter: number | null;
+          linkedin: number | null;
         }
       >();
 
@@ -314,6 +334,7 @@ export default function Homepage() {
             facebook: null,
             instagram: null,
             twitter: null,
+            linkedin: null,
           };
           mergedMap.set(date, { ...existing, [key]: m.metricValue });
         }
@@ -385,34 +406,43 @@ export default function Homepage() {
       return {
         facebook: null,
         instagram: null,
+        linkedin: null,
         fbChange: null,
         igChange: null,
+        liChange: null,
         fbSince: null,
         igSince: null,
+        liSince: null,
       };
 
-    const getFirst = (key: "facebook" | "instagram") =>
+    const getFirst = (key: "facebook" | "instagram" | "linkedin") =>
       impressionsFiltered.find((p) => p[key] !== null);
 
-    const getLast = (key: "facebook" | "instagram") =>
+    const getLast = (key: "facebook" | "instagram" | "linkedin") =>
       [...impressionsFiltered].reverse().find((p) => p[key] !== null)?.[key] ??
       null;
 
     const fbFirst = getFirst("facebook");
     const igFirst = getFirst("instagram");
+    const liFirst = getFirst("linkedin");
 
     const fbLast = getLast("facebook");
     const igLast = getLast("instagram");
+    const liLast = getLast("linkedin");
 
     return {
       facebook: fbLast,
       instagram: igLast,
+      linkedin: liLast,
       fbChange:
         fbFirst && fbLast !== null ? fbLast - (fbFirst.facebook ?? 0) : null,
       igChange:
         igFirst && igLast !== null ? igLast - (igFirst.instagram ?? 0) : null,
+      liChange:
+        liFirst && liLast !== null ? liLast - (liFirst.linkedin ?? 0) : null,
       fbSince: fbFirst?.date ?? null,
       igSince: igFirst?.date ?? null,
+      liSince: liFirst?.date ?? null,
     };
   }, [impressionsFiltered]);
 
@@ -545,7 +575,7 @@ export default function Homepage() {
   return (
     <div className="w-full min-h-screen lg:h-full px-6 py-6 flex flex-col gap-6">
       <div className="flex flex-wrap w-full justify-between items-center gap-4">
-        <h1 className="font-poppins text-[#4781C2] text-2xl font-semibold">
+        <h1 className="font-poppins text-sowma-blue text-2xl font-semibold">
           Dashboard
         </h1>
         <ExportButton onExport={exportByPlatforms} />
@@ -556,7 +586,7 @@ export default function Homepage() {
         <PlatformMetricCard
           title="Impressions"
           titleTooltip="Number of users who saw your content"
-          className="flex-1 w-full max-h-[320px]"
+          className="flex-1 w-full"
           dropdown={
             <DateDropdown
               value={impressionsRange}
@@ -567,10 +597,20 @@ export default function Homepage() {
           }
           metrics={[
             {
+              label: "LinkedIn",
+              value: impressionsChange.linkedin,
+              change: impressionsChange.liChange,
+              color: COLORS.SOWMA_LINKEDIN,
+              sinceDate: formatSinceDate(
+                impressionsChange.liSince,
+                impressionsRange,
+              ),
+            },
+            {
               label: "Facebook",
               value: impressionsChange.facebook,
               change: impressionsChange.fbChange,
-              color: "#A155B9",
+              color: COLORS.SOWMA_FACEBOOK,
               sinceDate: formatSinceDate(
                 impressionsChange.fbSince,
                 impressionsRange,
@@ -580,7 +620,7 @@ export default function Homepage() {
               label: "Instagram",
               value: impressionsChange.instagram,
               change: impressionsChange.igChange,
-              color: "#7987FF",
+              color: COLORS.SOWMA_INSTAGRAM,
               sinceDate: formatSinceDate(
                 impressionsChange.igSince,
                 impressionsRange,
@@ -593,7 +633,7 @@ export default function Homepage() {
         <PlatformMetricCard
           title="Total Posts"
           titleTooltip="Total posts made"
-          className="flex-1 w-full max-h-[320px]"
+          className="flex-1 w-full"
           dropdown={
             <DateDropdown
               value={daysPostedRange}
@@ -607,30 +647,31 @@ export default function Homepage() {
               label: "Facebook",
               value: postsChange.facebook,
               change: postsChange.fbChange,
-              color: "#A155B9",
+              color: COLORS.SOWMA_FACEBOOK,
               sinceDate: formatSinceDate(postsChange.fbSince, daysPostedRange),
             },
             {
               label: "Instagram",
               value: postsChange.instagram,
               change: postsChange.igChange,
-              color: "#7987FF",
+              color: COLORS.SOWMA_INSTAGRAM,
               sinceDate: formatSinceDate(postsChange.igSince, daysPostedRange),
             },
             {
               label: "Twitter",
               value: postsChange.twitter,
               change: postsChange.twChange,
-              color: "#F765A3",
+              color: COLORS.SOWMA_TWITTER,
               sinceDate: formatSinceDate(postsChange.twSince, daysPostedRange),
             },
           ]}
         />
 
+        {/* Follower Count */}
         <PlatformMetricCard
           title="Follower Count"
           titleTooltip="Follower count across all platforms"
-          className="flex-1 w-full max-h-[320px]"
+          className="flex-1 w-full"
           dropdown={
             <DateDropdown
               value={followersRange}
@@ -644,7 +685,7 @@ export default function Homepage() {
               label: "Facebook",
               value: followerChange.facebook,
               change: followerChange.fbChange,
-              color: "#A155B9",
+              color: COLORS.SOWMA_FACEBOOK,
               sinceDate: formatSinceDate(
                 followerChange.fbSince,
                 followersRange,
@@ -654,7 +695,7 @@ export default function Homepage() {
               label: "Instagram",
               value: followerChange.instagram,
               change: followerChange.igChange,
-              color: "#7987FF",
+              color: COLORS.SOWMA_INSTAGRAM,
               sinceDate: formatSinceDate(
                 followerChange.igSince,
                 followersRange,
@@ -664,7 +705,7 @@ export default function Homepage() {
               label: "Twitter",
               value: followerChange.twitter,
               change: followerChange.twChange,
-              color: "#F765A3",
+              color: COLORS.SOWMA_TWITTER,
               sinceDate: formatSinceDate(
                 followerChange.twSince,
                 followersRange,
@@ -674,45 +715,62 @@ export default function Homepage() {
         />
       </div>
 
-      {/* GA Website Session */}
-      <BigCard
-        title="Google Analytics Website Sessions"
-        data={sessionsFiltered}
-        titleTooltip="A session is all the actions a user takes during one visit"
-        subtitle=""
-        displayMode="chart-only"
-        className="flex-1 w-full max-h-[320px] h-[320px]"
-        dropdown={
-          <div className="flex items-center gap-2">
-            <DateDropdown
-              value={sessionsRange}
-              onChange={setSessionsRange}
-              minDate={sessionsBounds.min}
-              maxDate={sessionsBounds.max}
-            />
-          </div>
-        }
-        chart={
-          <div className="w-full h-full">
-            <LineCharts
-              data={sessionsFiltered}
-              xAxisKey="date"
-              dataKeys={["sessions"]}
-              showArea
-              autoAdjustYAxis
-            />
-          </div>
-        }
-      />
-
+      {/* Follower Count */}
       <div className="flex flex-col lg:flex-row flex-wrap gap-4 w-full lg:h-full">
+        {/* GA Website Session */}
         <BigCard
-          title="How did you hear about us?"
+          title="Google Analytics Website Sessions"
+          titleTooltip="A session is all the actions a user takes during one visit"
           subtitle=""
           displayMode="both"
           className="flex-1 w-full max-h-[320px]"
-          data={[]}
-          chart={<></>}
+          dropdown={
+            <div className="flex items-center gap-2">
+              <DateDropdown
+                value={sessionsRange}
+                onChange={setSessionsRange}
+                minDate={sessionsBounds.min}
+                maxDate={sessionsBounds.max}
+              />
+            </div>
+          }
+          chart={
+            sessionsFiltered.length > 0 ? (
+              <div className="w-full h-full">
+                <LineCharts
+                  data={sessionsFiltered}
+                  xAxisKey="date"
+                  dataKeys={["sessions"]}
+                  showArea
+                  autoAdjustYAxis
+                />
+              </div>
+            ) : (
+              <div className="w-full flex items-center justify-center text-sm text-gray-500">
+                No website sessions data available.
+              </div>
+            )
+          }
+        />
+
+        {/* How Did You Hear About Us */}
+        <BigCard
+          title="How did you hear about us?"
+          subtitle=""
+          displayMode="chart-only"
+          className="flex-1 w-full max-h-[320px]"
+          chart={
+            <div className="w-full pb-4">
+              <BarCharts
+                data={HEAR_ABOUT_US_DATA.map((d) => ({
+                  source: d.source,
+                  count: d.count,
+                }))}
+                xAxisKey="source"
+                dataKeys={["count"]}
+              />
+            </div>
+          }
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type LinePoint = { date: string; value: number };
 type Cell = { day: number | null; level: number; isFuture: boolean };
@@ -7,15 +7,18 @@ type LinkedInCalendarHeatmapProps = {
   points: LinePoint[];
   compact?: boolean;
   disableNavigation?: boolean;
+  anchorDate?: string | Date | null;
+  onWeeksChange?: (weeks: number) => void;
 };
 
 const EMPTY_CELL: Cell = { day: null, level: -2, isFuture: false };
 
+import { COLORS } from "../../data/colors.js";
 function heatColor(level: number): { bg: string; text: string } {
-  if (level <= 0) return { bg: "#989b9f", text: "#ffffff" };
-  if (level === 1) return { bg: "#7987ff", text: "#ffffff" };
-  if (level === 2) return { bg: "#6772d7", text: "#ffffff" };
-  return { bg: "#545dae", text: "#ffffff" };
+  if (level <= 0) return { bg: COLORS.SOWMA_GRAY, text: "black" };
+  if (level === 1) return { bg: COLORS.SOWMA_LIGHTER_BLUE, text: "black" };
+  if (level === 2) return { bg: COLORS.SOWMA_BLUE, text: "black" };
+  return { bg: COLORS.SOWMA_DARKER_BLUE, text: "black" };
 }
 
 function activityToLevel(value: number, allValues: number[]): number {
@@ -37,7 +40,16 @@ function buildActivity(points: LinePoint[]): Map<string, number> {
   return activity;
 }
 
-function getReferenceDate(points: LinePoint[]): Date {
+function getReferenceDate(
+  points: LinePoint[],
+  anchorDate?: string | Date | null,
+): Date {
+  if (anchorDate) {
+    const parsed =
+      anchorDate instanceof Date ? new Date(anchorDate) : new Date(anchorDate);
+    if (!Number.isNaN(parsed.getTime())) return parsed;
+  }
+
   if (!points.length) return new Date();
   const sorted = points
     .map((p) => p.date)
@@ -52,11 +64,16 @@ export function LinkedInCalendarHeatmap({
   points,
   compact = false,
   disableNavigation = false,
+  anchorDate,
+  onWeeksChange,
 }: LinkedInCalendarHeatmapProps) {
   // Use the latest imported day as the anchor month so exported PDFs
   // consistently show the month the data came from.
-  const anchorDate = useMemo(() => getReferenceDate(points), [points]);
-  const today = new Date(anchorDate);
+  const referenceDate = useMemo(
+    () => getReferenceDate(points, anchorDate),
+    [points, anchorDate],
+  );
+  const today = new Date(referenceDate);
   today.setHours(23, 59, 59, 999);
   const [offset, setOffset] = useState(0);
 
@@ -84,6 +101,11 @@ export function LinkedInCalendarHeatmap({
   const lastDay = new Date(viewYear, viewMonth + 1, 0);
   const totalDays = lastDay.getDate();
   const monthName = firstDay.toLocaleString("default", { month: "long" });
+  const weeksNeeded = Math.ceil((firstDay.getDay() + totalDays) / 7);
+
+  useEffect(() => {
+    onWeeksChange?.(weeksNeeded);
+  }, [onWeeksChange, weeksNeeded]);
 
   const squares = Array.from({ length: totalDays }, (_, i) => {
     const date = new Date(viewYear, viewMonth, i + 1);
@@ -105,8 +127,8 @@ export function LinkedInCalendarHeatmap({
   }
 
   return (
-    <div className="flex flex-col gap-2 h-full w-full min-h-0">
-      <div className="flex items-center justify-between px-1">
+    <div className="flex flex-col gap-2 w-full">
+      <div className="flex items-center justify-between px-1 shrink-0">
         {disableNavigation ? (
           <span className="w-6 h-6" />
         ) : (
@@ -137,7 +159,7 @@ export function LinkedInCalendarHeatmap({
       </div>
 
       <div
-        className={`grid grid-cols-7 px-1 ${compact ? "text-[9px]" : "text-[10px]"} text-gray-400`}
+        className={`grid grid-cols-7 px-1 shrink-0 ${compact ? "text-[9px]" : "text-[10px]"} text-gray-400`}
       >
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
           <div key={d} className="text-center">
@@ -147,27 +169,31 @@ export function LinkedInCalendarHeatmap({
       </div>
 
       <div
-        className={`grid grid-cols-7 grid-rows-6 ${compact ? "gap-1 justify-center" : "gap-1 flex-1"} min-h-0`}
+        className={`grid grid-cols-7 min-h-0 ${compact ? "gap-1 justify-center" : "gap-1"}`}
       >
         {padded.map((sq, idx) => {
           if (sq.level === -2) {
             return (
               <div
                 key={idx}
-                className="rounded-md bg-transparent"
+                className={
+                  compact
+                    ? "rounded-md bg-transparent"
+                    : "rounded-md bg-transparent aspect-square"
+                }
                 style={compact ? { width: 24, height: 18 } : undefined}
               />
             );
           }
 
           const colors = sq.isFuture
-            ? { bg: "#f3f4f6", text: "#c2c6cc" }
+            ? { bg: COLORS.SOWMA_LIGHTEST_GRAY, text: COLORS.SOWMA_GRAY }
             : heatColor(sq.level);
 
           return (
             <div
               key={idx}
-              className="rounded-md flex items-center justify-center text-xs md:text-sm min-h-0"
+              className={`rounded-md flex items-center justify-center text-xs md:text-sm overflow-hidden ${compact ? "" : "aspect-square"}`}
               style={{
                 backgroundColor: colors.bg,
                 color: colors.text,

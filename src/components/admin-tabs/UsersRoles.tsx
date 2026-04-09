@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import Dropdown from "../Dropdown";
 
+const roles = ["ADMIN", "USER", "VIEWER"] as Role[];
 type Role = "ADMIN" | "USER" | "VIEWER";
 
 interface User {
@@ -117,20 +119,15 @@ export default function UsersRoles() {
 
               {/* Role */}
               <div className="flex w-[20%] justify-center items-center">
-                <select
+                <Dropdown<Role>
+                  items={roles}
                   value={user.role}
-                  onChange={(e) => updateRole(user.id, e.target.value as Role)}
-                  className="appearance-none bg-transparent border-none outline-none cursor-pointer text-xs md:text-lg leading-none pr-6 text-center"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237B7C7C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 0px center",
-                  }}
-                >
-                  <option value="ADMIN">Admin</option>
-                  <option value="USER">User</option>
-                  <option value="VIEWER">Viewer</option>
-                </select>
+                  onChange={(role) => updateRole(user.id, role)}
+                  getLabel={(role) => role}
+                  getKey={(role) => role}
+                  className="w-7/12"
+                  openClassName="w-7/12 border-t border-x border-sowma-lighter-gray shadow-lg"
+                />
               </div>
 
               {/* Remove */}
@@ -138,7 +135,7 @@ export default function UsersRoles() {
                 {isLastAdmin ? null : (
                   <button
                     aria-label={`Remove ${user.firstName} ${user.lastName}`}
-                    className="flex h-10 w-10 items-center justify-center rounded-md bg-[#ad3a3b] text-white"
+                    className="flex h-10 w-10 items-center justify-center rounded-md bg-sowma-red text-white"
                     onClick={() => removeUser(user.id)}
                   >
                     <svg

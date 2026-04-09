@@ -1,5 +1,6 @@
 import React from "react";
 import TitleTooltip from "../charts/TitleTooltip";
+import { COLORS } from "../../data/colors.js";
 
 type DisplayMode = "both" | "chart-only";
 
@@ -65,8 +66,8 @@ const BigCard: React.FC<BigCardProps> = ({
     <div
       className={className}
       style={{
-        backgroundColor: "#ffffff",
-        border: "1px solid #E5E5E5",
+        backgroundColor: "white",
+        border: `1px solid ${COLORS.SOWMA_LIGHTER_GRAY}`,
         borderRadius: "12px",
         boxShadow: "0px 4px 4px #1e1e1e64",
         padding: "20px",
@@ -83,7 +84,7 @@ const BigCard: React.FC<BigCardProps> = ({
               fontFamily: "Poppins, sans-serif",
               fontWeight: 500,
               fontSize: "16px",
-              color: "#000000",
+              color: "black",
             }}
           >
             {title}
@@ -102,7 +103,7 @@ const BigCard: React.FC<BigCardProps> = ({
                   lineHeight: "100%",
                   letterSpacing: "0%",
                   textAlign: "right",
-                  color: "#000000",
+                  color: "black",
                 }}
               >
                 {subtitle}
@@ -110,7 +111,11 @@ const BigCard: React.FC<BigCardProps> = ({
             </div>
           )}
 
-          {dropdown && <div>{dropdown}</div>}
+          {dropdown && (
+            <div className="flex flex-1 w-full justify-end items-center">
+              {dropdown}
+            </div>
+          )}
         </div>
       </div>
 
@@ -125,7 +130,7 @@ const BigCard: React.FC<BigCardProps> = ({
                 fontSize: "32px",
                 lineHeight: "100%",
                 letterSpacing: "-1%",
-                color: "#4781C2",
+                color: COLORS.SOWMA_BLUE,
               }}
             >
               {metricValue}
@@ -140,10 +145,10 @@ const BigCard: React.FC<BigCardProps> = ({
                     lineHeight: "100%",
                     letterSpacing: "0%",
                     color: metricChange.startsWith("+")
-                      ? "#10B981"
+                      ? COLORS.SOWMA_BRIGHT_GREEN
                       : metricChange.startsWith("-")
-                        ? "#EF4444"
-                        : "#6B7280",
+                        ? COLORS.SOWMA_BRIGHT_RED
+                        : COLORS.SOWMA_MEDIUM_GRAY,
                   }}
                 >
                   {metricChange}
@@ -158,7 +163,7 @@ const BigCard: React.FC<BigCardProps> = ({
                   >
                     <path
                       d="M2 8L14 8M14 8L8 2M14 8L8 14"
-                      stroke="#10B981"
+                      stroke={COLORS.SOWMA_BRIGHT_GREEN}
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -175,7 +180,7 @@ const BigCard: React.FC<BigCardProps> = ({
                   fontSize: "14px",
                   lineHeight: "100%",
                   letterSpacing: "0%",
-                  color: "#6B7280",
+                  color: COLORS.SOWMA_MEDIUM_GRAY,
                 }}
               >
                 {metricLabel}

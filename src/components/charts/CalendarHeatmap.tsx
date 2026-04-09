@@ -12,11 +12,12 @@ function buildPostingActivity(points: LinePoint[]): Map<string, number> {
   return activity;
 }
 
+import { COLORS } from "../../data/colors.js";
 function heatColor(level: number): { bg: string; text: string } {
-  if (level <= 0) return { bg: "#989b9f", text: "#ffffff" };
-  if (level === 1) return { bg: "#7987ff", text: "#ffffff" };
-  if (level === 2) return { bg: "#6772d7", text: "#ffffff" };
-  return { bg: "#545dae", text: "#ffffff" };
+  if (level <= 0) return { bg: COLORS.SOWMA_GRAY, text: "black" };
+  if (level === 1) return { bg: COLORS.SOWMA_LIGHTER_BLUE, text: "black" };
+  if (level === 2) return { bg: COLORS.SOWMA_BLUE, text: "black" };
+  return { bg: COLORS.SOWMA_DARKER_BLUE, text: "black" };
 }
 
 function activityToLevel(value: number, allValues: number[]): number {
@@ -111,7 +112,7 @@ export function CalendarHeatmap({
             if (sq.level === -2) return <div key={di} />;
 
             const colors = sq.isFuture
-              ? { bg: "#f0f0f0", text: "#b0b0b0" }
+              ? { bg: COLORS.SOWMA_LIGHTEST_GRAY, text: COLORS.SOWMA_GRAY }
               : heatColor(sq.level);
 
             return (

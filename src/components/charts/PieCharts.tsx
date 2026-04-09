@@ -11,11 +11,12 @@ import {
 
 import ChartTooltip from "./ChartTooltip";
 
-const COLORS = [
-  "#7987FF", // blue
-  "#F765A3", // pink
-  "#FFA9D0", // light pink
-  "#A155B9", // purple
+import { COLORS } from "../../data/colors.js";
+const PIE_COLORS = [
+  COLORS.SOWMA_BLUE,
+  COLORS.SOWMA_GREEN,
+  COLORS.SOWMA_LIGHT_GREEN,
+  COLORS.SOWMA_DARK_GREEN,
 ];
 
 type PieChartsProps = {
@@ -67,7 +68,10 @@ const PieCharts = ({
   const tooltipSeries = Object.fromEntries(
     validData.map((entry, index) => [
       entry[nameKey],
-      { color: COLORS[index % COLORS.length] },
+      {
+        color: PIE_COLORS[index % PIE_COLORS.length],
+        description: entry.tooltipDetails,
+      },
     ]),
   );
 
@@ -106,7 +110,7 @@ const PieCharts = ({
             {validData.map((_: any, index: number) => (
               <Cell
                 key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
+                fill={PIE_COLORS[index % PIE_COLORS.length]}
               />
             ))}
           </Pie>

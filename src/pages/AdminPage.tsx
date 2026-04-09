@@ -53,7 +53,7 @@ export default function AdminPage() {
                 onClick={() => setSelectedTab(tab)}
                 className={`font-poppins font-bold leading-6 transition-colors lg:px-5 py-1.5 rounded-full px-8 lg:text-[24px] text-[20px] ${
                   isSelected
-                    ? "bg-[#4e8bcc] text-white"
+                    ? "bg-sowma-blue text-white"
                     : "text-gray-500 hover:text-gray-600"
                 }`}
               >
@@ -62,7 +62,7 @@ export default function AdminPage() {
             );
           })}
         </div>
-        <div className="mt-2 h-[2px] bg-[#4e8bcc]" />
+        <div className="mt-2 h-[2px] bg-sowma-blue" />
       </div>
 
       {/* ROWS */}

@@ -26,7 +26,7 @@ export default function AcceptInvitePage() {
             >
               Welcome to the
               <br />
-              <span className="font-bold text-[#4781C2] whitespace-normal">
+              <span className="font-bold text-sowma-blue whitespace-normal">
                 SOWMA Analytics Dashboard
               </span>
             </h1>
