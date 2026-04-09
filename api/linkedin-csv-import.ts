@@ -1,8 +1,4 @@
-import {
-  Metric,
-  Provider,
-  Prisma,
-} from "../src/generated/prisma/index.js";
+import { Metric, Provider, Prisma } from "../src/generated/prisma/index.js";
 import * as XLSX from "xlsx";
 import { startOfDay } from "../src/utils/dates.js";
 import { requireAdminApi } from "./_auth.js";

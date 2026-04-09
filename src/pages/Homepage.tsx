@@ -10,10 +10,7 @@ import DateDropdown, { DateRangeValue } from "../components/charts/DateButton";
 
 import { COLORS } from "../data/colors.js";
 import BarCharts from "../components/charts/BarCharts";
-import {
-  HEAR_ABOUT_US_DATA,
-  HearAboutUsEntry,
-} from "../data/tuftsHearAboutUs";
+import { HEAR_ABOUT_US_DATA, HearAboutUsEntry } from "../data/tuftsHearAboutUs";
 
 type PlatformMetricPoint = {
   date: string;
@@ -40,9 +37,8 @@ export default function Homepage() {
   const [followerCountData, setFollowerCountData] = useState<
     PlatformMetricPoint[]
   >([]);
-  const [hearAboutUsData, setHearAboutUsData] = useState<HearAboutUsEntry[]>(
-    HEAR_ABOUT_US_DATA,
-  );
+  const [hearAboutUsData, setHearAboutUsData] =
+    useState<HearAboutUsEntry[]>(HEAR_ABOUT_US_DATA);
 
   // Per-card date ranges (now using DateRangeValue)
   const [impressionsRange, setImpressionsRange] = useState<DateRangeValue>({
