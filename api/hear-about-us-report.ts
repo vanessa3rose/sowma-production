@@ -3,11 +3,6 @@ import * as XLSX from "xlsx";
 import { requireAdminApi, requireSignedInApi } from "./_auth.js";
 import { createPrismaClient } from "./_db.js";
 
-type ApiRequest = {
-  method?: string;
-  body?: Record<string, unknown>;
-};
-
 type ApiResponse = {
   status: (code: number) => {
     json: (body: unknown) => unknown;
@@ -210,7 +205,7 @@ function aggregateCounts(rows: string[][]): Record<Count, number> {
   return counts;
 }
 
-async function handleGet(req: ApiRequest, res: ApiResponse) {
+async function handleGet(req: any, res: ApiResponse) {
   const auth = await requireSignedInApi(req, res);
   if (!auth) return;
 
@@ -232,7 +227,7 @@ async function handleGet(req: ApiRequest, res: ApiResponse) {
   return res.status(200).json(data);
 }
 
-async function handlePost(req: ApiRequest, res: ApiResponse) {
+async function handlePost(req: any, res: ApiResponse) {
   const auth = await requireAdminApi(req, res);
   if (!auth) return;
 
@@ -283,7 +278,7 @@ async function handlePost(req: ApiRequest, res: ApiResponse) {
   });
 }
 
-export default async function handler(req: ApiRequest, res: ApiResponse) {
+export default async function handler(req: any, res: ApiResponse) {
   try {
     if (req.method === "GET") {
       return await handleGet(req, res);
