@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext } from "react";
 import {
   ExportCardSelection,
   SocialExportBundle,
@@ -19,7 +19,7 @@ interface ExportContextValue {
   ) => Promise<void>;
 }
 
-const ExportContext = createContext<ExportContextValue | null>(null);
+export const ExportContext = createContext<ExportContextValue | null>(null);
 
 export function GlobalPageExportProvider({
   children,
@@ -69,8 +69,3 @@ export function GlobalPageExportProvider({
   );
 }
 
-export function useGlobalPageExporter() {
-  const ctx = useContext(ExportContext);
-  if (!ctx) throw new Error("useGlobalPageExporter must be inside provider");
-  return ctx;
-}

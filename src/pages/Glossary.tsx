@@ -12,7 +12,7 @@ export default function GlossaryPage() {
   };
 
   const platformColors: Record<string, string> = {
-    "Google Analytics": COLORS.SOWMA_GREEN,
+    "Google Analytics": COLORS.SOWMA_GOOGLE_ANALYTICS,
     Facebook: COLORS.SOWMA_FACEBOOK,
     Instagram: COLORS.SOWMA_INSTAGRAM,
     Twitter: COLORS.SOWMA_TWITTER,

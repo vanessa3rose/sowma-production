@@ -703,6 +703,7 @@ export default function GoogleAnalyticsPage() {
           <BigCard
             title="Massachusetts Visitors by County"
             titleTooltip={getGlossaryDefinition("countyVisitors")}
+            data={Object.values(countyVisits)}
             subtitle={
               <DateDropdown
                 value={{ id: countyRange }}
@@ -730,6 +731,7 @@ export default function GoogleAnalyticsPage() {
           <BigCard
             title="New vs Returning Users"
             titleTooltip={getGlossaryDefinition("newVsReturning")}
+            data={returningVsNewData}
             subtitle={
               <DateDropdown
                 value={{ id: newVsReturningRange }}
@@ -758,6 +760,7 @@ export default function GoogleAnalyticsPage() {
           <BigCard
             title="Sessions by Device Category"
             titleTooltip={getGlossaryDefinition("sessionsByDevice")}
+            data={deviceData}
             subtitle={
               <DateDropdown
                 value={{ id: deviceRange }}
@@ -782,6 +785,7 @@ export default function GoogleAnalyticsPage() {
           <BigCard
             title="Active Users"
             titleTooltip={getGlossaryDefinition("activeUsers")}
+            data={usersOverTime}
             subtitle={
               <DateDropdown
                 value={{ id: activeUsersRange }}
@@ -813,6 +817,7 @@ export default function GoogleAnalyticsPage() {
         <BigCard
           title="Traffic Source Breakdown"
           titleTooltip={getGlossaryDefinition("trafficSources")}
+          data={sourceData}
           subtitle={
             <DateDropdown
               value={{ id: sourceRange }}
@@ -837,6 +842,7 @@ export default function GoogleAnalyticsPage() {
         <BigCard
           title="Engagement Rate"
           titleTooltip={getGlossaryDefinition("engagementRate")}
+          data={engagementOverTime}
           subtitle={
             <DateDropdown
               value={{ id: engagementRange }}

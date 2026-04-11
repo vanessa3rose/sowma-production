@@ -16,6 +16,7 @@ const PIE_COLORS = [
   COLORS.SOWMA_BLUE,
   COLORS.SOWMA_GREEN,
   COLORS.SOWMA_LIGHT_GREEN,
+  COLORS.SOWMA_DARK_BLUE,
   COLORS.SOWMA_DARK_GREEN,
 ];
 
@@ -92,7 +93,10 @@ const PieCharts = ({
   }
 
   return (
-    <div ref={wrapperRef} className="w-full h-full lg:p-4 overflow-visible">
+    <div
+      ref={wrapperRef}
+      className="w-full h-full lg:p-4 -mt-4 overflow-visible"
+    >
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
