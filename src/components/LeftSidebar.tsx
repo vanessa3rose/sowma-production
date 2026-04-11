@@ -10,6 +10,7 @@ import linkedin from "../assets/linkedin.jpg";
 import twitter from "../assets/twitter.jpg";
 import constantContact from "../assets/newsletter.jpg";
 
+
 type Role = "ADMIN" | "USER" | "VIEWER";
 
 const socialLinks = [
@@ -28,6 +29,8 @@ const socialLinks = [
 
   { slug: "linkedin", label: "LinkedIn", icon: linkedin },
   { slug: "twitter", label: "Twitter/X", icon: twitter },
+
+  
 ];
 
 const LeftSidebar = ({
