@@ -883,7 +883,10 @@ export default function e({ selections, range }: ExportReportViewProps) {
                   <div className="grid grid-cols-3 gap-4">
                     <GoogleSmallMetricCard
                       title="Page Views"
-                      value={formatValue(pageViewsSummary.current ?? 0, "number")}
+                      value={formatValue(
+                        pageViewsSummary.current ?? 0,
+                        "number",
+                      )}
                       valueNote={
                         selection.data.pageViewsAsOf
                           ? `views (as of ${selection.data.pageViewsAsOf})`
@@ -1380,10 +1383,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
             {chartChunks.map((chunk, chunkIndex) => (
               <ExportPage key={`${config.platform}-chunk-${chunkIndex}`}>
                 {index === 0 && chunkIndex === 0 ? (
-                  <ReportHeader
-                    timestamp={timestamp}
-                    rangeLabel={rangeLabel}
-                  />
+                  <ReportHeader timestamp={timestamp} rangeLabel={rangeLabel} />
                 ) : null}
 
                 <div className="text-3xl font-bold mb-6">{config.label}</div>
