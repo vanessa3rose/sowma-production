@@ -11,7 +11,7 @@ import { fetchMetrics } from "../../utils/fetchMetrics";
 import SocialMediaHeader from "../../components/SocialMediaHeader";
 import { getGlossaryDefinition } from "../../data/glossarydata";
 
-/* ---------- types ---------- */
+/* -------- types ---------- */
 
 import {
   type LinePoint,
