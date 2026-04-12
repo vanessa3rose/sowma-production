@@ -641,11 +641,11 @@ const LINKEDIN_SMALL_KPIS = [
   { id: "LIKES", title: "Reactions" },
   { id: "COMMENTS", title: "Comments" },
   { id: "SHARES", title: "Reposts" },
+  { id: "VIEWS", title: "Views" },
 ];
 const LINKEDIN_EXPORT_CARD_HEIGHT = 235;
 const LINKEDIN_EXPORT_PIE_HEIGHT = 310;
 const LINKEDIN_KPI_CARD_HEIGHT = 117;
-const LINKEDIN_KPI_ROW_HEIGHT = 382;
 
 function LinkedInMiniMetricCard({
   title,
@@ -1180,44 +1180,26 @@ export default function e({ selections, range }: ExportReportViewProps) {
                   Last updated: {latestDate ?? "No imported data"}
                 </div>
 
-                {/* KPI mini cards + Views chart — blue (one big section) */}
+                {/* KPI mini cards */}
                 <MetricSection title="Key Metrics" variant="blue">
-                  <div className="flex gap-4">
-                    <div className="w-1/3 flex flex-col gap-4">
-                      {LINKEDIN_SMALL_KPIS.map((card) => {
-                        const summary = metricSummaries[card.id] ?? {
-                          current: 0,
-                          prev: 0,
-                        };
-                        const delta =
-                          (summary.current ?? 0) - (summary.prev ?? 0);
-                        return (
-                          <LinkedInMiniMetricCard
-                            key={card.id}
-                            title={card.title}
-                            value={formatValue(summary.current ?? 0, "number")}
-                            delta={formatDelta(delta, "number")}
-                            note={`since ${latestDate ?? "N/A"}`}
-                          />
-                        );
-                      })}
-                    </div>
-
-                    <div className="w-2/3">
-                      <GoogleChartCard
-                        title="Views"
-                        subtitle={rangeLabel}
-                        height={LINKEDIN_KPI_ROW_HEIGHT}
-                      >
-                        <LineCharts
-                          data={chartDataMap.VIEWS ?? []}
-                          xAxisKey="date"
-                          dataKeys={["value"]}
-                          showArea
-                          compact
+                  <div className="grid grid-cols-4 gap-4">
+                    {LINKEDIN_SMALL_KPIS.map((card) => {
+                      const summary = metricSummaries[card.id] ?? {
+                        current: 0,
+                        prev: 0,
+                      };
+                      const delta =
+                        (summary.current ?? 0) - (summary.prev ?? 0);
+                      return (
+                        <LinkedInMiniMetricCard
+                          key={card.id}
+                          title={card.title}
+                          value={formatValue(summary.current ?? 0, "number")}
+                          delta={formatDelta(delta, "number")}
+                          note={`since ${latestDate ?? "N/A"}`}
                         />
-                      </GoogleChartCard>
-                    </div>
+                      );
+                    })}
                   </div>
                 </MetricSection>
 
