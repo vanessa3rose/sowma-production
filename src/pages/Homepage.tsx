@@ -44,6 +44,9 @@ export default function Homepage() {
   const [hearAboutUsData, setHearAboutUsData] = useState<HearAboutUsEntry[]>(
     [],
   );
+  const [databaseReportSubtitle, setDatabaseReportSubtitle] = useState<
+    string | null
+  >(null);
 
   // Per-card date ranges (now using DateRangeValue)
   const [impressionsRange, setImpressionsRange] = useState<DateRangeValue>({
@@ -368,10 +371,22 @@ export default function Homepage() {
         throw new Error(`Failed to fetch report: ${response.statusText}`);
       }
 
-      const data = (await response.json()) as HearAboutUsEntry[];
-      console.log("DATA", data);
-      if (Array.isArray(data) && data.length > 0) {
-        setHearAboutUsData(data);
+      const result = await response.json();
+
+      if (Array.isArray(result.data)) {
+        setHearAboutUsData(result.data);
+      }
+
+      if (result.latestImport) {
+        const formatted = new Date(result.latestImport).toLocaleDateString(
+          "en-US",
+          {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          },
+        );
+        setDatabaseReportSubtitle("Last Imported: " + formatted);
       }
     } catch (err) {
       console.error(err);
@@ -779,7 +794,7 @@ export default function Homepage() {
         <BigCard
           title="How did you hear about us?"
           data={hearAboutUsData}
-          subtitle=""
+          subtitle={databaseReportSubtitle}
           chart={
             <BarCharts
               data={hearAboutUsData}

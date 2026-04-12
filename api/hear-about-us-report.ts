@@ -215,7 +215,10 @@ async function handleGet(req: any, res: ApiResponse) {
   });
 
   if (!latest) {
-    return res.status(200).json([]);
+    return res.status(200).json({
+      data: [],
+      latestImport: null,
+    });
   }
 
   const countMap = new Map(latest.counts.map((entry) => [entry.count, entry]));
@@ -224,7 +227,10 @@ async function handleGet(req: any, res: ApiResponse) {
     count: countMap.get(countKey)?.value ?? 0,
   }));
 
-  return res.status(200).json(data);
+  return res.status(200).json({
+    data,
+    latestImport: latest.reportDate,
+  });
 }
 
 async function handlePost(req: any, res: ApiResponse) {
