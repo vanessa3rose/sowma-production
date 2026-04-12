@@ -66,20 +66,20 @@ function formatValue(value: number, format?: ExportMetricFormat) {
     return formatNumber(value, 2);
   }
   if (format === "seconds") {
-    return `${formatNumber(value, 0)}s`;
+    return `${formatNumber(value, 0)}`;
   }
   return formatNumber(value, 0);
 }
 
 function formatDelta(delta: number, format?: ExportMetricFormat) {
   if (format === "percent") {
-    return `${formatSigned(normalizePercent(delta), 1)}pp`;
+    return `${formatSigned(normalizePercent(delta), 1)}%`;
   }
   if (format === "decimal") {
     return formatSigned(delta, 2);
   }
   if (format === "seconds") {
-    return `${formatSigned(delta, 0)}s`;
+    return `${formatSigned(delta, 0)}`;
   }
   return formatSigned(delta, 0);
 }
@@ -259,12 +259,10 @@ const PDF_CARD_STYLE: React.CSSProperties = {
 function GoogleSmallMetricCard({
   title,
   value,
-  valueNote,
   delta,
 }: {
   title: string;
   value: string;
-  valueNote?: string;
   delta: string;
 }) {
   return (
@@ -282,11 +280,6 @@ function GoogleSmallMetricCard({
         >
           {value}
         </span>
-        {valueNote ? (
-          <span style={{ fontSize: "14px", color: COLORS.SOWMA_MEDIUM_GRAY }}>
-            {valueNote}
-          </span>
-        ) : null}
       </div>
       <div
         style={{
@@ -887,11 +880,6 @@ export default function e({ selections, range }: ExportReportViewProps) {
                         pageViewsSummary.current ?? 0,
                         "number",
                       )}
-                      valueNote={
-                        selection.data.pageViewsAsOf
-                          ? `views (as of ${selection.data.pageViewsAsOf})`
-                          : "views"
-                      }
                       delta={formatDelta(
                         (pageViewsSummary.current ?? 0) -
                           (pageViewsSummary.prev ?? 0),
@@ -901,7 +889,6 @@ export default function e({ selections, range }: ExportReportViewProps) {
                     <GoogleSmallMetricCard
                       title="Active 7-Day Users"
                       value={formatValue(active7Summary.current ?? 0, "number")}
-                      valueNote="users (7D)"
                       delta={formatDelta(
                         (active7Summary.current ?? 0) -
                           (active7Summary.prev ?? 0),
@@ -909,12 +896,11 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       )}
                     />
                     <GoogleSmallMetricCard
-                      title="Avg Engagement Time"
+                      title="Avg Engagement Time (seconds)"
                       value={formatValue(
                         engagementTimeSummary.current ?? 0,
                         "seconds",
                       )}
-                      valueNote="seconds"
                       delta={formatDelta(
                         (engagementTimeSummary.current ?? 0) -
                           (engagementTimeSummary.prev ?? 0),
@@ -939,8 +925,9 @@ export default function e({ selections, range }: ExportReportViewProps) {
                           totalValue={countyTotal}
                           valueLabel="Visitors"
                           intensityLabel="% of total"
-                          showLegend={false}
-                          className="-mb-2"
+                          showLegend={true}
+                          isSmall={true}
+                          className="mb-[4px]"
                         />
                       </GoogleChartCard>
                     </div>
