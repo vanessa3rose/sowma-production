@@ -47,7 +47,6 @@ const FACEBOOK_METRICS: ExportMetricDefinition[] = [
   { id: "LIKES", label: "Likes" },
   { id: "COMMENTS", label: "Comments" },
   { id: "VIEWS", label: "Views" },
-  { id: "TOTAL_INTERACTIONS", label: "Total Interactions" },
   { id: "FOLLOWERS", label: "Followers" },
   { id: "VIDEO_VIEWS", label: "Video Views" },
 ];
