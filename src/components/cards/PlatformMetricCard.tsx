@@ -149,11 +149,10 @@ const PlatformMetricCard: React.FC<PlatformMetricCardProps> = ({
                 )}
                 {sinceDate && (
                   <span
-                    className="text-right pl-1"
+                    className="text-right pl-1 text-black/25"
                     style={{
                       fontFamily: "Poppins, sans-serif",
                       fontSize: "11px",
-                      color: "#C4C4C4",
                     }}
                   >
                     since {sinceDate}

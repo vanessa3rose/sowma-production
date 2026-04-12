@@ -103,8 +103,16 @@ const SECTION_STYLES: Record<
   MetricSectionVariant,
   { bg: string; border: string; titleColor: string }
 > = {
-  blue: { bg: "#EBF4FF", border: "#BFDBFE", titleColor: "#1E40AF" },
-  green: { bg: "#F0FDF4", border: "#BBF7D0", titleColor: "#166534" },
+  blue: {
+    bg: COLORS.SOWMA_PDF_BG_BLUE,
+    border: COLORS.SOWMA_PDF_BORDER_BLUE,
+    titleColor: COLORS.SOWMA_PDF_TITLE_BLUE,
+  },
+  green: {
+    bg: COLORS.SOWMA_PDF_BG_GREEN,
+    border: COLORS.SOWMA_PDF_BORDER_GREEN,
+    titleColor: COLORS.SOWMA_PDF_TITLE_GREEN,
+  },
 };
 
 function MetricSection({
@@ -267,7 +275,7 @@ function GoogleSmallMetricCard({
 }) {
   return (
     <div style={PDF_CARD_STYLE}>
-      <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+      <div style={{ fontWeight: 500, fontSize: "16px", color: "black" }}>
         {title}
       </div>
       <div className="mt-1 flex items-baseline gap-2 flex-wrap">
@@ -319,7 +327,7 @@ function GoogleChartCard({
       }}
     >
       <div className="flex items-center justify-between">
-        <div style={{ fontWeight: 500, fontSize: "16px", color: "#000000" }}>
+        <div style={{ fontWeight: 500, fontSize: "16px", color: "black" }}>
           {title}
         </div>
         {subtitle ? (
