@@ -724,7 +724,10 @@ function buildChartPages<T>(
   return pages;
 }
 
-export default function ExportReportView({ selections, range }: ExportReportViewProps) {
+export default function ExportReportView({
+  selections,
+  range,
+}: ExportReportViewProps) {
   const timestamp = new Date().toLocaleString();
   const rangeLabel = getRangeLabel(range);
 
