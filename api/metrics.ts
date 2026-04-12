@@ -1,13 +1,10 @@
-import {
-  PrismaClient,
-  Metric,
-  Provider,
-} from "../src/generated/prisma/index.js";
+import { Metric, Provider } from "../src/generated/prisma/index.js";
 import "dotenv/config";
 import { requireSignedInApi } from "./_auth.js";
+import { createPrismaClient, getDatabaseUrl } from "./_db.js";
 
 // Reuse Prisma client in serverless
-const prisma = (globalThis as any).prisma ?? new PrismaClient();
+const prisma = (globalThis as any).prisma ?? createPrismaClient();
 if (process.env.NODE_ENV !== "production") (globalThis as any).prisma = prisma;
 
 export default async function handler(req: any, res: any) {
@@ -48,7 +45,7 @@ export default async function handler(req: any, res: any) {
     const end = new Date(`${endDay}T23:59:59.999Z`);
 
     if (debug) {
-      const dbHost = process.env.DATABASE_URL?.split("@")?.[1]?.split("?")?.[0];
+      const dbHost = getDatabaseUrl()?.split("@")?.[1]?.split("?")?.[0];
       console.log("[/api/metrics] DB host:", dbHost);
       console.log("[/api/metrics] query:", {
         provider: providerValue,

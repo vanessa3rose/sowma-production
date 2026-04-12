@@ -3,11 +3,11 @@ import APIData from "../components/admin-tabs/APIData";
 import UsersRoles from "../components/admin-tabs/UsersRoles";
 import Waitlist from "../components/admin-tabs/Waitlist";
 
-const tabs = ["Users and Roles", "API and Data", "Waitlist"] as const;
+const tabs = ["API and Data", "Users and Roles", "Waitlist"] as const;
 type Tab = (typeof tabs)[number];
 
 export default function AdminPage() {
-  const [selectedTab, setSelectedTab] = useState<Tab>("Users and Roles");
+  const [selectedTab, setSelectedTab] = useState<Tab>("API and Data");
 
   const tabContent: Record<Tab, JSX.Element> = {
     "Users and Roles": <UsersRoles />,

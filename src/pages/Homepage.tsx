@@ -10,7 +10,11 @@ import DateDropdown, { DateRangeValue } from "../components/charts/DateButton";
 
 import { COLORS } from "../data/colors.js";
 import BarCharts from "../components/charts/BarCharts";
-import { HEAR_ABOUT_US_DATA } from "../data/tuftsHearAboutUs";
+
+type HearAboutUsEntry = {
+  source: string;
+  count: number;
+};
 
 type PlatformMetricPoint = {
   date: string;
@@ -37,6 +41,12 @@ export default function Homepage() {
   const [followerCountData, setFollowerCountData] = useState<
     PlatformMetricPoint[]
   >([]);
+  const [hearAboutUsData, setHearAboutUsData] = useState<HearAboutUsEntry[]>(
+    [],
+  );
+  const [databaseReportSubtitle, setDatabaseReportSubtitle] = useState<
+    string | null
+  >(null);
 
   // Per-card date ranges (now using DateRangeValue)
   const [impressionsRange, setImpressionsRange] = useState<DateRangeValue>({
@@ -354,6 +364,35 @@ export default function Homepage() {
     }
   }
 
+  async function loadHearAboutUs() {
+    try {
+      const response = await fetch("/api/hear-about-us-report");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch report: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (Array.isArray(result.data)) {
+        setHearAboutUsData(result.data);
+      }
+
+      if (result.latestImport) {
+        const formatted = new Date(result.latestImport).toLocaleDateString(
+          "en-US",
+          {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          },
+        );
+        setDatabaseReportSubtitle("Last Imported: " + formatted);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   useEffect(() => {
     loadImpressions();
   }, []);
@@ -365,6 +404,9 @@ export default function Homepage() {
   }, []);
   useEffect(() => {
     loadFollowers();
+  }, []);
+  useEffect(() => {
+    loadHearAboutUs();
   }, []);
 
   const impressionsBounds = useMemo(
@@ -736,7 +778,7 @@ export default function Homepage() {
             </div>
           }
           chart={
-            <div className="w-full h-full">
+            <div className="w-full h-full max-h-[320px]">
               <LineCharts
                 data={sessionsFiltered}
                 xAxisKey="date"
@@ -751,22 +793,17 @@ export default function Homepage() {
         {/* How Did You Hear About Us */}
         <BigCard
           title="How did you hear about us?"
-          data={HEAR_ABOUT_US_DATA}
-          subtitle=""
+          data={hearAboutUsData}
+          subtitle={databaseReportSubtitle}
+          chart={
+            <BarCharts
+              data={hearAboutUsData}
+              xAxisKey="source"
+              dataKeys={["count"]}
+            />
+          }
           displayMode="chart-only"
           className="flex-1 w-full max-h-[320px]"
-          chart={
-            <div className="w-full pb-4">
-              <BarCharts
-                data={HEAR_ABOUT_US_DATA.map((d) => ({
-                  source: d.source,
-                  count: d.count,
-                }))}
-                xAxisKey="source"
-                dataKeys={["count"]}
-              />
-            </div>
-          }
         />
       </div>
     </div>

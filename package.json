@@ -71,7 +71,7 @@
     "@google-analytics/data": "^5.2.1",
     "@headlessui/react": "^2.2.9",
     "@mui/material": "^7.3.5",
-    "@prisma/client": "^6.19.1",
+    "@prisma/client": "6.19.1",
     "cron": "^4.3.3",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
@@ -96,6 +96,7 @@
     "xlsx": "^0.18.5"
   },
   "overrides": {
+    "@prisma/client": "6.19.1",
     "prisma": "6.19.1",
     "picomatch": "^4.0.3"
   }
