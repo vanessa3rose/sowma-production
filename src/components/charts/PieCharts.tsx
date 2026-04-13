@@ -33,7 +33,7 @@ const LEGEND_SWATCH_RATIO = 0.72;
 const LEGEND_GAP_X_RATIO = 0.8;
 const LEGEND_GAP_Y_RATIO = 0.35;
 const LEGEND_SWATCH_GAP_RATIO = 0.5;
-const LEGEND_ROW_HEIGHT_RATIO = 1.00;
+const LEGEND_ROW_HEIGHT_RATIO = 1.0;
 
 function formatPieLabel({ value, percent }: PieLabelRenderProps) {
   return `${value} (${((percent as number) * 100).toFixed(0)}%)`;
@@ -63,37 +63,42 @@ function getLegendRows(
   const gapX = fontSize * LEGEND_GAP_X_RATIO;
 
   return items.reduce<
-    Array<Array<{ color: string; label: string; width: number; textWidth: number }>>
-  >((rows, item) => {
-    const maxTextWidth = Math.max(0, legendWidth - swatchSize - swatchGap);
-    const textWidth = Math.min(
-      estimateLegendTextWidth(item.label, fontSize),
-      maxTextWidth,
-    );
-    const itemWidth = swatchSize + swatchGap + textWidth;
-    const currentRow = rows[rows.length - 1];
-    const nextRow = [...currentRow, { ...item, width: itemWidth, textWidth }];
-    const currentWidth = currentRow.reduce(
-      (sum, rowItem, index) => sum + rowItem.width + (index > 0 ? gapX : 0),
-      0,
-    );
-    const nextSlotWidth = legendWidth / nextRow.length;
-    const nextFitsEqualSlots = nextRow.every(
-      (rowItem) => rowItem.width <= nextSlotWidth,
-    );
+    Array<
+      Array<{ color: string; label: string; width: number; textWidth: number }>
+    >
+  >(
+    (rows, item) => {
+      const maxTextWidth = Math.max(0, legendWidth - swatchSize - swatchGap);
+      const textWidth = Math.min(
+        estimateLegendTextWidth(item.label, fontSize),
+        maxTextWidth,
+      );
+      const itemWidth = swatchSize + swatchGap + textWidth;
+      const currentRow = rows[rows.length - 1];
+      const nextRow = [...currentRow, { ...item, width: itemWidth, textWidth }];
+      const currentWidth = currentRow.reduce(
+        (sum, rowItem, index) => sum + rowItem.width + (index > 0 ? gapX : 0),
+        0,
+      );
+      const nextSlotWidth = legendWidth / nextRow.length;
+      const nextFitsEqualSlots = nextRow.every(
+        (rowItem) => rowItem.width <= nextSlotWidth,
+      );
 
-    if (
-      currentRow.length > 0 &&
-      (currentWidth + gapX + itemWidth > legendWidth ||
-        (useEqualSlots && !nextFitsEqualSlots))
-    ) {
-      rows.push([{ ...item, width: itemWidth, textWidth }]);
-    } else {
-      currentRow.push({ ...item, width: itemWidth, textWidth });
-    }
+      if (
+        currentRow.length > 0 &&
+        (currentWidth + gapX + itemWidth > legendWidth ||
+          (useEqualSlots && !nextFitsEqualSlots))
+      ) {
+        rows.push([{ ...item, width: itemWidth, textWidth }]);
+      } else {
+        currentRow.push({ ...item, width: itemWidth, textWidth });
+      }
 
-    return rows;
-  }, [[]]);
+      return rows;
+    },
+    [[]],
+  );
 }
 
 const PieCharts = ({
@@ -140,7 +145,8 @@ const PieCharts = ({
     legendItems.reduce((sum, item) => sum + item.label.length, 0) /
     Math.max(legendItems.length, 1);
   const densityFontSize =
-    legendWidth / Math.max(legendItems.length * (avgLabelLength * 0.58 + 2.6), 1);
+    legendWidth /
+    Math.max(legendItems.length * (avgLabelLength * 0.58 + 2.6), 1);
   const legendFontSize = Math.max(
     LEGEND_MIN_FONT_SIZE,
     Math.min(LEGEND_MAX_FONT_SIZE, densityFontSize),
@@ -262,7 +268,8 @@ const PieCharts = ({
             return row.map((item, itemIndex) => {
               const slotWidth = legendWidth / row.length;
               const itemX = flushLegendLayout
-                ? itemIndex * slotWidth + Math.max(0, (slotWidth - item.width) / 2)
+                ? itemIndex * slotWidth +
+                  Math.max(0, (slotWidth - item.width) / 2)
                 : x;
               x += item.width + legendGapX;
 
