@@ -653,7 +653,7 @@ const LINKEDIN_SMALL_KPIS = [
   { id: "VIEWS", title: "Views" },
 ];
 const LINKEDIN_EXPORT_CARD_HEIGHT = 235;
-const LINKEDIN_EXPORT_PIE_HEIGHT = 310;
+const LINKEDIN_EXPORT_PIE_HEIGHT = 380;
 const LINKEDIN_KPI_CARD_HEIGHT = 117;
 
 function LinkedInMiniMetricCard({
@@ -1221,12 +1221,13 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       height={LINKEDIN_EXPORT_PIE_HEIGHT}
                     >
                       {followerDemographicData.length ? (
-                        <div className="h-full [&_.recharts-default-legend]:!text-[8px] [&_.recharts-default-legend]:leading-tight [&_.recharts-legend-item-text]:!text-[8px] [&_.recharts-legend-item]:mr-1">
+                        <div className="h-full">
                           <PieCharts
                             data={followerDemographicData}
                             dataKey="value"
                             nameKey="label"
                             disableAnimation
+                            flushLegendLayout
                           />
                         </div>
                       ) : (
@@ -1247,6 +1248,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
                           dataKey="value"
                           nameKey="label"
                           disableAnimation
+                          flushLegendLayout
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center text-sm text-gray-500">
@@ -1261,12 +1263,13 @@ export default function e({ selections, range }: ExportReportViewProps) {
                       height={LINKEDIN_EXPORT_PIE_HEIGHT}
                     >
                       {visitorDemographicData.length ? (
-                        <div className="h-full [&_.recharts-default-legend]:!text-[8px] [&_.recharts-default-legend]:leading-tight [&_.recharts-legend-item-text]:!text-[8px] [&_.recharts-legend-item]:mr-1">
+                        <div className="h-full">
                           <PieCharts
                             data={visitorDemographicData}
                             dataKey="value"
                             nameKey="label"
                             disableAnimation
+                            flushLegendLayout
                           />
                         </div>
                       ) : (
