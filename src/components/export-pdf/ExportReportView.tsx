@@ -611,8 +611,9 @@ function ReportHeader({
 }) {
   return (
     <div className="mb-6 border-b border-gray-200 pb-4">
-      <div className="text-2xl font-semibold">
-        SOWMA Social Media Analytics Report
+      <div className="flex items-baseline gap-x-2 text-2xl font-semibold">
+        <span>SOWMA Social Media Analytics</span>
+        <span>Report</span>
       </div>
       <div className="mt-1 text-sm text-gray-600">
         Generated {timestamp} - {rangeLabel}
