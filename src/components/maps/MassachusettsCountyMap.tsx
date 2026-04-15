@@ -26,6 +26,7 @@ interface MassachusettsCountyMapProps {
   valueLabel?: string; // "Visitors" / "Sessions"
   intensityLabel?: string; // "% of total"
   showLegend?: boolean;
+  isSmall?: boolean;
   className: String;
 }
 
@@ -72,6 +73,7 @@ export default function MassachusettsCountyMap({
   valueLabel = "Visitors",
   intensityLabel = "% of total",
   showLegend = true,
+  isSmall = false,
   className,
 }: MassachusettsCountyMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -207,7 +209,9 @@ export default function MassachusettsCountyMap({
 
       {/* Legend */}
       {showLegend ? (
-        <div className="absolute left-2 bottom-10 z-10 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-md">
+        <div
+          className={`absolute left-2 ${isSmall ? "bottom-0" : "bottom-10"} z-10 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-md`}
+        >
           <div className="mb-1 text-[11px] font-[Poppins] font-semibold text-gray-800">
             Visit Intensity
           </div>

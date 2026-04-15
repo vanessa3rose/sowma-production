@@ -66,20 +66,20 @@ function formatValue(value: number, format?: ExportMetricFormat) {
     return formatNumber(value, 2);
   }
   if (format === "seconds") {
-    return `${formatNumber(value, 0)}s`;
+    return `${formatNumber(value, 0)}`;
   }
   return formatNumber(value, 0);
 }
 
 function formatDelta(delta: number, format?: ExportMetricFormat) {
   if (format === "percent") {
-    return `${formatSigned(normalizePercent(delta), 1)}pp`;
+    return `${formatSigned(normalizePercent(delta), 1)}%`;
   }
   if (format === "decimal") {
     return formatSigned(delta, 2);
   }
   if (format === "seconds") {
-    return `${formatSigned(delta, 0)}s`;
+    return `${formatSigned(delta, 0)}`;
   }
   return formatSigned(delta, 0);
 }
@@ -94,6 +94,68 @@ function latestPointDate(
     .sort();
   return dates.length ? dates[dates.length - 1] : null;
 }
+
+// ─── MetricSection ────────────────────────────────────────────────────────────
+
+type MetricSectionVariant = "blue" | "green";
+
+const SECTION_STYLES: Record<
+  MetricSectionVariant,
+  { bg: string; border: string; titleColor: string }
+> = {
+  blue: {
+    bg: COLORS.SOWMA_PDF_BG_BLUE,
+    border: COLORS.SOWMA_PDF_BORDER_BLUE,
+    titleColor: COLORS.SOWMA_PDF_TITLE_BLUE,
+  },
+  green: {
+    bg: COLORS.SOWMA_PDF_BG_GREEN,
+    border: COLORS.SOWMA_PDF_BORDER_GREEN,
+    titleColor: COLORS.SOWMA_PDF_TITLE_GREEN,
+  },
+};
+
+function MetricSection({
+  title,
+  variant,
+  children,
+}: {
+  title: string;
+  variant: MetricSectionVariant;
+  children: ReactNode;
+}) {
+  const styles = SECTION_STYLES[variant];
+  return (
+    <div
+      style={{
+        backgroundColor: styles.bg,
+        border: `1px solid ${styles.border}`,
+        borderRadius: "14px",
+        padding: "16px 20px 20px 20px",
+        marginTop: "16px",
+        width: "100%",
+        boxSizing: "border-box",
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "Poppins, sans-serif",
+          fontWeight: 700,
+          fontSize: "13px",
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: styles.titleColor,
+          marginBottom: "12px",
+        }}
+      >
+        {title}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ─── Card components ──────────────────────────────────────────────────────────
 
 function MetricRow({
   items,
@@ -205,12 +267,10 @@ const PDF_CARD_STYLE: React.CSSProperties = {
 function GoogleSmallMetricCard({
   title,
   value,
-  valueNote,
   delta,
 }: {
   title: string;
   value: string;
-  valueNote?: string;
   delta: string;
 }) {
   return (
@@ -228,11 +288,6 @@ function GoogleSmallMetricCard({
         >
           {value}
         </span>
-        {valueNote ? (
-          <span style={{ fontSize: "14px", color: COLORS.SOWMA_MEDIUM_GRAY }}>
-            {valueNote}
-          </span>
-        ) : null}
       </div>
       <div
         style={{
@@ -291,6 +346,8 @@ function GoogleChartCard({
     </div>
   );
 }
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function toCountyIntensity(countyTotals: Record<string, number>) {
   const total = Object.values(countyTotals).reduce(
@@ -543,6 +600,41 @@ function ExportPage({
   );
 }
 
+// ─── Report header (shared) ───────────────────────────────────────────────────
+
+function ReportHeader({
+  timestamp,
+  rangeLabel,
+}: {
+  timestamp: string;
+  rangeLabel: string;
+}) {
+  return (
+    <div className="mb-6 border-b border-gray-200 pb-4">
+      <div className="flex items-baseline gap-x-2 text-2xl font-semibold">
+        <span>SOWMA Social Media Analytics</span>
+        <span>Report</span>
+      </div>
+      <div className="mt-1 text-sm text-gray-600">
+        Generated {timestamp} - {rangeLabel}
+      </div>
+      <div className="mt-2 text-xs text-gray-500">
+        Note: Metrics are daily values unless explicitly labeled as cumulative.
+      </div>
+      <div
+        style={{
+          marginTop: "4px",
+          fontSize: "12px",
+          color: COLORS.SOWMA_MEDIUM_GRAY,
+        }}
+      >
+        Delta values compare the latest point in range to the previous available
+        point (not always the previous calendar day).
+      </div>
+    </div>
+  );
+}
+
 type PageChunk<T> = {
   charts: T[];
   includeMetrics: boolean;
@@ -558,11 +650,11 @@ const LINKEDIN_SMALL_KPIS = [
   { id: "LIKES", title: "Reactions" },
   { id: "COMMENTS", title: "Comments" },
   { id: "SHARES", title: "Reposts" },
+  { id: "VIEWS", title: "Views" },
 ];
 const LINKEDIN_EXPORT_CARD_HEIGHT = 235;
-const LINKEDIN_EXPORT_PIE_HEIGHT = 310;
+const LINKEDIN_EXPORT_PIE_HEIGHT = 380;
 const LINKEDIN_KPI_CARD_HEIGHT = 117;
-const LINKEDIN_KPI_ROW_HEIGHT = 382;
 
 function LinkedInMiniMetricCard({
   title,
@@ -734,6 +826,7 @@ export default function ExportReportView({
   return (
     <div className="bg-white">
       {selections.map((selection, index) => {
+        // ── Google Analytics ──────────────────────────────────────────────
         if (selection.type === "google") {
           const metricSummaries = selection.data.metricSummaries;
           const chartDataMap = selection.data.chartDataMap;
@@ -783,141 +876,138 @@ export default function ExportReportView({
             <div key={`google-${index}`}>
               <ExportPage>
                 {index === 0 ? (
-                  <div className="mb-6 border-b border-gray-200 pb-4">
-                    <div className="text-2xl font-semibold">
-                      SOWMA Social Media Analytics Report
-                    </div>
-                    <div className="mt-1 text-sm text-gray-600">
-                      Generated {timestamp} - {rangeLabel}
-                    </div>
-                    <div className="mt-2 text-xs text-gray-500">
-                      Note: Metrics are daily values unless explicitly labeled
-                      as cumulative.
-                    </div>
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontSize: "12px",
-                        color: COLORS.SOWMA_MEDIUM_GRAY,
-                      }}
-                    >
-                      Delta values compare the latest point in range to the
-                      previous available point (not always the previous calendar
-                      day).
-                    </div>
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontSize: "12px",
-                        color: COLORS.SOWMA_MEDIUM_GRAY,
-                      }}
-                    >
-                      Delta values compare the latest point in range to the
-                      previous available point (not always the previous calendar
-                      day).
-                    </div>
-                  </div>
+                  <ReportHeader timestamp={timestamp} rangeLabel={rangeLabel} />
                 ) : null}
 
                 <div className="text-3xl font-bold mb-4">Google Analytics</div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <GoogleSmallMetricCard
-                    title="Page Views"
-                    value={formatValue(pageViewsSummary.current ?? 0, "number")}
-                    valueNote={
-                      selection.data.pageViewsAsOf
-                        ? `views (as of ${selection.data.pageViewsAsOf})`
-                        : "views"
-                    }
-                    delta={formatDelta(
-                      (pageViewsSummary.current ?? 0) -
-                        (pageViewsSummary.prev ?? 0),
-                      "number",
-                    )}
-                  />
-                  <GoogleSmallMetricCard
-                    title="Active 7-Day Users"
-                    value={formatValue(active7Summary.current ?? 0, "number")}
-                    valueNote="users (7D)"
-                    delta={formatDelta(
-                      (active7Summary.current ?? 0) -
-                        (active7Summary.prev ?? 0),
-                      "number",
-                    )}
-                  />
-                  <GoogleSmallMetricCard
-                    title="Avg Engagement Time"
-                    value={formatValue(
-                      engagementTimeSummary.current ?? 0,
-                      "seconds",
-                    )}
-                    valueNote="seconds"
-                    delta={formatDelta(
-                      (engagementTimeSummary.current ?? 0) -
-                        (engagementTimeSummary.prev ?? 0),
-                      "seconds",
-                    )}
-                  />
-                </div>
+                {/* KPI cards — blue */}
+                <MetricSection title="Key Metrics" variant="blue">
+                  <div className="grid grid-cols-3 gap-4">
+                    <GoogleSmallMetricCard
+                      title="Page Views"
+                      value={formatValue(
+                        pageViewsSummary.current ?? 0,
+                        "number",
+                      )}
+                      delta={formatDelta(
+                        (pageViewsSummary.current ?? 0) -
+                          (pageViewsSummary.prev ?? 0),
+                        "number",
+                      )}
+                    />
+                    <GoogleSmallMetricCard
+                      title="Active 7-Day Users"
+                      value={formatValue(active7Summary.current ?? 0, "number")}
+                      delta={formatDelta(
+                        (active7Summary.current ?? 0) -
+                          (active7Summary.prev ?? 0),
+                        "number",
+                      )}
+                    />
+                    <GoogleSmallMetricCard
+                      title="Avg Engagement Time (seconds)"
+                      value={formatValue(
+                        engagementTimeSummary.current ?? 0,
+                        "seconds",
+                      )}
+                      delta={formatDelta(
+                        (engagementTimeSummary.current ?? 0) -
+                          (engagementTimeSummary.prev ?? 0),
+                        "seconds",
+                      )}
+                    />
+                  </div>
+                </MetricSection>
 
-                <div className="mt-3 flex gap-4">
-                  <div className="w-3/5">
-                    <GoogleChartCard
-                      title="Massachusetts Visitors by County"
-                      subtitle={rangeLabel}
-                      height={255}
-                    >
-                      <MassachusettsCountyMap
-                        countyIntensity={countyIntensity}
-                        countyValue={countyTotals}
-                        totalValue={countyTotal}
-                        valueLabel="Visitors"
-                        intensityLabel="% of total"
-                        showLegend={false}
-                        className="-mb-2"
-                      />
-                    </GoogleChartCard>
+                {/* All charts — green */}
+                <MetricSection title="Charts & Trends" variant="green">
+                  <div className="flex gap-4">
+                    <div className="w-3/5">
+                      <GoogleChartCard
+                        title="Massachusetts Visitors by County"
+                        subtitle={rangeLabel}
+                        height={255}
+                      >
+                        <MassachusettsCountyMap
+                          countyIntensity={countyIntensity}
+                          countyValue={countyTotals}
+                          totalValue={countyTotal}
+                          valueLabel="Visitors"
+                          intensityLabel="% of total"
+                          showLegend={true}
+                          isSmall={true}
+                          className="mb-[4px]"
+                        />
+                      </GoogleChartCard>
+                    </div>
+                    <div className="w-2/5">
+                      <GoogleChartCard
+                        title="New vs Returning Users"
+                        subtitle={rangeLabel}
+                        height={255}
+                      >
+                        <PieCharts
+                          data={newVsData}
+                          dataKey="value"
+                          nameKey="label"
+                          disableAnimation
+                        />
+                      </GoogleChartCard>
+                    </div>
                   </div>
-                  <div className="w-2/5">
-                    <GoogleChartCard
-                      title="New vs Returning Users"
-                      subtitle={rangeLabel}
-                      height={255}
-                    >
-                      <PieCharts
-                        data={newVsData}
-                        dataKey="value"
-                        nameKey="label"
-                        disableAnimation
-                      />
-                    </GoogleChartCard>
-                  </div>
-                </div>
 
-                <div className="mt-3 flex gap-4">
-                  <div className="w-2/5">
+                  <div className="mt-3 flex gap-4">
+                    <div className="w-2/5">
+                      <GoogleChartCard
+                        title="Sessions by Device Category"
+                        subtitle={rangeLabel}
+                        height={255}
+                      >
+                        <PieCharts
+                          data={deviceData}
+                          dataKey="value"
+                          nameKey="label"
+                          disableAnimation
+                        />
+                      </GoogleChartCard>
+                    </div>
+                    <div className="w-3/5">
+                      <GoogleChartCard
+                        title="Active Users"
+                        subtitle={rangeLabel}
+                        height={255}
+                      >
+                        <LineCharts
+                          data={chartDataMap.ACTIVE_USERS ?? []}
+                          xAxisKey="date"
+                          dataKeys={["value"]}
+                          showArea
+                          compact
+                        />
+                      </GoogleChartCard>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-4">
                     <GoogleChartCard
-                      title="Sessions by Device Category"
+                      title="Traffic Source Breakdown"
                       subtitle={rangeLabel}
-                      height={255}
+                      height={270}
                     >
-                      <PieCharts
-                        data={deviceData}
-                        dataKey="value"
-                        nameKey="label"
-                        disableAnimation
+                      <BarCharts
+                        data={sourceData}
+                        xAxisKey="source"
+                        dataKeys={["sessions"]}
                       />
                     </GoogleChartCard>
-                  </div>
-                  <div className="w-3/5">
                     <GoogleChartCard
-                      title="Active Users"
+                      title="Engagement Rate"
                       subtitle={rangeLabel}
-                      height={255}
+                      height={270}
                     >
                       <LineCharts
-                        data={chartDataMap.ACTIVE_USERS ?? []}
+                        data={chartDataMap.ENGAGEMENT_RATE ?? []}
                         xAxisKey="date"
                         dataKeys={["value"]}
                         showArea
@@ -925,34 +1015,7 @@ export default function ExportReportView({
                       />
                     </GoogleChartCard>
                   </div>
-                </div>
-
-                <div className="mt-3 grid grid-cols-2 gap-4">
-                  <GoogleChartCard
-                    title="Traffic Source Breakdown"
-                    subtitle={rangeLabel}
-                    height={270}
-                  >
-                    <BarCharts
-                      data={sourceData}
-                      xAxisKey="source"
-                      dataKeys={["sessions"]}
-                    />
-                  </GoogleChartCard>
-                  <GoogleChartCard
-                    title="Engagement Rate"
-                    subtitle={rangeLabel}
-                    height={270}
-                  >
-                    <LineCharts
-                      data={chartDataMap.ENGAGEMENT_RATE ?? []}
-                      xAxisKey="date"
-                      dataKeys={["value"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                </div>
+                </MetricSection>
               </ExportPage>
             </div>
           );
@@ -962,11 +1025,11 @@ export default function ExportReportView({
         const platformKey = selection.platform as Platform;
         const config = EXPORT_PLATFORM_CONFIGS[platformKey];
 
+        // ── Constant Contact ──────────────────────────────────────────────
         if (platformKey === "constantcontact") {
           const chartDataMap = selection.data.chartDataMap;
           const latestDate = latestPointDate(chartDataMap);
 
-          // Sankey totals — sum all points for each metric
           const ccSankeyVals: Record<string, number> = {};
           [
             "EMAILS_SENT",
@@ -1004,18 +1067,7 @@ export default function ExportReportView({
             <div key={`${selection.type}-${index}`}>
               <ExportPage>
                 {index === 0 ? (
-                  <div className="mb-6 border-b border-gray-200 pb-4">
-                    <div className="text-2xl font-semibold">
-                      SOWMA Social Media Analytics Report
-                    </div>
-                    <div className="mt-1 text-sm text-gray-600">
-                      Generated {timestamp} - {rangeLabel}
-                    </div>
-                    <div className="mt-2 text-xs text-gray-500">
-                      Note: Metrics are daily values unless explicitly labeled
-                      as cumulative.
-                    </div>
-                  </div>
+                  <ReportHeader timestamp={timestamp} rangeLabel={rangeLabel} />
                 ) : null}
 
                 <div className="text-3xl font-bold mb-2">Constant Contact</div>
@@ -1023,62 +1075,65 @@ export default function ExportReportView({
                   Last updated: {latestDate ?? "No data"}
                 </div>
 
-                {/* Email Flow Sankey */}
-                <GoogleChartCard
-                  title="Email Flow"
-                  subtitle={rangeLabel}
-                  height={360}
-                >
-                  {hasSankeyData ? (
-                    <ReactECharts
-                      option={ccSankeyOption}
-                      style={{ height: "100%", width: "100%" }}
-                      opts={{ renderer: "svg" }}
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-sm text-gray-500">
-                      No data in range
-                    </div>
-                  )}
-                </GoogleChartCard>
+                {/* Email Flow sankey — blue */}
+                <MetricSection title="Email Flow" variant="blue">
+                  <GoogleChartCard
+                    title="Email Flow"
+                    subtitle={rangeLabel}
+                    height={360}
+                  >
+                    {hasSankeyData ? (
+                      <ReactECharts
+                        option={ccSankeyOption}
+                        style={{ height: "100%", width: "100%" }}
+                        opts={{ renderer: "svg" }}
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                        No data in range
+                      </div>
+                    )}
+                  </GoogleChartCard>
+                </MetricSection>
 
-                {/* Opens vs Clicks comparison */}
-                <div className="mt-3 grid grid-cols-2 gap-4">
-                  <GoogleChartCard
-                    title="Opens: Unique vs Total"
-                    subtitle={rangeLabel}
-                    height={200}
-                  >
-                    <LineCharts
-                      data={opensData}
-                      xAxisKey="date"
-                      dataKeys={["uniqueOpens", "totalOpens"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                  <GoogleChartCard
-                    title="Clicks: Unique vs Total"
-                    subtitle={rangeLabel}
-                    height={200}
-                  >
-                    <LineCharts
-                      data={clicksData}
-                      xAxisKey="date"
-                      dataKeys={["uniqueClicks", "totalClicks"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                </div>
+                {/* Opens & Clicks charts — green */}
+                <MetricSection title="Charts & Trends" variant="green">
+                  <div className="grid grid-cols-2 gap-4">
+                    <GoogleChartCard
+                      title="Opens: Unique vs Total"
+                      subtitle={rangeLabel}
+                      height={200}
+                    >
+                      <LineCharts
+                        data={opensData}
+                        xAxisKey="date"
+                        dataKeys={["uniqueOpens", "totalOpens"]}
+                        showArea
+                        compact
+                      />
+                    </GoogleChartCard>
+                    <GoogleChartCard
+                      title="Clicks: Unique vs Total"
+                      subtitle={rangeLabel}
+                      height={200}
+                    >
+                      <LineCharts
+                        data={clicksData}
+                        xAxisKey="date"
+                        dataKeys={["uniqueClicks", "totalClicks"]}
+                        showArea
+                        compact
+                      />
+                    </GoogleChartCard>
+                  </div>
+                </MetricSection>
               </ExportPage>
             </div>
           );
         }
 
+        // ── LinkedIn ──────────────────────────────────────────────────────
         if (platformKey === "linkedin") {
-          // LinkedIn uses a page-specific PDF layout so the export mirrors
-          // the live dashboard rather than the generic social template.
           const chartDataMap = selection.data.chartDataMap;
           const metricSummaries = selection.data.metricSummaries;
           const latestDate = latestPointDate(chartDataMap);
@@ -1127,18 +1182,7 @@ export default function ExportReportView({
             <div key={`${selection.type}-${index}`}>
               <ExportPage widthClass="w-[1160px]">
                 {index === 0 ? (
-                  <div className="mb-6 border-b border-gray-200 pb-4">
-                    <div className="text-2xl font-semibold">
-                      SOWMA Social Media Analytics Report
-                    </div>
-                    <div className="mt-1 text-sm text-gray-600">
-                      Generated {timestamp} - {rangeLabel}
-                    </div>
-                    <div className="mt-2 text-xs text-gray-500">
-                      Note: Metrics are daily values unless explicitly labeled
-                      as cumulative.
-                    </div>
-                  </div>
+                  <ReportHeader timestamp={timestamp} rangeLabel={rangeLabel} />
                 ) : null}
 
                 <div className="text-3xl font-bold mb-2">LinkedIn</div>
@@ -1146,8 +1190,9 @@ export default function ExportReportView({
                   Last updated: {latestDate ?? "No imported data"}
                 </div>
 
-                <div className="mt-3 flex gap-4">
-                  <div className="w-1/3 flex flex-col gap-4">
+                {/* KPI mini cards */}
+                <MetricSection title="Key Metrics" variant="blue">
+                  <div className="grid grid-cols-4 gap-4">
                     {LINKEDIN_SMALL_KPIS.map((card) => {
                       const summary = metricSummaries[card.id] ?? {
                         current: 0,
@@ -1166,15 +1211,98 @@ export default function ExportReportView({
                       );
                     })}
                   </div>
+                </MetricSection>
 
-                  <div className="w-2/3">
+                {/* All remaining charts — green (one big section) */}
+                <MetricSection title="Charts & Trends" variant="green">
+                  <div className="grid grid-cols-3 gap-4">
                     <GoogleChartCard
-                      title="Views"
+                      title="Follower Demographics"
+                      subtitle="Industry"
+                      height={LINKEDIN_EXPORT_PIE_HEIGHT}
+                    >
+                      {followerDemographicData.length ? (
+                        <div className="h-full">
+                          <PieCharts
+                            data={followerDemographicData}
+                            dataKey="value"
+                            nameKey="label"
+                            disableAnimation
+                            flushLegendLayout
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                          No data in range
+                        </div>
+                      )}
+                    </GoogleChartCard>
+
+                    <GoogleChartCard
+                      title="Interaction Mix"
                       subtitle={rangeLabel}
-                      height={LINKEDIN_KPI_ROW_HEIGHT}
+                      height={LINKEDIN_EXPORT_PIE_HEIGHT}
+                    >
+                      {interactionMixData.some((entry) => entry.value > 0) ? (
+                        <PieCharts
+                          data={interactionMixData}
+                          dataKey="value"
+                          nameKey="label"
+                          disableAnimation
+                          flushLegendLayout
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                          No data in range
+                        </div>
+                      )}
+                    </GoogleChartCard>
+
+                    <GoogleChartCard
+                      title="Visitor Demographics"
+                      subtitle="Industry"
+                      height={LINKEDIN_EXPORT_PIE_HEIGHT}
+                    >
+                      {visitorDemographicData.length ? (
+                        <div className="h-full">
+                          <PieCharts
+                            data={visitorDemographicData}
+                            dataKey="value"
+                            nameKey="label"
+                            disableAnimation
+                            flushLegendLayout
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                          No data in range
+                        </div>
+                      )}
+                    </GoogleChartCard>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-4">
+                    <GoogleChartCard
+                      title="Unique Visitors"
+                      subtitle={rangeLabel}
+                      height={LINKEDIN_EXPORT_CARD_HEIGHT}
                     >
                       <LineCharts
-                        data={chartDataMap.VIEWS ?? []}
+                        data={chartDataMap.TOTAL_USERS ?? []}
+                        xAxisKey="date"
+                        dataKeys={["value"]}
+                        showArea
+                        compact
+                      />
+                    </GoogleChartCard>
+
+                    <GoogleChartCard
+                      title="New Followers"
+                      subtitle={rangeLabel}
+                      height={LINKEDIN_EXPORT_CARD_HEIGHT}
+                    >
+                      <LineCharts
+                        data={chartDataMap.FOLLOWERS ?? []}
                         xAxisKey="date"
                         dataKeys={["value"]}
                         showArea
@@ -1182,135 +1310,43 @@ export default function ExportReportView({
                       />
                     </GoogleChartCard>
                   </div>
-                </div>
 
-                <div className="mt-3 grid grid-cols-3 gap-4">
-                  <GoogleChartCard
-                    title="Follower Demographics"
-                    subtitle="Industry"
-                    height={LINKEDIN_EXPORT_PIE_HEIGHT}
-                  >
-                    {followerDemographicData.length ? (
-                      <div className="h-full [&_.recharts-default-legend]:!text-[8px] [&_.recharts-default-legend]:leading-tight [&_.recharts-legend-item-text]:!text-[8px] [&_.recharts-legend-item]:mr-1">
-                        <PieCharts
-                          data={followerDemographicData}
-                          dataKey="value"
-                          nameKey="label"
-                          disableAnimation
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-sm text-gray-500">
-                        No data in range
-                      </div>
-                    )}
-                  </GoogleChartCard>
-
-                  <GoogleChartCard
-                    title="Interaction Mix"
-                    subtitle={rangeLabel}
-                    height={LINKEDIN_EXPORT_PIE_HEIGHT}
-                  >
-                    {interactionMixData.some((entry) => entry.value > 0) ? (
-                      <PieCharts
-                        data={interactionMixData}
-                        dataKey="value"
-                        nameKey="label"
-                        disableAnimation
+                  <div className="mt-3 grid grid-cols-2 gap-4">
+                    <GoogleChartCard
+                      title="Total Interactions"
+                      subtitle={rangeLabel}
+                      height={LINKEDIN_EXPORT_CARD_HEIGHT}
+                    >
+                      <LineCharts
+                        data={chartDataMap.TOTAL_INTERACTIONS ?? []}
+                        xAxisKey="date"
+                        dataKeys={["value"]}
+                        showArea
+                        compact
                       />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-sm text-gray-500">
-                        No data in range
-                      </div>
-                    )}
-                  </GoogleChartCard>
+                    </GoogleChartCard>
 
-                  <GoogleChartCard
-                    title="Visitor Demographics"
-                    subtitle="Industry"
-                    height={LINKEDIN_EXPORT_PIE_HEIGHT}
-                  >
-                    {visitorDemographicData.length ? (
-                      <div className="h-full [&_.recharts-default-legend]:!text-[8px] [&_.recharts-default-legend]:leading-tight [&_.recharts-legend-item-text]:!text-[8px] [&_.recharts-legend-item]:mr-1">
-                        <PieCharts
-                          data={visitorDemographicData}
-                          dataKey="value"
-                          nameKey="label"
-                          disableAnimation
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-sm text-gray-500">
-                        No data in range
-                      </div>
-                    )}
-                  </GoogleChartCard>
-                </div>
-
-                <div className="mt-3 grid grid-cols-2 gap-4">
-                  <GoogleChartCard
-                    title="Unique Visitors"
-                    subtitle={rangeLabel}
-                    height={LINKEDIN_EXPORT_CARD_HEIGHT}
-                  >
-                    <LineCharts
-                      data={chartDataMap.TOTAL_USERS ?? []}
-                      xAxisKey="date"
-                      dataKeys={["value"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-
-                  <GoogleChartCard
-                    title="New Followers"
-                    subtitle={rangeLabel}
-                    height={LINKEDIN_EXPORT_CARD_HEIGHT}
-                  >
-                    <LineCharts
-                      data={chartDataMap.FOLLOWERS ?? []}
-                      xAxisKey="date"
-                      dataKeys={["value"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                </div>
-
-                <div className="mt-3 grid grid-cols-2 gap-4">
-                  <GoogleChartCard
-                    title="Total Interactions"
-                    subtitle={rangeLabel}
-                    height={LINKEDIN_EXPORT_CARD_HEIGHT}
-                  >
-                    <LineCharts
-                      data={chartDataMap.TOTAL_INTERACTIONS ?? []}
-                      xAxisKey="date"
-                      dataKeys={["value"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-
-                  <GoogleChartCard
-                    title="Engagement Rate"
-                    subtitle={rangeLabel}
-                    height={LINKEDIN_EXPORT_CARD_HEIGHT}
-                  >
-                    <LineCharts
-                      data={engagementRateData}
-                      xAxisKey="date"
-                      dataKeys={["engagementRate"]}
-                      showArea
-                      compact
-                    />
-                  </GoogleChartCard>
-                </div>
+                    <GoogleChartCard
+                      title="Engagement Rate"
+                      subtitle={rangeLabel}
+                      height={LINKEDIN_EXPORT_CARD_HEIGHT}
+                    >
+                      <LineCharts
+                        data={engagementRateData}
+                        xAxisKey="date"
+                        dataKeys={["engagementRate"]}
+                        showArea
+                        compact
+                      />
+                    </GoogleChartCard>
+                  </div>
+                </MetricSection>
               </ExportPage>
             </div>
           );
         }
 
+        // ── Generic social platforms (Facebook, Instagram, etc.) ──────────
         const metrics = config.metrics.map((metric) => {
           const summary = selection.data.metricSummaries[metric.id];
           const current = summary?.current ?? 0;
@@ -1330,59 +1366,31 @@ export default function ExportReportView({
             {chartChunks.map((chunk, chunkIndex) => (
               <ExportPage key={`${config.platform}-chunk-${chunkIndex}`}>
                 {index === 0 && chunkIndex === 0 ? (
-                  <div className="mb-6 border-b border-gray-200 pb-4">
-                    <div className="text-2xl font-semibold">
-                      SOWMA Social Media Analytics Report
-                    </div>
-                    <div className="mt-1 text-sm text-gray-600">
-                      Generated {timestamp} - {rangeLabel}
-                    </div>
-                    <div className="mt-2 text-xs text-gray-500">
-                      Note: Metrics are daily values unless explicitly labeled
-                      as cumulative.
-                    </div>
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontSize: "12px",
-                        color: COLORS.SOWMA_MEDIUM_GRAY,
-                      }}
-                    >
-                      Delta values compare the latest point in range to the
-                      previous available point (not always the previous calendar
-                      day).
-                    </div>
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontSize: "12px",
-                        color: COLORS.SOWMA_MEDIUM_GRAY,
-                      }}
-                    >
-                      Delta values compare the latest point in range to the
-                      previous available point (not always the previous calendar
-                      day).
-                    </div>
-                  </div>
+                  <ReportHeader timestamp={timestamp} rangeLabel={rangeLabel} />
                 ) : null}
 
                 <div className="text-3xl font-bold mb-6">{config.label}</div>
+
+                {/* Quantity cards — blue */}
                 {chunk.includeMetrics ? (
-                  <div className="mt-4">
+                  <MetricSection title="Key Metrics" variant="blue">
                     <MetricRow items={metrics} />
-                  </div>
+                  </MetricSection>
                 ) : null}
 
-                <div className="mt-4 grid grid-cols-2 gap-4">
-                  {chunk.charts.map((chart) => (
-                    <ChartBlock
-                      key={`${config.platform}-${chart.metricId}`}
-                      title={chart.title ?? chart.metricId}
-                      data={selection.data.chartDataMap[chart.metricId] ?? []}
-                      dataKeys={["value"]}
-                    />
-                  ))}
-                </div>
+                {/* Charts — green */}
+                <MetricSection title="Charts & Trends" variant="green">
+                  <div className="grid grid-cols-2 gap-4">
+                    {chunk.charts.map((chart) => (
+                      <ChartBlock
+                        key={`${config.platform}-${chart.metricId}`}
+                        title={chart.title ?? chart.metricId}
+                        data={selection.data.chartDataMap[chart.metricId] ?? []}
+                        dataKeys={["value"]}
+                      />
+                    ))}
+                  </div>
+                </MetricSection>
               </ExportPage>
             ))}
           </div>
