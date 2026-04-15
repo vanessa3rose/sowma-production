@@ -2,8 +2,7 @@ name: Run Cron Jobs
 
 on:
   schedule:
-    - cron: "0 0 * * *" # token refresh
-    - cron: "0 2 * * *" # social media sync
+    - cron: "0 0 * * *"
   workflow_dispatch:
 
 jobs:
@@ -30,24 +29,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
+        uses: actions/checkout@v4
 
       - name: Call token cron
         run: |
           echo "Running token refresh..."
-          RESPONSE=$(curl -L -v -H "Authorization: Bearer $CRON_SECRET" "https://sowma-production.vercel.app/api/cron/token")
+          RESPONSE=$(curl -L -v -H "Authorization: Bearer $CRON_SECRET" "http://pulse.sowma.org/api/cron/token")
           echo "Response: $RESPONSE"
 
       - name: Call social media cron
         run: |
           echo "Running social media sync..."
-          RESPONSE=$(curl -L -v -H "Authorization: Bearer $CRON_SECRET" "https://sowma-production.vercel.app/api/cron/social-media")
+          RESPONSE=$(curl -L -v -H "Authorization: Bearer $CRON_SECRET" "http://pulse.sowma.org/api/cron/social-media")
           echo "Response: $RESPONSE"
