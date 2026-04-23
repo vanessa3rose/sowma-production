@@ -27,7 +27,8 @@
     "index.js",
     "scripts/export-pdf/fetchExportData.ts",
     "scripts/export-pdf/fetchSocialExportBundle.ts",
-    "api/**/*.ts"
+    "api/**/*.ts",
+    "db/**/*.ts"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

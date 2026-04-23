@@ -228,6 +228,46 @@ export default function APIData() {
     }
   }
 
+  async function handleSubmit() {
+    if (!metric || !selectedDate || !text) {
+      alert("Missing metric, date, or value");
+      return;
+    }
+
+    const selectedMetricConfig = selectedPlatformMetrics.find(
+      (m) => m.title === metric,
+    );
+
+    if (!selectedMetricConfig) {
+      alert("Invalid metric selection");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/manual-metric", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          platform,
+          metric: selectedMetricConfig.metric,
+          value: Number(text),
+          date: selectedDate.toISOString(),
+        }),
+      });
+
+      const body = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(body?.error || "Failed to save metric");
+      }
+
+      setSubmittedText(`${metric} - ${text}`);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message);
+    }
+  }
+
   return (
     <div className="p-6 flex flex-col gap-8">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
@@ -323,7 +363,7 @@ export default function APIData() {
               <div className="lg:absolute lg:right-2 lg:bottom-2 lg:mt-0 lg:self-end mt-4 self-end">
                 <button
                   type="button"
-                  onClick={() => setSubmittedText(text)}
+                  onClick={() => handleSubmit()}
                   className="rounded-3xl bg-sowma-blue text-white text-xl font-bold px-10 py-2"
                 >
                   Submit
