@@ -39,9 +39,7 @@ async function findDuplicateMetrics() {
   );
 
   duplicates.forEach((dup: any) => {
-    const dateStr = dup.metricDate
-      ? dup.metricDate.toISOString()
-      : "NULL";
+    const dateStr = dup.metricDate ? dup.metricDate.toISOString() : "NULL";
 
     console.log(
       `SocialMediaId: ${dup.socialMediaId}, Metric: ${dup.metricName}, Date: ${dateStr}, Count: ${dup.count}`,

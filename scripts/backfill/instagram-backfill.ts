@@ -213,9 +213,7 @@ async function backfillMediaMetrics(
 
     dates.push(date);
 
-    console.log(
-      `[IG][MEDIA] ${day} — likes=${likes} comments=${comments}`,
-    );
+    console.log(`[IG][MEDIA] ${day} — likes=${likes} comments=${comments}`);
   }
 
   return dates;
@@ -301,9 +299,7 @@ export async function backfillInstagram() {
     where: { provider: "FACEBOOK" },
   });
 
-  const fbAuth = fbAccount
-    ? await getAuthBySocialMediaId(fbAccount.id)
-    : null;
+  const fbAuth = fbAccount ? await getAuthBySocialMediaId(fbAccount.id) : null;
 
   if (!fbAuth?.accessToken) {
     throw new Error("[IG] No Facebook access token found in DB");
