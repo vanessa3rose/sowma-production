@@ -261,7 +261,7 @@ export default function APIData() {
         throw new Error(body?.error || "Failed to save metric");
       }
 
-      setSubmittedText(`${metric} - ${text}`);
+      setSubmittedText(`${metric} (${text})`);
     } catch (err: any) {
       console.error(err);
       alert(err.message);
@@ -306,6 +306,7 @@ export default function APIData() {
               onChange={(val) => {
                 setPlatform(val);
                 setMetric("");
+                setSubmittedText("");
               }}
               getLabel={(val) => PLATFORM_LABELS[val] ?? val}
               getKey={(val) => val}
@@ -321,7 +322,10 @@ export default function APIData() {
             <Dropdown<string>
               items={selectedPlatformMetrics.map((m) => m.title)}
               value={metric}
-              onChange={(val) => setMetric(val)}
+              onChange={(val) => {
+                setSubmittedText("");
+                setMetric(val);
+              }}
               getLabel={(val) => val}
               getKey={(val) => val}
               defaultValue="select metric"
@@ -336,7 +340,10 @@ export default function APIData() {
                 <p className="lg:text-xl text-black lg:py-3 pt-3 pb-1">Date</p>
                 <DatePicker
                   selected={selectedDate}
-                  onChange={(date: Date | null) => setSelectedDate(date)}
+                  onChange={(date: Date | null) => {
+                    setSelectedDate(date);
+                    setSubmittedText("");
+                  }}
                   inline
                   dateFormat="MMMM d, yyyy"
                 />
@@ -349,10 +356,20 @@ export default function APIData() {
                 <input
                   type="text"
                   value={text}
-                  onChange={(e) => setText(e.target.value)}
+                  onChange={(e) => {
+                    setSubmittedText("");
+                    const val = e.target.value;
+                    // allow empty, "-", and valid numeric strings
+                    if (
+                      val === "" ||
+                      val === "-" ||
+                      /^-?\d*\.?\d*$/.test(val)
+                    ) {
+                      setText(val);
+                    }
+                  }}
                   className="rounded-3xl border-2 border-sowma-gray px-4 py-2 lg:text-xl"
                 />
-
                 {submittedText ? (
                   <p className="text-sm py-2">
                     Submitted: <span>{submittedText}</span>
@@ -360,15 +377,21 @@ export default function APIData() {
                 ) : null}
               </div>
 
-              <div className="lg:absolute lg:right-2 lg:bottom-2 lg:mt-0 lg:self-end mt-4 self-end">
-                <button
-                  type="button"
-                  onClick={() => handleSubmit()}
-                  className="rounded-3xl bg-sowma-blue text-white text-xl font-bold px-10 py-2"
-                >
-                  Submit
-                </button>
-              </div>
+              {text !== "" &&
+                !isNaN(Number(text)) &&
+                platform !== null &&
+                metric !== "" &&
+                selectedDate !== null && (
+                  <div className="lg:absolute lg:right-2 lg:bottom-2 lg:mt-0 lg:self-end mt-4 self-end">
+                    <button
+                      type="button"
+                      onClick={() => handleSubmit()}
+                      className="rounded-3xl bg-sowma-blue text-white text-xl font-bold px-10 py-2"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                )}
             </div>
           </div>
         </div>
