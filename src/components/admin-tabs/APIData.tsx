@@ -3,6 +3,12 @@ import DatePicker from "react-datepicker";
 import Dropdown from "../Dropdown";
 import "react-datepicker/dist/react-datepicker.css";
 
+import {
+  Platform,
+  PLATFORM_CONFIGS,
+  PLATFORM_LABELS,
+} from "../../config/platformConfigs.ts";
+
 type UploadResult = {
   fileName: string;
   ok: boolean;
@@ -22,59 +28,6 @@ type UploadPanelProps = {
   onFileChange: (files: File[]) => void;
   onUpload: () => Promise<void>;
 };
-
-const SOCIAL_MEDIA_METRICS = [
-  {
-    socialMedia: "Google Analytics",
-    metrics: [
-      "Active Users",
-      "Page Views",
-      "Engagement Rate",
-      "New Users",
-      "Bounce Rate",
-      "Avg Session Duration",
-      "Total Session",
-      "Engaged Sessions",
-      "Pages / Session",
-      "Engagement Time",
-    ],
-  },
-  {
-    socialMedia: "Instagram",
-    metrics: [
-      "Likes",
-      "Comments",
-      "Days Posted",
-      "Followers",
-      "Reach",
-      "Views",
-      "Total Interactions",
-    ],
-  },
-  {
-    socialMedia: "Facebook",
-    metrics: ["Followers", "Likes", "Views", "Posts", "Shares", "Comments"],
-  },
-  {
-    socialMedia: "Constant Contact",
-    metrics: [],
-  },
-  {
-    socialMedia: "LinkedIn",
-    metrics: [
-      "New Followers",
-      "Likes",
-      "Comments",
-      "Shares",
-      "Total Interactions",
-      "Views",
-    ],
-  },
-  {
-    socialMedia: "Twitter",
-    metrics: [],
-  },
-];
 
 function UploadPanel({
   title,
@@ -128,12 +81,14 @@ function UploadPanel({
             >
               <div className="font-semibold">{result.fileName}</div>
               <div>{result.message}</div>
+
               {result.ok && result.rowsImported != null ? (
                 <div>
                   rows imported: {result.rowsImported ?? 0}, metrics written:{" "}
                   {result.metricsWritten ?? 0}
                 </div>
               ) : null}
+
               {result.ok && result.totalAccounts != null ? (
                 <div>
                   accounts counted: {result.totalAccounts ?? 0}, categories
@@ -149,8 +104,8 @@ function UploadPanel({
 }
 
 export default function APIData() {
-  const [platform, setPlatform] = useState("Instagram");
-  const [metric, setMetric] = useState("");
+  const [platform, setPlatform] = useState<Platform>("instagram");
+  const [metric, setMetric] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [text, setText] = useState("");
   const [submittedText, setSubmittedText] = useState("");
@@ -158,14 +113,15 @@ export default function APIData() {
   const [files, setFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResults, setUploadResults] = useState<UploadResult[]>([]);
+
   const [hearAboutUsFiles, setHearAboutUsFiles] = useState<File[]>([]);
   const [isHearAboutUsUploading, setIsHearAboutUsUploading] = useState(false);
   const [hearAboutUsUploadResults, setHearAboutUsUploadResults] = useState<
     UploadResult[]
   >([]);
 
-  const selectedPlatform = useMemo(
-    () => SOCIAL_MEDIA_METRICS.find((p) => p.socialMedia === platform),
+  const selectedPlatformMetrics = useMemo(
+    () => PLATFORM_CONFIGS[platform] ?? [],
     [platform],
   );
 
@@ -192,16 +148,12 @@ export default function APIData() {
       const nextResults: UploadResult[] = [];
 
       for (const file of files) {
-        // API accepts base64 to support CSV + Excel uploads in one endpoint.
         const fileBase64 = arrayBufferToBase64(await file.arrayBuffer());
 
         const response = await fetch("/api/linkedin-csv-import", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            filename: file.name,
-            fileBase64,
-          }),
+          body: JSON.stringify({ filename: file.name, fileBase64 }),
         });
 
         const body = await response.json().catch(() => ({}));
@@ -219,18 +171,9 @@ export default function APIData() {
         nextResults.push({
           fileName: file.name,
           ok: true,
-          message:
-            typeof body?.message === "string"
-              ? body.message
-              : "Imported successfully",
-          rowsImported:
-            typeof body?.rowsImported === "number"
-              ? body.rowsImported
-              : undefined,
-          metricsWritten:
-            typeof body?.metricsWritten === "number"
-              ? body.metricsWritten
-              : undefined,
+          message: body?.message ?? "Imported successfully",
+          rowsImported: body?.rowsImported,
+          metricsWritten: body?.metricsWritten,
         });
       }
 
@@ -255,10 +198,7 @@ export default function APIData() {
         const response = await fetch("/api/hear-about-us-report", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            filename: file.name,
-            fileBase64,
-          }),
+          body: JSON.stringify({ filename: file.name, fileBase64 }),
         });
 
         const body = await response.json().catch(() => ({}));
@@ -276,18 +216,9 @@ export default function APIData() {
         nextResults.push({
           fileName: file.name,
           ok: true,
-          message:
-            typeof body?.message === "string"
-              ? body.message
-              : "Imported successfully",
-          totalAccounts:
-            typeof body?.totalAccounts === "number"
-              ? body.totalAccounts
-              : undefined,
-          categoriesWritten:
-            typeof body?.categoriesWritten === "number"
-              ? body.categoriesWritten
-              : undefined,
+          message: body?.message ?? "Imported successfully",
+          totalAccounts: body?.totalAccounts,
+          categoriesWritten: body?.categoriesWritten,
         });
       }
 
@@ -329,16 +260,16 @@ export default function APIData() {
         <div className="font-poppins font-[400] lg:text-2xl text-lg grid grid-rows gap-6 py-6 items-start">
           <div className="flex flex-col lg:flex-row lg:items-center items-start gap-2 lg:gap-6">
             <p className="text-gray-500">Select a platform</p>
-            <Dropdown<string>
-              items={SOCIAL_MEDIA_METRICS.map((p) => p.socialMedia)}
+            <Dropdown<Platform>
+              items={Object.keys(PLATFORM_CONFIGS) as Platform[]}
               value={platform}
               onChange={(val) => {
                 setPlatform(val);
                 setMetric("");
               }}
-              getLabel={(val) => val}
+              getLabel={(val) => PLATFORM_LABELS[val] ?? val}
               getKey={(val) => val}
-              className="rounded-2xl border-sowma-gray  border-2 px-3 py-2"
+              className="rounded-2xl border-sowma-gray border-2 px-3 py-2"
               openClassName="rounded-t-2xl border-sowma-gray border-2 px-3 pt-2 -pb-2 mb-2 lg:text-[14px]"
             />
           </div>
@@ -348,15 +279,13 @@ export default function APIData() {
               Which metric would you like to change?
             </p>
             <Dropdown<string>
-              items={selectedPlatform?.metrics || []}
+              items={selectedPlatformMetrics.map((m) => m.title)}
               value={metric}
-              onChange={(val) => {
-                setMetric(val);
-              }}
+              onChange={(val) => setMetric(val)}
               getLabel={(val) => val}
               getKey={(val) => val}
               defaultValue="select metric"
-              className={`rounded-2xl  ${metric ? "border-sowma-gray" : "border-sowma-light-gray"} border-2 px-3 py-2`}
+              className={`rounded-2xl ${metric ? "border-sowma-gray" : "border-sowma-light-gray"} border-2 px-3 py-2`}
               openClassName="rounded-t-2xl border-sowma-gray border-2 px-3 pt-2 -pb-2 mb-2 lg:text-[14px]"
             />
           </div>
@@ -380,9 +309,7 @@ export default function APIData() {
                 <input
                   type="text"
                   value={text}
-                  onChange={(e) => {
-                    setText(e.target.value);
-                  }}
+                  onChange={(e) => setText(e.target.value)}
                   className="rounded-3xl border-2 border-sowma-gray px-4 py-2 lg:text-xl"
                 />
 

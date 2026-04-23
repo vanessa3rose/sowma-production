@@ -10,7 +10,7 @@ import {
   EXPORT_PLATFORM_CONFIGS,
   type ExportMetricFormat,
 } from "../../../scripts/export-pdf/exportMetricsConfig.js";
-import type { Platform } from "../../config/chartConfigs";
+import type { Platform } from "../../config/platformConfigs.js";
 import { COLORS } from "../../data/colors.js";
 
 export type ExportReportViewProps = {
