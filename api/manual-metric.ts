@@ -1,8 +1,4 @@
-import {
-  PrismaClient,
-  Provider,
-  Metric,
-} from "../src/generated/prisma/index.js";
+import { PrismaClient, Metric } from "../src/generated/prisma/index.js";
 import { createSocialMediaMetric } from "../db/social-media-metrics.js";
 
 const prisma = (globalThis as any).prisma ?? new PrismaClient();
@@ -16,14 +12,12 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const { platform, metric, value, date, breakdownKey, breakdownValue } =
+    const { provider, metric, value, date, breakdownKey, breakdownValue } =
       req.body;
 
-    if (!platform || !metric || value == null || !date) {
+    if (!provider || !metric || value == null || !date) {
       return res.status(400).json({ error: "Missing required fields" });
     }
-
-    const provider = String(platform).toUpperCase() as Provider;
     const metricName = String(metric).toUpperCase() as Metric;
 
     // finds social media account
@@ -33,7 +27,7 @@ export default async function handler(req: any, res: any) {
 
     if (!account) {
       return res.status(404).json({
-        error: `No social media account found for provider: ${platform}`,
+        error: `No social media account found for provider: ${provider}`,
       });
     }
 

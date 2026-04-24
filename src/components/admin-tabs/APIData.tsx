@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import Dropdown from "../Dropdown";
 import "react-datepicker/dist/react-datepicker.css";
@@ -9,6 +9,7 @@ import {
   Platform,
   PLATFORM_CONFIGS,
   PLATFORM_LABELS,
+  PLATFORM_TO_PROVIDER,
 } from "../../config/platformConfigs.ts";
 
 type UploadResult = {
@@ -108,11 +109,70 @@ function UploadPanel({
 export default function APIData() {
   const [platform, setPlatform] = useState<Platform>("instagram");
   const [metric, setMetric] = useState<string>("");
-  const [breakdownKey, setBreakdownKey] = useState<BreakdownKeyId | "">("");
-  const [breakdownValue, setBreakdownValue] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [text, setText] = useState("");
   const [submittedText, setSubmittedText] = useState("");
+
+  const [breakdownKey, setBreakdownKey] = useState<BreakdownKeyId | "">("");
+  const [breakdownValue, setBreakdownValue] = useState<string>("");
+  const [breakdownSuggestions, setBreakdownSuggestions] = useState<string[]>(
+    [],
+  );
+  const [showEx, setShowEx] = useState(false);
+
+  const COUNTY_MAP: Record<string, string> = {
+    "25001": "Barnstable",
+    "25003": "Berkshire",
+    "25005": "Bristol",
+    "25007": "Dukes",
+    "25009": "Essex",
+    "25011": "Franklin",
+    "25013": "Hampden",
+    "25015": "Hampshire",
+    "25017": "Middlesex",
+    "25019": "Nantucket",
+    "25021": "Norfolk",
+    "25023": "Plymouth",
+    "25025": "Suffolk",
+    "25027": "Worcester",
+  };
+
+  const COUNTY_REVERSE_MAP: Record<string, string> = Object.fromEntries(
+    Object.entries(COUNTY_MAP).map(([k, v]) => [v, k]),
+  );
+
+  useEffect(() => {
+    if (!platform || !metric || !breakdownKey) {
+      setBreakdownSuggestions([]);
+      return;
+    }
+
+    const selectedMetricConfig = selectedPlatformMetrics.find(
+      (m) => m.title === metric,
+    );
+
+    if (!selectedMetricConfig) return;
+
+    fetch(
+      `/api/breakdown-values?platform=${platform}&metric=${selectedMetricConfig.metric}&breakdownKey=${breakdownKey}`,
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const values = (data.values || [])
+          .filter(Boolean)
+          .map((v: string) => v.trim())
+          .map((v: string) =>
+            breakdownKey === "county" ? (COUNTY_MAP[v] ?? v) : v,
+          )
+          .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i)
+          .sort((a: string, b: string) =>
+            a.localeCompare(b, undefined, { sensitivity: "base" }),
+          );
+
+        setBreakdownSuggestions(values);
+      })
+      .catch(() => setBreakdownSuggestions([]));
+  }, [platform, metric, breakdownKey]);
 
   const [files, setFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -247,17 +307,29 @@ export default function APIData() {
       return;
     }
 
+    const key =
+      !selectedMetricConfig?.breakdownKeys || breakdownKey === ""
+        ? null
+        : breakdownKey;
+    const val =
+      !selectedMetricConfig?.breakdownKeys || breakdownValue === ""
+        ? null
+        : breakdownKey === "county" &&
+            COUNTY_REVERSE_MAP[breakdownValue] !== undefined
+          ? COUNTY_REVERSE_MAP[breakdownValue]
+          : breakdownValue;
+
     try {
       const res = await fetch("/api/manual-metric", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          platform,
+          provider: PLATFORM_TO_PROVIDER[platform],
           metric: selectedMetricConfig.metric,
           value: Number(text),
           date: selectedDate.toISOString(),
-          breakdownKey: breakdownKey === "" ? null : breakdownKey,
-          breakdownValue: breakdownValue === "" ? null : breakdownValue,
+          breakdownKey: key,
+          breakdownValue: val,
         }),
       });
 
@@ -289,9 +361,13 @@ export default function APIData() {
     metric !== "" &&
     selectedDate !== null;
 
-  const hasValidBreakdown = !hasBreakdownKeys || breakdownValue !== "";
+  const hasValidBreakdown =
+    (!hasBreakdownKeys || breakdownValue !== "") &&
+    (breakdownKey !== "county" ||
+      COUNTY_MAP[breakdownValue] !== undefined ||
+      COUNTY_REVERSE_MAP[breakdownValue] !== undefined);
 
-  const canSubmit = hasRequiredFields && hasValidBreakdown;
+  const canSubmit = hasRequiredFields && hasValidBreakdown && !showEx;
 
   return (
     <div className="p-6 flex flex-col gap-8">
@@ -372,6 +448,8 @@ export default function APIData() {
                 onChange={(val) => {
                   setSubmittedText("");
                   setBreakdownKey(val?.key || "");
+                  setBreakdownValue("");
+                  setShowEx(false);
                 }}
                 getLabel={(val) => val?.label || ""}
                 getKey={(val) => val?.key || ""}
@@ -400,9 +478,20 @@ export default function APIData() {
               <div className="flex flex-col h-full space-y-2">
                 {selectedMetricConfig?.breakdownKeys && (
                   <div className="flex flex-col">
-                    <p className="lg:text-xl text-black lg:py-3 pt-3 pb-1">
-                      Attribute Value
-                    </p>
+                    <div className="flex flex-row space-x-4">
+                      <p className="lg:text-xl text-black lg:py-3 pt-3 pb-1">
+                        Attribute Value
+                      </p>
+
+                      {breakdownSuggestions.length > 0 && (
+                        <button
+                          className="text-sm italic text-gray-500 -mb-1"
+                          onClick={() => setShowEx(!showEx)}
+                        >
+                          {showEx ? "hide examples" : "show examples"}
+                        </button>
+                      )}
+                    </div>
                     <input
                       type="text"
                       value={breakdownValue}
@@ -412,6 +501,22 @@ export default function APIData() {
                       }}
                       className="rounded-3xl border-2 border-sowma-gray px-4 py-2 lg:text-xl"
                     />
+                    {showEx && breakdownSuggestions.length > 0 && (
+                      <div className="mt-2 max-h-40 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+                        {breakdownSuggestions.map((val) => (
+                          <div
+                            key={val}
+                            onClick={() => {
+                              setBreakdownValue(val);
+                              setShowEx(false);
+                            }}
+                            className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                          >
+                            {val}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 

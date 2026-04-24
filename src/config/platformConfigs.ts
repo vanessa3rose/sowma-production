@@ -13,6 +13,15 @@ export type Platform =
   | "google"
   | "constantcontact";
 
+export const PLATFORM_TO_PROVIDER: Record<string, string> = {
+  facebook: "FACEBOOK",
+  instagram: "INSTAGRAM",
+  twitter: "TWITTER",
+  linkedin: "LINKEDIN",
+  google: "GOOGLE_ANALYTICS",
+  constantcontact: "CONSTANT_CONTACT",
+};
+
 export type BreakdownKeyId =
   | "sessionSource"
   | "deviceCategory"
