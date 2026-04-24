@@ -4,16 +4,19 @@ import {
 } from "../../src/config/platformConfigs";
 
 export type ExportMetricFormat = "number" | "percent" | "decimal" | "seconds";
+export type ExportMetricSize = "small" | "big" | "both";
 
 export type ExportMetricDefinition = {
   id: string;
   label: string;
   format?: ExportMetricFormat;
+  size?: ExportMetricSize;
 };
 
 export type ExportChartDefinition = {
   metricId: string;
   title?: string;
+  size?: ExportMetricSize;
 };
 
 export type ExportPlatformConfig = {
@@ -41,17 +44,23 @@ const GOOGLE_METRICS: ExportMetricDefinition[] = [
 ];
 
 const INSTAGRAM_METRICS: ExportMetricDefinition[] = [
-  { id: "LIKES", label: "Likes" },
-  { id: "COMMENTS", label: "Comments" },
-  { id: "FOLLOWERS", label: "Followers" },
+  { id: "FOLLOWERS", label: "Followers", size: "big" },
+  { id: "LIKES", label: "Likes", size: "big" },
+  { id: "TOTAL_INTERACTIONS", label: "Total Interactions", size: "big" },
+  { id: "VIEWS", label: "Impressions", size: "big" },
+  { id: "REACH", label: "Reach", size: "big" },
+  { id: "COMMENTS", label: "Comments", size: "small" },
+  { id: "SAVES", label: "Saves", size: "small" },
+  { id: "SHARES", label: "Shares", size: "small" },
 ];
 
 const FACEBOOK_METRICS: ExportMetricDefinition[] = [
-  { id: "LIKES", label: "Likes" },
-  { id: "COMMENTS", label: "Comments" },
-  { id: "VIEWS", label: "Views" },
-  { id: "FOLLOWERS", label: "Followers" },
-  { id: "VIDEO_VIEWS", label: "Video Views" },
+  { id: "FOLLOWERS", label: "Followers", size: "big" },
+  { id: "LIKES", label: "Reactions", size: "big" },
+  { id: "COMMENTS", label: "Comments", size: "small" },
+  { id: "SHARES", label: "Shares", size: "small" },
+  { id: "VIEWS", label: "Views", size: "big" },
+  { id: "VIDEO_VIEWS", label: "Video Views", size: "big" },
 ];
 
 const LINKEDIN_METRICS: ExportMetricDefinition[] = [
@@ -66,8 +75,8 @@ const LINKEDIN_METRICS: ExportMetricDefinition[] = [
 ];
 
 const TWITTER_METRICS: ExportMetricDefinition[] = [
-  { id: "FOLLOWERS", label: "Followers" },
-  { id: "POSTS", label: "Posts" },
+  { id: "FOLLOWERS", label: "Followers", size: "both" },
+  { id: "POSTS", label: "Posts", size: "both" },
 ];
 
 const CONSTANT_CONTACT_METRICS: ExportMetricDefinition[] = [
@@ -103,6 +112,7 @@ export const EXPORT_PLATFORM_CONFIGS: Record<Platform, ExportPlatformConfig> = {
     charts: INSTAGRAM_METRICS.map((metric) => ({
       metricId: metric.id,
       title: metric.label,
+      size: metric.size,
     })),
   },
   facebook: {
@@ -112,13 +122,13 @@ export const EXPORT_PLATFORM_CONFIGS: Record<Platform, ExportPlatformConfig> = {
     charts: FACEBOOK_METRICS.map((metric) => ({
       metricId: metric.id,
       title: metric.label,
+      size: metric.size,
     })),
   },
   linkedin: {
     platform: "linkedin",
     label: PLATFORM_LABELS.linkedin,
     metrics: LINKEDIN_METRICS,
-    // Keep chart count/order aligned to the LinkedIn page (not one chart per KPI).
     charts: [
       { metricId: "FOLLOWERS", title: "New Followers" },
       { metricId: "VIEWS", title: "Views" },
@@ -132,6 +142,7 @@ export const EXPORT_PLATFORM_CONFIGS: Record<Platform, ExportPlatformConfig> = {
     charts: TWITTER_METRICS.map((metric) => ({
       metricId: metric.id,
       title: metric.label,
+      size: metric.size,
     })),
   },
 

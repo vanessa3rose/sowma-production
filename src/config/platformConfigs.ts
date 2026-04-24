@@ -224,7 +224,7 @@ export const PLATFORM_CONFIGS: Partial<Record<Platform, MetricConfig[]>> = {
 
   twitter: [
     { id: "followers", title: "Followers", metric: "FOLLOWERS" },
-    { id: "posts", title: "Posts (Tweets)", metric: "POSTS" },
+    { id: "posts", title: "Tweets", metric: "POSTS" },
   ],
 };
 
