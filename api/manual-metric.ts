@@ -16,7 +16,8 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const { platform, metric, value, date } = req.body;
+    const { platform, metric, value, date, breakdownKey, breakdownValue } =
+      req.body;
 
     if (!platform || !metric || value == null || !date) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -44,6 +45,8 @@ export default async function handler(req: any, res: any) {
       metricName,
       metricValue: Number(value),
       metricDate,
+      breakdownKey: breakdownKey ?? null,
+      breakdownValue: breakdownValue ?? null,
       lastSynced: new Date(),
     });
 

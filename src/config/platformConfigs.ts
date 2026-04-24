@@ -2,6 +2,7 @@ export interface MetricConfig {
   id: string;
   title: string;
   metric: string;
+  breakdownKeys?: Array<BreakdownKeyOption>;
 }
 
 export type Platform =
@@ -11,6 +12,38 @@ export type Platform =
   | "linkedin"
   | "google"
   | "constantcontact";
+
+export type BreakdownKeyId =
+  | "sessionSource"
+  | "deviceCategory"
+  | "county"
+  | "newVsReturning"
+  | "location"
+  | "jobFunction"
+  | "seniority"
+  | "industry"
+  | "companySize"
+  | "pageType"
+  | "deviceType";
+
+export const BREAKDOWN_KEY_LABELS: Record<BreakdownKeyId, string> = {
+  sessionSource: "Session Source",
+  deviceCategory: "Device Category",
+  county: "County",
+  newVsReturning: "New vs Returning",
+  location: "Location",
+  jobFunction: "Job Function",
+  seniority: "Seniority",
+  industry: "Industry",
+  companySize: "Company Size",
+  pageType: "Page Type",
+  deviceType: "Device Type",
+};
+
+export type BreakdownKeyOption = {
+  key: BreakdownKeyId;
+  label: string;
+};
 
 export const PLATFORM_LABELS: Record<Platform, string> = {
   instagram: "Instagram",
@@ -39,11 +72,26 @@ export const PLATFORM_CONFIGS: Partial<Record<Platform, MetricConfig[]>> = {
       metric: "SCREEN_PAGE_VIEWS",
     },
     { id: "new_users", title: "New Users", metric: "NEW_USERS" },
-    { id: "sessions", title: "Sessions", metric: "TOTAL_SESSIONS" },
+    {
+      id: "sessions",
+      title: "Sessions",
+      metric: "TOTAL_SESSIONS",
+      breakdownKeys: [
+        { key: "county", label: "County" },
+        { key: "deviceCategory", label: "Device Category" },
+        { key: "newVsReturning", label: "New VS Returning" },
+      ],
+    },
     {
       id: "engaged_sessions",
       title: "Engaged Sessions",
       metric: "ENGAGED_SESSIONS",
+    },
+    {
+      id: "sessions_by_source",
+      title: "Sessions By Source",
+      metric: "SESSIONS_BY_SOURCE",
+      breakdownKeys: [{ key: "sessionSource", label: "Session Source" }],
     },
     {
       id: "engagement_rate",
@@ -127,7 +175,18 @@ export const PLATFORM_CONFIGS: Partial<Record<Platform, MetricConfig[]>> = {
   ],
 
   linkedin: [
-    { id: "followers", title: "Followers", metric: "FOLLOWERS" },
+    {
+      id: "followers",
+      title: "Followers",
+      metric: "FOLLOWERS",
+      breakdownKeys: [
+        { key: "companySize", label: "Company Size" },
+        { key: "industry", label: "Industry" },
+        { key: "jobFunction", label: "Job Function" },
+        { key: "location", label: "Location" },
+        { key: "seniority", label: "Seniority" },
+      ],
+    },
     { id: "likes", title: "Likes", metric: "LIKES" },
     { id: "comments", title: "Comments", metric: "COMMENTS" },
     { id: "shares", title: "Shares", metric: "SHARES" },
@@ -137,7 +196,20 @@ export const PLATFORM_CONFIGS: Partial<Record<Platform, MetricConfig[]>> = {
       title: "Total Interactions",
       metric: "TOTAL_INTERACTIONS",
     },
-    { id: "unique_visitors", title: "Unique Visitors", metric: "TOTAL_USERS" },
+    {
+      id: "unique_visitors",
+      title: "Unique Visitors",
+      metric: "TOTAL_USERS",
+      breakdownKeys: [
+        { key: "companySize", label: "Company Size" },
+        { key: "industry", label: "Industry" },
+        { key: "jobFunction", label: "Job Function" },
+        { key: "location", label: "Location" },
+        { key: "seniority", label: "Seniority" },
+        { key: "deviceType", label: "Device Type" },
+        { key: "pageType", label: "Page Type" },
+      ],
+    },
     { id: "days_posted", title: "Days Posted", metric: "DAYS_POSTED" },
   ],
 
