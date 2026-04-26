@@ -14,18 +14,18 @@ import ChartTooltip from "./ChartTooltip";
 
 import { COLORS } from "../../data/colors.js";
 const PLATFORM_COLORS: Record<string, string> = {
-  facebook: COLORS.SOWMA_LIGHT_BLUE,
+  facebook: COLORS.SOWMA_BLUE,
   instagram: COLORS.SOWMA_GREEN,
-  twitter: COLORS.SOWMA_DARK_BLUE,
+  twitter: COLORS.SOWMA_DARKER_BLUE,
 };
 
 const getSeriesColor = (key: string) => {
   const k = key.toLowerCase();
 
-  if (k.includes("unique")) return COLORS.SOWMA_LIGHT_BLUE;
+  if (k.includes("unique")) return COLORS.SOWMA_BLUE;
   if (k.includes("total")) return COLORS.SOWMA_GREEN;
 
-  return PLATFORM_COLORS[k] || COLORS.SOWMA_LIGHT_BLUE;
+  return PLATFORM_COLORS[k] || COLORS.SOWMA_BLUE;
 };
 
 type LineChartProps = {

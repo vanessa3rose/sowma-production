@@ -274,6 +274,7 @@ export default function FacebookPage() {
 
           <BigCard
             title="Followers"
+            data={computed.followers.filtered}
             subtitle={
               <DateDropdown
                 value={ranges.followers}
@@ -288,19 +289,13 @@ export default function FacebookPage() {
             metricLabel="followers"
             metricChange={formatPercentChange(computed.followers?.summary)}
             chart={
-              computed.followers?.filtered.length ? (
-                <LineCharts
-                  data={computed.followers.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  labels={{ value: "Followers" }}
-                  showArea
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
+              <LineCharts
+                data={computed.followers.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                labels={{ value: "Followers" }}
+                showArea
+              />
             }
             displayMode="both"
             className="h-[360px]"
@@ -326,6 +321,7 @@ export default function FacebookPage() {
         <div className="flex flex-col gap-4">
           <BigCard
             title="Views"
+            data={computed.views.filtered}
             subtitle={
               <DateDropdown
                 value={ranges.views}
@@ -338,19 +334,13 @@ export default function FacebookPage() {
             metricLabel="from last week"
             metricChange={formatPercentChange(computed.views?.summary)}
             chart={
-              computed.views?.filtered.length ? (
-                <LineCharts
-                  data={computed.views.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  labels={{ value: "Views" }}
-                  showArea
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
+              <LineCharts
+                data={computed.views.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                labels={{ value: "Views" }}
+                showArea
+              />
             }
             displayMode="both"
             className="h-[360px]"
@@ -358,6 +348,7 @@ export default function FacebookPage() {
 
           <BigCard
             title="Video Views"
+            data={computed.videoViews.filtered}
             titleTooltip={getGlossaryDefinition("videoViews")}
             subtitle={
               <DateDropdown
@@ -373,18 +364,12 @@ export default function FacebookPage() {
             metricLabel="video views"
             metricChange={formatPercentChange(computed.videoViews?.summary)}
             chart={
-              computed.videoViews?.filtered.length ? (
-                <LineCharts
-                  data={computed.videoViews.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  showArea
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
+              <LineCharts
+                data={computed.videoViews.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                showArea
+              />
             }
             displayMode="both"
             className="h-[360px]"
@@ -395,18 +380,12 @@ export default function FacebookPage() {
             titleTooltip={getGlossaryDefinition("daysPosted")}
             subtitle={<HeatmapLegend />}
             chart={
-              allPostsPoints.length ? (
-                <CalendarHeatmap
-                  points={allPostsPoints}
-                  offset={calendarOffset}
-                  onOffsetChange={setCalendarOffset}
-                  minOffset={minCalendarOffset}
-                />
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No post activity data
-                </div>
-              )
+              <CalendarHeatmap
+                points={allPostsPoints}
+                offset={calendarOffset}
+                onOffsetChange={setCalendarOffset}
+                minOffset={minCalendarOffset}
+              />
             }
             displayMode="chart-only"
             className=""

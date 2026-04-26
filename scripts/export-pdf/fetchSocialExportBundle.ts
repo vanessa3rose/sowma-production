@@ -1,5 +1,5 @@
 import type { SocialExportBundle } from "../../src/types/exportTypes";
-import { type Platform } from "../../src/config/chartConfigs";
+import { type Platform } from "../../src/config/platformConfigs";
 import { fetchMetrics, SocialMediaMetric } from "../../src/utils/fetchMetrics";
 import {
   computeRangeDates,
@@ -19,6 +19,9 @@ const PROVIDER_MAP: Record<SocialPlatform, string> = {
   linkedin: "LINKEDIN",
   constantcontact: "CONSTANT_CONTACT",
 };
+
+const ALL_TIME_START_DATE = "2024-01-01";
+const ALL_TIME_END_DATE = "3000-01-01";
 
 function sortByDate(raw: SocialMediaMetric[]): SocialMediaMetric[] {
   return raw
@@ -52,6 +55,19 @@ function summarizeSeries(points: { value: number }[]): {
     current: points[points.length - 1].value,
     prev: points[points.length - 2].value,
   };
+}
+
+function aggregateBreakdownTotals(
+  rows: SocialMediaMetric[],
+  breakdownKey: string,
+): Record<string, number> {
+  const totals: Record<string, number> = {};
+  for (const row of rows) {
+    if (row.breakdownKey !== breakdownKey || !row.breakdownValue) continue;
+    totals[row.breakdownValue] =
+      (totals[row.breakdownValue] ?? 0) + row.metricValue;
+  }
+  return totals;
 }
 
 export async function fetchSocialExportBundle(
@@ -100,9 +116,47 @@ export async function fetchSocialExportBundle(
   > = {};
 
   for (const { metricId, rows } of results) {
-    const pts = toLinePoints(rows);
+    const pts = toLinePoints(rows.filter((row) => !row.breakdownKey));
     chartDataMap[metricId] = pts;
     metricSummaries[metricId] = summarizeSeries(pts);
+  }
+
+  const breakdownTotals: Record<string, Record<string, number>> = {};
+  if (platform === "linkedin") {
+    const [allTimeTotalUsersRows, allTimeFollowerRows] = await Promise.all([
+      fetchMetrics({
+        provider,
+        metric: "TOTAL_USERS",
+        startDate: ALL_TIME_START_DATE,
+        endDate: ALL_TIME_END_DATE,
+      }),
+      fetchMetrics({
+        provider,
+        metric: "FOLLOWERS",
+        startDate: ALL_TIME_START_DATE,
+        endDate: ALL_TIME_END_DATE,
+      }),
+    ]);
+
+    const totalUsersRows = allTimeTotalUsersRows;
+    const followerRows = allTimeFollowerRows;
+
+    breakdownTotals.deviceType = aggregateBreakdownTotals(
+      results.find(({ metricId }) => metricId === "TOTAL_USERS")?.rows ?? [],
+      "deviceType",
+    );
+    breakdownTotals.pageType = aggregateBreakdownTotals(
+      results.find(({ metricId }) => metricId === "TOTAL_USERS")?.rows ?? [],
+      "pageType",
+    );
+    breakdownTotals.visitorIndustry = aggregateBreakdownTotals(
+      totalUsersRows,
+      "industry",
+    );
+    breakdownTotals.followerIndustry = aggregateBreakdownTotals(
+      followerRows,
+      "industry",
+    );
   }
 
   return {
@@ -114,5 +168,6 @@ export async function fetchSocialExportBundle(
         { current: value.current ?? 0, prev: value.prev ?? 0 },
       ]),
     ),
+    breakdownTotals,
   };
 }

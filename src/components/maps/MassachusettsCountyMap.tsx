@@ -9,8 +9,9 @@ import {
 import countiesTopoJson from "us-atlas/counties-10m.json";
 import { MA_COUNTY_FIPS_TO_NAME } from "../../utils/massachusettsCounties";
 import ChartTooltip from "../charts/ChartTooltip";
+import { COLORS } from "../../data/colors.js";
 
-const DEFAULT_COUNTY_COLOR = "#E5E7EB";
+const DEFAULT_COUNTY_COLOR = COLORS.SOWMA_LIGHTER_GRAY;
 const MA_STATE_FIPS = "25";
 const MA_CENTER: [number, number] = [-71.8, 42.25];
 const MA_ZOOM = 13.2;
@@ -25,6 +26,7 @@ interface MassachusettsCountyMapProps {
   valueLabel?: string; // "Visitors" / "Sessions"
   intensityLabel?: string; // "% of total"
   showLegend?: boolean;
+  isSmall?: boolean;
   className: String;
 }
 
@@ -44,7 +46,7 @@ function clamp01(value: number): number {
 
 function colorFromIntensity(intensity: number): string {
   const clamped = clamp01(intensity);
-  // Interpolate from #90B4D8 (lightest blue) to #2D5A8A (dark blue)
+  // Interpolate from sowma-lighter-blue to sowma-darker-blue
   const r = Math.round(144 - clamped * (144 - 45));
   const g = Math.round(180 - clamped * (180 - 90));
   const b = Math.round(216 - clamped * (216 - 138));
@@ -71,6 +73,7 @@ export default function MassachusettsCountyMap({
   valueLabel = "Visitors",
   intensityLabel = "% of total",
   showLegend = true,
+  isSmall = false,
   className,
 }: MassachusettsCountyMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -172,7 +175,7 @@ export default function MassachusettsCountyMap({
                         key={countyId}
                         geography={geo}
                         fill={fillColor}
-                        stroke="#1E293B"
+                        stroke={COLORS.SOWMA_DARKEST_BLUE}
                         strokeWidth={0.42}
                         vectorEffect="non-scaling-stroke"
                         style={{
@@ -206,14 +209,16 @@ export default function MassachusettsCountyMap({
 
       {/* Legend */}
       {showLegend ? (
-        <div className="absolute left-2 bottom-10 z-10 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-md">
+        <div
+          className={`absolute left-2 ${isSmall ? "bottom-0" : "bottom-10"} z-10 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-md`}
+        >
           <div className="mb-1 text-[11px] font-[Poppins] font-semibold text-gray-800">
             Visit Intensity
           </div>
           <div
             className="h-2 w-28 rounded"
             style={{
-              background: "linear-gradient(to right, #90B4D8, #2D5A8A)",
+              background: `linear-gradient(to right, ${COLORS.SOWMA_LIGHTER_BLUE}, ${COLORS.SOWMA_DARKER_BLUE})`,
             }}
           />
           <div className="mt-1 flex justify-between text-[10px] font-[Poppins] text-gray-600">

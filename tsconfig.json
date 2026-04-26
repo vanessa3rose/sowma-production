@@ -6,9 +6,10 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "types": ["node", "vite/client"],
 
     /* Bundler mode */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -25,7 +26,9 @@
     "src",
     "index.js",
     "scripts/export-pdf/fetchExportData.ts",
-    "scripts/export-pdf/fetchSocialExportBundle.ts"
+    "scripts/export-pdf/fetchSocialExportBundle.ts",
+    "api/**/*.ts",
+    "db/**/*.ts"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

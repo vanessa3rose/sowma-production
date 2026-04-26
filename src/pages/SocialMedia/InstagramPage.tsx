@@ -227,20 +227,15 @@ export default function InstagramPage() {
         metricValue={metricValue}
         metricLabel={metricLabel}
         metricChange={metricChange}
+        data={chartData}
         chart={
-          chartData.length ? (
-            <LineCharts
-              data={chartData}
-              xAxisKey="date"
-              dataKeys={["value"]}
-              labels={{ value: cfg.title }}
-              showArea
-            />
-          ) : (
-            <div className="flex items-center justify-center text-gray-500">
-              No data available
-            </div>
-          )
+          <LineCharts
+            data={chartData}
+            xAxisKey="date"
+            dataKeys={["value"]}
+            labels={{ value: cfg.title }}
+            showArea
+          />
         }
         displayMode="both"
         className="w-full h-[360px]"
@@ -280,7 +275,7 @@ export default function InstagramPage() {
         </div>
 
         {/* Followers + Reach + Total Likes */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           {(() => {
             const item = computed["followers"];
             const filtered = item?.filtered ?? [];
