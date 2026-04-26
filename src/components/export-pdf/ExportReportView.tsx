@@ -10,7 +10,7 @@ import {
   EXPORT_PLATFORM_CONFIGS,
   type ExportMetricFormat,
 } from "../../../scripts/export-pdf/exportMetricsConfig.js";
-import type { Platform } from "../../config/chartConfigs";
+import type { Platform } from "../../config/platformConfigs.js";
 import { COLORS } from "../../data/colors.js";
 
 export type ExportReportViewProps = {
@@ -640,7 +640,7 @@ type PageChunk<T> = {
   includeMetrics: boolean;
 };
 
-const PAGE_MAX_HEIGHT_PX = 980;
+const PAGE_MAX_HEIGHT_PX = 1200;
 const REPORT_HEADER_HEIGHT_PX = 90;
 const PLATFORM_HEADER_HEIGHT_PX = 60;
 const KPI_BLOCK_HEIGHT_PX = 140;
@@ -1345,7 +1345,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
           );
         }
 
-        // ── Generic social platforms (Facebook, Instagram, etc.) ──────────
+        // ── Generic social platforms (Facebook, Instagram, Twitter) ──────────
         const metrics = config.metrics.map((metric) => {
           const summary = selection.data.metricSummaries[metric.id];
           const current = summary?.current ?? 0;
@@ -1353,6 +1353,7 @@ export default function e({ selections, range }: ExportReportViewProps) {
           const delta = current - prev;
           return {
             label: metric.label,
+            size: metric.size,
             value: formatValue(current, metric.format),
             delta: formatDelta(delta, metric.format),
           };
@@ -1370,24 +1371,35 @@ export default function e({ selections, range }: ExportReportViewProps) {
 
                 <div className="text-3xl font-bold mb-6">{config.label}</div>
 
-                {/* Quantity cards — blue */}
+                {/* Small cards — blue */}
                 {chunk.includeMetrics ? (
                   <MetricSection title="Key Metrics" variant="blue">
-                    <MetricRow items={metrics} />
+                    <MetricRow
+                      items={metrics.filter(
+                        (m) => m.size === "small" || m.size === "both",
+                      )}
+                    />
                   </MetricSection>
                 ) : null}
 
-                {/* Charts — green */}
+                {/* Big cards — green */}
                 <MetricSection title="Charts & Trends" variant="green">
                   <div className="grid grid-cols-2 gap-4">
-                    {chunk.charts.map((chart) => (
-                      <ChartBlock
-                        key={`${config.platform}-${chart.metricId}`}
-                        title={chart.title ?? chart.metricId}
-                        data={selection.data.chartDataMap[chart.metricId] ?? []}
-                        dataKeys={["value"]}
-                      />
-                    ))}
+                    {chunk.charts
+                      .filter(
+                        (chart) =>
+                          chart.size === "big" || chart.size === "both",
+                      )
+                      .map((chart) => (
+                        <ChartBlock
+                          key={`${config.platform}-${chart.metricId}`}
+                          title={chart.title ?? chart.metricId}
+                          data={
+                            selection.data.chartDataMap[chart.metricId] ?? []
+                          }
+                          dataKeys={["value"]}
+                        />
+                      ))}
                   </div>
                 </MetricSection>
               </ExportPage>

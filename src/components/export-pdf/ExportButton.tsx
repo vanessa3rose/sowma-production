@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 
 import ExportModal from "./ExportModal";
-import type { Platform } from "../../config/chartConfigs";
+import type { Platform } from "../../config/platformConfigs";
 import type { DateRangeValue } from "../charts/DateButton";
 
 type Role = "ADMIN" | "USER" | "VIEWER";
