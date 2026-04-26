@@ -15,7 +15,6 @@ import {
   formatAbsoluteChange,
   getSmallCardSinceLabel,
 } from "../../utils/metricChange";
-import FacebookEmbed from "../../components/FacebookEmbed";
 
 import { getGlossaryDefinition, isGlossaryKey } from "../../data/glossarydata";
 import SocialMediaHeader from "../../components/SocialMediaHeader";
@@ -305,7 +304,11 @@ export default function FacebookPage() {
             title="Facebook Feed"
             chart={
               <div className="w-full overflow-x-hidden">
-                <FacebookEmbed />
+                <iframe
+                  src="https://widgets.sociablekit.com/facebook-page-posts/iframe/25670621"
+                  width="100%"
+                  className="h-[500px] xl:h-[300px]"
+                />
               </div>
             }
             displayMode="chart-only"
