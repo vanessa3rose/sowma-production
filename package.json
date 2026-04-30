@@ -64,7 +64,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@clerk/clerk-react": "^5.55.0",
+    "@clerk/clerk-react": "^5.61.4",
     "@clerk/clerk-sdk-node": "^5.1.6",
     "@clerk/express": "^1.7.70",
     "@emotion/react": "^11.14.0",

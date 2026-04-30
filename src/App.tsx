@@ -25,6 +25,7 @@ import { ProtectedRoute } from "./components/routes/ProtectedRoute";
 import { AdminRoute } from "./components/routes/AdminRoute";
 
 import { GlobalPageExportProvider } from "./components/export-pdf/GlobalPageExportProvider";
+import DocumentationPage from "./pages/DocumentationPage.tsx";
 
 const App = () => {
   const { isLoaded, isSignedIn } = useUser();
@@ -143,6 +144,10 @@ const App = () => {
             <Route
               path="/admin-rejection"
               component={() => <ProtectedRoute component={AdminRejection} />}
+            />
+            <Route
+              path="/documentationpage"
+              component={() => <AdminRoute component={DocumentationPage} />}
             />
 
             {/* Public */}
