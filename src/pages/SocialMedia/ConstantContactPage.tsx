@@ -12,7 +12,7 @@ import { fetchMetrics } from "../../utils/fetchMetrics";
 import SocialMediaHeader from "../../components/SocialMediaHeader";
 import { getGlossaryDefinition } from "../../data/glossarydata";
 
-/* ---------- types ---------- */
+/* -------- types ---------- */
 
 import {
   type LinePoint,
@@ -365,7 +365,12 @@ export default function ConstantContactPage() {
       rawSeries["email_total_opens"] ?? [],
       opensRange,
     );
-    return mergeByDate(unique, "uniqueOpens", total, "totalOpens");
+    return mergeByDate(total, "totalOpens", unique, "uniqueOpens").map(
+      (row) => ({
+        ...row,
+        totalOpens: row.totalOpens ?? 0,
+      }),
+    );
   }, [rawSeries, opensRange]);
 
   const opensBounds = getBounds([
@@ -383,7 +388,12 @@ export default function ConstantContactPage() {
       rawSeries["email_total_clicks"] ?? [],
       clicksRange,
     );
-    return mergeByDate(unique, "uniqueClicks", total, "totalClicks");
+    return mergeByDate(total, "totalClicks", unique, "uniqueClicks").map(
+      (row) => ({
+        ...row,
+        totalClicks: row.totalClicks ?? 0,
+      }),
+    );
   }, [rawSeries, clicksRange]);
 
   const clicksBounds = getBounds([
