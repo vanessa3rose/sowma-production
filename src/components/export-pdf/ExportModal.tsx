@@ -2,7 +2,7 @@ import { useState } from "react";
 import CheckboxTitle from "./CheckboxTitle";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import DateDropdown, { DateRangeValue } from "../charts/DateButton";
-import { Platform, PLATFORM_LABELS } from "../../config/chartConfigs";
+import { Platform, PLATFORM_LABELS } from "../../config/platformConfigs";
 import LoadingAnimation from "../LoadingAnimation";
 
 interface ModalProps {
@@ -23,7 +23,7 @@ const SELECT_ALL_LABEL = "SELECT ALL";
 
 /**
  * Platforms that currently support charts & exports.
- * If new platforms are added to CHART_CONFIGS later,
+ * If new platforms are added to PLATFORM_CONFIGS later,
  * they can be added here as well.
  */
 const EXPORTABLE_PLATFORMS: Platform[] = [
@@ -108,14 +108,18 @@ export default function ExportModal({
     );
 
     if (selectedPlatforms.length === 0) {
-      // Nothing selected: you could show a message here if desired.
       setIsLoading(false);
       return;
     }
 
-    await onExport(selectedPlatforms, range);
-    setIsLoading(false);
-    setIsOpen(false);
+    try {
+      await onExport(selectedPlatforms, range);
+      setIsOpen(false);
+    } catch (err) {
+      console.error("Export failed:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -132,7 +136,7 @@ export default function ExportModal({
               <DateDropdown
                 value={range}
                 onChange={setRange}
-                className="p-1 border-[#A1A1A1] border-[0.9px] rounded-[9px]"
+                className="p-1 border-neutral-400 border-[0.9px] rounded-[9px]"
               />
             </>
           ) : (

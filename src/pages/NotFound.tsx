@@ -5,7 +5,7 @@ const NotFoundPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white text-center px-6 font-poppins">
-      <p className="text-8xl font-bold text-[#4781C2] select-none">404</p>
+      <p className="text-8xl font-bold text-sowma-blue select-none">404</p>
       <h1 className="mt-2 text-2xl font-semibold text-gray-800">
         Page Not Found
       </h1>
@@ -21,7 +21,7 @@ const NotFoundPage = () => {
         </button>
         <button
           onClick={() => navigate("/")}
-          className="px-4 py-2 text-sm rounded-lg bg-[#4781C2] text-white hover:bg-gray-700 transition-colors"
+          className="px-4 py-2 text-sm rounded-lg bg-sowma-blue text-white hover:bg-gray-700 transition-colors"
         >
           Go Home
         </button>

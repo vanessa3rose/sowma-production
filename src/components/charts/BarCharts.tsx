@@ -110,16 +110,22 @@ const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
       </div>
     );
   };
+  {
+    console.log(data);
+  }
 
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
         layout="vertical"
         data={data}
-        margin={{ top: 20, right: 24, left: leftMargin, bottom: 20 }}
+        margin={{ top: 20, right: 24, left: leftMargin, bottom: 30 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis type="number" tick={{ fontFamily: "Poppins, sans-serif" }} />
+        <XAxis
+          type="number"
+          tick={{ fontFamily: "Poppins, sans-serif", fontSize: 12 }}
+        />
         <YAxis
           type="category"
           dataKey={xAxisKey}
@@ -130,7 +136,7 @@ const BarCharts = ({ data, dataKeys, xAxisKey }: BarGraphsProps) => {
         {/* Fix: wrap tooltip in any */}
         <Tooltip content={(props: any) => <CustomTooltip {...props} />} />
         {dataKeys.map((key) => (
-          <Bar key={key} dataKey={key} fill={COLORS.SOWMA_LIGHT_BLUE} />
+          <Bar key={key} dataKey={key} fill={COLORS.SOWMA_BLUE} />
         ))}
       </BarChart>
     </ResponsiveContainer>

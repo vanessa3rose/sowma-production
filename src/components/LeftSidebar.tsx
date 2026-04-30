@@ -52,6 +52,7 @@ const LeftSidebar = ({
   const isDashboardActive = location === "/" || location === "/homepage";
   const isGlossaryActive = location === "/glossary";
   const isAdminActive = location === "/admin";
+  const isDocumentationActive = location === "/documentationpage";
 
   // show Admin button for ADMIN users
 
@@ -105,8 +106,8 @@ const LeftSidebar = ({
           {!mobile && (
             <button
               onClick={() => onCollapse(!collapsed)}
-              className="w-6 h-6 border-2 border-[#A1A1A1] flex items-center justify-center 
-                         text-[#A1A1A1] hover:bg-gray-100 transition rounded-sm bg-white shrink-0"
+              className="w-6 h-6 border-2 border-neutral-400 flex items-center justify-center 
+                         text-neutral-400 hover:bg-gray-100 transition rounded-sm bg-white shrink-0"
             >
               <span
                 className={`transform transition-transform ${collapsed && !mobile ? "rotate-180" : ""}`}
@@ -132,7 +133,7 @@ const LeftSidebar = ({
                     ? "w-12 h-12 justify-center rounded-xl mx-auto"
                     : "w-full gap-x-4 p-2 rounded-xl"
                 }
-                ${isDashboardActive ? "bg-sowma-light-blue text-white shadow-md" : "hover:bg-gray-100 text-black"}
+                ${isDashboardActive ? "bg-sowma-blue text-white shadow-md" : "hover:bg-gray-100 text-black"}
               `}
             >
               <div className="w-8 h-8 flex items-center justify-center shrink-0">
@@ -168,7 +169,7 @@ const LeftSidebar = ({
                     ? "w-12 h-12 justify-center rounded-xl mx-auto"
                     : "w-full gap-x-4 p-2 rounded-xl"
                 }
-                ${isGlossaryActive ? "bg-sowma-light-blue text-white shadow-md" : "hover:bg-gray-100 text-black"}
+                ${isGlossaryActive ? "bg-sowma-blue text-white shadow-md" : "hover:bg-sowma-lighter-gray text-black"}
               `}
             >
               <div className="w-8 h-8 flex items-center justify-center shrink-0">
@@ -194,7 +195,48 @@ const LeftSidebar = ({
               )}
             </div>
           </Link>
+          {/* Documentation Page */}
+          {role === "ADMIN" && (
+            <Link href="/documentationpage" className="w-full">
+              <div
+                className={`flex flex-row items-center transition-all
+                  ${
+                    collapsed && !mobile
+                      ? "w-12 h-12 justify-center rounded-xl mx-auto"
+                      : "w-full gap-x-4 p-2 rounded-xl"
+                  }
+                  ${
+                    isDocumentationActive
+                      ? "bg-sowma-blue text-white shadow-md"
+                      : "hover:bg-sowma-lighter-gray text-black"
+                  }
+                `}
+              >
+                <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="size-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+                    />
+                  </svg>
+                </div>
 
+                {(!collapsed || mobile) && (
+                  <p className="font-poppins text-[18px] font-medium whitespace-nowrap">
+                    Documentation
+                  </p>
+                )}
+              </div>
+            </Link>
+          )}
           {/* Admin (ADMIN users only) */}
           {role === "ADMIN" && (
             <Link href="/admin" className="w-full">
@@ -207,8 +249,8 @@ const LeftSidebar = ({
                   }
                   ${
                     isAdminActive
-                      ? "bg-sowma-light-blue text-white shadow-md"
-                      : "hover:bg-gray-100 text-black"
+                      ? "bg-sowma-blue text-white shadow-md"
+                      : "hover:bg-sowma-lighter-gray text-black"
                   }
                 `}
               >
@@ -245,7 +287,7 @@ const LeftSidebar = ({
           {/* PLATFORMS */}
           <div className="flex flex-col space-y-1 w-full pt-2">
             {(!collapsed || mobile) && (
-              <h1 className="font-poppins font-medium text-[14px] text-[#A1A1A1] tracking-widest px-3 pb-1 uppercase">
+              <h1 className="font-poppins font-medium text-[14px] text-neutral-400 tracking-widest px-3 pb-1 uppercase">
                 Platforms
               </h1>
             )}
@@ -262,7 +304,7 @@ const LeftSidebar = ({
                   <div
                     className={`relative flex items-center rounded-xl transition-all
                       ${collapsed && !mobile ? "w-12 h-12 justify-center mx-auto" : "w-full gap-4 p-2"}
-                      ${isActive ? "bg-[#F0F0F0] text-black shadow-sm" : "hover:bg-gray-100"}
+                      ${isActive ? "bg-sowma-lighter-gray text-black shadow-sm" : "hover:bg-sowma-lightest-gray"}
                     `}
                   >
                     <div className="w-8 h-8 flex items-center justify-center shrink-0">
@@ -278,7 +320,7 @@ const LeftSidebar = ({
                       </p>
                     )}
                     {isActive && (
-                      <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-sowma-light-blue rounded-r-full" />
+                      <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-sowma-blue rounded-r-full" />
                     )}
                   </div>
                 </Link>
@@ -292,7 +334,7 @@ const LeftSidebar = ({
               onClick={handleSignOut}
               className={`flex items-center rounded-xl transition-all
                 ${collapsed && !mobile ? "w-12 h-12 justify-center" : "w-full gap-3 px-3 py-2"}
-                text-[#626262] hover:text-red-700 hover:bg-gray-50`}
+                text-gray-500 hover:text-sowma-red hover:bg-gray-50`}
             >
               <div className="w-8 h-8 flex items-center justify-center shrink-0">
                 <svg

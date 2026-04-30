@@ -181,8 +181,8 @@ export default function Waitlist() {
                     <button
                       className={`relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base transition ${
                         isRowBusy && !isApproveBusy
-                          ? "bg-[#9dbada] text-white/80"
-                          : "bg-sowma-light-blue"
+                          ? "bg-sowma-lightest-blue text-white/80"
+                          : "bg-sowma-blue"
                       } disabled:opacity-100`}
                       onClick={() =>
                         handleWaitlistAction(user.email, "approve")
@@ -201,8 +201,8 @@ export default function Waitlist() {
                     <button
                       className={`relative flex w-[96px] md:w-[100px] justify-center items-center rounded-full text-white py-1 lg:py-2 px-4 lg:px-6 text-sm md:text-base transition ${
                         isRowBusy && !isDenyBusy
-                          ? "bg-[#c88f90] text-white/80"
-                          : "bg-[#ad3a3b]"
+                          ? "bg-sowma-light-red text-white/80"
+                          : "bg-sowma-red"
                       } disabled:opacity-100`}
                       onClick={() => handleWaitlistAction(user.email, "deny")}
                       disabled={isRowBusy}

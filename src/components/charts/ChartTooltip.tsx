@@ -1,9 +1,11 @@
 import React from "react";
+import { COLORS } from "../../data/colors.js";
 
 type SeriesMeta = {
   label?: string;
   color?: string;
   formatter?: (value: unknown) => React.ReactNode;
+  description?: React.ReactNode;
   hidden?: boolean;
 };
 
@@ -127,6 +129,7 @@ export default function ChartTooltip(props: ChartTooltipProps) {
         displayName,
         formattedValue,
         color,
+        description: meta?.description,
         isMissing: isEmptyValue(rawValue),
       };
     })
@@ -135,6 +138,7 @@ export default function ChartTooltip(props: ChartTooltipProps) {
     displayName: string;
     formattedValue: React.ReactNode;
     color?: string;
+    description?: React.ReactNode;
     isMissing: boolean;
   }>;
 
@@ -174,14 +178,21 @@ export default function ChartTooltip(props: ChartTooltipProps) {
       <div className="flex flex-col gap-1.5">
         {rows.map((r) => (
           <div key={r.key} className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2">
+            <div className="flex min-w-0 items-start gap-2">
               <span
-                className="h-2.5 w-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: r.color ?? "#FFA9D0" }}
+                className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: r.color ?? COLORS.SOWMA_MEDIUM_GRAY }}
               />
-              <span className="truncate text-xs text-gray-700">
-                {r.displayName}
-              </span>
+              <div className="min-w-0">
+                <div className="truncate text-xs text-gray-700">
+                  {r.displayName}
+                </div>
+                {r.description ? (
+                  <div className="mt-0.5 whitespace-pre-line text-[11px] leading-tight text-gray-500">
+                    {r.description}
+                  </div>
+                ) : null}
+              </div>
             </div>
             <span
               className={[

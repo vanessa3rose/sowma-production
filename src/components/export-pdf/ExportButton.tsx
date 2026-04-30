@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 
 import ExportModal from "./ExportModal";
-import type { Platform } from "../../config/chartConfigs";
+import type { Platform } from "../../config/platformConfigs";
 import type { DateRangeValue } from "../charts/DateButton";
 
 type Role = "ADMIN" | "USER" | "VIEWER";
@@ -35,7 +35,7 @@ export default function ExportButton({ onExport }: ExportButtonProps) {
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="font-poppins text-lg text-white py-2 px-4 gap-2 justify-center items-center inline-flex rounded-[15px] border-[1px] border-solid h-[40px] w-[96px] bg-sowma-light-blue"
+        className="font-poppins text-lg text-white py-2 px-4 gap-2 justify-center items-center inline-flex rounded-[15px] border-[1px] border-solid h-[40px] w-[96px] bg-sowma-blue"
       >
         <span>Export</span>
       </button>

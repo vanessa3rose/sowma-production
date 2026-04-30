@@ -26,7 +26,7 @@ export default function AcceptInvitePage() {
             >
               Welcome to the
               <br />
-              <span className="font-bold text-sowma-light-blue whitespace-normal">
+              <span className="font-bold text-sowma-blue whitespace-normal">
                 SOWMA Analytics Dashboard
               </span>
             </h1>
@@ -43,7 +43,7 @@ export default function AcceptInvitePage() {
                 <button
                   type="button"
                   onClick={handleSignOutAndContinue}
-                  className="w-full px-6 py-3 bg-sowma-light-blue text-white font-medium rounded-lg hover:bg-opacity-90 transition-all"
+                  className="w-full px-6 py-3 bg-sowma-blue text-white font-medium rounded-lg hover:bg-opacity-90 transition-all"
                 >
                   Sign out and continue
                 </button>

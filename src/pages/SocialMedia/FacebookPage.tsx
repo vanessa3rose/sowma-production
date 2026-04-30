@@ -119,39 +119,7 @@ function formatPercentChange(summary?: MetricSummary | null): string {
   return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
 }
 
-function buildPostingActivity(points: LinePoint[]): Map<string, number> {
-  if (points.length < 2) return new Map();
-
-  const activity = new Map<string, number>();
-
-  for (let i = 1; i < points.length; i++) {
-    const delta = points[i].value - points[i - 1].value;
-    activity.set(points[i].date, Math.max(0, delta));
-  }
-
-  return activity;
-}
-
-function calculateWeeksNeeded(year: number, month: number): number {
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const totalDays = lastDay.getDate();
-  const paddedDays = firstDay.getDay() + totalDays;
-  return Math.ceil(paddedDays / 7);
-}
-
-function buildRecentPosts(points: LinePoint[], count = 6) {
-  const activity = buildPostingActivity(points);
-
-  return Array.from(activity.entries())
-    .filter(([, value]) => value > 0)
-    .sort((a, b) => b[0].localeCompare(a[0]))
-    .slice(0, count)
-    .map(([date, value]) => ({ date, value }));
-}
-
-/* ---------- component ---------- */
-
+// ── Page ────────────────────────────────────────────────────────────────────
 export default function FacebookPage() {
   const [rawSeries, setRawSeries] =
     useState<Record<MetricKey, LinePoint[]>>(INITIAL_SERIES);
@@ -183,6 +151,14 @@ export default function FacebookPage() {
     return -monthsDiff;
   }, [rawSeries.posts]);
 
+  function calculateWeeksNeeded(year: number, month: number): number {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const totalDays = lastDay.getDate();
+    const paddedDays = firstDay.getDay() + totalDays;
+    return Math.ceil(paddedDays / 7);
+  }
+
   const weeksNeeded = useMemo(() => {
     const viewDate = new Date(
       today.getFullYear(),
@@ -193,7 +169,7 @@ export default function FacebookPage() {
   }, [calendarOffset]);
 
   const sharedCardHeight = isXl
-    ? 360 + Math.max(0, weeksNeeded - 5) * 60
+    ? 400 + Math.max(0, weeksNeeded - 5) * 60
     : undefined;
 
   useEffect(() => {
@@ -263,7 +239,6 @@ export default function FacebookPage() {
   ];
 
   const allPostsPoints = rawSeries.posts ?? [];
-  const recentPosts = buildRecentPosts(computed.posts?.filtered ?? []);
 
   return (
     <div className="w-full min-h-screen bg-white flex flex-col gap-4 px-4 pb-2 pt-4 lg:pt-6">
@@ -273,7 +248,7 @@ export default function FacebookPage() {
         Link={"https://www.facebook.com/schoolonwheels"}
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-[2.1fr_1.3fr_1fr] gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-[2.1fr_1.3fr] gap-4">
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {topSmallCards.map(({ title, key }, idx) => {
@@ -298,6 +273,7 @@ export default function FacebookPage() {
 
           <BigCard
             title="Followers"
+            data={computed.followers.filtered}
             subtitle={
               <DateDropdown
                 value={ranges.followers}
@@ -312,24 +288,35 @@ export default function FacebookPage() {
             metricLabel="followers"
             metricChange={formatPercentChange(computed.followers?.summary)}
             chart={
-              computed.followers?.filtered.length ? (
-                <LineCharts
-                  data={computed.followers.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  labels={{ value: "Followers" }}
-                  showArea
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
+              <LineCharts
+                data={computed.followers.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                labels={{ value: "Followers" }}
+                showArea
+              />
             }
             displayMode="both"
+            className="h-[360px]"
+          />
+
+          <BigCard
+            title="Facebook Feed"
+            chart={
+              <div className="w-full overflow-x-hidden">
+                <iframe
+                  src="https://widgets.sociablekit.com/facebook-page-posts/iframe/25670621"
+                  width="100%"
+                  className="h-[500px] xl:h-[300px]"
+                />
+              </div>
+            }
+            displayMode="chart-only"
             className=""
             style={
-              sharedCardHeight ? { height: `${sharedCardHeight}px` } : undefined
+              sharedCardHeight
+                ? { height: `${sharedCardHeight}px` }
+                : { minHeight: 600 }
             }
           />
         </div>
@@ -337,6 +324,7 @@ export default function FacebookPage() {
         <div className="flex flex-col gap-4">
           <BigCard
             title="Views"
+            data={computed.views.filtered}
             subtitle={
               <DateDropdown
                 value={ranges.views}
@@ -349,19 +337,42 @@ export default function FacebookPage() {
             metricLabel="from last week"
             metricChange={formatPercentChange(computed.views?.summary)}
             chart={
-              computed.views?.filtered.length ? (
-                <LineCharts
-                  data={computed.views.filtered}
-                  xAxisKey="date"
-                  dataKeys={["value"]}
-                  labels={{ value: "Views" }}
-                  showArea
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  No data available
-                </div>
-              )
+              <LineCharts
+                data={computed.views.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                labels={{ value: "Views" }}
+                showArea
+              />
+            }
+            displayMode="both"
+            className="h-[360px]"
+          />
+
+          <BigCard
+            title="Video Views"
+            data={computed.videoViews.filtered}
+            titleTooltip={getGlossaryDefinition("videoViews")}
+            subtitle={
+              <DateDropdown
+                value={ranges.videoViews}
+                onChange={(r) =>
+                  setRanges((prev) => ({ ...prev, videoViews: r }))
+                }
+                minDate={computed.videoViews?.bounds.min}
+                maxDate={computed.videoViews?.bounds.max}
+              />
+            }
+            metricValue={computed.videoViews?.summary.current ?? 0}
+            metricLabel="video views"
+            metricChange={formatPercentChange(computed.videoViews?.summary)}
+            chart={
+              <LineCharts
+                data={computed.videoViews.filtered}
+                xAxisKey="date"
+                dataKeys={["value"]}
+                showArea
+              />
             }
             displayMode="both"
             className="h-[360px]"
@@ -372,18 +383,12 @@ export default function FacebookPage() {
             titleTooltip={getGlossaryDefinition("daysPosted")}
             subtitle={<HeatmapLegend />}
             chart={
-              allPostsPoints.length ? (
-                <CalendarHeatmap
-                  points={allPostsPoints}
-                  offset={calendarOffset}
-                  onOffsetChange={setCalendarOffset}
-                  minOffset={minCalendarOffset}
-                />
-              ) : (
-                <div className="flex items-center justify-center text-gray-500">
-                  No post activity data
-                </div>
-              )
+              <CalendarHeatmap
+                points={allPostsPoints}
+                offset={calendarOffset}
+                onOffsetChange={setCalendarOffset}
+                minOffset={minCalendarOffset}
+              />
             }
             displayMode="chart-only"
             className=""
@@ -392,70 +397,6 @@ export default function FacebookPage() {
             }
           />
         </div>
-
-        <BigCard
-          title="Recent Posts"
-          titleTooltip={getGlossaryDefinition("recentPosts")}
-          chart={
-            recentPosts.length ? (
-              <div className="w-full flex flex-col gap-2 pt-2">
-                {recentPosts.map((post) => (
-                  <div
-                    key={post.date}
-                    className="rounded-lg border border-neutral-200 p-3 font-poppins"
-                  >
-                    <p className="font-semibold text-sm">{post.date}</p>
-                    <p className="text-sm text-gray-600">
-                      {post.value} new post(s)
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                No recent post data
-              </div>
-            )
-          }
-          displayMode="chart-only"
-          className="h-full"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <BigCard
-          title="Video Views"
-          titleTooltip={getGlossaryDefinition("videoViews")}
-          subtitle={
-            <DateDropdown
-              value={ranges.videoViews}
-              onChange={(r) =>
-                setRanges((prev) => ({ ...prev, videoViews: r }))
-              }
-              minDate={computed.videoViews?.bounds.min}
-              maxDate={computed.videoViews?.bounds.max}
-            />
-          }
-          metricValue={computed.videoViews?.summary.current ?? 0}
-          metricLabel="video views"
-          metricChange={formatPercentChange(computed.videoViews?.summary)}
-          chart={
-            computed.videoViews?.filtered.length ? (
-              <LineCharts
-                data={computed.videoViews.filtered}
-                xAxisKey="date"
-                dataKeys={["value"]}
-                showArea
-              />
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                No data available
-              </div>
-            )
-          }
-          displayMode="both"
-          className="h-[360px]"
-        />
       </div>
     </div>
   );

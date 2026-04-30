@@ -3,11 +3,11 @@ import APIData from "../components/admin-tabs/APIData";
 import UsersRoles from "../components/admin-tabs/UsersRoles";
 import Waitlist from "../components/admin-tabs/Waitlist";
 
-const tabs = ["Users and Roles", "API and Data", "Waitlist"] as const;
+const tabs = ["API and Data", "Users and Roles", "Waitlist"] as const;
 type Tab = (typeof tabs)[number];
 
 export default function AdminPage() {
-  const [selectedTab, setSelectedTab] = useState<Tab>("Users and Roles");
+  const [selectedTab, setSelectedTab] = useState<Tab>("API and Data");
 
   const tabContent: Record<Tab, JSX.Element> = {
     "Users and Roles": <UsersRoles />,
@@ -53,7 +53,7 @@ export default function AdminPage() {
                 onClick={() => setSelectedTab(tab)}
                 className={`font-poppins font-bold leading-6 transition-colors lg:px-5 py-1.5 rounded-full px-8 lg:text-[24px] text-[20px] ${
                   isSelected
-                    ? "bg-sowma-light-blue text-white"
+                    ? "bg-sowma-blue text-white"
                     : "text-gray-500 hover:text-gray-600"
                 }`}
               >
@@ -62,7 +62,7 @@ export default function AdminPage() {
             );
           })}
         </div>
-        <div className="mt-2 h-[2px] bg-sowma-light-blue" />
+        <div className="mt-2 h-[2px] bg-sowma-blue" />
       </div>
 
       {/* ROWS */}

@@ -114,11 +114,12 @@ export default function TwitterPage() {
         Link={"https://x.com/sowma"}
       />
 
-      <div className="flex flex-col gap-4 lg:h-full">
-        <div className="w-full flex flex-col lg:flex-row gap-4">
+      <div className="flex lg:flex-row flex-col gap-4 lg:h-full">
+        <div className="xl:w-3/5 lg:w-1/2 w-full flex flex-col lg:flex-row gap-4">
           <div className="flex flex-col gap-4 w-full">
             <BigCard
               title="Tweets"
+              data={tweetsOverTime}
               subtitle={
                 <DateDropdown
                   value={tweetsRange}
@@ -145,6 +146,7 @@ export default function TwitterPage() {
             <div className="flex flex-col gap-4 w-full">
               <BigCard
                 title="Followers"
+                data={followersOverTime}
                 subtitle={
                   <DateDropdown
                     value={followersRange}
@@ -169,6 +171,23 @@ export default function TwitterPage() {
               />
             </div>
           </div>
+        </div>
+
+        <div className="xl:w-2/5 lg:w-1/2 w-full">
+          <BigCard
+            title="Twitter Feed"
+            chart={
+              <div className="w-full overflow-x-hidden">
+                <iframe
+                  src="https://widgets.sociablekit.com/twitter-feed/iframe/25670948"
+                  width="100%"
+                  className="h-[650px]"
+                />
+              </div>
+            }
+            displayMode="chart-only"
+            className="h-[736px]"
+          />
         </div>
       </div>
     </div>
