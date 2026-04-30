@@ -120,15 +120,24 @@ async function countTrackingEvents(
 
   while (url) {
     const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
     });
     if (!res.ok) {
-      throw new Error(`[CC] tracking/${type} failed: ${res.status} ${await res.text()}`);
+      throw new Error(
+        `[CC] tracking/${type} failed: ${res.status} ${await res.text()}`,
+      );
     }
     const data = (await res.json()) as TrackingEventsResponse;
     count += data.tracking_activities?.length ?? 0;
     const next = data._links?.next?.href;
-    url = next ? (next.startsWith("http") ? next : `https://api.cc.email${next}`) : undefined;
+    url = next
+      ? next.startsWith("http")
+        ? next
+        : `https://api.cc.email${next}`
+      : undefined;
   }
 
   return count;
