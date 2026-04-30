@@ -147,7 +147,7 @@ const App = () => {
             />
             <Route
               path="/documentationpage"
-              component={() => <ProtectedRoute component={DocumentationPage} />}
+              component={() => <AdminRoute component={DocumentationPage} />}
             />
 
             {/* Public */}

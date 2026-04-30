@@ -1,10 +1,13 @@
-import IMG1 from "../assets/IMG1.png";
-import IMG2 from "../assets/IMG2.png";
-import IMG3 from "../assets/IMG3.png";
-import IMG4 from "../assets/IMG4.png";
-import IMG5 from "../assets/IMG5.png";
-import IMG6 from "../assets/IMG6.png";
-import IMG7 from "../assets/IMG7.png";
+import CLERK_IMG from "../assets/clerk-info.png";
+import NEON_IMG from "../assets/neon-info.png";
+import ROLES_IMG from "../assets/users-roles.png";
+import WAITLIST_IMG from "../assets/waitlist.png";
+import APPROVE_IMG from "../assets/approve-user.png";
+import UPLOAD_IMG from "../assets/data-upload.png";
+import MANUAL_IMG from "../assets/manual-data.png";
+import DETAILS_IMG from "../assets/manual-data-detailed.png";
+import EXPORT_IMG from "../assets/export.png";
+import SIDEBAR_IMG from "../assets/sidebar.png";
 
 export default function DocumentationPage() {
   return (
@@ -91,21 +94,31 @@ export default function DocumentationPage() {
             <ol className="list-decimal ml-6 space-y-3">
               <li>
                 The code for the website lives on a GitHub repository linked{" "}
-                <a href="#" className="text-blue-500 underline">
+                <a
+                  href="https://github.com/vanessa3rose/sowma-production"
+                  className="text-blue-500 underline"
+                >
                   here
                 </a>
-                . Email or text Lakshita and Vanessa if you have trouble
-                accessing it.
+                , and{" "}
+                <a
+                  href="mailto:jumbocodesowma@gmail.com"
+                  className="text-blue-500 underline"
+                >
+                  jumbocodesowma@gmail.com
+                </a>{" "}
+                has been added as a collaborator. To log in as that user, simply
+                click the sign in with Google option.
               </li>
 
               <li>
                 The website is hosted on Vercel at{" "}
                 <a
-                  href="https://sowma-production.vercel.app"
+                  href="https://pulse.sowma.org"
                   target="_blank"
                   className="text-blue-500 underline"
                 >
-                  sowma-production.vercel.app
+                  https://pulse.sowma.org
                 </a>
                 . Login information as an admin is described{" "}
                 <a href="#admin" className="text-blue-500 underline">
@@ -115,22 +128,26 @@ export default function DocumentationPage() {
               </li>
 
               <li>
-                We use Clerk{" "}
+                We use{" "}
                 <a
-                  href="https://clerk.com"
+                  href="https://dashboard.clerk.com/apps"
                   target="_blank"
                   className="text-blue-500 underline"
                 >
-                  (what site should be hyperlinked to clerk?)
+                  Clerk
                 </a>{" "}
-                for user sign in and up. The email is:{" "}
+                for user sign up / log in. To access the project, sign in
+                through Google with{" "}
                 <a
                   href="mailto:jumbocodesowma@gmail.com"
                   className="text-blue-500 underline"
                 >
                   jumbocodesowma@gmail.com
                 </a>{" "}
-                password: @nspirEcha8ge
+                , and navigate to the SOWMA workspace:
+                <div className="my-4">
+                  <img src={CLERK_IMG} className="w-full rounded-lg border" />
+                </div>
               </li>
 
               <li>
@@ -142,8 +159,17 @@ export default function DocumentationPage() {
                 >
                   Neon
                 </a>{" "}
-                to test our database, if you would like access, feel free to
-                email Lakshita and Vanessa explaining why.
+                to test our database. This project has also been shared with the{" "}
+                <a
+                  href="mailto:jumbocodesowma@gmail.com"
+                  className="text-blue-500 underline"
+                >
+                  jumbocodesowma@gmail.com
+                </a>{" "}
+                Google account, which you can navigate to as follows:
+                <div className="my-4">
+                  <img src={NEON_IMG} className="w-full rounded-lg border" />
+                </div>
               </li>
             </ol>
           </div>
@@ -166,7 +192,7 @@ export default function DocumentationPage() {
               Users and Roles Tab
             </p>
             <div className="my-4">
-              <img src={IMG1} className="w-full rounded-lg border" />
+              <img src={ROLES_IMG} className="w-full rounded-lg border" />
             </div>
             <ul className="list-disc ml-6">
               <li>View and edit users and their roles on this page.</li>
@@ -180,28 +206,45 @@ export default function DocumentationPage() {
               Api and Data Tab
             </p>
             <div className="my-3">
-              <img src={IMG2} className="w-full rounded-lg border" />
+              <img src={UPLOAD_IMG} className="w-full rounded-lg border" />
             </div>
             <li>
               LinkedIn Data may be downloaded through (Content → Export → ….)
             </li>
-            <li>Attach the spreadsheet downloaded here to upload the data.</li>
+            <li>
+              "How Did You Hear About Us" is the tally generated by your
+              database report.
+            </li>
+            <li>
+              Attach the spreadsheet downloaded from either LinkedIn or the
+              report and upload the data accordingly.
+            </li>
 
             <div className="my-3">
-              <img src={IMG3} className="w-full rounded-lg border" />
+              <img src={MANUAL_IMG} className="w-full rounded-lg border" />
             </div>
             <ul className="list-disc ml-6">
               <li>
-                To edit data on a platform from a specific day, first choose the
+                To add data to a platform from a specific day, first choose the
                 platform. Then choose the name of the metric that must be
                 changed. Lastly, type in the correct metric that corresponds to
-                the correct date, then submit.
+                the correct date, and submit.
+              </li>
+              <div className="my-3">
+                <img src={DETAILS_IMG} className="w-full rounded-lg border" />
+              </div>
+              <li>
+                As shown above, some metrics require additional information,
+                like Google Analytics' sessions. For such metrics, examples of
+                attribute values that correspond to that metric can be displayed
+                by clicking "show examples" and hidden by clicking "hide
+                examples."
               </li>
             </ul>
 
             <p className="font-medium mt-4 text-center italic"> Waitlist Tab</p>
             <div className="my-3">
-              <img src={IMG4} className="w-full rounded-lg border" />
+              <img src={WAITLIST_IMG} className="w-full rounded-lg border" />
             </div>
             <ul className="list-disc ml-6">
               <li>On the Waitlist tab, approve or deny users.</li>
@@ -215,7 +258,7 @@ export default function DocumentationPage() {
               </li>
             </ul>
             <div className="my-3">
-              <img src={IMG5} className="w-full rounded-lg border" />
+              <img src={APPROVE_IMG} className="w-full rounded-lg border" />
             </div>
 
             {/* Glossary */}
@@ -249,7 +292,7 @@ export default function DocumentationPage() {
               </p>
             </div>
             <div className="my-4">
-              <img src={IMG6} className="w-full rounded-lg border" />
+              <img src={SIDEBAR_IMG} className="w-full rounded-lg border" />
             </div>
 
             <p className="font-medium mt-4 text-center italic">
@@ -264,7 +307,7 @@ export default function DocumentationPage() {
               range or presets.
             </p>
             <div className="my-4">
-              <img src={IMG7} className="w-full rounded-lg border" />
+              <img src={EXPORT_IMG} className="w-full rounded-lg border" />
             </div>
           </div>
         </div>
