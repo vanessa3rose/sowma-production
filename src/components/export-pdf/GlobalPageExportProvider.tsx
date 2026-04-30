@@ -9,10 +9,10 @@ import type { DateRangeValue } from "../charts/DateButton";
 import { fetchGoogleExportBundle } from "../../../scripts/export-pdf/fetchExportData.js";
 import { fetchSocialExportBundle } from "../../../scripts/export-pdf/fetchSocialExportBundle.js";
 
-import { Platform } from "../../config/chartConfigs";
+import { Platform } from "../../config/platformConfigs.js";
 import { usePDFExporter } from "../../hooks/usePDFExporter";
 
-interface ExportContextValue {
+export interface ExportContextValue {
   exportByPlatforms: (
     platforms: Platform[],
     range: DateRangeValue,
@@ -36,7 +36,7 @@ export function GlobalPageExportProvider({
 
     for (const platform of platforms) {
       if (platform === "google") {
-        // ✅ leave GA path exactly as-is
+        // leave GA path exactly as-is
         const bundle: GoogleAnalyticsExportBundle =
           await fetchGoogleExportBundle(range);
 
@@ -45,7 +45,7 @@ export function GlobalPageExportProvider({
           data: bundle,
         });
       } else {
-        // ⭐ NEW: independent social export path
+        // independent social export path
         const bundle: SocialExportBundle = await fetchSocialExportBundle(
           platform,
           range,

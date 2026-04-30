@@ -2,7 +2,7 @@ import { useState } from "react";
 import CheckboxTitle from "./CheckboxTitle";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import DateDropdown, { DateRangeValue } from "../charts/DateButton";
-import { Platform, PLATFORM_LABELS } from "../../config/chartConfigs";
+import { Platform, PLATFORM_LABELS } from "../../config/platformConfigs";
 import LoadingAnimation from "../LoadingAnimation";
 
 interface ModalProps {
@@ -23,7 +23,7 @@ const SELECT_ALL_LABEL = "SELECT ALL";
 
 /**
  * Platforms that currently support charts & exports.
- * If new platforms are added to CHART_CONFIGS later,
+ * If new platforms are added to PLATFORM_CONFIGS later,
  * they can be added here as well.
  */
 const EXPORTABLE_PLATFORMS: Platform[] = [

@@ -1,5 +1,5 @@
 import type { SocialExportBundle } from "../../src/types/exportTypes";
-import { type Platform } from "../../src/config/chartConfigs";
+import { type Platform } from "../../src/config/platformConfigs";
 import { fetchMetrics, SocialMediaMetric } from "../../src/utils/fetchMetrics";
 import {
   computeRangeDates,

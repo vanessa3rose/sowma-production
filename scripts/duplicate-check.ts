@@ -6,12 +6,13 @@ const prisma = new PrismaClient();
 async function findDuplicateMetrics() {
   console.log("[DUPLICATE CHECK] Starting...");
 
-  // Step 1: Fetch all metrics grouped by socialMediaId, metricDate, metricName
+  // fetch all metrics grouped by socialMediaId, metricDate, metricName
   const duplicates = await prisma.$queryRaw<
     {
       socialMediaId: string;
       metricName: string;
       metricDate: Date;
+      breakdownValue: string | null;
       count: number;
     }[]
   >`
@@ -22,6 +23,7 @@ async function findDuplicateMetrics() {
       "breakdownValue",
       COUNT(*) as count
     FROM "SocialMediaMetrics"
+    WHERE "metricDate" IS NOT NULL
     GROUP BY "socialMediaId", "metricName", "metricDate", "breakdownValue"
     HAVING COUNT(*) > 1
     ORDER BY "metricDate" DESC, "socialMediaId", "metricName", "breakdownValue"
@@ -37,8 +39,10 @@ async function findDuplicateMetrics() {
   );
 
   duplicates.forEach((dup: any) => {
+    const dateStr = dup.metricDate ? dup.metricDate.toISOString() : "NULL";
+
     console.log(
-      `SocialMediaId: ${dup.socialMediaId}, Metric: ${dup.metricName}, Date: ${dup.metricDate.toISOString()}, Count: ${dup.count}`,
+      `SocialMediaId: ${dup.socialMediaId}, Metric: ${dup.metricName}, Date: ${dateStr}, Count: ${dup.count}`,
     );
   });
 }

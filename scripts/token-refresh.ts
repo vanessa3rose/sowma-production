@@ -14,8 +14,6 @@ export type Provider =
   | "FACEBOOK"
   | "TWITTER"
   | "CONSTANT_CONTACT";
-// | "LINKEDIN"
-// | "TIKTOK";
 
 /* -------------------------------------------------
    Refresh strategy per provider
